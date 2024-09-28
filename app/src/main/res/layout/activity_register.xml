@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegisterActivity"
+    android:orientation="vertical"
+    android:background="@drawable/screenbackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="@dimen/_110sdp"
+            android:layout_height="@dimen/_110sdp"
+            android:src="@mipmap/applogo_foreground"
+            android:layout_marginTop="@dimen/_40sdp"
+            android:layout_marginLeft="@dimen/_95sdp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_45sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:text="Level Up!"
+            android:textSize="@dimen/_25ssp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:text="Join ArenaX Now!"
+            android:textSize="@dimen/_25ssp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            />
+
+
+        <EditText
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_marginRight="@dimen/_17sdp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:textSize="@dimen/_13ssp"
+            android:background="@drawable/inputholder"
+            android:hint="Email"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hinttextColor"/>
+
+        <EditText
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_marginRight="@dimen/_17sdp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:textSize="@dimen/_13ssp"
+            android:background="@drawable/inputholder"
+            android:hint="Password"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hinttextColor"/>
+
+        <EditText
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_marginRight="@dimen/_17sdp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:textSize="@dimen/_13ssp"
+            android:background="@drawable/inputholder"
+            android:hint="Re-enter password"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hinttextColor"/>
+
+
+        <Button
+            android:id="@+id/next_button"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_marginRight="@dimen/_17sdp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_35sdp"
+            android:background="@drawable/buttonholder"
+            android:text="Next"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_13ssp"
+            />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_50sdp"
+        android:layout_marginTop="0dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginLeft="@dimen/_80sdp"
+            android:text="Already have an account?"
+            android:textColor="@color/Silver"
+            android:textSize="@dimen/_12ssp"/>
+
+        <TextView
+            android:id="@+id/login_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginLeft="@dimen/_5sdp"
+            android:layout_marginRight="@dimen/_20sdp"
+            android:text="SignIn"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_12ssp"/>
+    </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>
