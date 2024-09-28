@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PersonalInfoActivity"
+    android:orientation="vertical"
+    android:background="@drawable/screenbackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="@dimen/_110sdp"
+            android:layout_height="@dimen/_110sdp"
+            android:src="@mipmap/applogo_foreground"
+            android:layout_marginTop="@dimen/_40sdp"
+            android:layout_marginLeft="@dimen/_95sdp"/>
+
+
+        <EditText
+            android:layout_marginTop="@dimen/_50sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_marginRight="@dimen/_17sdp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:textSize="@dimen/_13ssp"
+            android:background="@drawable/inputholder"
+            android:hint="Full Name"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hinttextColor"/>
+
+
+        <EditText
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_marginRight="@dimen/_17sdp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:textSize="@dimen/_13ssp"
+            android:background="@drawable/inputholder"
+            android:hint="Date of Birth (DD/MM/YYYY)"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hinttextColor"/>
+
+        <EditText
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_marginRight="@dimen/_17sdp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:textSize="@dimen/_13ssp"
+            android:background="@drawable/inputholder"
+            android:hint="Username"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hinttextColor"/>
+
+
+        <EditText
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_marginRight="@dimen/_17sdp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:textSize="@dimen/_13ssp"
+            android:background="@drawable/inputholder"
+            android:hint="Gamertag"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hinttextColor"/>
+
+        <Button
+            android:id="@+id/register_button"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_marginRight="@dimen/_17sdp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_35sdp"
+            android:background="@drawable/buttonholder"
+            android:text="Sign Up"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_13ssp"/>
+
+
+    </LinearLayout>
+
+</LinearLayout>

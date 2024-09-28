@@ -1,5 +1,5 @@
 [versions]
-agp = "8.5.0"
+agp = "8.6.1"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -13,7 +13,6 @@ constraintlayout = "2.1.4"
 [libraries]
 mpandroidchart = "com.github.PhilJay:MPAndroidChart:v3.1.0"
 graphview = "com.jjoe64:graphview:4.2.2"
-
 sdp = { group = "com.intuit.sdp", name = "sdp-android", version = "1.0.6" }
 ssp = { group = "com.intuit.ssp", name = "ssp-android", version = "1.0.6" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
