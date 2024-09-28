@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="primaryColor">#FF4500</color> <!-- Navy Blue -->
+    <color name="secondaryColor">#F5F5F5</color> <!-- White -->
+    <color name="accentColor">#A9A9A9</color> <!-- Light Grey -->
+    <color name="backgroundColor">#FFFFFF</color> <!-- Light Off White -->
+    <color name="textColor">#000000</color> <!-- Black -->
 </resources>

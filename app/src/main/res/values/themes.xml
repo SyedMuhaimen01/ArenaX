@@ -2,7 +2,11 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.ArenaX" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorOnPrimary">@color/secondaryColor</item>
+        <item name="colorSecondary">@color/accentColor</item>
+        <item name="android:windowBackground">@color/backgroundColor</item>
+        <item name="android:textColorPrimary">@color/textColor</item>
     </style>
 
     <style name="Theme.ArenaX" parent="Base.Theme.ArenaX" />
