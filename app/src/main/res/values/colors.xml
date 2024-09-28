@@ -2,4 +2,13 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="primaryColor">#FFFF4500</color>
+    <color name="secondaryColor">#FFF5F5F5</color>
+    <color name="accentColor">#FFA9A9A9</color>
+    <color name="backgroundColor">#FFFFFFFF</color>
+    <color name="textColor">#FF000000</color>
+    <color name="hinttextColor">#FF808080</color>
+    <color name="fieldOutline">#FF000080</color>
+    <color name="LogoBackground"> #FF111B33</color>
+    <color name="Silver">#FFC0C0C0</color>
 </resources>
