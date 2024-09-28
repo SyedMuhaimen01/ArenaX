@@ -44,7 +44,13 @@ dependencies {
     implementation(libs.ssp)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.sdp)
+    implementation(libs.ssp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.mpandroidchart)
+    implementation (libs.graphview)
+
+
 }
