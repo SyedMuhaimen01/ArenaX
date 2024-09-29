@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RegisterActivity"
+    tools:context=".LoginSignUp.RegisterActivity"
     android:orientation="vertical"
     android:background="@drawable/screenbackground">
 
@@ -42,6 +42,7 @@
 
 
         <EditText
+            android:id="@+id/emailEditText"
             android:layout_marginTop="@dimen/_10sdp"
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"
@@ -54,6 +55,7 @@
             android:textColorHint="@color/hinttextColor"/>
 
         <EditText
+            android:id="@+id/passwordEditText"
             android:layout_marginTop="@dimen/_5sdp"
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"
@@ -62,10 +64,12 @@
             android:textSize="@dimen/_13ssp"
             android:background="@drawable/inputholder"
             android:hint="Password"
+            android:inputType="textPassword"
             android:textColor="@color/textColor"
             android:textColorHint="@color/hinttextColor"/>
 
         <EditText
+            android:id="@+id/reEnterPasswordEditText"
             android:layout_marginTop="@dimen/_5sdp"
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"
@@ -73,13 +77,28 @@
             android:layout_height="@dimen/_40sdp"
             android:textSize="@dimen/_13ssp"
             android:background="@drawable/inputholder"
+            android:inputType="textPassword"
             android:hint="Re-enter password"
             android:textColor="@color/textColor"
             android:textColorHint="@color/hinttextColor"/>
 
+        <Button
+            android:id="@+id/googleSignUpButton"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_marginRight="@dimen/_17sdp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_35sdp"
+            android:background="@drawable/buttonholder"
+            android:backgroundTint="#FF0000"
+            android:text="SignUp with Google"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_13ssp"
+            />
+
 
         <Button
-            android:id="@+id/next_button"
+            android:id="@+id/nextButton"
             android:layout_marginTop="@dimen/_10sdp"
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"

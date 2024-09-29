@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PersonalInfoActivity"
+    tools:context=".LoginSignUp.PersonalInfoActivity"
     android:orientation="vertical"
     android:background="@drawable/screenbackground">
 
@@ -23,6 +23,7 @@
 
 
         <EditText
+            android:id="@+id/fullNameEditText"
             android:layout_marginTop="@dimen/_50sdp"
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"
@@ -36,6 +37,7 @@
 
 
         <EditText
+            android:id="@+id/dateOfBirthEditText"
             android:layout_marginTop="@dimen/_5sdp"
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"
@@ -44,10 +46,14 @@
             android:textSize="@dimen/_13ssp"
             android:background="@drawable/inputholder"
             android:hint="Date of Birth (DD/MM/YYYY)"
+            android:focusable="false"
+            android:clickable="true"
             android:textColor="@color/textColor"
             android:textColorHint="@color/hinttextColor"/>
 
-        <EditText
+
+        <Spinner
+            android:id="@+id/genderSpinner"
             android:layout_marginTop="@dimen/_5sdp"
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"
@@ -55,12 +61,12 @@
             android:layout_height="@dimen/_40sdp"
             android:textSize="@dimen/_13ssp"
             android:background="@drawable/inputholder"
-            android:hint="Username"
             android:textColor="@color/textColor"
             android:textColorHint="@color/hinttextColor"/>
 
 
         <EditText
+            android:id="@+id/gamertagEditText"
             android:layout_marginTop="@dimen/_5sdp"
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"
@@ -85,6 +91,13 @@
             android:textSize="@dimen/_13ssp"/>
 
 
+
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 </LinearLayout>
