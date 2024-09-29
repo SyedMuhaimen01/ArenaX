@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".LoginScreen"
+    tools:context=".LoginSignUp.LoginScreen"
     android:background="@drawable/screenbackground">
 
     <LinearLayout
@@ -44,6 +44,7 @@
             android:textStyle="bold"
             />
         <EditText
+            android:id="@+id/usernameEditText"
             android:layout_marginTop="@dimen/_10sdp"
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"
@@ -56,6 +57,7 @@
             android:textColorHint="@color/hinttextColor"/>
 
         <EditText
+            android:id="@+id/passwordEditText"
             android:layout_marginTop="@dimen/_5sdp"
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"
@@ -63,6 +65,7 @@
             android:layout_height="@dimen/_40sdp"
             android:textSize="@dimen/_13ssp"
             android:background="@drawable/inputholder"
+            android:inputType="textPassword"
             android:hint="Password"
             android:textColor="@color/textColor"
             android:textColorHint="@color/hinttextColor"/>

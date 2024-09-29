@@ -6,7 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".userProfile">
+    tools:context=".userProfile.userProfile">
   <ScrollView
       android:id="@+id/scrollView"
       android:layout_width="0dp"
@@ -16,7 +16,8 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       tools:ignore="UnknownId"
-      android:background="@color/backgroundColor">
+      android:background="@color/backgroundColor"
+      android:scrollbars="none">
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -197,33 +198,36 @@
         <Button
             android:text="Edit Profile"
             android:layout_width="@dimen/_15sdp"
-            android:layout_height="@dimen/_28sdp"
+            android:layout_height="@dimen/_20sdp"
             android:textAlignment="center"
             android:textSize="@dimen/_9sdp"
             android:layout_weight="1"
             android:textColor="@color/textColor"
             android:backgroundTint="@color/secondaryColor"
-            android:layout_marginEnd="8dp" />
+            android:background="@drawable/curved_rectangle"
+            android:layout_marginEnd="@dimen/_8sdp" />
 
         <Button
             android:text="Settings"
             android:layout_width="@dimen/_15sdp"
-            android:layout_height="@dimen/_28sdp"
+            android:layout_height="@dimen/_20sdp"
             android:textAlignment="center"
             android:textSize="@dimen/_9sdp"
             android:layout_weight="1"
             android:textColor="@color/textColor"
             android:backgroundTint="@color/secondaryColor"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp" />
+            android:background="@drawable/curved_rectangle"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:layout_marginEnd="@dimen/_8sdp"
+            />
 
         <ImageButton
             android:src="@drawable/share_icon_foreground"
-            android:layout_width="@dimen/_30sdp"
-            android:layout_height="@dimen/_30sdp"
+            android:layout_width="@dimen/_24sdp"
+            android:layout_height="@dimen/_22sdp"
             android:scaleType="centerInside"
             android:adjustViewBounds="true"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="@dimen/_8sdp"
             android:backgroundTint="@color/secondaryColor"
             android:background="?android:selectableItemBackgroundBorderless" />
 
@@ -232,9 +236,9 @@
       <LinearLayout
           android:id="@+id/analyticsBoard"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"
+          android:layout_height="@dimen/_130sdp"
           android:orientation="vertical"
-          android:layout_marginTop="16dp">
+          android:layout_marginTop="@dimen/_10sdp">
 
         <TextView
             android:text="Games Dashboard"
@@ -256,7 +260,7 @@
       <LinearLayout
           android:id="@+id/highlightsBox"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"
+          android:layout_height="@dimen/_100sdp"
           android:layout_marginTop="@dimen/_10sdp"
           >
         <androidx.recyclerview.widget.RecyclerView
@@ -272,7 +276,15 @@
         <LinearLayout
             android:id="@+id/postsBox"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+          <TextView
+              android:text="Posts"
+              android:textSize="@dimen/_12sdp"
+              android:textStyle="bold"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="@color/textColor"/>
           <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/posts_recyclerview"
               android:layout_width="match_parent"
