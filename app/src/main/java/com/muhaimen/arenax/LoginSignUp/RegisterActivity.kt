@@ -1,6 +1,5 @@
 package com.muhaimen.arenax.LoginSignUp
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -12,14 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.dataClasses.Gender
-import com.muhaimen.arenax.dataClasses.UserData
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var reEnterPasswordEditText: EditText
-    private lateinit var googleSignUpButton: Button
     private lateinit var nextBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,7 +28,6 @@ class RegisterActivity : AppCompatActivity() {
         reEnterPasswordEditText = findViewById(R.id.reEnterPasswordEditText)
         val loginBtn: TextView = findViewById(R.id.login_button)
         nextBtn = findViewById(R.id.nextButton)
-        googleSignUpButton = findViewById(R.id.googleSignUpButton)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -51,55 +46,13 @@ class RegisterActivity : AppCompatActivity() {
             val reEnterPassword = reEnterPasswordEditText.text.toString()
 
             if (validateInput(email, password, reEnterPassword)) {
-                // Save email and password in SharedPreferences
-                saveUserCredentialsToSharedPreferences(email, password)
-
-                // Create a UserData instance and navigate to the next activity
-                val user = UserData(
-                    userId = "",
-                    fullname = "",
-                    email = email,
-                    password = password,
-                    dOB = "",
-                    gamerTag = "",
-                    profilePicture = null,
-                    gender = Gender.PreferNotToSay
-                )
-
-                // Navigate to the next activity (PersonalInfoActivity)
+                // Navigate to PersonalInfoActivity and pass email and password
                 val intent = Intent(this, PersonalInfoActivity::class.java)
-                intent.putExtra("userData", user) // Optional: Pass user data if needed
+                intent.putExtra("email", email)
+                intent.putExtra("password", password)
                 startActivity(intent)
                 finish() // Close RegisterActivity to prevent going back
             }
-        }
-
-        // Google Sign Up Button Click
-        googleSignUpButton.setOnClickListener {
-            // Instead of signing in, directly store the email and password
-            val email = emailEditText.text.toString()
-            val password = passwordEditText.text.toString()
-
-            // Save user credentials in SharedPreferences
-            saveUserCredentialsToSharedPreferences(email, password)
-
-            // Create a UserData instance and navigate to the next activity
-            val user = UserData(
-                userId = "",
-                fullname = "",
-                email = email,
-                password = password,
-                dOB = "",
-                gamerTag = "",
-                profilePicture = null,
-                gender = Gender.PreferNotToSay
-            )
-
-            // Navigate to the next activity (PersonalInfoActivity)
-            val intent = Intent(this, PersonalInfoActivity::class.java)
-            intent.putExtra("userData", user) // Optional: Pass user data if needed
-            startActivity(intent)
-            finish() // Close RegisterActivity to prevent going back
         }
     }
 
@@ -120,14 +73,5 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         return true
-    }
-
-    private fun saveUserCredentialsToSharedPreferences(email: String, password: String) {
-        val sharedPref = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putString("email", email)
-            putString("password", password) // Store password as well
-            apply()  // Save email and password in SharedPreferences
-        }
     }
 }

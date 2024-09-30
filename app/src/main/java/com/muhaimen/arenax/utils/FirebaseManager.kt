@@ -1,81 +1,38 @@
 package com.muhaimen.arenax.utils
 
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
-import android.os.Handler
-import android.os.Looper
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.*
 import com.muhaimen.arenax.dataClasses.UserData
-import com.muhaimen.arenax.R
-import java.util.*
 
 object FirebaseManager {
+
 
     private const val verificationTimeout = 120_000L // 2 minutes in milliseconds
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val database: DatabaseReference by lazy { FirebaseDatabase.getInstance().getReference("userData") }
 
-    @SuppressLint("StaticFieldLeak")
-    private lateinit var googleSignInClient: GoogleSignInClient
-
-    fun configureGoogleSignIn(activity: Activity) {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(activity.getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-
-        googleSignInClient = GoogleSignIn.getClient(activity, gso)
-    }
-
-    fun getGoogleSignInIntent(): Intent {
-        return googleSignInClient.signInIntent
-    }
-
-    fun handleGoogleSignInResult(data: Intent?, activity: Activity, callback: (Boolean, GoogleSignInAccount?, String?) -> Unit) {
-        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            callback(true, account, null)
-        } catch (e: ApiException) {
-            callback(false, null, "Google Sign-In error: ${e.message}")
-        }
-    }
-
-    private fun firebaseAuthWithGoogle(idToken: String, callback: (Boolean, String?) -> Unit) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    callback(true, null)
-                } else {
-                    callback(false, task.exception?.message)
-                }
-            }
-    }
-
-    fun signUpWithEmail(email: String, password: String, user: UserData, callback: (Boolean, String?) -> Unit) {
-        val hashedPassword = securityUtils.hashPassword(password)
-
-        auth.createUserWithEmailAndPassword(email, hashedPassword)
+    // Sign up a new user with email and password
+    fun signUpUser(email: String, password: String, user: UserData, callback: (Boolean, String?) -> Unit) {
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
-                    val newUser = user.copy(userId = userId, password = hashedPassword)
 
+                    // Set the userId in the UserData object
+                    val newUser = user.copy(userId = userId)
+
+                    // Save user data under the parent node "userData"
                     database.child(userId).setValue(newUser)
                         .addOnSuccessListener {
-                            sendVerificationEmail {
-                                // No need to check email verification immediately here
-                                callback(true, null) // Indicate successful registration
+                            sendVerificationEmail { success, error ->
+                                if (success) {
+                                    callback(true, null) // Indicate successful registration
+                                } else {
+                                    callback(false, error) // Handle the error from sending email
+                                }
                             }
                         }
                         .addOnFailureListener { callback(false, it.message) }
@@ -85,17 +42,22 @@ object FirebaseManager {
             }
     }
 
-    fun sendVerificationEmail(callback: () -> Unit) {
+    // Send email verification to the user
+    fun sendVerificationEmail(callback: (Boolean, String?) -> Unit) {
         val user = auth.currentUser
         user?.sendEmailVerification()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                callback()
+                callback(true, null) // Email sent successfully
             } else {
-                callback() // Handle failure appropriately if needed
+                Log.e("FirebaseManager", "Error sending verification email: ${task.exception?.message}")
+                callback(false, task.exception?.message) // Pass the error message to the callback
             }
+        } ?: run {
+            callback(false, "User is not signed in") // User is not signed in
         }
     }
 
+    // Check if the user's email is verified
     fun checkEmailVerification(callback: (Boolean, String?) -> Unit) {
         val user = auth.currentUser
         if (user != null) {
@@ -111,20 +73,7 @@ object FirebaseManager {
         }
     }
 
-    fun deleteUserData(userId: String, callback: (Boolean, String?) -> Unit = { _, _ -> }) {
-        database.child(userId).removeValue()
-            .addOnSuccessListener {
-                auth.currentUser?.delete()?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        callback(true, null)
-                    } else {
-                        callback(false, task.exception?.message)
-                    }
-                }
-            }
-            .addOnFailureListener { callback(false, it.message) }
-    }
-
+    // Sign in with email and password
     fun signInWithEmail(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
         val hashedPassword = securityUtils.hashPassword(password)
 
@@ -138,6 +87,7 @@ object FirebaseManager {
             }
     }
 
+    // Save user data to the Firebase Realtime Database
     fun saveUserData(user: UserData, callback: (Boolean, String?) -> Unit) {
         val userId = user.userId
         database.child(userId).setValue(user)
@@ -145,22 +95,27 @@ object FirebaseManager {
             .addOnFailureListener { callback(false, it.message) }
     }
 
-    fun logOut() {
+    // Sign out the current user
+    fun signOutUser() {
         auth.signOut()
     }
 
+    // Get the current user's ID
     fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
     }
 
+    // Check if the user is logged in
     fun isUserLoggedIn(): Boolean {
         return auth.currentUser != null
     }
 
+    // Get the current Firebase user object
     fun getCurrentUser(): FirebaseUser? {
         return auth.currentUser
     }
 
+    // Retrieve user data by user ID
     fun getUserById(userId: String, callback: (UserData?, String?) -> Unit) {
         database.child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -174,4 +129,58 @@ object FirebaseManager {
         })
     }
 
+    // Delete user data from Firebase Realtime Database
+    fun deleteUserData(callback: (Boolean, String?) -> Unit = { _, _ -> }) {
+        // Get the current user ID
+        val userId = getCurrentUserId() ?: run {
+            callback(false, "User ID not found")
+            return
+        }
+
+        // Remove user data from the database
+        database.child(userId).removeValue() // Fixed to use userId directly
+            .addOnSuccessListener {
+                // After removing user data from the database, delete the user from Firebase Auth
+                auth.currentUser?.delete()?.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        // If user deletion is successful, return success in the callback
+                        callback(true, null)
+                    } else {
+                        // If there is an error while deleting the user, return the error message
+                        callback(false, task.exception?.message ?: "Unknown error occurred while deleting user.")
+                    }
+                }
+            }
+            .addOnFailureListener {
+                // If there is an error while removing user data from the database, return the error message
+                callback(false, it.message ?: "Error occurred while deleting user data.")
+            }
+    }
+
+    fun checkIfEmailExists(email: String, callback: (Boolean, Boolean?, String?) -> Unit) {
+        database.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    // Email exists
+                    for (childSnapshot in snapshot.children) {
+                        val userData = childSnapshot.getValue(UserData::class.java)
+                        if (userData != null) {
+                            // Check if the user is verified
+                            val isVerified = auth.currentUser?.isEmailVerified ?: false
+                            callback(true, isVerified, null)
+                            return
+                        }
+                    }
+                    callback(false, null, "User data not found.")
+                } else {
+                    // Email does not exist
+                    callback(false, null, null)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback(false, null, error.message)
+            }
+        })
+    }
 }
