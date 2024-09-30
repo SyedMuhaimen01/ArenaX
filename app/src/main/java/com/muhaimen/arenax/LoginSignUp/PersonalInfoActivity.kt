@@ -2,29 +2,21 @@ package com.muhaimen.arenax.LoginSignUp
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.muhaimen.arenax.MainActivity
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Gender
 import com.muhaimen.arenax.dataClasses.UserData
-import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.FirebaseManager
-import java.text.SimpleDateFormat
 import java.util.*
 
 class PersonalInfoActivity : AppCompatActivity() {
@@ -33,6 +25,10 @@ class PersonalInfoActivity : AppCompatActivity() {
     private lateinit var genderSpinner: Spinner
     private lateinit var gamertagEditText: EditText
     private lateinit var loadingProgressBar: ProgressBar
+    private lateinit var loadingTextView: TextView
+    private lateinit var handler: Handler
+    private var email: String? = null
+    private var password: String? = null
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,12 +36,21 @@ class PersonalInfoActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_personal_info)
 
+        // Initialize views
         fullNameEditText = findViewById(R.id.fullNameEditText)
         dOBEditText = findViewById(R.id.dateOfBirthEditText)
         genderSpinner = findViewById(R.id.genderSpinner)
         gamertagEditText = findViewById(R.id.gamertagEditText)
         loadingProgressBar = findViewById(R.id.loadingProgressBar)
+        loadingTextView = findViewById(R.id.loadingTextView)
         val registerBtn: Button = findViewById(R.id.register_button)
+
+        // Initialize the handler
+        handler = Handler(Looper.getMainLooper())
+
+        // Get email and password from Intent
+        email = intent.getStringExtra("email")
+        password = intent.getStringExtra("password")
 
         // Set up date picker for Date of Birth
         dOBEditText.setOnClickListener {
@@ -67,9 +72,92 @@ class PersonalInfoActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         genderSpinner.adapter = adapter
 
+        // Set up register button click listener
         registerBtn.setOnClickListener {
-            handleRegistration()
+            registerUser()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkIfRolledBack()
+    }
+
+    private fun checkIfRolledBack() {
+        // Check if the activity was started from the MainActivity
+        if (intent.getBooleanExtra("fromMainActivity", false)) {
+            deleteUserNode()
+        }
+    }
+
+    private fun registerUser() {
+        val fullName = fullNameEditText.text.toString().trim()
+        val dateOfBirth = dOBEditText.text.toString().trim()
+        val gender = Gender.entries[genderSpinner.selectedItemPosition]
+        val gamerTag = gamertagEditText.text.toString().trim()
+
+        // Validate input fields
+        if (fullName.isEmpty() || dateOfBirth.isEmpty() || gamerTag.isEmpty()) {
+            showToast("Please fill all the fields.")
+            return
+        }
+
+        // Show loading UI
+        showLoadingUI()
+
+        // Check if email and password are available
+        val email = email ?: run {
+            showToast("Error retrieving email.")
+            hideLoadingUI()
+            return
+        }
+        val password = password ?: run {
+            showToast("Error retrieving password.")
+            hideLoadingUI()
+            return
+        }
+
+        // Create UserData object
+        val userData = UserData(
+            userId = FirebaseManager.getCurrentUserId() ?: "",
+            fullname = fullName,
+            password = password,
+            gamerTag = gamerTag,
+            email = email,
+            dOB = dateOfBirth,
+            gender = gender,
+            profilePicture = null // Handle profile picture later
+        )
+
+        // Save user data to Firebase and register the user
+        FirebaseManager.signUpUser(email, password, userData) { success, error ->
+            hideLoadingUI()
+            if (success) {
+                // Notify the user to verify their email
+                showToast("Verification email sent. Please verify your email.")
+                // Navigate to MainActivity after registration
+                navigateToMainActivity()
+            } else {
+                showToast("Error registering user: ${error ?: "Unknown error."}")
+            }
+        }
+    }
+
+    private fun deleteUserNode() {
+        FirebaseManager.deleteUserData { success, error ->
+            if (success) {
+                showToast("User data deleted due to rollback from MainActivity.")
+            } else {
+                showToast("Error deleting user data: ${error ?: "Unknown error."}")
+            }
+        }
+    }
+
+    private fun navigateToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("fromPersonalInfo", true) // Indicate that it came from PersonalInfoActivity
+        startActivity(intent)
+        finish() // Close PersonalInfoActivity to prevent going back
     }
 
     private fun showDatePickerDialog() {
@@ -81,122 +169,26 @@ class PersonalInfoActivity : AppCompatActivity() {
         val datePickerDialog = DatePickerDialog(
             this,
             { _, selectedYear, selectedMonth, selectedDay ->
-                val selectedDate = "$selectedDay/${selectedMonth + 1}/$selectedYear"
-                dOBEditText.setText(selectedDate)
-            }, year, month, day
+                dOBEditText.setText("$selectedDay/${selectedMonth + 1}/$selectedYear")
+            },
+            year,
+            month,
+            day
         )
         datePickerDialog.show()
     }
 
-    private fun handleRegistration() {
-        Log.d("PersonalInfoActivity", "Register button clicked")
-
-        // Retrieve email and password from SharedPreferences
-        val sharedPref = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-        val email = sharedPref.getString("email", null)
-        val password = sharedPref.getString("password", null)
-
-        // Get other user information
-        val fullName = fullNameEditText.text.toString()
-        val dob = dOBEditText.text.toString()
-        val gamerTag = gamertagEditText.text.toString()
-
-        // Get the selected gender
-        val selectedGender = when (genderSpinner.selectedItemPosition) {
-            0 -> Gender.MALE
-            1 -> Gender.FEMALE
-            2 -> Gender.PreferNotToSay
-            else -> Gender.PreferNotToSay // Default case
-        }
-
-        if (email != null && password != null && validateInput(fullName, dob, gamerTag)) {
-            loadingProgressBar.visibility = View.VISIBLE
-
-            // Convert date from DD/MM/YYYY to YYYY-MM-DD
-            try {
-                val sdfInput = SimpleDateFormat("dd/MM/yyyy", Locale.US)
-                val sdfOutput = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-                val dateObj = sdfInput.parse(dob) // This converts the input string to a Date object
-
-                // Correctly format the parsed date object
-                val formattedDate = sdfOutput.format(dateObj) // Format the Date object instead
-
-                // Create UserData object
-                val user = UserData(
-                    userId = "",  // Will be assigned by Firebase
-                    fullname = fullName,
-                    password = password,
-                    gender = selectedGender,
-                    email = email,
-                    dOB = formattedDate,
-                    gamerTag = gamerTag,
-                    profilePicture = ""  // Profile picture handled later
-                )
-
-                // ... (existing registration code)
-            } catch (e: Exception) {
-                Log.e("PersonalInfoActivity", "Error parsing date: ${e.message}")
-                Toast.makeText(this, "Invalid date format", Toast.LENGTH_SHORT).show()
-            } finally {
-                loadingProgressBar.visibility = View.GONE
-            }
-        } else {
-            Log.d("PersonalInfoActivity", "Email or password is null, or input validation failed")
-        }
+    private fun showLoadingUI() {
+        loadingProgressBar.visibility = View.VISIBLE
+        loadingTextView.visibility = View.VISIBLE
     }
 
-    private fun validateInput(fullName: String, dob: String, gamerTag: String): Boolean {
-        if (fullName.isEmpty()) {
-            fullNameEditText.error = "Full name is required"
-            return false
-        }
-        if (dob.isEmpty()) {
-            dOBEditText.error = "Date of birth is required"
-            return false
-        }
-        if (gamerTag.isEmpty()) {
-            gamertagEditText.error = "GamerTag is required"
-            return false
-        }
-        return true
+    private fun hideLoadingUI() {
+        loadingProgressBar.visibility = View.GONE
+        loadingTextView.visibility = View.GONE
     }
 
-    private fun checkEmailVerification(email: String) {
-        // Create a runnable that checks for email verification every few seconds
-        val handler = Handler(Looper.getMainLooper())
-        val checkVerificationRunnable = object : Runnable {
-            override fun run() {
-                FirebaseManager.checkEmailVerification { isVerified, error ->
-                    if (isVerified) {
-                        // Stop checking and navigate to UserProfile activity
-                        handler.removeCallbacks(this)
-                        loadingProgressBar.visibility = View.GONE // Hide loading
-                        val intent = Intent(this@PersonalInfoActivity, UserProfile::class.java)
-                        startActivity(intent)
-                        finish() // Close PersonalInfoActivity
-                    } else if (error != null) {
-                        Log.e("PersonalInfoActivity", "Error checking verification status: $error")
-                        handler.removeCallbacks(this)
-                        loadingProgressBar.visibility = View.GONE // Hide loading
-                    } else {
-                        // Check again after a delay
-                        handler.postDelayed(this, 5000) // Check every 5 seconds
-                    }
-                }
-            }
-        }
-
-        // Start checking for verification
-        handler.post(checkVerificationRunnable)
-    }
-
-    private fun deleteUserData(user: UserData) {
-        FirebaseManager.deleteUserData(user.userId) { success, error ->
-            if (success) {
-                Log.d("PersonalInfoActivity", "User data deleted successfully.")
-            } else {
-                Log.e("PersonalInfoActivity", "Failed to delete user data: $error")
-            }
-        }
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

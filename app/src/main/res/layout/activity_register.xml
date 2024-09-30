@@ -82,20 +82,6 @@
             android:textColor="@color/textColor"
             android:textColorHint="@color/hinttextColor"/>
 
-        <Button
-            android:id="@+id/googleSignUpButton"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_35sdp"
-            android:background="@drawable/buttonholder"
-            android:backgroundTint="#FF0000"
-            android:text="SignUp with Google"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_13ssp"
-            />
-
 
         <Button
             android:id="@+id/nextButton"
