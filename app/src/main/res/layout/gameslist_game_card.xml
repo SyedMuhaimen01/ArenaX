@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/analytics_card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/_6sdp"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="@dimen/_6sdp"
+    app:cardElevation="@dimen/_2sdp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/_4sdp">
+
+        <!-- Game Icon -->
+        <ImageView
+            android:id="@+id/game_icon"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Game Icon" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Game Name -->
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Game Name"
+                android:textStyle="bold"
+                android:textSize="@dimen/_16ssp"
+                android:textColor="@color/textColor" />
+
+            <TextView
+                android:id="@+id/genre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Genre"
+                android:textSize="@dimen/_12ssp"
+                android:textColor="@color/textColor"></TextView>
+            <TextView
+                android:id="@+id/publisher"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Publisher"
+                android:textSize="@dimen/_12ssp"
+                android:textColor="@color/textColor"></TextView>
+
+        </LinearLayout>
+
+ <Button
+     android:layout_width="@dimen/_45sdp"
+     android:layout_height="@dimen/_25sdp"
+     android:background="@color/primaryColor"
+     android:text="Add"
+     android:textColor="@color/white"
+     android:textStyle="bold"
+     android:layout_marginTop="@dimen/_15sdp"
+     android:layout_marginRight="@dimen/_10sdp"></Button>
+</LinearLayout>
+</androidx.cardview.widget.CardView>
