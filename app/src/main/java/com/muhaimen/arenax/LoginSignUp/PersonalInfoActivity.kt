@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
@@ -29,6 +30,8 @@ class PersonalInfoActivity : AppCompatActivity() {
     private lateinit var handler: Handler
     private var email: String? = null
     private var password: String? = null
+
+    private val TAG = "PersonalInfoActivity"
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,12 +96,18 @@ class PersonalInfoActivity : AppCompatActivity() {
     private fun registerUser() {
         val fullName = fullNameEditText.text.toString().trim()
         val dateOfBirth = dOBEditText.text.toString().trim()
-        val gender = Gender.entries[genderSpinner.selectedItemPosition]
+        val gender = Gender.values()[genderSpinner.selectedItemPosition]
         val gamerTag = gamertagEditText.text.toString().trim()
 
         // Validate input fields
         if (fullName.isEmpty() || dateOfBirth.isEmpty() || gamerTag.isEmpty()) {
             showToast("Please fill all the fields.")
+            return
+        } else if (gamerTag.length < 3 || gamerTag.length > 15) {
+            showToast("Invalid GamerTag Length")
+            return
+        } else if (fullName.length < 3 || fullName.length > 20) {
+            showToast("Invalid Name Length")
             return
         }
 
@@ -117,7 +126,7 @@ class PersonalInfoActivity : AppCompatActivity() {
             return
         }
 
-        // Create UserData object
+        // Proceed with registration
         val userData = UserData(
             userId = FirebaseManager.getCurrentUserId() ?: "",
             fullname = fullName,
@@ -130,17 +139,43 @@ class PersonalInfoActivity : AppCompatActivity() {
             profilePicture = null // Handle profile picture later
         )
 
-        // Save user data to Firebase and register the user
-        FirebaseManager.signUpUser(email, password, userData) { success, error ->
-            hideLoadingUI()
+        FirebaseManager.signUpUser(email, password, userData) { success, registerError ->
             if (success) {
-                // Notify the user to verify their email
-                showToast("Verification email sent. Please verify your email. Dont Exit the app")
-                // Navigate to MainActivity after registration
+                showToast("Verification email sent. Please verify your email.")
+                Log.d(TAG, "User registered successfully.")
                 navigateToMainActivity()
             } else {
-                showToast("Error registering user: ${error ?: "Unknown error."}")
+
+                FirebaseManager.checkIfEmailVerified(email, password) { isVerified, error ->
+
+                    // Check the verification status
+                    if (isVerified) {
+                        showToast("Error registering user: ${registerError ?: "Unknown error."}")
+                    } else {
+                        // Email is not verified, handle accordingly
+                        showToast("Email is not verified. Please verify your email.")
+                        FirebaseManager.sendVerificationEmail { success, error ->
+                            if (success) {
+
+                            } else {
+                                showToast("Error sending verification email: ${error ?: "Unknown error."}")
+                            }
+                        }
+                        navigateToMainActivity()
+                    }
+                }
+
+
+                    Log.e(TAG, "Error registering user")
             }
+            hideLoadingUI()
+        }
+    }
+
+
+    private fun sendVerificationEmail(email: String, callback: (Boolean, Exception?) -> Unit) {
+        FirebaseManager.sendVerificationEmail() { success, error ->
+
         }
     }
 
@@ -148,8 +183,10 @@ class PersonalInfoActivity : AppCompatActivity() {
         FirebaseManager.deleteUserData { success, error ->
             if (success) {
                 showToast("User data deleted due to rollback from MainActivity.")
+                Log.d(TAG, "User data deleted due to rollback from MainActivity.")
             } else {
                 showToast("Error deleting user data: ${error ?: "Unknown error."}")
+                Log.e(TAG, "Error deleting user data")
             }
         }
     }
