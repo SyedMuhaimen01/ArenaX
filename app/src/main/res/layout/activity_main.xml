@@ -7,7 +7,7 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context=".MainActivity"
 android:orientation="vertical"
-android:background="@drawable/screenbackground"
+    android:background="@drawable/screenbackground"
     >
 
     <ImageView
@@ -40,12 +40,4 @@ android:background="@drawable/screenbackground"
         android:layout_gravity="center"
         android:textStyle="italic"
        />
-
-
-
-
-
-
-
-
 </LinearLayout>
