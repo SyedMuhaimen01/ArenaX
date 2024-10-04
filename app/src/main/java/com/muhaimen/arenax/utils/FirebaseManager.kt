@@ -1,6 +1,7 @@
 package com.muhaimen.arenax.utils
 
 import android.app.Activity
+import android.content.ContentValues.TAG
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -41,6 +42,67 @@ object FirebaseManager {
                 }
             }
     }
+    // Check if email is already registered and if it's verified
+    fun checkEmailStatus(email: String, password: String, callback: (Boolean, Boolean, Exception?) -> Unit) {
+        auth.fetchSignInMethodsForEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val result = task.result
+                    if (result?.signInMethods?.isEmpty() == false) {
+                        // Email is registered, check if verified
+                        checkIfEmailVerified(email, password ) { isVerified, error ->
+                            callback(true, isVerified, error)
+                        }
+                    } else {
+                        // Email is not registered
+                        callback(false, false, null)
+                    }
+                } else {
+                    // Error fetching sign-in methods
+                    Log.e(TAG, "Error checking email status: ${task.exception?.message}")
+                    callback(false, false, task.exception)
+                }
+            }
+    }
+
+    fun checkIfEmailVerified(email: String, password: String, callback: (Boolean, Exception?) -> Unit) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { signInTask ->
+                if (signInTask.isSuccessful) {
+                    val userId = getCurrentUserId()
+                    if (userId != null) {
+                        val userRef = database.child("userData").child(userId)
+
+                        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                val userData = snapshot.getValue(UserData::class.java)
+                                if (userData != null) {
+                                    val isVerified = userData.accountVerified
+                                    callback(isVerified, null)
+                                    Log.d(TAG, "User data fetched successfully. Account verified: $isVerified")
+                                } else {
+                                    callback(false, Exception("User data not found or account not verified."))
+                                    Log.e(TAG, "User data snapshot is null or account not verified.")
+                                }
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                callback(false, error.toException())
+                                Log.e(TAG, "Database operation cancelled: ${error.message}")
+                            }
+                        })
+                    } else {
+                        callback(false, Exception("User ID not found."))
+                        Log.e(TAG, "User ID is null.")
+                    }
+                } else {
+                    Log.e(TAG, "Error signing in: ${signInTask.exception?.message}")
+                    callback(false, signInTask.exception)
+                }
+            }
+    }
+
+
 
     fun updateUserEmailVerificationStatus(callback: (Boolean, String?) -> Unit) {
         val userId = getCurrentUserId() // Fetch the current user ID
@@ -78,6 +140,7 @@ object FirebaseManager {
             callback(false, "User is not signed in") // User is not signed in
         }
     }
+
 
     // Check if the user's email is verified
     fun checkEmailVerification(callback: (Boolean, String?) -> Unit) {
