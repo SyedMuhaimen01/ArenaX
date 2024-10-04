@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -62,6 +63,16 @@ class MainActivity : AppCompatActivity() {
         FirebaseManager.checkEmailVerification { isVerified, errorMessage ->
             if (isVerified) {
                 // User is logged in and email is verified, navigate to UserProfile
+                FirebaseManager.updateUserEmailVerificationStatus() { success, errorMessage ->
+                    if (success) {
+                        Log.e("FirebaseManager", " email verification status Updated Successfully")
+                        // Handle UI update or other logic if needed
+                    } else {
+                        // Failed to update email verification status
+                        Log.e("FirebaseManager", "Failed to update email verification status: $errorMessage")
+                        // Handle error scenario
+                    }
+                }
                 navigateToUserProfile()
             } else {
                 // User is logged in but email is not verified, navigate to RegisterActivity
@@ -79,6 +90,16 @@ class MainActivity : AppCompatActivity() {
         FirebaseManager.checkEmailVerification { isVerified, errorMessage ->
             if (isVerified) {
                 // Email is verified, navigate to UserProfile
+                FirebaseManager.updateUserEmailVerificationStatus() { success, errorMessage ->
+                    if (success) {
+                        Log.e("FirebaseManager", " email verification status Updated Successfully")
+                        // Handle UI update or other logic if needed
+                    } else {
+                        // Failed to update email verification status
+                        Log.e("FirebaseManager", "Failed to update email verification status: $errorMessage")
+                        // Handle error scenario
+                    }
+                }
                 navigateToUserProfile()
             } else {
                 // Continue checking if within the 1-minute (60 seconds)

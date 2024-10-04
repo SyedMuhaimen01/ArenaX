@@ -126,6 +126,7 @@ class PersonalInfoActivity : AppCompatActivity() {
             email = email,
             dOB = dateOfBirth,
             gender = gender,
+            accountVerified = false,
             profilePicture = null // Handle profile picture later
         )
 
@@ -134,7 +135,7 @@ class PersonalInfoActivity : AppCompatActivity() {
             hideLoadingUI()
             if (success) {
                 // Notify the user to verify their email
-                showToast("Verification email sent. Please verify your email.")
+                showToast("Verification email sent. Please verify your email. Dont Exit the app")
                 // Navigate to MainActivity after registration
                 navigateToMainActivity()
             } else {
