@@ -42,6 +42,28 @@ object FirebaseManager {
             }
     }
 
+    fun updateUserEmailVerificationStatus(callback: (Boolean, String?) -> Unit) {
+        val userId = getCurrentUserId() // Fetch the current user ID
+        if (userId != null) {
+            // Reference to the specific user node in Firebase
+            val userRef = database.child(userId)
+
+            // Directly update the accountVerified field to true
+            userRef.child("accountVerified").setValue(true)
+                .addOnSuccessListener {
+                    // If the update is successful, invoke the callback with success
+                    callback(true, null)
+                }
+                .addOnFailureListener { e ->
+                    // If there's a failure, invoke the callback with an error message
+                    callback(false, e.message)
+                }
+        } else {
+            // If userId is null, callback with an error
+            callback(false, "User ID not found.")
+        }
+    }
+
     // Send email verification to the user
     fun sendVerificationEmail(callback: (Boolean, String?) -> Unit) {
         val user = auth.currentUser
