@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jjoe64.graphview.series.DataPoint
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.AnalyticsData
 import com.muhaimen.arenax.editProfile.editProfile
 
 class UserProfile : AppCompatActivity() {

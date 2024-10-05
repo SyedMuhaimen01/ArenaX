@@ -37,7 +37,7 @@
 
     <ImageView
         android:layout_marginTop="@dimen/_10sdp"
-        android:id="@+id/editProfilePicture"
+        android:id="@+id/ProfilePicture"
         android:layout_width="@dimen/_60sdp"
         android:layout_height="@dimen/_60sdp"
         android:scaleType="centerCrop"
@@ -47,6 +47,7 @@
         android:clipToOutline="true"
         />
     <TextView
+        android:id="@+id/editProfilePictureText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Edit Profile Picture"

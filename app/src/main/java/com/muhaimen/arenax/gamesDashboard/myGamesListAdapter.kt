@@ -1,6 +1,6 @@
 package com.muhaimen.arenax.gamesDashboard
 
-import com.muhaimen.arenax.userProfile.AnalyticsData
+import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View

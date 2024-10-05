@@ -17,9 +17,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         >
         <activity
-            android:name=".gamesDashboard.ViewGameAnalytics"
-            android:exported="false" />
-        <activity
+
             android:name=".LoginSignUp.ForgotPassword"
             android:exported="false" />
         <activity
@@ -27,8 +25,7 @@
             android:exported="false" />
         <activity
             android:name=".gamesDashboard.gamesList"
-            android:exported="false" />
-        <activity
+
             android:name=".settings.settingsScreen"
             android:exported="false" />
         <activity
