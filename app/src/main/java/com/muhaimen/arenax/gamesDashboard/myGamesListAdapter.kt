@@ -14,7 +14,7 @@ import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import com.muhaimen.arenax.R
 
-class myGamesListAdapter(private val analyticsList: List<AnalyticsData>) : RecyclerView.Adapter<myGamesListAdapter.AnalyticsViewHolder>() {
+class myGamesListAdapter(private var analyticsList: List<AnalyticsData>) : RecyclerView.Adapter<myGamesListAdapter.AnalyticsViewHolder>() {
 
     // ViewHolder class
     inner class AnalyticsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -85,5 +85,10 @@ class myGamesListAdapter(private val analyticsList: List<AnalyticsData>) : Recyc
     // Return the size of the dataset
     override fun getItemCount(): Int {
         return analyticsList.size
+    }
+
+    fun updateGamesList(newList: List<AnalyticsData>) {
+        analyticsList = newList
+        notifyDataSetChanged()
     }
 }
