@@ -36,7 +36,6 @@ class editProfile : AppCompatActivity() {
         
 
 
-
         genderSpinner = findViewById(R.id.genderSpinner)
         // Create an array of gender options
         val genderOptions = Gender.values().map { it.displayName }

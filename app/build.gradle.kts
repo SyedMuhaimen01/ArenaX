@@ -54,6 +54,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation (libs.graphview)
     implementation(libs.play.services.auth)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.gson)
 
 
 }
