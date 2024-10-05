@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.muhaimen.arenax.LoginSignUp.PersonalInfoActivity
 import com.muhaimen.arenax.LoginSignUp.RegisterActivity
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
+import com.muhaimen.arenax.gamesDashboard.ViewGameAnalytics
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.FirebaseManager
 
@@ -115,7 +116,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun navigateToUserProfile() {
-        val intent = Intent(this, UserProfile::class.java)
+        val intent = Intent(this, ViewGameAnalytics::class.java)
         startActivity(intent)
         finish() // Close MainActivity to prevent going back
     }
