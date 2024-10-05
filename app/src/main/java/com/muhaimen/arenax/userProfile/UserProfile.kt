@@ -1,8 +1,10 @@
 package com.muhaimen.arenax.userProfile
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jjoe64.graphview.series.DataPoint
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.editProfile.editProfile
 
 class UserProfile : AppCompatActivity() {
 
@@ -27,6 +30,7 @@ class UserProfile : AppCompatActivity() {
 
     private lateinit var bioTextView: TextView
     private lateinit var showMoreTextView: TextView
+   private lateinit var editProfileButton: Button
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,6 +89,13 @@ class UserProfile : AppCompatActivity() {
         val samplePosts = loadSamplePostsData()
         postsAdapter = PostsAdapter(samplePosts)
         postsRecyclerView.adapter = postsAdapter
+
+        // Initialize the Edit Profile button
+        editProfileButton= findViewById(R.id.editProfileButton)
+        editProfileButton.setOnClickListener {
+            val intent = Intent(this, editProfile::class.java)
+            startActivity(intent)
+        }
     }
 
     // Sample function to load analytics data
@@ -146,4 +157,6 @@ class UserProfile : AppCompatActivity() {
             Post(imageResId = R.drawable.profile_icon_foreground)
         )
     }
+
+
 }

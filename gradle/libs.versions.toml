@@ -14,7 +14,12 @@ firebaseAuth = "23.0.0"
 firebaseDatabase = "21.0.0"
 firebaseBom = "33.3.0"
 playServicesAuth = "20.5.0"
-firebaseDynamicLinks = "23.1.0"  # Add the Dynamic Links version here
+
+firebaseAuthKtx = "23.0.0"
+firebaseStorageKtx = "21.0.0"
+gson = "2.10.1"
+retrofit = "2.9.0"
+
 
 [libraries]
 graphview = "com.jjoe64:graphview:4.2.2"
@@ -32,6 +37,11 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }       # Add Retrofit library entry
+converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }  # Add Gson converter library entry
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 
 [plugins]
