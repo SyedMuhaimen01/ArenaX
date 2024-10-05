@@ -34,6 +34,7 @@
             android:textColor="@color/white"/>
     </LinearLayout>
 
+
     <ImageView
         android:layout_marginTop="@dimen/_10sdp"
         android:id="@+id/editProfilePicture"
@@ -140,7 +141,7 @@
             android:textColorHint="@color/white" />
 
         <Button
-            android:id="@+id/nextButton"
+            android:id="@+id/updateChangesButton"
             android:layout_marginTop="@dimen/_10sdp"
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"
@@ -153,6 +154,16 @@
             />
 
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/loadingSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-400dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:indeterminate="true"
+        style="@android:style/Widget.ProgressBar.Small" />
 
 
 </LinearLayout>
