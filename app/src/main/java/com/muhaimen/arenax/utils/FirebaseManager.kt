@@ -42,58 +42,36 @@ object FirebaseManager {
                 }
             }
     }
-    // Check if email is already registered and if it's verified
-    fun checkEmailStatus(email: String, password: String, callback: (Boolean, Boolean, Exception?) -> Unit) {
-        auth.fetchSignInMethodsForEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val result = task.result
-                    if (result?.signInMethods?.isEmpty() == false) {
-                        // Email is registered, check if verified
-                        checkIfEmailVerified(email, password ) { isVerified, error ->
-                            callback(true, isVerified, error)
-                        }
-                    } else {
-                        // Email is not registered
-                        callback(false, false, null)
-                    }
-                } else {
-                    // Error fetching sign-in methods
-                    Log.e(TAG, "Error checking email status: ${task.exception?.message}")
-                    callback(false, false, task.exception)
-                }
-            }
-    }
 
-    fun checkIfEmailVerified(email: String, password: String, callback: (Boolean, Exception?) -> Unit) {
+
+
+     fun checkIfEmailVerified(email: String, password: String, callback: (Boolean, Exception?) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { signInTask ->
                 if (signInTask.isSuccessful) {
-                    val userId = getCurrentUserId()
+                    val userId = getCurrentUserId() // Fetch the current user ID
                     if (userId != null) {
+                        // Reference to the specific user node in Firebase
                         val userRef = database.child("userData").child(userId)
 
+                        // Retrieve the user data to check accountVerified
                         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {
                                 val userData = snapshot.getValue(UserData::class.java)
                                 if (userData != null) {
                                     val isVerified = userData.accountVerified
                                     callback(isVerified, null)
-                                    Log.d(TAG, "User data fetched successfully. Account verified: $isVerified")
                                 } else {
                                     callback(false, Exception("User data not found or account not verified."))
-                                    Log.e(TAG, "User data snapshot is null or account not verified.")
                                 }
                             }
 
                             override fun onCancelled(error: DatabaseError) {
                                 callback(false, error.toException())
-                                Log.e(TAG, "Database operation cancelled: ${error.message}")
                             }
                         })
                     } else {
                         callback(false, Exception("User ID not found."))
-                        Log.e(TAG, "User ID is null.")
                     }
                 } else {
                     Log.e(TAG, "Error signing in: ${signInTask.exception?.message}")
@@ -103,6 +81,19 @@ object FirebaseManager {
     }
 
 
+    fun sendPasswordResetEmail(email: String, callback: (Boolean, String?) -> Unit) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // Reset email sent successfully
+                    callback(true, null)
+                } else {
+                    // Error occurred while sending reset email
+                    Log.e(TAG, "Error sending password reset email: ${task.exception?.message}")
+                    callback(false, task.exception?.message)
+                }
+            }
+    }
 
     fun updateUserEmailVerificationStatus(callback: (Boolean, String?) -> Unit) {
         val userId = getCurrentUserId() // Fetch the current user ID
@@ -158,20 +149,6 @@ object FirebaseManager {
         }
     }
 
-    // Sign in with email and password
-    fun signInWithEmail(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
-        val hashedPassword = securityUtils.hashPassword(password)
-
-        auth.signInWithEmailAndPassword(email, hashedPassword)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    onResult(true, null)
-                } else {
-                    onResult(false, task.exception?.message)
-                }
-            }
-    }
-
     // Save user data to the Firebase Realtime Database
     fun saveUserData(user: UserData, callback: (Boolean, String?) -> Unit) {
         val userId = user.userId
@@ -198,20 +175,6 @@ object FirebaseManager {
     // Get the current Firebase user object
     fun getCurrentUser(): FirebaseUser? {
         return auth.currentUser
-    }
-
-    // Retrieve user data by user ID
-    fun getUserById(userId: String, callback: (UserData?, String?) -> Unit) {
-        database.child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val user = snapshot.getValue(UserData::class.java)
-                callback(user, null)
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                callback(null, error.message)
-            }
-        })
     }
 
     // Delete user data from Firebase Realtime Database
@@ -242,30 +205,4 @@ object FirebaseManager {
             }
     }
 
-    fun checkIfEmailExists(email: String, callback: (Boolean, Boolean?, String?) -> Unit) {
-        database.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // Email exists
-                    for (childSnapshot in snapshot.children) {
-                        val userData = childSnapshot.getValue(UserData::class.java)
-                        if (userData != null) {
-                            // Check if the user is verified
-                            val isVerified = auth.currentUser?.isEmailVerified ?: false
-                            callback(true, isVerified, null)
-                            return
-                        }
-                    }
-                    callback(false, null, "User data not found.")
-                } else {
-                    // Email does not exist
-                    callback(false, null, null)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                callback(false, null, error.message)
-            }
-        })
-    }
 }

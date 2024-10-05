@@ -130,7 +130,6 @@ class PersonalInfoActivity : AppCompatActivity() {
         val userData = UserData(
             userId = FirebaseManager.getCurrentUserId() ?: "",
             fullname = fullName,
-            password = password,
             gamerTag = gamerTag,
             email = email,
             dOB = dateOfBirth,
