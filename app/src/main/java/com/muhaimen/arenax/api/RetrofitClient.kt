@@ -4,17 +4,13 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
+    private const val BASE_URL = "http://192.168.100.6:3000/" // Replace with your backend URL
 
-    private const val BASE_URL = "http://your.api.base.url/" // Replace with your API base URL
-
-    private val retrofit: Retrofit by lazy {
+    val instance: ApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
-
-    val apiService: ApiService by lazy {
-        retrofit.create(ApiService::class.java)
+            .create(ApiService::class.java)
     }
 }

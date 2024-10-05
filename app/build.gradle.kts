@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+    id("kotlin-kapt")
 }
 
 android {
@@ -58,6 +59,11 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.gson)
+    implementation(libs.glide)
+    kapt(libs.glideCompiler) // For annotation processing
+    implementation(libs.kotlin)
+    implementation(libs.okhttp)
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
 
 
 }

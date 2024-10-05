@@ -3,34 +3,58 @@ package com.muhaimen.arenax.editProfile
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.ConnectivityManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Gender
+import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.userProfile.UserProfile
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONObject
 
 class editProfile : AppCompatActivity() {
     private lateinit var genderSpinner: Spinner
     private lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
     private lateinit var storageReference: StorageReference
+    private lateinit var profileImage: ImageView
+    private lateinit var editProfileImage: TextView
+    private var imageUri: Uri? = null
+    private lateinit var userData: UserData
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,13 +66,17 @@ class editProfile : AppCompatActivity() {
             insets
         }
 
-        auth= FirebaseAuth.getInstance()
+        auth = FirebaseAuth.getInstance()
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(auth.currentUser?.uid ?: "")
+        storageReference = FirebaseStorage.getInstance().reference.child("profileImages/${auth.currentUser?.uid}")
 
-        if(!isConnected()){
+        profileImage = findViewById(R.id.ProfilePicture)
+        editProfileImage = findViewById(R.id.editProfilePictureText)
+        editProfileImage.setOnClickListener { selectImage() }
+
+        if (!isConnected()) {
             Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
-        }
-        else{
+        } else {
             fetchUserDetailsFromFirebase()
         }
 
@@ -58,13 +86,49 @@ class editProfile : AppCompatActivity() {
         }
 
         genderSpinner = findViewById(R.id.genderSpinner)
-        // Create an array of gender options
         val genderOptions = Gender.values().map { it.displayName }
-
-        // Create an ArrayAdapter for the gender spinner
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderOptions)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         genderSpinner.adapter = adapter
+    }
+
+    private fun selectImage() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            imageUri = data.data
+            profileImage.setImageURI(imageUri)
+        }
+    }
+
+    private fun uploadImageToFirebase() {
+        if (imageUri != null) {
+            val fileReference: StorageReference = storageReference.child("profile.jpg")
+            fileReference.putFile(imageUri!!)
+                .addOnSuccessListener {
+                    fileReference.downloadUrl.addOnSuccessListener { uri ->
+                        updateProfilePictureUrl(uri.toString())
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
+    private fun updateProfilePictureUrl(imageUrl: String) {
+        Log.d("EditProfile", "Updating profile picture URL: $imageUrl")
+        databaseReference.child("profilePicture").setValue(imageUrl)
+            .addOnCompleteListener {
+                Toast.makeText(this, "Profile picture updated successfully", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Failed to update profile picture: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun isConnected(): Boolean {
@@ -76,92 +140,126 @@ class editProfile : AppCompatActivity() {
     private fun fetchUserDetailsFromFirebase() {
         val userId = auth.currentUser?.uid
         userId?.let { uid ->
-            val userRef = databaseReference
-            userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
-                        val name = snapshot.child("fullname").getValue(String::class.java)
-                        val gamertag = snapshot.child("gamerTag").getValue(String::class.java)
-                        val gender = snapshot.child("gender").getValue(String::class.java)
-                        // val imageUrl = snapshot.child("picture").getValue(String::class.java)
+                        userData = snapshot.getValue(UserData::class.java) ?: UserData()
+                        Log.d("EditUserProfile", "Data loaded from Firebase: $userData")
 
-                        Log.d("EditUserProfile", "Data loaded from Firebase")
+                        findViewById<EditText>(R.id.nameEditText).setText(userData.fullname)
+                        findViewById<EditText>(R.id.gamertagEditText).setText(userData.gamerTag)
+                        findViewById<EditText>(R.id.bioEditText).setText(userData.bio) // New line to set bio
+                        genderSpinner.setSelection(Gender.values().indexOf(userData.gender))
 
-                        name?.let { findViewById<EditText>(R.id.nameEditText).setText(it) }
-                        gamertag?.let { findViewById<EditText>(R.id.gamertagEditText).setText(it) }
-                        gender?.let { genderValue ->
-                            val spinner = findViewById<Spinner>(R.id.genderSpinner)
-                            val adapter = spinner.adapter
-                            val position = (0 until adapter.count).firstOrNull { index ->
-                                adapter.getItem(index)?.toString().equals(genderValue, ignoreCase = true)
-                            } ?: 0 // Default to 0 if not found
-                            spinner.setSelection(position)
+                        userData.profilePicture?.let { url ->
+                            Glide.with(this@editProfile)
+                                .load(url)
+                                .circleCrop()
+                                .into(profileImage)
                         }
-
-                        // imageUrl?.let { url ->
-                       //     Glide.with(this@editPatientProfile)
-                        //        .load(url)
-                        //        .circleCrop() // Circle crop the image
-                         //       .into(profileImage)
-                        }
+                    } else {
+                        Log.w("EditUserProfile", "No data found for user ID: $uid")
                     }
+                }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    Toast.makeText(this@editProfile, "Failed to load user details: ${error.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("EditUserProfile", "Database error: ${error.message}")
                 }
             })
-
         }
     }
 
     private fun updateProfile() {
         val nameEditText = findViewById<EditText>(R.id.nameEditText)
         val gamertagEditText = findViewById<EditText>(R.id.gamertagEditText)
-        val genderSpinner = findViewById<Spinner>(R.id.genderSpinner)
+        val bioEditText = findViewById<EditText>(R.id.bioEditText) // Add bioEditText reference
+        val genderValue = Gender.values()[genderSpinner.selectedItemPosition]
 
         val name = nameEditText.text.toString().trim()
         val gamertag = gamertagEditText.text.toString().trim()
-        val gender = Gender.values()[genderSpinner.selectedItemPosition]
+        val bio = bioEditText.text.toString().trim() // Get the bio text
 
-        if (name.isEmpty() || gamertag.isEmpty()) {
+        if (name.isEmpty() || gamertag.isEmpty() || bio.isEmpty()) { // Check if bio is empty
             Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Check if the gamertag is unique
-        databaseReference.child("users").orderByChild("gamertag").equalTo(gamertag)
+        Log.d("EditProfile", "Checking if gamertag $gamertag is taken")
+        databaseReference.child("users").orderByChild("gamerTag").equalTo(gamertag)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     if (dataSnapshot.exists()) {
-                        // Gamertag already exists, show error message
                         Toast.makeText(this@editProfile, "Gamertag already taken. Please choose another one.", Toast.LENGTH_SHORT).show()
+                        Log.w("EditProfile", "Gamertag $gamertag is already taken")
                     } else {
-                        // Gamertag is unique, proceed with the update
-                        val userUpdates: MutableMap<String, Any> = HashMap()
-                        userUpdates["gamerTag"] = gamertag
-                        userUpdates["gender"] = gender.toString()  // assuming Gender is an enum
-                        userUpdates["fullname"] = name
+                        val updatedUserData = userData.copy(
+                            fullname = name,
+                            gamerTag = gamertag,
+                            gender = genderValue,
+                            bio = bio
+                        )
 
-                        // Update the user's data in the database
-                        databaseReference.updateChildren(userUpdates)
-                       Toast.makeText(this@editProfile, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                        redirect()
-
+                        Log.d("EditProfile", "Updating user profile: $updatedUserData")
+                        databaseReference.setValue(updatedUserData).addOnCompleteListener {
+                            Toast.makeText(this@editProfile, "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                            uploadImageToFirebase() // Upload the image after updating the profile
+                            saveUserDataToPostgreSQL(updatedUserData) // Save to PostgreSQL
+                            redirect()
+                        }.addOnFailureListener { e ->
+                            Log.e("EditProfile", "Failed to update user profile: ${e.message}")
+                        }
                     }
                 }
 
                 override fun onCancelled(databaseError: DatabaseError) {
-                    // Handle possible errors
                     Toast.makeText(this@editProfile, "Failed to check gamertag: ${databaseError.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("EditProfile", "Failed to check gamertag: ${databaseError.message}")
                 }
             })
     }
 
-    private fun redirect(){
+    private fun saveUserDataToPostgreSQL(userData: UserData) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val jsonData = JSONObject().apply {
+                put("userId", userData.userId) // Include the Firebase user ID
+                put("fullname", userData.fullname)
+                put("gamerTag", userData.gamerTag)
+                put("gender", userData.gender.displayName)
+                put("bio", userData.bio)
+            }
+
+
+            val url = "http://192.168.100.6:3000/api2/updateUser"
+            val client = OkHttpClient()
+
+            val request = Request.Builder()
+                .url(url)
+                .post(jsonData.toString().toRequestBody("application/json".toMediaType()))
+                .build()
+
+            try {
+                val response: Response = client.newCall(request).execute()
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        Log.d("EditProfile", "User data saved to PostgreSQL successfully")
+                    } else {
+                        Log.e("EditProfile", "Failed to save user data to PostgreSQL: ${response.message}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("EditProfile", "Exception while saving user data to PostgreSQL: ${e.message}")
+            }
+        }
+    }
+
+    private fun redirect() {
         val intent = Intent(this, UserProfile::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
     }
 
-
-
+    companion object {
+        private const val PICK_IMAGE_REQUEST = 1
+    }
 }
