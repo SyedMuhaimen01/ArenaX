@@ -14,6 +14,7 @@ firebaseAuth = "23.0.0"
 firebaseDatabase = "21.0.0"
 firebaseBom = "33.3.0"
 playServicesAuth = "20.5.0"
+firebaseDynamicLinks = "23.1.0"  # Add the Dynamic Links version here
 
 [libraries]
 graphview = "com.jjoe64:graphview:4.2.2"
@@ -31,6 +32,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

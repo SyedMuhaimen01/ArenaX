@@ -13,6 +13,9 @@
         android:theme="@style/Theme.ArenaX"
         tools:targetApi="31">
         <activity
+            android:name=".LoginSignUp.ForgotPassword"
+            android:exported="false" />
+        <activity
             android:name=".gamesDashboard.MyGamesList"
             android:exported="false" />
         <activity
