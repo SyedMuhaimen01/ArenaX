@@ -1,4 +1,4 @@
-package com.muhaimen.arenax.userProfile
+package com.muhaimen.arenax.dataClasses
 
 import com.jjoe64.graphview.series.DataPoint
 

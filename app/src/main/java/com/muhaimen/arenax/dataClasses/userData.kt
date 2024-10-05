@@ -11,6 +11,8 @@ data class UserData(
     var gamerTag: String = "",
     var profilePicture: String? = null,
     var gender: Gender = Gender.PreferNotToSay,
+    var bio: String? = null,
+    var location: String? = null,
     var accountVerified: Boolean = false
 ) : Parcelable {
     // Constructor for Parcel (used for Parcelable)
@@ -20,8 +22,10 @@ data class UserData(
         parcel.readString() ?: "", // email
         parcel.readString() ?: "", // dOB
         parcel.readString() ?: "", // gamerTag
-        parcel.readString(),       // profilePicture
+        parcel.readString(), // profilePicture
         parcel.readSerializable() as Gender, // gender
+        parcel.readString(), // bio
+        parcel.readString(), // location
         parcel.readByte() != 0.toByte() // accountVerified
     )
 
@@ -34,6 +38,8 @@ data class UserData(
         parcel.writeString(gamerTag)
         parcel.writeString(profilePicture)
         parcel.writeSerializable(gender)
+        parcel.writeString(bio)
+        parcel.writeString(location)
         parcel.writeByte(if (accountVerified) 1 else 0)
     }
 
