@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -29,11 +30,13 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.jjoe64.graphview.series.DataPoint
+import com.muhaimen.arenax.LoginSignUp.LoginScreen
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.AnalyticsData
 import com.muhaimen.arenax.dataClasses.Gender
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.editProfile.editProfile
+import com.muhaimen.arenax.uploadContent.UploadContent
 
 class UserProfile : AppCompatActivity() {
 
@@ -52,6 +55,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var bioTextView: TextView
     private lateinit var showMoreTextView: TextView
     private lateinit var editProfileButton: Button
+    private lateinit var addPost: ImageButton
     private lateinit var userData: UserData
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,6 +132,11 @@ class UserProfile : AppCompatActivity() {
         editProfileButton= findViewById(R.id.editProfileButton)
         editProfileButton.setOnClickListener {
             val intent = Intent(this, editProfile::class.java)
+            startActivity(intent)
+        }
+        addPost= findViewById(R.id.addPostButton)
+        addPost.setOnClickListener {
+            val intent = Intent(this, UploadContent::class.java)
             startActivity(intent)
         }
     }
