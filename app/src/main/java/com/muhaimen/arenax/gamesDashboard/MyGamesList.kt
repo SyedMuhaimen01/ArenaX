@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.gamesDashboard
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,6 +15,7 @@ import com.jjoe64.graphview.series.DataPoint
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.widget.AutoCompleteTextView
+import android.widget.ImageButton
 
 
 class MyGamesList : AppCompatActivity() {
@@ -21,6 +23,7 @@ class MyGamesList : AppCompatActivity() {
     private lateinit var myGamesListAdapter: myGamesListAdapter
     private lateinit var gamesSearchBar: AutoCompleteTextView
     private lateinit var myGamesList: List<AnalyticsData>
+    private lateinit var addGame:ImageButton
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -31,10 +34,15 @@ class MyGamesList : AppCompatActivity() {
             insets
         }
         gamesSearchBar = findViewById(R.id.searchbar)
-
+        addGame = findViewById(R.id.addGame)
         myGamesListRecyclerView = findViewById(R.id.myGamesListRecyclerView)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
+        addGame.setOnClickListener {
+            // Navigate to AddGameActivity
+            val intent = Intent(this, gamesList::class.java)
+            startActivity(intent)
+        }
         // Load sample data into the analytics adapter
         myGamesList= loadSampleAnalyticsData()
         val sampleData = loadSampleAnalyticsData()
@@ -44,6 +52,7 @@ class MyGamesList : AppCompatActivity() {
         setupAutoComplete()
         setupSearchFilter()
     }
+
     // Sample function to load analytics data
     private fun loadSampleAnalyticsData(): List<AnalyticsData> {
         // Example data points for graph (Hours vs Days)
