@@ -38,7 +38,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -54,16 +53,16 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation (libs.graphview)
+    implementation(libs.graphview)
     implementation(libs.play.services.auth)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.gson)
+    implementation(libs.mpandroidchart)
     implementation(libs.glide)
     kapt(libs.glideCompiler) // For annotation processing
     implementation(libs.kotlin)
     implementation(libs.okhttp)
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
-
 
 }
