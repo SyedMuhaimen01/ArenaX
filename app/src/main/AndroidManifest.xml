@@ -25,12 +25,19 @@
             android:name=".uploadContent.UploadContent"
             android:exported="false" />
         <activity
+
+            android:name=".gamesDashboard.ViewGameAnalytics"
+            android:exported="false" />
+        <activity
             android:name=".LoginSignUp.ForgotPassword"
             android:exported="false" />
         <activity
             android:name=".gamesDashboard.MyGamesList"
             android:exported="false" />
-        <activity android:name=".gamesDashboard.gamesList" />
+
+        <activity
+            android:name=".gamesDashboard.gamesList"
+            android:exported="false" />
         <activity
             android:name=".settings.settingsScreen"
             android:exported="false" />

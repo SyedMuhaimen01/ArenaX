@@ -13,7 +13,9 @@ import com.muhaimen.arenax.LoginSignUp.LoginScreen
 import com.muhaimen.arenax.LoginSignUp.PersonalInfoActivity
 import com.muhaimen.arenax.LoginSignUp.RegisterActivity
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
+import com.muhaimen.arenax.gamesDashboard.ViewGameAnalytics
 import com.muhaimen.arenax.gamesDashboard.gamesList
+
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.FirebaseManager
 
