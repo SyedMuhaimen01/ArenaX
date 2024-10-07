@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/screenbackground"
+    tools:context=".uploadStory.uploadStory">
+
+    <!-- Toolbar at the top -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/storyUploadToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primaryColor"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:title="New Story"
+        app:navigationIcon="@drawable/backwhite_foreground"
+        app:titleTextColor="@android:color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Story media preview area -->
+    <ImageView
+        android:id="@+id/storyPreviewImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        android:background="@android:color/darker_gray"
+        android:contentDescription="Story Media Preview"
+        app:layout_constraintTop_toBottomOf="@id/storyUploadToolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.5" />
+
+    <!-- Text addition feature -->
+    <EditText
+        android:id="@+id/storyTextInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:gravity="top"
+        android:hint="Add text to your story..."
+        android:textColorHint="@color/hinttextColor"
+        android:inputType="text"
+        android:padding="12dp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/storyDrawingTools"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/storyPreviewImageView" />
+
+    <!-- Drawing tools layout -->
+    <LinearLayout
+        android:id="@+id/storyDrawingTools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toTopOf="@id/storyBottomActions"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Pen tool for drawing -->
+        <ImageButton
+            android:id="@+id/drawPenButton"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:src="@drawable/back_icon_foreground"
+            android:background="@null"
+            android:contentDescription="Pen Tool" />
+
+        <!-- Eraser tool for drawing -->
+        <ImageButton
+            android:id="@+id/eraserButton"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/back_icon_foreground"
+            android:background="@null"
+            android:contentDescription="Eraser Tool" />
+    </LinearLayout>
+
+    <!-- Bottom layout with buttons to select media or upload -->
+    <LinearLayout
+        android:id="@+id/storyBottomActions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Gallery selection button -->
+        <ImageButton
+            android:id="@+id/storyGalleryButton"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:src="@drawable/back_icon_foreground"
+            android:background="@null"
+            android:contentDescription="Select from gallery" />
+
+        <!-- Camera button for live recording -->
+        <ImageButton
+            android:id="@+id/storyCameraButton"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginStart="32dp"
+            android:src="@drawable/back_icon_foreground"
+            android:background="@null"
+            android:contentDescription="Record from camera" />
+    </LinearLayout>
+
+    <!-- Floating button to upload the story -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/uploadStoryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/back_icon_foreground"
+        android:backgroundTint="@color/primaryColor"
+        android:contentDescription="Upload Story"
+        app:layout_constraintBottom_toTopOf="@id/storyBottomActions"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
