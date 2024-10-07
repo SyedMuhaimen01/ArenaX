@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.muhaimen.arenax.LoginSignUp.LoginScreen
 import com.muhaimen.arenax.LoginSignUp.PersonalInfoActivity
 import com.muhaimen.arenax.LoginSignUp.RegisterActivity
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
@@ -44,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         // Delay before checking login status
         handler.postDelayed({
             checkUserLoginStatus()
-        }, 3000)
+        }, 1000)
     }
 
     private fun checkUserLoginStatus() {
@@ -60,7 +61,8 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             // User is not logged in, navigate to RegisterActivity
-            navigateToRegisterActivity()
+            //navigateToRegisterActivity()
+            navigateToLoginActivity()
         }
     }
 
@@ -123,6 +125,13 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
         finish() // Close MainActivity to prevent going back
     }
+
+    private fun navigateToLoginActivity() {
+        val intent = Intent(this, LoginScreen::class.java)
+        startActivity(intent)
+        finish() // Close MainActivity to prevent going back
+    }
+
 
     private fun navigateToRegisterActivity() {
         val intent = Intent(this, RegisterActivity::class.java)

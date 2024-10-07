@@ -6,7 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".userProfile.userProfile">
+    tools:context=".userProfile.UserProfile">
   <ScrollView
       android:id="@+id/scrollView"
       android:layout_width="0dp"
@@ -148,7 +148,7 @@
         android:layout_gravity="start">
 
         <TextView
-            android:id="@+id/userHandle"
+            android:id="@+id/gamerTag"
             android:text="mYm XEROXXX"
             android:textSize="@dimen/_12ssp"
             android:textColor="@color/backgroundColor"
@@ -169,13 +169,13 @@
 
         <TextView
             android:id="@+id/bioText"
-            android:text="This is a sample bio..."
-            android:textSize="@dimen/_11ssp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="3"
             android:ellipsize="end"
-            android:textColor="@color/textColor"/>
+            android:maxLines="3"
+            android:text="This is a sample bio..."
+            android:textColor="@color/textColor"
+            android:textSize="@dimen/_11ssp" />
 
         <!-- Show More -->
         <TextView
