@@ -10,6 +10,7 @@ import android.provider.MediaStore
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -30,8 +31,8 @@ class UploadContent : AppCompatActivity() {
 
     private lateinit var previewImageView: ImageView
     private lateinit var captionEditText: EditText
-    private lateinit var galleryButton: ImageButton
-    private lateinit var cameraButton: ImageButton
+    private lateinit var galleryButton: TextView
+    private lateinit var cameraButton: TextView
     private lateinit var uploadPostButton: FloatingActionButton
     private lateinit var userData: UserData
     private var mediaUri: Uri? = null
