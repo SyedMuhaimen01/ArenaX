@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         // Delay before checking login status
         handler.postDelayed({
             checkUserLoginStatus()
-        }, 3000)
+        }, 1000)
     }
 
     private fun checkUserLoginStatus() {
