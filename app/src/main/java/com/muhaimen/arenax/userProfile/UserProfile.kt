@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.muhaimen.arenax.uploadStory.uploadStory
+
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -86,13 +88,6 @@ class UserProfile : AppCompatActivity() {
             fetchUserDetailsFromFirebase()
         }
 
-        val bio = "This is a long bio that might need to be shortened to fit on the screen. Here is some more content that will be hidden initially.This is a long bio that might need to be shortened to fit on the screen. Here is some more content that will be hidden initially."
-        bioTextView.text = bio
-
-        // Check the length of the bio text to determine if "See More" should be shown
-        if (bio.length > 50) { // Adjust the character count as needed
-            showMoreTextView.visibility = View.VISIBLE
-        }
 
         showMoreTextView.setOnClickListener {
             // Expand bio to show full text
@@ -136,7 +131,7 @@ class UserProfile : AppCompatActivity() {
         }
         addPost= findViewById(R.id.addPostButton)
         addPost.setOnClickListener {
-            val intent = Intent(this, UploadContent::class.java)
+            val intent = Intent(this, uploadStory::class.java)
             startActivity(intent)
         }
     }
