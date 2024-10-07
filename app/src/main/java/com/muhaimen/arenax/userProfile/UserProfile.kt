@@ -131,7 +131,7 @@ class UserProfile : AppCompatActivity() {
         }
         addPost= findViewById(R.id.addPostButton)
         addPost.setOnClickListener {
-            val intent = Intent(this, uploadStory::class.java)
+            val intent = Intent(this, UploadContent::class.java)
             startActivity(intent)
         }
     }
