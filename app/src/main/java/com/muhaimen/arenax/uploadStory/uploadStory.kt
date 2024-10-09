@@ -1,11 +1,9 @@
 package com.muhaimen.arenax.uploadStory
 
-import android.Manifest
+
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.media.MediaPlayer
@@ -36,12 +34,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.arthenica.mobileffmpeg.FFmpeg
-import com.google.android.material.search.SearchBar
 import com.google.firebase.auth.FirebaseAuth
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.DraggableText
@@ -53,7 +49,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
-import kotlin.time.Duration
+
 
 class uploadStory : AppCompatActivity() {
 
@@ -65,8 +61,6 @@ class uploadStory : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var userData: UserData
     private lateinit var auth: FirebaseAuth
-    private val PICK_IMAGE_REQUEST = 1
-    private val CAPTURE_IMAGE_REQUEST = 2
     private var selectedImageUri: Uri? = null
     private lateinit var tracksRecyclerView: RecyclerView
     private lateinit var adapter: TracksAdapter
