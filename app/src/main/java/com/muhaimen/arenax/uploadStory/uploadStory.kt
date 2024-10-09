@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -47,8 +48,10 @@ import com.muhaimen.arenax.dataClasses.DraggableText
 import com.muhaimen.arenax.dataClasses.Track
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.dataClasses.gamesData
+import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONObject
 import java.io.File
+import java.io.IOException
 import kotlin.time.Duration
 
 class uploadStory : AppCompatActivity() {
@@ -84,6 +87,7 @@ class uploadStory : AppCompatActivity() {
     var duration: Int = 0
     val fixedDuration=15
     lateinit var draggableContainers:List<FrameLayout>
+    private var mediaPlayer: MediaPlayer? = null
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,7 +108,7 @@ class uploadStory : AppCompatActivity() {
         endSeekBar = findViewById(R.id.endSeekBar)
         trimTrackLayout = findViewById(R.id.trimTrackLayout)
         // Initialize Firebase Auth
-        auth = FirebaseAuth.getInstance()
+        auth = FirebaseManager.getAuthInstance()
 
         // Hide trimming options initially
         trimTrackLayout.visibility = View.GONE
@@ -250,6 +254,7 @@ class uploadStory : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
 
         AlertDialog.Builder(this)
@@ -630,23 +635,35 @@ class uploadStory : AppCompatActivity() {
             if (returnCode == 0) {
                 Log.d("FFmpeg", "Trimming completed successfully.")
                 // Play the trimmed audio
-                adapter.playTrack(Track(
-                    id = track.id,
-                    artist = track.artist,
-                    title = track.title,
-                    artistId = track.artistId,
-                    albumName = track.albumName,
-                    albumId = track.albumId,
-                    duration = duration,
-                    audioUrl = outputPath,
-                    albumImage = track.albumImage,
-                    downloadUrl = track.downloadUrl
-                ))
+                playTrimmedAudio(outputPath)
             } else {
                 Log.e("FFmpeg", "Error trimming audio: $returnCode")
             }
         }
     }
+
+    fun playTrimmedAudio(outputPath: String) {
+        try {
+            // Initialize MediaPlayer
+            mediaPlayer = MediaPlayer()
+            mediaPlayer!!.setDataSource(outputPath)
+            mediaPlayer!!.prepare() // Prepare the player asynchronously
+
+            mediaPlayer!!.setOnPreparedListener {
+                mediaPlayer!!.isLooping = true // Set looping
+                mediaPlayer!!.start() // Start playing when prepared
+                Log.d("MediaPlayer", "Playing trimmed audio in loop.")
+            }
+
+            mediaPlayer!!.setOnCompletionListener {
+                Log.d("MediaPlayer", "Trimmed audio playback completed. It will restart.")
+                // No need to release here, as it will loop indefinitely
+            }
+        } catch (e: IOException) {
+            Log.e("MediaPlayer", "Error playing trimmed audio: ${e.message}")
+        }
+    }
+
     private fun setupAutoComplete() {
 
         val trackNames = TrackList.map { it.title }
@@ -659,7 +676,7 @@ class uploadStory : AppCompatActivity() {
             // When a suggestion is selected, filter the list based on the selected game
             val selectedTrackName = searchBar.adapter.getItem(position).toString()
             // Filter the list based on selected game
-            filterGamesList(selectedTrackName)
+            filterTracksList(selectedTrackName)
         }
     }
 
@@ -670,14 +687,14 @@ class uploadStory : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 // Filter the list based on the text entered in the search bar
                 val searchQuery = s.toString()
-                filterGamesList(searchQuery)
+                filterTracksList(searchQuery)
             }
 
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
-    private fun filterGamesList(query: String) {
+    private fun filterTracksList(query: String) {
 
         // Filter games based on the query
         val filteredList = if (query.isEmpty()) {
