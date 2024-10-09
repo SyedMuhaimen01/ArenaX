@@ -41,6 +41,16 @@
           android:layout_marginEnd="16dp"
           android:background="@drawable/circle"
           android:clipToOutline="true" />
+      <ImageButton
+          android:id="@+id/uploadStoryButton"
+          android:layout_width="@dimen/_20sdp"
+          android:layout_height="@dimen/_20sdp"
+          android:src="@drawable/add_white_icon_foreground"
+          android:backgroundTint="@color/primaryColor"
+          android:background="@drawable/circle"
+          android:scaleType="fitXY"
+          android:layout_marginLeft="-40dp"
+          android:layout_marginTop="@dimen/_25sdp"></ImageButton>
 
 
       <LinearLayout

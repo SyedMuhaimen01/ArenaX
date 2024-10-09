@@ -13,21 +13,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-
-        android:layout_marginLeft="@dimen/_10sdp"
-        tools:ignore="MissingConstraints">
+        android:background="@color/backgroundColor"
+        tools:ignore="MissingConstraints"
+        android:padding="@dimen/_8sdp">
         <ImageButton
+            android:id="@+id/backButton"
             android:layout_width="@dimen/_30sdp"
             android:layout_height="@dimen/_20sdp"
-            android:src="@mipmap/back_icon"></ImageButton>
+            android:src="@mipmap/back_icon"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:backgroundTint="@color/backgroundColor"></ImageButton>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/_5sdp"
-            android:text="My Games"
+            android:text="New Post"
             android:textStyle="bold"
             android:textColor="@color/textColor"
-            android:textSize="@dimen/_16sdp"></TextView>
+            android:background="@color/backgroundColor"
+            android:textSize="@dimen/_18sdp"
+            android:layout_marginTop="-3dp"></TextView>
     </LinearLayout>
 
     <!-- Media preview area (Image or Video) -->
@@ -36,12 +42,12 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="centerCrop"
-        android:background="@color/LogoBackground"
+        android:background="@color/accentColor"
         android:contentDescription="Media Preview"
         app:layout_constraintTop_toBottomOf="@id/uploadToolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.4"/>
+        app:layout_constraintHeight_percent="0.5"/>
 
     <!-- Caption input field -->
 
@@ -55,10 +61,10 @@
         android:hint="Write a caption..."
         android:textColorHint="@color/hinttextColor"
         android:inputType="textMultiLine"
-
+        android:layout_marginRight="@dimen/_10sdp"
         android:padding="16dp"
-        android:layout_marginLeft="@dimen/_23sdp"
-        android:textColor="@color/white"
+        android:layout_marginLeft="@dimen/_10sdp"
+        android:textColor="@color/textColor"
         app:layout_constraintBottom_toTopOf="@id/bottomButtonsLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -85,7 +91,7 @@
             android:layout_height="wrap_content"
             android:text="Gallery"
             android:textAlignment="center"
-            android:textSize="@dimen/_12sdp"
+            android:textSize="@dimen/_14sdp"
             android:textStyle="bold"
             android:textColor="@color/primaryColor"
             android:contentDescription="Select from gallery"
@@ -97,10 +103,10 @@
             android:id="@+id/cameraButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Post"
-            android:layout_marginStart="@dimen/_10sdp"
+            android:text="Camera"
+            android:layout_marginStart="@dimen/_14sdp"
             android:textAlignment="center"
-            android:textSize="@dimen/_12sdp"
+            android:textSize="@dimen/_14sdp"
             android:textStyle="bold"
             android:textColor="@color/primaryColor"
             android:contentDescription="Select from gallery"
@@ -110,12 +116,13 @@
 
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <ImageButton
         android:id="@+id/uploadPostButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/back_icon_foreground"
+        android:layout_width="@dimen/_45sdp"
+        android:layout_height="@dimen/_45sdp"
+        android:src="@drawable/add_white_icon_foreground"
         android:backgroundTint="@color/primaryColor"
+        android:background="@drawable/circle"
         android:contentDescription="Post Content"
         app:layout_constraintBottom_toTopOf="@id/bottomButtonsLayout"
         app:layout_constraintEnd_toEndOf="parent"
