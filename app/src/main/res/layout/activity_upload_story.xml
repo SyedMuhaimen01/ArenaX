@@ -230,14 +230,14 @@
             android:id="@+id/musicButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Music"
+            android:layout_gravity="center"
             android:layout_marginStart="@dimen/_14sdp"
-            android:textAlignment="center"
-            android:textSize="@dimen/_14sdp"
-            android:textStyle="bold"
-            android:textColor="@color/primaryColor"
             android:contentDescription="Add music"
-            android:layout_gravity="center"/>
+            android:text="Music"
+            android:textAlignment="center"
+            android:textColor="@color/primaryColor"
+            android:textSize="@dimen/_14sdp"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <ImageButton

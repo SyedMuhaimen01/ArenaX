@@ -1,4 +1,4 @@
-package com.muhaimen.arenax.uploadStory
+package com.muhaimen.arenax.uploadContent
 
 import android.media.MediaPlayer
 import android.os.Handler
@@ -16,7 +16,7 @@ import com.muhaimen.arenax.dataClasses.Track
 import java.io.IOException
 
 class TracksAdapter(
-    private val activity: uploadStory,
+    private val activity: UploadContent,
     private var tracks: List<Track>,
     private val onClick: (Track) -> Unit
 ) : RecyclerView.Adapter<TracksAdapter.TrackViewHolder>() {
@@ -30,6 +30,7 @@ class TracksAdapter(
     }
 
     private var mediaPlayer: MediaPlayer? = null
+
     private var currentTrack: Track? = null // To keep track of the currently playing track
     var duration: Int = 0
     var downloadUrl: String? = null
