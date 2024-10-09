@@ -1,105 +1,175 @@
 package com.muhaimen.arenax.gamesDashboard
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.ArrayAdapter
+import android.widget.ImageButton
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.jjoe64.graphview.series.DataPoint
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.widget.AutoCompleteTextView
-import android.widget.ImageButton
-
+import android.widget.Button
+import com.google.firebase.auth.FirebaseAuth
+import okhttp3.*
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.IOException
 
 class MyGamesList : AppCompatActivity() {
     private lateinit var myGamesListRecyclerView: RecyclerView
-    private lateinit var myGamesListAdapter: myGamesListAdapter
+    private lateinit var myGamesListAdapter: MyGamesListAdapter
     private lateinit var gamesSearchBar: AutoCompleteTextView
     private lateinit var myGamesList: List<AnalyticsData>
-    private lateinit var addGame:ImageButton
+    private lateinit var addGame: ImageButton
+    private lateinit var refreshButton: Button
+    private lateinit var auth: FirebaseAuth
+    private val client = OkHttpClient()
+    private val sharedPreferences by lazy { getSharedPreferences("MyGamesPrefs", Context.MODE_PRIVATE) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_my_games_list)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        auth = FirebaseAuth.getInstance()
         gamesSearchBar = findViewById(R.id.searchbar)
         addGame = findViewById(R.id.addGame)
+        refreshButton = findViewById(R.id.refreshButton)
         myGamesListRecyclerView = findViewById(R.id.myGamesListRecyclerView)
-        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Set an empty adapter initially
+        myGamesListAdapter = MyGamesListAdapter(emptyList())
+        myGamesListRecyclerView.adapter = myGamesListAdapter
 
         addGame.setOnClickListener {
-            // Navigate to AddGameActivity
             val intent = Intent(this, gamesList::class.java)
             startActivity(intent)
         }
-        // Load sample data into the analytics adapter
-        myGamesList= loadSampleAnalyticsData()
-        val sampleData = loadSampleAnalyticsData()
-        myGamesListAdapter = myGamesListAdapter(sampleData)
-        myGamesListRecyclerView.adapter = myGamesListAdapter
 
-        setupAutoComplete()
-        setupSearchFilter()
+        // Set up the refresh button's click listener
+        refreshButton.setOnClickListener {
+            showRefreshDialog()
+        }
+
+        loadGamesFromPreferences()
     }
 
-    // Sample function to load analytics data
-    private fun loadSampleAnalyticsData(): List<AnalyticsData> {
-        // Example data points for graph (Hours vs Days)
-        val hoursData1 = listOf(
-            DataPoint(1.0, 2.0),
-            DataPoint(2.0, 3.0),
-            DataPoint(3.0, 5.0),
-            DataPoint(4.0, 7.0),
-            DataPoint(5.0, 4.0)
-        )
-        val hoursData2 = listOf(
-            DataPoint(1.0, 1.0),
-            DataPoint(2.0, 2.5),
-            DataPoint(3.0, 4.5),
-            DataPoint(4.0, 6.0),
-            DataPoint(5.0, 5.0)
-        )
-
-        // Create AnalyticsData instances
-        val game1 = AnalyticsData(
-            gameName = "Game 1",
-            totalHours = 15,
-            iconResId = R.drawable.game_icon_foreground,
-            hoursData = hoursData1
-        )
-
-        val game2 = AnalyticsData(
-            gameName = "Game 2",
-            totalHours = 20,
-            iconResId = R.drawable.game_icon_foreground,
-            hoursData = hoursData2
-        )
-
-        // Return a list of analytics data
-        return listOf(game1, game2)
+    override fun onResume() {
+        super.onResume()
+        loadGamesFromPreferences() // Reload games when the activity is resumed
     }
+
+    private fun loadGamesFromPreferences() {
+        val jsonString = sharedPreferences.getString("gamesList", null)
+        if (jsonString != null) {
+            parseGamesData(jsonString)
+        } else {
+            fetchUserGames()
+        }
+    }
+
+    private fun fetchUserGames() {
+        val request = Request.Builder()
+            .url("http://192.168.100.6:3000/usergames/user/${auth.currentUser?.uid}/mygames")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                runOnUiThread {
+                    Toast.makeText(this@MyGamesList, "Failed to fetch games", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string() ?: ""
+                    if (responseBody.isNotEmpty()) {
+                        parseGamesData(responseBody)
+                        saveGamesToPreferences(responseBody)
+                    } else {
+                        // Update shared preferences to store an empty list when no games are returned
+                        updateEmptyGameList()
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(this@MyGamesList, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun updateEmptyGameList() {
+        with(sharedPreferences.edit()) {
+            putString("gamesList", "[]") // Store empty list as a JSON string
+            apply()
+        }
+        runOnUiThread {
+            // Show empty view in the RecyclerView
+            myGamesListAdapter.updateGamesList(emptyList())
+            Toast.makeText(this@MyGamesList, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
+        }
+    }
+
+    private fun saveGamesToPreferences(gamesJson: String) {
+        with(sharedPreferences.edit()) {
+            putString("gamesList", gamesJson)
+            apply()
+        }
+    }
+
+    private fun parseGamesData(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val gamesArray = jsonObject.getJSONArray("games") // Fetch the 'games' array from the JSON object
+
+            myGamesList = List(gamesArray.length()) { index ->
+                val gameObject = gamesArray.getJSONObject(index)
+                Log.d("MyGamesList", "Parsing game: ${gameObject.getString("gameName")}, Icon URL: ${gameObject.getString("gameIcon")}")
+                AnalyticsData(
+                    gameName = gameObject.getString("gameName"),
+                    totalHours = gameObject.getInt("totalHours"),
+                    iconResId = gameObject.getString("gameIcon"),
+                    graphData = emptyList()
+                )
+            }
+
+            runOnUiThread {
+                Log.d("MyGamesList", "Number of games fetched: ${myGamesList.size}")
+                myGamesListAdapter.updateGamesList(myGamesList)
+                setupAutoComplete()
+                setupSearchFilter()
+            }
+        } catch (e: Exception) {
+            Log.e("MyGamesList", "Error parsing games data", e)
+        }
+    }
+
     private fun setupAutoComplete() {
-        // Extract game names for autocomplete suggestions
         val gameNames = myGamesList.map { it.gameName }
-
-        // Create an ArrayAdapter for AutoCompleteTextView
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, gameNames)
         gamesSearchBar.setAdapter(adapter)
 
-        // Set up the item click listener for auto-complete suggestions
         gamesSearchBar.setOnItemClickListener { _, _, position, _ ->
-            // When a suggestion is selected, filter the list based on the selected game
             val selectedGameName = gamesSearchBar.adapter.getItem(position).toString()
             filterGamesList(selectedGameName)
         }
@@ -110,7 +180,6 @@ class MyGamesList : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Filter the RecyclerView as user types
                 filterGamesList(s.toString())
             }
 
@@ -119,7 +188,6 @@ class MyGamesList : AppCompatActivity() {
     }
 
     private fun filterGamesList(query: String) {
-        // Filter the list of games based on the search query
         val filteredList = if (query.isEmpty()) {
             myGamesList
         } else {
@@ -128,7 +196,17 @@ class MyGamesList : AppCompatActivity() {
             }
         }
 
-        // Update the adapter with the filtered list
         myGamesListAdapter.updateGamesList(filteredList)
+    }
+
+    private fun showRefreshDialog() {
+        val dialogBuilder = AlertDialog.Builder(this)
+        dialogBuilder.setMessage("Do you want to refresh the game list?")
+            .setCancelable(false)
+            .setPositiveButton("Yes") { _, _ -> fetchUserGames() }
+            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
+        val alert = dialogBuilder.create()
+        alert.setTitle("Refresh Games")
+        alert.show()
     }
 }

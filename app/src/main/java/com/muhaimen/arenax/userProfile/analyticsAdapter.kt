@@ -27,8 +27,8 @@ class AnalyticsAdapter(private val analyticsList: List<AnalyticsData>) : Recycle
         fun bind(data: AnalyticsData) {
             gameName.text = data.gameName
             totalHours.text = "Total Hours: ${data.totalHours}"
-            gameIcon.setImageResource(data.iconResId) // Assuming iconResId is part of AnalyticsData
-            populateGraph(data.hoursData) // hoursData will be a list of DataPoint objects
+           // gameIcon.setImageResource(data.iconResId.toS)
+            populateGraph(data.graphData) // hoursData will be a list of DataPoint objects
         }
 
         private fun populateGraph(hoursData: List<DataPoint>) {

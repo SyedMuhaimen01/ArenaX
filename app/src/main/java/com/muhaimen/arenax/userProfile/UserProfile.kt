@@ -1,9 +1,13 @@
 package com.muhaimen.arenax.userProfile
 
 import android.annotation.SuppressLint
+import android.app.AppOpsManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -36,25 +40,29 @@ import com.muhaimen.arenax.dataClasses.AnalyticsData
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.editProfile.editProfile
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
+import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.uploadContent.UploadContent
+import android.provider.Settings
+import com.muhaimen.arenax.screenTime.ScreenTimeService
+
 
 class UserProfile : AppCompatActivity() {
-
+    private val USAGE_STATS_PERMISSION_REQUEST_CODE = 1001
     private lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
     private lateinit var storageReference: StorageReference
     private lateinit var analyticsRecyclerView: RecyclerView
     private lateinit var analyticsAdapter: AnalyticsAdapter
-
     private lateinit var highlightsRecyclerView: RecyclerView
     private lateinit var highlightsAdapter: HighlightsAdapter
-
+    private lateinit var synergyButton:ImageButton
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: PostsAdapter
     private lateinit var profileImage: ImageView
     private lateinit var bioTextView: TextView
     private lateinit var showMoreTextView: TextView
     private lateinit var editProfileButton: Button
+    private lateinit var myGamesButton: ImageButton
     private lateinit var addPost: ImageButton
     private lateinit var uploadStoryButton: ImageButton
     private lateinit var userData: UserData
@@ -91,6 +99,13 @@ class UserProfile : AppCompatActivity() {
 
         rankTextView = findViewById(R.id.rankTextView)
         rankTextView.text="Rank: 1"
+        if (!checkUsageStatsPermission()) {
+            requestUsageStatsPermission()
+        } else {
+            startTrackingService() // Start the service if permission is granted
+
+        }
+
 
         if (!isConnected()) {
             Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
@@ -98,18 +113,13 @@ class UserProfile : AppCompatActivity() {
             fetchUserDetailsFromFirebase()
         }
 
+
         uploadStoryButton = findViewById(R.id.uploadStoryButton)
         uploadStoryButton.setOnClickListener {
             val intent = Intent(this, uploadStory::class.java)
             startActivity(intent)
         }
-        showMoreTextView.setOnClickListener {
-            // Expand bio to show full text
-            bioTextView.maxLines = Int.MAX_VALUE
-            bioTextView.ellipsize = null
-            showMoreTextView.visibility = View.GONE  // Hide "See More"
-        }
-
+       
         // Initialize the RecyclerView for analytics
         analyticsRecyclerView = findViewById(R.id.analytics_recyclerview)
         analyticsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -154,6 +164,23 @@ class UserProfile : AppCompatActivity() {
             val intent = Intent(this, accountSettings::class.java)
             startActivity(intent)
         }
+        myGamesButton= findViewById(R.id.myGamesButton)
+        myGamesButton.setOnClickListener {
+            val intent = Intent(this, MyGamesList::class.java)
+            startActivity(intent)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "TrackingServiceChannel",
+                "Game Tracking Notifications",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+
+
     }
 
     private fun isConnected(): Boolean {
@@ -229,15 +256,15 @@ class UserProfile : AppCompatActivity() {
         val game1 = AnalyticsData(
             gameName = "Game 1",
             totalHours = 15,
-            iconResId = R.drawable.game_icon_foreground,
-            hoursData = hoursData1
+            iconResId = R.drawable.game_icon_foreground.toString(),
+            graphData = hoursData1
         )
 
         val game2 = AnalyticsData(
             gameName = "Game 2",
             totalHours = 20,
-            iconResId = R.drawable.game_icon_foreground,
-            hoursData = hoursData2
+            iconResId = R.drawable.game_icon_foreground.toString(),
+            graphData = hoursData2
         )
 
         // Return a list of analytics data
@@ -265,6 +292,28 @@ class UserProfile : AppCompatActivity() {
             Post(imageResId = R.drawable.profile_icon_foreground),
             Post(imageResId = R.drawable.profile_icon_foreground)
         )
+    }
+
+
+    // Check if the app has usage stats permission
+    private fun checkUsageStatsPermission(): Boolean {
+        val appOpsManager = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val mode = appOpsManager.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            android.os.Process.myUid(), packageName
+        )
+        return mode == AppOpsManager.MODE_ALLOWED
+    }
+
+    // Request the user to grant usage stats permission
+    private fun requestUsageStatsPermission() {
+        startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+    }
+
+    private fun startTrackingService() {
+        // Start your tracking service
+        val intent = Intent(this, ScreenTimeService::class.java)
+        startService(intent)
     }
 
 

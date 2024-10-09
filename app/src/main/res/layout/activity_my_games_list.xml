@@ -85,7 +85,20 @@
             android:layout_marginRight="@dimen/_10sdp"
             android:background="@color/secondaryColor"
             android:src="@mipmap/add_icon"></ImageButton>
+        <Button
+            android:id="@+id/refreshButton"
+            android:layout_marginTop="-60dp"
+            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_marginRight="@dimen/_17sdp"
+            android:layout_width="@dimen/_200sdp"
+            android:layout_height="@dimen/_35sdp"
+            android:background="@drawable/buttonholder"
+            android:text="Refresh"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_13ssp"
+            />
     </LinearLayout>
+
 
     <!-- Bottom Navigation -->
     <LinearLayout

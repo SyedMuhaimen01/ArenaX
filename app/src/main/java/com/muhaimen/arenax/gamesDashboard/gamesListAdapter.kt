@@ -1,16 +1,27 @@
 package com.muhaimen.arenax.gamesDashboard
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.dataClasses.gamesData
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import com.muhaimen.arenax.dataClasses.AppInfo
+import org.json.JSONObject
 
-class gamesListAdapter(private var gamesList: List<gamesData>) : RecyclerView.Adapter<gamesListAdapter.GamesViewHolder>() {
+class gamesListAdapter(
+    private var gamesList: MutableList<AppInfo>,
+    private val userId: String,
+    private val fetchInstalledApps: () -> Unit
+) : RecyclerView.Adapter<gamesListAdapter.GamesViewHolder>() {
 
     // ViewHolder class to hold the views for each card
     inner class GamesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -18,20 +29,28 @@ class gamesListAdapter(private var gamesList: List<gamesData>) : RecyclerView.Ad
         private val gameName: TextView = itemView.findViewById(R.id.name)
         private val genre: TextView = itemView.findViewById(R.id.genre)
         private val publisher: TextView = itemView.findViewById(R.id.publisher)
+        private val addButton: Button = itemView.findViewById(R.id.add_button) // Add Button
 
-        fun bind(game: gamesData) {
+        fun bind(game: AppInfo) {
             // Bind game data to views
-            gameName.text = game.gameName
-            genre.text = game.genre.joinToString(", ") // Join genres as a string
+            gameName.text = game.name
+            genre.text = game.genre
             publisher.text = game.publisher
 
-            // Load the game icon using Glide
-            // Set a placeholder image while loading
+            val formattedIcon = formatUrl(game.logoUrl)
+
             Glide.with(itemView.context)
-                .load(game.iconUrl) // Assuming iconUrl is the URL of the image
+                .load(formattedIcon) // Assuming logoUrl is the URL of the image
                 .placeholder(R.drawable.circle) // Add a placeholder image
                 .error(R.drawable.circle) // Add an error image if loading fails
                 .into(gameIcon)
+
+            // Set up add button click listener
+            addButton.setOnClickListener {
+                addGame(game, userId, itemView.context)
+                // Disable the add button after the game is added
+                addButton.isEnabled = false
+            }
         }
     }
 
@@ -47,8 +66,50 @@ class gamesListAdapter(private var gamesList: List<gamesData>) : RecyclerView.Ad
     override fun getItemCount(): Int = gamesList.size
 
     // Method to update the games list and notify changes
-    fun updateGamesList(newGamesList: List<gamesData>) {
-        gamesList = newGamesList
-        notifyDataSetChanged() // Notify the adapter to refresh the views
+    fun updateGamesList(newGamesList: List<AppInfo>) {
+        gamesList = newGamesList.toMutableList()
+        notifyDataSetChanged()
+    }
+
+    // Method to send game data to the backend using Volley
+    private fun addGame(appInfo: AppInfo, userId: String, context: Context) {
+        val queue = Volley.newRequestQueue(context) // Pass the context here
+        val url = "http://192.168.100.6:3000/installedGame/user/$userId/addGame"
+
+        val jsonBody = JSONObject().apply {
+            put("userId", userId)
+            put("game_name", appInfo.name)
+            put("package_name", appInfo.packageName)
+            put("logo_url", appInfo.logoUrl)
+            put("genre", appInfo.genre)
+            put("publisher", appInfo.publisher)
+        }
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.POST, url, jsonBody,
+            { response ->
+                if (response.getString("message") == "Game added successfully") {
+                    // Success: show a Toast or handle response accordingly
+                    Toast.makeText(context, "Game added successfully", Toast.LENGTH_SHORT).show()
+                    // Refetch the installed apps
+                    fetchInstalledApps()
+                }
+            },
+            { error ->
+                error.printStackTrace()
+                // Handle error response
+                Toast.makeText(context, "Error adding game", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        queue.add(jsonObjectRequest)
+    }
+
+    fun formatUrl(url: String?): String {
+        return when {
+            url.isNullOrEmpty() -> "" // Return empty string for null or empty input
+            url.startsWith("http://") || url.startsWith("https://") -> url // Return the URL as is
+            else -> "https:$url" // Prepend with https if it starts with //
+        }
     }
 }

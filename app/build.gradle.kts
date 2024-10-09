@@ -50,6 +50,9 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.storage.ktx)
     implementation(libs.volley)
+    implementation(libs.androidx.tools.core)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.work.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -64,5 +67,7 @@ dependencies {
     implementation(libs.kotlin)
     implementation(libs.okhttp)
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
+    implementation(libs.jsoup)
     implementation ("com.arthenica:mobile-ffmpeg-full-gpl:4.4.LTS")
+
 }

@@ -59,6 +59,7 @@
         </LinearLayout>
 
  <Button
+     android:id="@+id/add_button"
      android:layout_width="@dimen/_45sdp"
      android:layout_height="@dimen/_25sdp"
      android:background="@color/primaryColor"
