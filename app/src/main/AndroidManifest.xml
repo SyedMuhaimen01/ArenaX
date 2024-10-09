@@ -6,9 +6,14 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
 
     <application
         android:allowBackup="true"
@@ -21,19 +26,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ArenaX"
         tools:targetApi="31">
-        <activity
 
+
+        <service android:name=".screenTime.ScreenTimeService"
+            android:foregroundServiceType="dataSync"
+            tools:ignore="ForegroundServicePermission" />
+
+        <receiver android:name=".utils.GameStatsRepository$ResponseReceiver"
+            tools:ignore="WrongManifestParent" />
+        <activity
             android:name=".uploadStory.uploadStory"
             android:exported="false" />
-
+        <activity
             android:name=".gamesDashboard.overallLeaderboard"
             android:exported="false" />
-
         <activity
             android:name=".uploadContent.UploadContent"
             android:exported="false" />
         <activity
-
             android:name=".gamesDashboard.ViewGameAnalytics"
             android:exported="false" />
         <activity
@@ -42,7 +52,6 @@
         <activity
             android:name=".gamesDashboard.MyGamesList"
             android:exported="false" />
-
         <activity
             android:name=".gamesDashboard.gamesList"
             android:exported="false" />
@@ -73,6 +82,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
