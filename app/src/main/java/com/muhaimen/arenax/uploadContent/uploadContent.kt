@@ -31,7 +31,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -76,6 +75,7 @@ class UploadContent : AppCompatActivity() {
     private lateinit var searchBar: AutoCompleteTextView
     private var TrackList: List<Track> = emptyList()
     private var mediaPlayer: MediaPlayer? = null
+    private var trimmedAudioUrl:String?=null
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -357,7 +357,9 @@ class UploadContent : AppCompatActivity() {
             put("userId", userData.userId)
             put("content", mediaUrl)
             put("caption", caption)
-            put("sponsored", false) // Add this if it's required by your backend
+            put("sponsored", false)
+            put("created_at", System.currentTimeMillis())
+            put("trimmed_audio_url", trimmedAudioUrl)
         }
 
         val postRequest = JsonObjectRequest(
@@ -492,6 +494,7 @@ class UploadContent : AppCompatActivity() {
 
     fun playTrimmedAudio(outputPath: String) {
         try {
+            trimmedAudioUrl=outputPath
             // Initialize MediaPlayer
             mediaPlayer = MediaPlayer()
             mediaPlayer!!.setDataSource(outputPath)
