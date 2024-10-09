@@ -36,8 +36,7 @@
             android:foregroundServiceType="dataSync"
             tools:ignore="ForegroundServicePermission" />
 
-        <receiver android:name=".utils.GameStatsRepository$ResponseReceiver"
-            tools:ignore="WrongManifestParent" />
+
         <activity
             android:name=".uploadStory.uploadStory"
             android:exported="false" />

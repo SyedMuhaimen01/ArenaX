@@ -74,6 +74,7 @@ class MyGamesList : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        loadGamesFromPreferences() // Reload games when the activity is resumed
     }
 
     private fun loadGamesFromPreferences() {
@@ -100,9 +101,13 @@ class MyGamesList : AppCompatActivity() {
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
-                    response.body?.string()?.let { responseBody ->
+                    val responseBody = response.body?.string() ?: ""
+                    if (responseBody.isNotEmpty()) {
                         parseGamesData(responseBody)
                         saveGamesToPreferences(responseBody)
+                    } else {
+                        // Update shared preferences to store an empty list when no games are returned
+                        updateEmptyGameList()
                     }
                 } else {
                     runOnUiThread {
@@ -111,6 +116,18 @@ class MyGamesList : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun updateEmptyGameList() {
+        with(sharedPreferences.edit()) {
+            putString("gamesList", "[]") // Store empty list as a JSON string
+            apply()
+        }
+        runOnUiThread {
+            // Show empty view in the RecyclerView
+            myGamesListAdapter.updateGamesList(emptyList())
+            Toast.makeText(this@MyGamesList, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
+        }
     }
 
     private fun saveGamesToPreferences(gamesJson: String) {
@@ -186,9 +203,7 @@ class MyGamesList : AppCompatActivity() {
         val dialogBuilder = AlertDialog.Builder(this)
         dialogBuilder.setMessage("Do you want to refresh the game list?")
             .setCancelable(false)
-            .setPositiveButton("Yes") { _, _ ->
-                fetchUserGames()
-            }
+            .setPositiveButton("Yes") { _, _ -> fetchUserGames() }
             .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
         val alert = dialogBuilder.create()
         alert.setTitle("Refresh Games")
