@@ -66,6 +66,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var editProfileButton: Button
     private lateinit var myGamesButton: ImageButton
     private lateinit var addPost: ImageButton
+    private lateinit var uploadStoryButton: ImageButton
     private lateinit var userData: UserData
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,6 +104,13 @@ class UserProfile : AppCompatActivity() {
             fetchUserDetailsFromFirebase()
         }
 
+
+        uploadStoryButton = findViewById(R.id.uploadStoryButton)
+        uploadStoryButton.setOnClickListener {
+            val intent = Intent(this, uploadStory::class.java)
+            startActivity(intent)
+        }
+       
         // Initialize the RecyclerView for analytics
         analyticsRecyclerView = findViewById(R.id.analytics_recyclerview)
         analyticsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)

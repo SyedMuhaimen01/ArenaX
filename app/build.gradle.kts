@@ -68,5 +68,6 @@ dependencies {
     implementation(libs.okhttp)
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
     implementation(libs.jsoup)
+    implementation ("com.arthenica:mobile-ffmpeg-full-gpl:4.4.LTS")
 
 }

@@ -3,9 +3,11 @@ package com.muhaimen.arenax.utils
 import android.app.Activity
 import android.content.ContentValues.TAG
 import android.util.Log
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.dataClasses.UserData
 
 object FirebaseManager {
@@ -80,7 +82,12 @@ object FirebaseManager {
             }
     }
 
-
+    fun getAuthInstance(): FirebaseAuth {
+        return FirebaseAuth.getInstance()
+    }
+    fun getStorageInstance(): FirebaseStorage {
+        return FirebaseStorage.getInstance()
+    }
     fun sendPasswordResetEmail(email: String, callback: (Boolean, String?) -> Unit) {
         auth.sendPasswordResetEmail(email)
             .addOnCompleteListener { task ->
