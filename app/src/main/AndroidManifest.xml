@@ -12,12 +12,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
-
-
-    
 
     <application
         android:allowBackup="true"
@@ -30,12 +28,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ArenaX"
         tools:targetApi="31">
-
+        <activity
+            android:name=".accountSettings.accountSettings"
+            android:exported="false" />
 
         <service android:name=".screenTime.ScreenTimeService"
             android:foregroundServiceType="dataSync"
             tools:ignore="ForegroundServicePermission" />
-
 
         <activity
             android:name=".uploadStory.uploadStory"

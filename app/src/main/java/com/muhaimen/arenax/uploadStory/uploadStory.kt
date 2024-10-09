@@ -49,6 +49,7 @@ import com.muhaimen.arenax.dataClasses.Track
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.dataClasses.gamesData
 import com.muhaimen.arenax.utils.FirebaseManager
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
@@ -61,6 +62,7 @@ class uploadStory : AppCompatActivity() {
     private lateinit var galleryButton: TextView
     private lateinit var cameraButton: TextView
     private lateinit var uploadButton: ImageButton
+    private lateinit var backButton: ImageButton
     private lateinit var userData: UserData
     private lateinit var auth: FirebaseAuth
     private val PICK_IMAGE_REQUEST = 1
@@ -82,13 +84,14 @@ class uploadStory : AppCompatActivity() {
      lateinit var endSeekBar: SeekBar
     lateinit var trimTrackLayout: LinearLayout
     private var isPlaying = false
-    var startTime: Int = 0
-    var endTime: Int = 0
-    var duration: Int = 0
+    private var startTime: Int = 0
+    private var endTime: Int = 0
     val fixedDuration=15
-    lateinit var draggableContainers:List<FrameLayout>
+    private var trimmedAudioUrl:String?=null
+    private lateinit var draggableContainers: MutableList<FrameLayout>
+    private var draggableTextList = mutableListOf<DraggableText>()
     private var mediaPlayer: MediaPlayer? = null
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint("MissingInflatedId", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload_story)
@@ -107,6 +110,11 @@ class uploadStory : AppCompatActivity() {
         startSeekBar = findViewById(R.id.startSeekBar)
         endSeekBar = findViewById(R.id.endSeekBar)
         trimTrackLayout = findViewById(R.id.trimTrackLayout)
+        backButton = findViewById(R.id.backButton)
+
+        backButton.setOnClickListener(){
+            finish()
+        }
         // Initialize Firebase Auth
         auth = FirebaseManager.getAuthInstance()
 
@@ -120,7 +128,7 @@ class uploadStory : AppCompatActivity() {
         tracksRecyclerView.adapter = adapter
         fetchTracks("83961508")
         searchLinearLayout = findViewById(R.id.searchLinearLayout)
-
+        draggableContainers = mutableListOf()
         musicButton.setOnClickListener {
             // Change visibility of RecyclerView to VISIBLE when button is clicked
             if (searchLinearLayout.visibility == View.GONE) {
@@ -254,6 +262,7 @@ class uploadStory : AppCompatActivity() {
         }
     }
 
+    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
 
@@ -300,25 +309,48 @@ class uploadStory : AppCompatActivity() {
         super.onPause()
         adapter.releasePlayer()
     }
+    override fun onStop() {
+        super.onStop()
+        // Stop any background tasks or services if needed
+        adapter.releasePlayer()// Example function to stop background tasks
+    }
     private fun uploadStory() {
         if (selectedImageUri != null) {
             val userId = auth.currentUser?.uid
             userData = UserData(userId = userId.toString())
 
-            // Get the text from the draggable EditTexts
-            val storyTexts = getDraggableTextContent()
-            val mediaUrl =
-                selectedImageUri.toString() // You might want to upload this to a server first
+            // Get the list of draggable texts
+            val draggableTexts = getDraggableTextContent() // This function should return a list of DraggableText objects
+            val mediaUrl = selectedImageUri.toString() // Image URL
             val duration = 24 * 60 * 60 // Duration in seconds (24 hours)
 
             // Create JSON object for the story
             val storyJson = JSONObject().apply {
                 put("user_id", userData.userId)
                 put("media_url", mediaUrl)
-                put("caption", storyTexts) // Save all texts as a single caption
-                put("duration", duration)
                 put("created_at", System.currentTimeMillis())
+                put("duration", duration)
+                put("trimmed_audio_url", trimmedAudioUrl)
+
+                // Create a JSON array for draggable texts
+                if (draggableTextList.isNotEmpty()) {
+                    val draggableTextsArray = JSONArray()
+                    // Loop through the existing list of draggable texts and convert each to a JSON object
+                    draggableTextList.forEach { draggableText ->
+                        val textObject = JSONObject().apply {
+                            put("content", draggableText.content) // Content of the draggable text
+                            put("x", draggableText.x)             // X-coordinate
+                            put("y", draggableText.y)             // Y-coordinate
+                        }
+                        draggableTextsArray.put(textObject) // Add the JSONObject to the JSONArray
+                    }
+                    put("draggable_texts", draggableTextsArray) // Save the JSONArray into the main JSON object
+                } else {
+                    put("draggable_texts", JSONObject.NULL) // If no draggable texts, save a null value
+                }
+
             }
+            Log.d("UploadStory", storyJson.toString())
 
             // Send data to the backend
             saveStoryToServer(storyJson)
@@ -348,7 +380,10 @@ class uploadStory : AppCompatActivity() {
         requestQueue.add(postRequest)
     }
 
+
+
     private var isEditable = true // Track the editable state of the EditText
+     @SuppressLint("ClickableViewAccessibility")
      fun createDraggableText() {
         // Variable to track background state: 0 = default, 1 = black background with white text, 2 = transparent with black text, 3 = transparent with white text
         var backgroundState = 0
@@ -364,7 +399,7 @@ class uploadStory : AppCompatActivity() {
         }
         container.x = 200f // Set your desired initial x position
         container.y = 200f // Set your desired initial y position
-        draggableContainers= listOf(container)
+        draggableContainers.add(container)
         // Create the EditText
         val draggableText = EditText(this).apply {
             hint = "Type your text"
@@ -380,7 +415,6 @@ class uploadStory : AppCompatActivity() {
             isFocusableInTouchMode = true // Allow the EditText to receive input when clicked
             isEnabled = true // By default, make it editable
         }
-
         // Create the delete button
         val deleteButton = ImageButton(this).apply {
             setImageResource(android.R.drawable.ic_delete) // Use a delete icon
@@ -403,18 +437,21 @@ class uploadStory : AppCompatActivity() {
                 60, // Height of the tick button
                 Gravity.START or Gravity.TOP // Position the tick button at the top-left corner
             )
+
         }
 
         // Set click listener to delete the container
         deleteButton.setOnClickListener {
             val parent = container.parent as ViewGroup
             parent.removeView(container) // Remove the entire container
+            draggableTextList.remove(DraggableText(draggableText.text.toString(),draggableText.x,draggableText.y))
         }
 
         // Set click listener to save the text and disable editing
         tickButton.setOnClickListener {
             draggableText.isEnabled = false // Disable editing when tick is clicked
             draggableText.clearFocus() // Remove focus from EditText
+            draggableTextList.add(DraggableText(draggableText.text.toString(),draggableText.x,draggableText.y))
         }
 
         // Create a GestureDetector for double-click detection (for transparent background)
@@ -534,7 +571,7 @@ class uploadStory : AppCompatActivity() {
         // Create a StringRequest to fetch tracks
         val requestQueue = Volley.newRequestQueue(this)
         val stringRequest = StringRequest(Request.Method.GET, url,
-            Response.Listener { response ->
+            { response ->
                 // Log the raw response for debugging
                 Log.d("uploadStory", "API Response: $response")
 
@@ -567,7 +604,7 @@ class uploadStory : AppCompatActivity() {
                     Log.e("uploadStory", "Error parsing tracks: ${e.message}")
                 }
             },
-            Response.ErrorListener { error ->
+            { error ->
                 Log.e("uploadStory", "Error fetching tracks: ${error.message}")
             }
         )
@@ -575,6 +612,7 @@ class uploadStory : AppCompatActivity() {
         // Add the request to the RequestQueue
         requestQueue.add(stringRequest)
     }
+    @SuppressLint("DefaultLocale")
     fun trimAudio(track: Track) {
         Log.d("TrimAudio", "trimAudio function called.")
 
@@ -644,6 +682,7 @@ class uploadStory : AppCompatActivity() {
 
     fun playTrimmedAudio(outputPath: String) {
         try {
+            trimmedAudioUrl=outputPath
             // Initialize MediaPlayer
             mediaPlayer = MediaPlayer()
             mediaPlayer!!.setDataSource(outputPath)

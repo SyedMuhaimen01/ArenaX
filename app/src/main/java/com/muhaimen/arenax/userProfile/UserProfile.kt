@@ -12,7 +12,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -26,7 +25,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.uploadStory.uploadStory
-
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -36,12 +34,12 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.jjoe64.graphview.series.DataPoint
-import com.muhaimen.arenax.LoginSignUp.LoginScreen
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.accountSettings.accountSettings
 import com.muhaimen.arenax.dataClasses.AnalyticsData
-import com.muhaimen.arenax.dataClasses.Gender
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.editProfile.editProfile
+import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.uploadContent.UploadContent
 import android.provider.Settings
@@ -68,7 +66,10 @@ class UserProfile : AppCompatActivity() {
     private lateinit var addPost: ImageButton
     private lateinit var uploadStoryButton: ImageButton
     private lateinit var userData: UserData
-    @SuppressLint("MissingInflatedId")
+    private lateinit var settingsButton:Button
+    private lateinit var leaderboardButton: ImageButton
+    private lateinit var rankTextView: TextView
+    @SuppressLint("MissingInflatedId", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -90,6 +91,14 @@ class UserProfile : AppCompatActivity() {
         bioTextView = findViewById(R.id.bioText)
         showMoreTextView = findViewById(R.id.showMore)
 
+        leaderboardButton = findViewById(R.id.leaderboardButton)
+        leaderboardButton.setOnClickListener {
+            val intent = Intent(this, overallLeaderboard::class.java)
+            startActivity(intent)
+        }
+
+        rankTextView = findViewById(R.id.rankTextView)
+        rankTextView.text="Rank: 1"
         if (!checkUsageStatsPermission()) {
             requestUsageStatsPermission()
         } else {
@@ -147,6 +156,12 @@ class UserProfile : AppCompatActivity() {
         addPost= findViewById(R.id.addPostButton)
         addPost.setOnClickListener {
             val intent = Intent(this, UploadContent::class.java)
+            startActivity(intent)
+        }
+
+        settingsButton=findViewById(R.id.settingsButton)
+        settingsButton.setOnClickListener {
+            val intent = Intent(this, accountSettings::class.java)
             startActivity(intent)
         }
         myGamesButton= findViewById(R.id.myGamesButton)
