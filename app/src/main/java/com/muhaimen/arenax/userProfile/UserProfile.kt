@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -43,7 +44,16 @@ import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.uploadContent.UploadContent
 import android.provider.Settings
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.screenTime.ScreenTimeService
+import org.json.JSONException
 
 
 class UserProfile : AppCompatActivity() {
@@ -69,6 +79,8 @@ class UserProfile : AppCompatActivity() {
     private lateinit var settingsButton:Button
     private lateinit var leaderboardButton: ImageButton
     private lateinit var rankTextView: TextView
+    private lateinit var requestQueue: RequestQueue
+
     @SuppressLint("MissingInflatedId", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,7 +110,10 @@ class UserProfile : AppCompatActivity() {
         }
 
         rankTextView = findViewById(R.id.rankTextView)
-        rankTextView.text="Rank: 1"
+        requestQueue = Volley.newRequestQueue(this)
+        fetchUserRank()
+
+
         if (!checkUsageStatsPermission()) {
             requestUsageStatsPermission()
         } else {
@@ -133,10 +148,9 @@ class UserProfile : AppCompatActivity() {
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-        // Load sample data into the highlights adapter
-        val sampleHighlights = loadSampleHighlightsData()
-        highlightsAdapter = HighlightsAdapter(sampleHighlights)
-        highlightsRecyclerView.adapter = highlightsAdapter
+        fetchUserStories()
+
+
 
         // Initialize the RecyclerView for posts
         postsRecyclerView = findViewById(R.id.posts_recyclerview)
@@ -271,17 +285,6 @@ class UserProfile : AppCompatActivity() {
         return listOf(game1, game2)
     }
 
-    // Sample function to load highlights data
-    private fun loadSampleHighlightsData(): List<Highlight> {
-        return listOf(
-            Highlight(imageResId = R.drawable.profile_icon_foreground, title = "Highlight 1"),
-            Highlight(imageResId = R.drawable.profile_icon_foreground, title = "Highlight 2"),
-            Highlight(imageResId = R.drawable.profile_icon_foreground, title = "Highlight 3"),
-            Highlight(imageResId = R.drawable.profile_icon_foreground, title = "Highlight 4"),
-            Highlight(imageResId = R.drawable.profile_icon_foreground, title = "Highlight 5")
-        )
-    }
-
     // Sample function to load posts data
     private fun loadSamplePostsData(): List<Post> {
         return listOf(
@@ -317,4 +320,88 @@ class UserProfile : AppCompatActivity() {
     }
 
 
+    @SuppressLint("SetTextI18n")
+    private fun fetchUserRank() {
+        val url = "http://192.168.100.6:3000/leaderboard/user/${auth.currentUser?.uid}/rank"
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                try {
+                    // Extract rank from the response
+                    val rank = response.getInt("rank")
+                    rankTextView.text = "User Rank: $rank"
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
+                }
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error fetching rank: ${error.message}")
+                Toast.makeText(this, "Error fetching rank", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Add the request to the RequestQueue
+        requestQueue.add(jsonObjectRequest)
+    }
+
+    private fun fetchUserStories() {
+        val userId = auth.currentUser?.uid // Get the current user's ID
+        val url = "http://192.168.100.6:3000/stories/user/$userId/fetchStory"
+
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                try {
+                    // Initialize a list to hold the stories
+                    val storiesList = mutableListOf<Story>() // Assuming you have a Story data class
+
+                    // Loop through the JSON array to extract stories
+                    for (i in 0 until response.length()) {
+                        val storyJson = response.getJSONObject(i)
+                        // Extract story details, assuming the structure from your backend
+                        val storyId = storyJson.getInt("id")
+                        val mediaUrl = storyJson.getString("media_url")
+                        val duration = storyJson.getInt("duration")
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
+                        val draggableTexts = storyJson.optJSONArray("draggable_texts")
+
+                        // Create a Story object and add it to the list
+                        val story = Story(storyId, mediaUrl, duration, trimmedAudioUrl, draggableTexts)
+                        storiesList.add(story)
+                    }
+
+                    // Update UI with the retrieved stories
+                    // For example, populate a RecyclerView or any other UI component
+                    updateStoriesUI(storiesList)
+
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
+                }
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error fetching stories: ${error.message}")
+                Toast.makeText(this, "Error fetching stories", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Add the request to the RequestQueue
+        requestQueue.add(jsonArrayRequest)
+    }
+
+    // Function to update UI with the fetched stories
+    private fun updateStoriesUI(stories: List<Story>) {
+        highlightsAdapter = HighlightsAdapter(stories) // Create a new adapter with fetched stories
+        highlightsRecyclerView.adapter = highlightsAdapter // Set the adapter to RecyclerView
+    }
+
+
 }
+
+
