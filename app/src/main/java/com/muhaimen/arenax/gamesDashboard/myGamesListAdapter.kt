@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.gamesDashboard
 
+import android.content.Intent
 import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.AnalyticsData
+import com.muhaimen.arenax.gamesDashboard.ViewGameAnalytics
 
 class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>) : RecyclerView.Adapter<MyGamesListAdapter.AnalyticsViewHolder>() {
 
@@ -37,6 +39,18 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>) : Recyc
                 .into(gameIcon)
 
             populateGraph(data.graphData) // Populate the graph with hours data
+
+            // Set click listener for the item
+            itemView.setOnClickListener {
+                // Create an Intent to open ViewGameAnalytics
+                val intent = Intent(itemView.context, ViewGameAnalytics::class.java).apply {
+                    // Pass the game name and package name as extras
+                    putExtra("GAME_NAME", data.gameName)
+                // Assuming you have packageName in your AnalyticsData
+                }
+                // Start the ViewGameAnalytics activity
+                itemView.context.startActivity(intent)
+            }
         }
 
         private fun populateGraph(hoursData: List<DataPoint>) {
