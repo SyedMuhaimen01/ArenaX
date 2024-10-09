@@ -19,7 +19,8 @@ import org.json.JSONObject
 
 class gamesListAdapter(
     private var gamesList: MutableList<AppInfo>,
-    private val userId: String
+    private val userId: String,
+    private val fetchInstalledApps: () -> Unit // Callback to fetch installed apps
 ) : RecyclerView.Adapter<gamesListAdapter.GamesViewHolder>() {
 
     // ViewHolder class to hold the views for each card
@@ -46,7 +47,9 @@ class gamesListAdapter(
 
             // Set up add button click listener
             addButton.setOnClickListener {
-                addGame(game, userId, itemView.context) // Pass context and userId
+                addGame(game, userId, itemView.context)
+                // Disable the add button after the game is added
+                addButton.isEnabled = false
             }
         }
     }
@@ -88,6 +91,8 @@ class gamesListAdapter(
                 if (response.getString("message") == "Game added successfully") {
                     // Success: show a Toast or handle response accordingly
                     Toast.makeText(context, "Game added successfully", Toast.LENGTH_SHORT).show()
+                    // Refetch the installed apps
+                    fetchInstalledApps()
                 }
             },
             { error ->

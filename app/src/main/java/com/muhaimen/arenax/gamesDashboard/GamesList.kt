@@ -24,7 +24,6 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.api.RetrofitClient
 import com.muhaimen.arenax.dataClasses.AppInfo
 import org.json.JSONArray
 import org.json.JSONObject
@@ -45,9 +44,10 @@ class gamesList : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_games_list)
+
         auth = FirebaseAuth.getInstance()
         originalGamesList = mutableListOf()
-        Log.d("GamesListActivity", "onCreate: Activity started")  // Log activity creation
+        Log.d("GamesListActivity", "onCreate: Activity started") // Log activity creation
 
         // Enable edge-to-edge display
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -64,7 +64,7 @@ class gamesList : AppCompatActivity() {
         gamesSearchBar = findViewById(R.id.searchbar)
 
         // Initialize the refresh button
-        refreshButton = findViewById(R.id.refreshButton) // Make sure to have this button in your XML layout
+        refreshButton = findViewById(R.id.refreshButton) // Ensure this button is in your XML layout
         refreshButton.setOnClickListener {
             showRefreshDialog()
         }
@@ -72,12 +72,16 @@ class gamesList : AppCompatActivity() {
         // Log before data is loaded
         Log.d("GamesListActivity", "onCreate: Loading games data")
 
-        gamesListAdapter = gamesListAdapter(originalGamesList, auth.currentUser?.uid.toString())
+        // Change 'gamesList' to 'originalGamesList' here
+        gamesListAdapter = gamesListAdapter(originalGamesList, auth.currentUser?.uid ?: "") {
+            // Define how to fetch installed apps here
+            fetchInstalledApps()
+        }
+
         gamesListRecyclerView.adapter = gamesListAdapter
 
         loadGamesFromSharedPreferences()
     }
-
     private fun showRefreshDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Refresh Game List")
