@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         handler = Handler(Looper.getMainLooper())
 
+
         // Delay before checking login status
         handler.postDelayed({
             checkUserLoginStatus()
