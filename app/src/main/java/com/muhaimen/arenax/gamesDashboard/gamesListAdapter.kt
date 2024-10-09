@@ -20,7 +20,7 @@ import org.json.JSONObject
 class gamesListAdapter(
     private var gamesList: MutableList<AppInfo>,
     private val userId: String,
-    private val fetchInstalledApps: () -> Unit // Callback to fetch installed apps
+    private val fetchInstalledApps: () -> Unit
 ) : RecyclerView.Adapter<gamesListAdapter.GamesViewHolder>() {
 
     // ViewHolder class to hold the views for each card
