@@ -47,7 +47,7 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.DraggableText
 import com.muhaimen.arenax.dataClasses.Track
 import com.muhaimen.arenax.dataClasses.UserData
-import com.muhaimen.arenax.dataClasses.gamesData
+
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
 import org.json.JSONObject
@@ -326,11 +326,10 @@ class uploadStory : AppCompatActivity() {
 
             // Create JSON object for the story
             val storyJson = JSONObject().apply {
-                put("user_id", userData.userId)
-                put("media_url", mediaUrl)
-                put("created_at", System.currentTimeMillis())
-                put("duration", duration)
-                put("trimmed_audio_url", trimmedAudioUrl)
+                put("userId", userData.userId) // Change 'user_id' to 'userId'
+                put("mediaUrl", mediaUrl)       // Change 'media_url' to 'mediaUrl'
+                put("duration", duration)        // Keep 'duration' as is
+                put("trimmedAudioUrl", trimmedAudioUrl ?: JSONObject.NULL) // Use NULL if trimmedAudioUrl is null
 
                 // Create a JSON array for draggable texts
                 if (draggableTextList.isNotEmpty()) {
@@ -344,11 +343,10 @@ class uploadStory : AppCompatActivity() {
                         }
                         draggableTextsArray.put(textObject) // Add the JSONObject to the JSONArray
                     }
-                    put("draggable_texts", draggableTextsArray) // Save the JSONArray into the main JSON object
+                    put("draggableTexts", draggableTextsArray) // Save the JSONArray into the main JSON object
                 } else {
-                    put("draggable_texts", JSONObject.NULL) // If no draggable texts, save a null value
+                    put("draggableTexts", JSONArray()) // If no draggable texts, save an empty JSONArray
                 }
-
             }
             Log.d("UploadStory", storyJson.toString())
 
@@ -364,7 +362,7 @@ class uploadStory : AppCompatActivity() {
 
         val postRequest = JsonObjectRequest(
             Request.Method.POST,
-            "http://192.168.100.6:3000/stories/uploadStory", // Your backend endpoint
+            "http://192.168.100.6:3000/stories/storyUpload", // Your backend endpoint
             storyJson,
             { response ->
                 // Handle success response
