@@ -58,6 +58,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var showMoreTextView: TextView
     private lateinit var editProfileButton: Button
     private lateinit var addPost: ImageButton
+    private lateinit var uploadStoryButton: ImageButton
     private lateinit var userData: UserData
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,7 +89,11 @@ class UserProfile : AppCompatActivity() {
             fetchUserDetailsFromFirebase()
         }
 
-
+        uploadStoryButton = findViewById(R.id.uploadStoryButton)
+        uploadStoryButton.setOnClickListener {
+            val intent = Intent(this, uploadStory::class.java)
+            startActivity(intent)
+        }
         showMoreTextView.setOnClickListener {
             // Expand bio to show full text
             bioTextView.maxLines = Int.MAX_VALUE

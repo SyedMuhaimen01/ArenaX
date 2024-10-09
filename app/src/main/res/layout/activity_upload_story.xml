@@ -1,134 +1,255 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/uploadStoryLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/screenbackground"
-    tools:context=".uploadStory.uploadStory">
+    android:background="@color/secondaryColor"
+    tools:context=".uploadContent.UploadContent">
 
-    <!-- Toolbar at the top -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/storyUploadToolbar"
+    <!-- Media preview area (Image or Video) -->
+    <LinearLayout
+        android:id="@+id/uploadToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryColor"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:title="New Story"
-        app:navigationIcon="@drawable/backwhite_foreground"
-        app:titleTextColor="@android:color/white"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:background="@color/backgroundColor"
+        android:orientation="horizontal"
+        android:padding="@dimen/_8sdp"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="98dp"
+        tools:layout_editor_absoluteY="0dp">
 
-    <!-- Story media preview area -->
+        <LinearLayout
+            android:id="@+id/searchLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_35sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:background="@drawable/searchbar"
+                android:weightSum="4"
+               >
+
+                <!-- AutoCompleteTextView for search -->
+                <AutoCompleteTextView
+                    android:id="@+id/searchbar"
+                    android:layout_width="0dp"
+                    android:layout_marginLeft="@dimen/_15sdp"
+                    android:layout_weight="3.9"
+                    android:layout_height="@dimen/_32sdp"
+                    android:hint="Search ..."
+                    android:textColorHint="@color/hinttextColor"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_13sdp"
+                    android:background="@color/white"
+                    android:padding="@dimen/_5sdp"
+                    android:layout_marginTop="@dimen/_1sdp"/>
+
+                <!-- Search icon button -->
+                <ImageButton
+                    android:id="@+id/searchButton"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_35sdp"
+                    android:src="@drawable/searchicon_foreground"
+                    android:background="@drawable/serachbar_button"
+                    android:layout_weight="0.1"/>
+
+            </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/tracksRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/accentColor"
+                android:padding="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginLeft="@dimen/_20sdp"
+                android:layout_marginRight="@dimen/_20sdp"/>
+        </LinearLayout>
+        <!-- In your XML layout file (activity_trim_track.xml) -->
+        <LinearLayout
+            android:id="@+id/trimTrackLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/transparent"
+            android:padding="16dp"
+            android:visibility="gone"> <!-- Initially hidden -->
+
+            <!-- SeekBar to select the start and end points of the trim -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start Time" />
+
+            <SeekBar
+                android:id="@+id/startSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="End Time" />
+
+            <SeekBar
+                android:id="@+id/endSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Play/Pause Button -->
+            <Button
+                android:id="@+id/playPauseButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Play" />
+
+            <!-- Trim Button -->
+            <Button
+                android:id="@+id/trimButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trim" />
+
+            <!-- Cancel Button -->
+            <Button
+                android:id="@+id/cancelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel" />
+        </LinearLayout>
+
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:backgroundTint="@color/backgroundColor"
+            android:src="@mipmap/back_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/_5sdp"
+            android:layout_marginTop="-3dp"
+            android:background="@color/backgroundColor"
+            android:text="Upload Story"
+            android:textColor="@color/textColor"
+            android:textSize="@dimen/_18sdp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
     <ImageView
-        android:id="@+id/storyPreviewImageView"
+        android:id="@+id/previewImageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="centerCrop"
-        android:background="@android:color/darker_gray"
-        android:contentDescription="Story Media Preview"
-        app:layout_constraintTop_toBottomOf="@id/storyUploadToolbar"
+        android:background="@color/accentColor"
+        android:contentDescription="Media Preview"
+        app:layout_constraintTop_toBottomOf="@id/uploadToolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.5" />
+        app:layout_constraintHeight_percent="0.88"/>
 
-    <!-- Text addition feature -->
-    <EditText
-        android:id="@+id/storyTextInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@null"
-        android:gravity="top"
-        android:hint="Add text to your story..."
-        android:textColorHint="@color/hinttextColor"
-        android:inputType="text"
-        android:padding="12dp"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toTopOf="@id/storyDrawingTools"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/storyPreviewImageView" />
 
-    <!-- Drawing tools layout -->
+
+    <!-- Bottom layout with buttons to select media -->
     <LinearLayout
-        android:id="@+id/storyDrawingTools"
+        android:id="@+id/bottomButtonsLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/_30sdp"
         android:orientation="horizontal"
         android:background="@android:color/white"
-        android:padding="16dp"
-        android:gravity="center_horizontal"
-        app:layout_constraintBottom_toTopOf="@id/storyBottomActions"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Pen tool for drawing -->
-        <ImageButton
-            android:id="@+id/drawPenButton"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:src="@drawable/back_icon_foreground"
-            android:background="@null"
-            android:contentDescription="Pen Tool" />
-
-        <!-- Eraser tool for drawing -->
-        <ImageButton
-            android:id="@+id/eraserButton"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:layout_marginStart="16dp"
-            android:src="@drawable/back_icon_foreground"
-            android:background="@null"
-            android:contentDescription="Eraser Tool" />
-    </LinearLayout>
-
-    <!-- Bottom layout with buttons to select media or upload -->
-    <LinearLayout
-        android:id="@+id/storyBottomActions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@android:color/white"
-        android:padding="16dp"
+        android:padding="1dp"
         android:gravity="center_horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Gallery selection button -->
-        <ImageButton
-            android:id="@+id/storyGalleryButton"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:src="@drawable/back_icon_foreground"
-            android:background="@null"
-            android:contentDescription="Select from gallery" />
+        <TextView
+            android:id="@+id/galleryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gallery"
+            android:textAlignment="center"
+            android:textSize="@dimen/_14sdp"
+            android:textStyle="bold"
+            android:textColor="@color/primaryColor"
+            android:contentDescription="Select from gallery"
+            android:layout_gravity="center"/>
 
-        <!-- Camera button for live recording -->
-        <ImageButton
-            android:id="@+id/storyCameraButton"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:layout_marginStart="32dp"
-            android:src="@drawable/back_icon_foreground"
-            android:background="@null"
-            android:contentDescription="Record from camera" />
+        <TextView
+            android:id="@+id/cameraButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Camera"
+            android:layout_marginStart="@dimen/_14sdp"
+            android:textAlignment="center"
+            android:textSize="@dimen/_14sdp"
+            android:textStyle="bold"
+            android:textColor="@color/primaryColor"
+            android:contentDescription="Select from gallery"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:id="@+id/textButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Text"
+            android:layout_marginStart="@dimen/_14sdp"
+            android:textAlignment="center"
+            android:textSize="@dimen/_14sdp"
+            android:textStyle="bold"
+            android:textColor="@color/primaryColor"
+            android:contentDescription="Select from gallery"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:id="@+id/stickerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stickers"
+            android:layout_marginStart="@dimen/_14sdp"
+            android:textAlignment="center"
+            android:textSize="@dimen/_14sdp"
+            android:textStyle="bold"
+            android:textColor="@color/primaryColor"
+            android:contentDescription="Add stickers"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:id="@+id/musicButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Music"
+            android:layout_marginStart="@dimen/_14sdp"
+            android:textAlignment="center"
+            android:textSize="@dimen/_14sdp"
+            android:textStyle="bold"
+            android:textColor="@color/primaryColor"
+            android:contentDescription="Add music"
+            android:layout_gravity="center"/>
     </LinearLayout>
 
-    <!-- Floating button to upload the story -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/uploadStoryButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/back_icon_foreground"
+    <ImageButton
+        android:id="@+id/uploadPostButton"
+        android:layout_width="@dimen/_45sdp"
+        android:layout_height="@dimen/_45sdp"
+        android:src="@drawable/add_white_icon_foreground"
         android:backgroundTint="@color/primaryColor"
-        android:contentDescription="Upload Story"
-        app:layout_constraintBottom_toTopOf="@id/storyBottomActions"
+        android:background="@drawable/circle"
+        android:contentDescription="Post Content"
+        app:layout_constraintBottom_toTopOf="@id/bottomButtonsLayout"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp" />
-
+        android:layout_marginBottom="16dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

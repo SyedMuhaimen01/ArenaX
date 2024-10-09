@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -33,7 +34,8 @@ class UploadContent : AppCompatActivity() {
     private lateinit var captionEditText: EditText
     private lateinit var galleryButton: TextView
     private lateinit var cameraButton: TextView
-    private lateinit var uploadPostButton: FloatingActionButton
+    private lateinit var uploadPostButton: ImageButton
+    private lateinit var backButton: ImageButton
     private lateinit var userData: UserData
     private var mediaUri: Uri? = null
     private val firebaseStorage = FirebaseStorage.getInstance()
@@ -48,7 +50,11 @@ class UploadContent : AppCompatActivity() {
         galleryButton = findViewById(R.id.galleryButton)
         cameraButton = findViewById(R.id.cameraButton)
         uploadPostButton = findViewById(R.id.uploadPostButton)
+        backButton = findViewById(R.id.backButton)
 
+        backButton.setOnClickListener {
+            finish()
+        }
         // Gallery button action
         galleryButton.setOnClickListener {
             openGallery()
