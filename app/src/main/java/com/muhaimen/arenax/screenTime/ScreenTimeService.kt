@@ -30,7 +30,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
 
-
 class ScreenTimeService : Service() {
     private val CHANNEL_ID = "ScreenTimeServiceChannel"
     private lateinit var auth: FirebaseAuth
@@ -40,6 +39,7 @@ class ScreenTimeService : Service() {
     private lateinit var handler: Handler
     private var usageCheckRunnable: Runnable? = null
     private val accumulatedPlaytime = mutableMapOf<String, Long>() // Initialize as a mutable map
+    private val hourlyPlaytime = mutableMapOf<String, Long>() // New variable for hourly tracking
 
     // Set usage check interval to 1 minute (60000 milliseconds)
     private val usageCheckInterval: Long = 1000 // Check every minute
@@ -185,14 +185,16 @@ class ScreenTimeService : Service() {
 
             // Get the previous accumulated playtime
             val previousAccumulated = accumulatedPlaytime[packageName] ?: 0L
+            val hourlyAccumulated = hourlyPlaytime[packageName] ?: 0L
 
             // Calculate the change in playtime
             val changeInPlaytime = (totalTimeInForeground - previousAccumulated).coerceAtLeast(0) // Ensure no negative values
 
             Log.d("GameStatsRepository", "Change in playtime for $packageName: $changeInPlaytime ms")
 
-            // Save the new accumulated playtime
+            // Update the accumulated playtime and hourly playtime
             accumulatedPlaytime[packageName] = totalTimeInForeground
+            hourlyPlaytime[packageName] = hourlyAccumulated + changeInPlaytime
 
             // Send the change in playtime to the backend only if it exceeds the threshold
             if (changeInPlaytime >= playtimeThreshold) {
@@ -206,9 +208,10 @@ class ScreenTimeService : Service() {
         }
     }
 
-
-
-
+    private fun resetHourlyPlaytime() {
+        // Reset the hourly playtime map at the end of the day
+        hourlyPlaytime.clear()
+    }
 
     private fun sendPlaytimeToBackend(context: Context, playtime: Long, packageName: String) {
         if (playtime > 0) {
@@ -243,6 +246,7 @@ class ScreenTimeService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        handler.removeCallbacks(usageCheckRunnable ?: return) // Stop the handler callbacks when service is destroyed
+        // Stop the periodic usage check
+        handler.removeCallbacks(usageCheckRunnable ?: return)
     }
 }
