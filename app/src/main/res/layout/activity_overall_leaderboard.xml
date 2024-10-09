@@ -17,8 +17,10 @@
             android:layout_marginTop="@dimen/_10sdp"
             android:layout_marginLeft="@dimen/_10sdp">
             <ImageButton
+                android:id="@+id/backButton"
                 android:layout_width="@dimen/_30sdp"
                 android:layout_height="@dimen/_20sdp"
+                android:importantForAccessibility="no"
                 android:src="@mipmap/back_icon"></ImageButton>
             <TextView
                 android:layout_width="wrap_content"

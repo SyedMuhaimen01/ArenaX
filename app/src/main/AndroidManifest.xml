@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -22,18 +23,18 @@
         android:theme="@style/Theme.ArenaX"
         tools:targetApi="31">
         <activity
-
+            android:name=".accountSettings.accountSettings"
+            android:exported="false" />
+        <activity
             android:name=".uploadStory.uploadStory"
             android:exported="false" />
         <activity
             android:name=".gamesDashboard.overallLeaderboard"
             android:exported="false" />
-
         <activity
             android:name=".uploadContent.UploadContent"
             android:exported="false" />
         <activity
-
             android:name=".gamesDashboard.ViewGameAnalytics"
             android:exported="false" />
         <activity
@@ -42,7 +43,6 @@
         <activity
             android:name=".gamesDashboard.MyGamesList"
             android:exported="false" />
-
         <activity
             android:name=".gamesDashboard.gamesList"
             android:exported="false" />

@@ -1,6 +1,8 @@
 package com.muhaimen.arenax.gamesDashboard
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -17,7 +19,8 @@ import com.muhaimen.arenax.userProfile.AnalyticsAdapter
 class overallLeaderboard : AppCompatActivity() {
     private lateinit var overallLeaderboardRecyclerView: RecyclerView
     private lateinit var overallLeaderboardAdapter: overallLeaderboardAdapter
-
+    private lateinit var backButton: ImageButton
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -26,6 +29,10 @@ class overallLeaderboard : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+        backButton = findViewById(R.id.backButton)
+        backButton.setOnClickListener {
+            finish()
         }
         overallLeaderboardRecyclerView = findViewById(R.id.leaderboardRecyclerView)
         overallLeaderboardRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)

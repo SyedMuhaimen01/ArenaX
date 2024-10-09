@@ -219,6 +219,7 @@
             android:layout_marginEnd="@dimen/_8sdp" />
 
         <Button
+            android:id="@+id/settingsButton"
             android:text="Settings"
             android:layout_width="@dimen/_15sdp"
             android:layout_height="@dimen/_20sdp"
@@ -230,7 +231,7 @@
             android:background="@drawable/curved_rectangle"
             android:layout_marginStart="@dimen/_8sdp"
             android:layout_marginEnd="@dimen/_8sdp"
-            />
+            tools:ignore="HardcodedText" />
 
         <ImageButton
             android:src="@drawable/share_icon_foreground"
@@ -250,14 +251,40 @@
           android:layout_height="@dimen/_130sdp"
           android:orientation="vertical"
           android:layout_marginTop="@dimen/_10sdp">
-
-        <TextView
-            android:text="Games Dashboard"
-            android:textSize="@dimen/_12sdp"
-            android:textStyle="bold"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/textColor"/>
+            android:orientation="horizontal"
+            android:weightSum="3">
+          <TextView
+              android:text="Games Dashboard"
+              android:textSize="@dimen/_12sdp"
+              android:textStyle="bold"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="@color/textColor"
+              android:layout_gravity="start"
+              android:layout_weight="2"/>
+          <TextView
+              android:id="@+id/rankTextView"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Rank: 01"
+              android:gravity="right"
+              android:textColor="@color/primaryColor"
+              android:layout_gravity="end"
+              android:layout_weight="0.5"
+              tools:ignore="HardcodedText" />
+          <ImageButton
+              android:id="@+id/leaderboardButton"
+              android:layout_width="@dimen/_20sdp"
+              android:layout_height="@dimen/_20sdp"
+              android:backgroundTint="@color/backgroundColor"
+              android:importantForAccessibility="no" android:src="@drawable/arrow_right_icon_foreground"
+              android:layout_gravity="end"
+              android:layout_weight="0.5"/>
+        </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/analytics_recyclerview"
             android:layout_width="wrap_content"
