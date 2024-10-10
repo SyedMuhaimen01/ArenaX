@@ -4,8 +4,11 @@ package com.muhaimen.arenax.uploadStory
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
@@ -66,7 +69,7 @@ class uploadStory : AppCompatActivity() {
     private lateinit var tracksRecyclerView: RecyclerView
     private lateinit var adapter: TracksAdapter
     private lateinit var musicButton: TextView
-     lateinit var searchLinearLayout: LinearLayout
+    lateinit var searchLinearLayout: LinearLayout
     private lateinit var searchBar: AutoCompleteTextView
     private var TrackList: List<Track> = emptyList()
     // Variables for draggable text
@@ -75,8 +78,8 @@ class uploadStory : AppCompatActivity() {
     private lateinit var playPauseButton: Button
     private lateinit var trimButton: Button
     private lateinit var cancelButton: Button
-     lateinit var startSeekBar: SeekBar
-     lateinit var endSeekBar: SeekBar
+    lateinit var startSeekBar: SeekBar
+    lateinit var endSeekBar: SeekBar
     lateinit var trimTrackLayout: LinearLayout
     private var isPlaying = false
     private var startTime: Int = 0
@@ -86,6 +89,8 @@ class uploadStory : AppCompatActivity() {
     private lateinit var draggableContainers: MutableList<FrameLayout>
     private var draggableTextList = mutableListOf<DraggableText>()
     private var mediaPlayer: MediaPlayer? = null
+    private var backgroundColor:Int?=null
+    private var textColor:Int?=null
     @SuppressLint("MissingInflatedId", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -314,42 +319,42 @@ class uploadStory : AppCompatActivity() {
             userData = UserData(userId = userId.toString())
 
             // Get the list of draggable texts
-            val draggableTexts = getDraggableTextContent() // This function should return a list of DraggableText objects
-            val mediaUrl = selectedImageUri.toString() // Image URL
-            val duration = 24 * 60 * 60 // Duration in seconds (24 hours)
+            val draggableTexts = getDraggableTextContent()
+            val mediaUrl = selectedImageUri.toString()
+            val duration = 24 * 60 * 60 // 24 hours
 
-            // Create JSON object for the story
             val storyJson = JSONObject().apply {
-                put("userId", userData.userId) // Change 'user_id' to 'userId'
-                put("mediaUrl", mediaUrl)       // Change 'media_url' to 'mediaUrl'
-                put("duration", duration)        // Keep 'duration' as is
-                put("trimmedAudioUrl", trimmedAudioUrl ?: JSONObject.NULL) // Use NULL if trimmedAudioUrl is null
+                put("userId", userData.userId)
+                put("mediaUrl", mediaUrl)
+                put("duration", duration)
+                put("trimmedAudioUrl", trimmedAudioUrl ?: JSONObject.NULL)
 
-                // Create a JSON array for draggable texts
-                if (draggableTextList.isNotEmpty()) {
+                if (draggableTexts.isNotEmpty()) {
                     val draggableTextsArray = JSONArray()
-                    // Loop through the existing list of draggable texts and convert each to a JSON object
-                    draggableTextList.forEach { draggableText ->
+                    draggableTexts.forEach { draggableText ->
                         val textObject = JSONObject().apply {
-                            put("content", draggableText.content) // Content of the draggable text
-                            put("x", draggableText.x)             // X-coordinate
-                            put("y", draggableText.y)             // Y-coordinate
+                            put("content", draggableText.content)
+                            put("x", draggableText.x)
+                            put("y", draggableText.y)
+                            put("backgroundColor", draggableText.backgroundColor)
+                            put("textColor", draggableText.textColor)
                         }
-                        draggableTextsArray.put(textObject) // Add the JSONObject to the JSONArray
+                        draggableTextsArray.put(textObject)
                     }
-                    put("draggableTexts", draggableTextsArray) // Save the JSONArray into the main JSON object
+                    put("draggableTexts", draggableTextsArray)
                 } else {
-                    put("draggableTexts", JSONArray()) // If no draggable texts, save an empty JSONArray
+                    put("draggableTexts", JSONArray())
                 }
             }
             Log.d("UploadStory", storyJson.toString())
 
-            // Send data to the backend
+            // Send the JSON to the server
             saveStoryToServer(storyJson)
         } else {
             Toast.makeText(this, "Please select an image.", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private fun saveStoryToServer(storyJson: JSONObject) {
         val requestQueue = Volley.newRequestQueue(this)
@@ -375,8 +380,8 @@ class uploadStory : AppCompatActivity() {
 
 
     private var isEditable = true // Track the editable state of the EditText
-     @SuppressLint("ClickableViewAccessibility")
-     fun createDraggableText() {
+    @SuppressLint("ClickableViewAccessibility")
+    fun createDraggableText() {
         // Variable to track background state: 0 = default, 1 = black background with white text, 2 = transparent with black text, 3 = transparent with white text
         var backgroundState = 0
 
@@ -392,10 +397,12 @@ class uploadStory : AppCompatActivity() {
         container.x = 200f // Set your desired initial x position
         container.y = 200f // Set your desired initial y position
         draggableContainers.add(container)
+
         // Create the EditText
         val draggableText = EditText(this).apply {
             hint = "Type your text"
             setTextColor(Color.BLACK)
+            setTextSize(20f)
             setBackgroundResource(R.drawable.curved_rectangle)
             setPadding(20, 20, 20, 20) // Set padding for the text inside the EditText
             layoutParams = FrameLayout.LayoutParams(
@@ -406,7 +413,12 @@ class uploadStory : AppCompatActivity() {
             }
             isFocusableInTouchMode = true // Allow the EditText to receive input when clicked
             isEnabled = true // By default, make it editable
+
+            // Set the text to bold
+            typeface = Typeface.create(typeface, Typeface.BOLD)
         }
+
+
         // Create the delete button
         val deleteButton = ImageButton(this).apply {
             setImageResource(android.R.drawable.ic_delete) // Use a delete icon
@@ -429,21 +441,34 @@ class uploadStory : AppCompatActivity() {
                 60, // Height of the tick button
                 Gravity.START or Gravity.TOP // Position the tick button at the top-left corner
             )
-
         }
 
         // Set click listener to delete the container
         deleteButton.setOnClickListener {
             val parent = container.parent as ViewGroup
             parent.removeView(container) // Remove the entire container
-            draggableTextList.remove(DraggableText(draggableText.text.toString(),container.x,container.y,draggableText.backgroundTintList,draggableText.textColors))
+            draggableTextList.remove(DraggableText(
+                draggableText.text.toString(),
+                container.x,
+                container.y,
+                backgroundColor,
+                textColor
+            ))
         }
 
         // Set click listener to save the text and disable editing
         tickButton.setOnClickListener {
             draggableText.isEnabled = false // Disable editing when tick is clicked
             draggableText.clearFocus() // Remove focus from EditText
-            draggableTextList.add(DraggableText(draggableText.text.toString(),container.x,container.y,draggableText.backgroundTintList,draggableText.textColors))
+
+            // Create a new DraggableText object with the current state
+            draggableTextList.add(DraggableText(
+                draggableText.text.toString(),
+                container.x,
+                container.y,
+                backgroundColor,
+                textColor// Get the background color as ColorStateList
+            ))
         }
 
         // Create a GestureDetector for double-click detection (for transparent background)
@@ -474,21 +499,29 @@ class uploadStory : AppCompatActivity() {
                     0 -> { // Default state, change to black background with white text
                         draggableText.setBackgroundColor(Color.BLACK)
                         draggableText.setTextColor(Color.WHITE) // Change text color for contrast
+                        backgroundColor = Color.BLACK
+                        textColor = Color.WHITE
                         backgroundState = 1 // Update state to black background with white text
                     }
                     1 -> { // Black background, change to transparent with black text
                         draggableText.setBackgroundColor(Color.TRANSPARENT)
                         draggableText.setTextColor(Color.BLACK) // Set text color to black
+                        backgroundColor = Color.TRANSPARENT
+                        textColor = Color.BLACK
                         backgroundState = 2 // Update state to transparent with black text
                     }
                     2 -> { // Transparent with black text, change to transparent with white text
                         draggableText.setBackgroundColor(Color.TRANSPARENT)
                         draggableText.setTextColor(Color.WHITE) // Change text color to white
+                        backgroundColor = Color.TRANSPARENT
+                        textColor = Color.WHITE
                         backgroundState = 3 // Update state to transparent with white text
                     }
                     3 -> { // Transparent with white text, change back to default background
                         draggableText.setBackgroundColor(Color.WHITE)
                         draggableText.setTextColor(Color.BLACK) // Reset text color to default
+                        backgroundColor = Color.WHITE
+                        textColor = Color.BLACK
                         backgroundState = 0 // Update state to default background
                     }
                 }
@@ -525,10 +558,6 @@ class uploadStory : AppCompatActivity() {
     }
 
 
-    fun onDoubleTap(e: MotionEvent?): Boolean {
-        // Handle double-tap event
-        return true
-    }
     private fun getDraggableTextContent(): List<DraggableText> {
         val rootLayout: ViewGroup = findViewById(R.id.uploadStoryLayout)
         val textContents = mutableListOf<DraggableText>() // Create a list to hold individual texts with their positions
@@ -538,7 +567,7 @@ class uploadStory : AppCompatActivity() {
             val view = rootLayout.getChildAt(i)
             if (view is FrameLayout) {
                 // Get the EditText within the FrameLayout
-                val editText = view.getChildAt(0) as? EditText
+                val editText = view.getChildAt(1) as? EditText // Change index if necessary
                 editText?.let {
                     // Get the position of the EditText
                     val location = IntArray(2)
@@ -546,14 +575,16 @@ class uploadStory : AppCompatActivity() {
                     val x = location[0].toFloat() // X-coordinate
                     val y = location[1].toFloat() // Y-coordinate
 
+
                     // Add the text and its position to the list
-                    textContents.add(DraggableText(it.text.toString().trim(), x, y, it.backgroundTintList, it.textColors))
+                    textContents.add(DraggableText(it.text.toString().trim(), x, y,backgroundColor,textColor))
                 }
             }
         }
 
         return textContents // Return the list of texts with positions
     }
+
 
     private fun fetchTracks(userId: String) {
         // Example API endpoint to fetch tracks
