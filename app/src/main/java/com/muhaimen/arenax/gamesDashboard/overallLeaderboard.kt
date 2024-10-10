@@ -61,14 +61,14 @@ class overallLeaderboard : AppCompatActivity() {
             Request.Method.GET,
             baseUrl,
             null,
-            Response.Listener { response ->
+            { response ->
                 // Parse the JSON response
                 val rankingsList = parseRankings(response)
                 // Update the adapter with the new data
                 overallLeaderboardAdapter = overallLeaderboardAdapter(rankingsList)
                 overallLeaderboardRecyclerView.adapter = overallLeaderboardAdapter
             },
-            Response.ErrorListener { error ->
+            { error ->
                 // Handle the error
                 Toast.makeText(this, "Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
             }

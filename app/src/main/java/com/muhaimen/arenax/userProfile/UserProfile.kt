@@ -51,6 +51,7 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.screenTime.ScreenTimeService
 import org.json.JSONException
@@ -156,10 +157,8 @@ class UserProfile : AppCompatActivity() {
         postsRecyclerView = findViewById(R.id.posts_recyclerview)
         postsRecyclerView.layoutManager = GridLayoutManager(this, 3)
 
-        // Load sample data into the posts adapter
-        val samplePosts = loadSamplePostsData()
-        postsAdapter = PostsAdapter(samplePosts)
-        postsRecyclerView.adapter = postsAdapter
+        fetchUserPosts()
+
 
         // Initialize the Edit Profile button
         editProfileButton= findViewById(R.id.editProfileButton)
@@ -285,17 +284,6 @@ class UserProfile : AppCompatActivity() {
         return listOf(game1, game2)
     }
 
-    // Sample function to load posts data
-    private fun loadSamplePostsData(): List<Post> {
-        return listOf(
-            Post(imageResId = R.drawable.profile_icon_foreground),
-            Post(imageResId = R.drawable.profile_icon_foreground),
-            Post(imageResId = R.drawable.profile_icon_foreground),
-            Post(imageResId = R.drawable.profile_icon_foreground),
-            Post(imageResId = R.drawable.profile_icon_foreground),
-            Post(imageResId = R.drawable.profile_icon_foreground)
-        )
-    }
 
 
     // Check if the app has usage stats permission
@@ -322,20 +310,27 @@ class UserProfile : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun fetchUserRank() {
-        val url = "http://192.168.100.6:3000/leaderboard/user/${auth.currentUser?.uid}/rank"
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // First check if the user exists in Rankings
+        val checkRankUrl = "http://192.168.100.6:3000/leaderboard/user/$userId/rank"
 
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.GET,
-            url,
+            checkRankUrl,
             null,
             { response ->
                 try {
-                    // Extract rank from the response
+                    // If the response contains rank, user exists
                     val rank = response.getInt("rank")
                     rankTextView.text = "User Rank: $rank"
                 } catch (e: JSONException) {
-                    e.printStackTrace()
-                    Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
+                    // User does not exist in Rankings, add user
+                    addUserToRankingsIfNeeded(userId)
                 }
             },
             { error: VolleyError ->
@@ -347,6 +342,28 @@ class UserProfile : AppCompatActivity() {
         // Add the request to the RequestQueue
         requestQueue.add(jsonObjectRequest)
     }
+
+    private fun addUserToRankingsIfNeeded(userId: String) {
+        val addRankUrl = "http://192.168.100.6:3000/leaderboard/user/$userId/add"
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.POST,
+            addRankUrl,
+            null,
+            { response ->
+                // After successfully adding, fetch the rank again
+                fetchUserRank()
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error adding user to rankings: ${error.message}")
+                Toast.makeText(this, "Error adding user to rankings", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Add the request to the RequestQueue
+        requestQueue.add(jsonObjectRequest)
+    }
+
 
     private fun fetchUserStories() {
         val userId = auth.currentUser?.uid // Get the current user's ID
@@ -376,8 +393,6 @@ class UserProfile : AppCompatActivity() {
                         storiesList.add(story)
                     }
 
-                    // Update UI with the retrieved stories
-                    // For example, populate a RecyclerView or any other UI component
                     updateStoriesUI(storiesList)
 
                 } catch (e: JSONException) {
@@ -399,6 +414,75 @@ class UserProfile : AppCompatActivity() {
     private fun updateStoriesUI(stories: List<Story>) {
         highlightsAdapter = HighlightsAdapter(stories) // Create a new adapter with fetched stories
         highlightsRecyclerView.adapter = highlightsAdapter // Set the adapter to RecyclerView
+    }
+
+    private fun fetchUserPosts() {
+        val userId = auth.currentUser?.uid
+        val url = "http://192.168.100.6:3000/uploads/user/$userId/getUserPosts"
+
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                try {
+                    val postsList = mutableListOf<Post>()
+
+                    // Loop through the JSON array to extract posts
+                    for (i in 0 until response.length()) {
+                        val postJson = response.getJSONObject(i)
+
+                        // Extract post details
+                        val postId = postJson.getInt("post_id")
+                        val postContent = postJson.optString("post_content", null)
+                        val caption = postJson.optString("caption", null)
+                        val sponsored = postJson.getBoolean("sponsored")
+                        val likes = postJson.getInt("likes")
+                        val comments = postJson.getInt("post_comments")
+                        val shares = postJson.getInt("shares")
+                        val clicks = postJson.getInt("clicks")
+                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null)
+                        val createdAt = postJson.getString("created_at")
+
+                        // Create a Post object and add it to the list
+                        val post = Post(
+                            postId,
+                            postContent,
+                            caption,
+                            sponsored,
+                            likes,
+                            comments,
+                            shares,
+                            clicks,
+                            trimmedAudioUrl,
+                            createdAt
+                        )
+                        postsList.add(post)
+                    }
+
+                    // Update the UI with the fetched posts
+                    updatePostsUI(postsList)
+
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
+                }
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error fetching posts: ${error.message}")
+                Toast.makeText(this, "Error fetching posts", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Add the request to the RequestQueue
+        requestQueue.add(jsonArrayRequest)
+    }
+
+
+    // Function to update the UI with the fetched posts
+    private fun updatePostsUI(posts: List<Post>) {
+        postsAdapter = PostsAdapter(posts) // Create a new adapter with the fetched posts
+        postsRecyclerView.adapter = postsAdapter // Set the adapter to RecyclerView
     }
 
 
