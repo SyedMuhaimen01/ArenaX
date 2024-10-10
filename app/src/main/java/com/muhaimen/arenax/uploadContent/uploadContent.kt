@@ -28,6 +28,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
@@ -39,6 +40,9 @@ import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Track
 import com.muhaimen.arenax.dataClasses.UserData
+
+import com.muhaimen.arenax.utils.Constants
+
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONObject
@@ -367,14 +371,14 @@ class UploadContent : AppCompatActivity() {
 
         val postRequest = JsonObjectRequest(
             Request.Method.POST,
-            "http://192.168.100.6:3000/uploads/uploadPost",
+            "${Constants.SERVER_URL}uploads/uploadPost",
             jsonRequest,
-            { response ->
-                // Handle success response
+            { _ ->
                 Toast.makeText(this, "Post uploaded successfully", Toast.LENGTH_SHORT).show()
+                val intent = Intent("NEW_POST_ADDED")
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
             },
             { error ->
-                // Handle error
                 Toast.makeText(this, "Error uploading post: ${error.message}", Toast.LENGTH_SHORT)
                     .show()
             }

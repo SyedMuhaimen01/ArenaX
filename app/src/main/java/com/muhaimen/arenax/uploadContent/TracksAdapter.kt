@@ -31,7 +31,7 @@ class TracksAdapter(
 
     private var mediaPlayer: MediaPlayer? = null
 
-    private var currentTrack: Track? = null // To keep track of the currently playing track
+    private var currentTrack: Track? = null
     var duration: Int = 0
     var downloadUrl: String? = null
     var audioUrl: String? = null

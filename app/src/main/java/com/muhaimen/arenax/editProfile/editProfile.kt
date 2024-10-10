@@ -1,9 +1,9 @@
 package com.muhaimen.arenax.editProfile
 
 import android.annotation.SuppressLint
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
@@ -18,7 +18,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
@@ -30,10 +29,12 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.muhaimen.arenax.LoginSignUp.ForgotPassword
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Gender
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.userProfile.UserProfile
+import com.muhaimen.arenax.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,6 +46,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 
+@Suppress("NAME_SHADOWING")
 class editProfile : AppCompatActivity() {
     private lateinit var genderSpinner: Spinner
     private lateinit var auth: FirebaseAuth
@@ -52,10 +54,14 @@ class editProfile : AppCompatActivity() {
     private lateinit var storageReference: StorageReference
     private lateinit var profileImage: ImageView
     private lateinit var editProfileImage: TextView
+    private lateinit var progressDialog: ProgressDialog
     private var imageUri: Uri? = null
+    private lateinit var userId: String
     private lateinit var userData: UserData
-    private lateinit var backBUtton:ImageView
 
+    private val sharedPreferences5 by lazy { getSharedPreferences("UserInfoPrefs", Context.MODE_PRIVATE) }
+
+    private lateinit var backBUtton:ImageView
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +74,7 @@ class editProfile : AppCompatActivity() {
         }
 
         auth = FirebaseAuth.getInstance()
+        userId = auth.currentUser?.uid.toString()
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(auth.currentUser?.uid ?: "")
         storageReference = FirebaseStorage.getInstance().reference.child("profileImages/${auth.currentUser?.uid}")
 
@@ -75,11 +82,16 @@ class editProfile : AppCompatActivity() {
         editProfileImage = findViewById(R.id.editProfilePictureText)
         backBUtton=findViewById(R.id.backButton)
         editProfileImage.setOnClickListener { selectImage() }
+        genderSpinner = findViewById(R.id.genderSpinner)
+        val genderOptions = Gender.entries.map { it.displayName }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderOptions)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        genderSpinner.adapter = adapter
 
-        if (!isConnected()) {
-            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
-        } else {
+        if(sharedPreferences5.getString("userId", "") == "") {
             fetchUserDetailsFromFirebase()
+        }else{
+            loadUserDataFromSharedPreferences()
         }
     backBUtton.setOnClickListener {
             finish()
@@ -87,13 +99,8 @@ class editProfile : AppCompatActivity() {
         val editProfileButton = findViewById<Button>(R.id.updateChangesButton)
         editProfileButton.setOnClickListener {
             updateProfile()
-        }
 
-        genderSpinner = findViewById(R.id.genderSpinner)
-        val genderOptions = Gender.values().map { it.displayName }
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderOptions)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        genderSpinner.adapter = adapter
+        }
     }
 
     private fun selectImage() {
@@ -101,6 +108,7 @@ class editProfile : AppCompatActivity() {
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
@@ -142,60 +150,61 @@ class editProfile : AppCompatActivity() {
     }
 
     private fun fetchUserDetailsFromFirebase() {
-        val userId = auth.currentUser?.uid
-        userId?.let { uid ->
-            databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        userData = snapshot.getValue(UserData::class.java) ?: UserData()
-                        Log.d("EditUserProfile", "Data loaded from Firebase: $userData")
 
-                        findViewById<EditText>(R.id.nameEditText).setText(userData.fullname)
-                        findViewById<EditText>(R.id.gamertagEditText).setText(userData.gamerTag)
-                        findViewById<EditText>(R.id.bioEditText).setText(userData.bio) // New line to set bio
-                        genderSpinner.setSelection(Gender.values().indexOf(userData.gender))
-
-                        userData.profilePicture?.let { url ->
-                            Glide.with(this@editProfile)
-                                .load(url)
-                                .circleCrop()
-                                .into(profileImage)
+        if(isConnected()) {
+            userId.let { uid ->
+                databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) {
+                            userData = snapshot.getValue(UserData::class.java) ?: UserData()
+                            val gender = userData.gender.name
+                            populateUIWithUserData(
+                                userId = userId,
+                                fullname = userData.fullname,
+                                gamerTag = userData.gamerTag,
+                                gender = gender,
+                                bio = userData.bio,
+                                profilePicture = userData.profilePicture
+                            )
+                            saveUserDataToSharedPreferences(userData)
+                        } else {
+                            Log.w("EditUserProfile", "No data found for user ID: $uid")
                         }
-                    } else {
-                        Log.w("EditUserProfile", "No data found for user ID: $uid")
                     }
-                }
 
-                override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(this@editProfile, "Failed to load user details: ${error.message}", Toast.LENGTH_SHORT).show()
-                    Log.e("EditUserProfile", "Database error: ${error.message}")
-                }
-            })
+                    override fun onCancelled(error: DatabaseError) {
+                        Toast.makeText(
+                            this@editProfile,
+                            "Failed to load user details: ${error.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        Log.e("EditUserProfile", "Database error: ${error.message}")
+                    }
+                })
+            }
+        }else {
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun updateProfile() {
         val nameEditText = findViewById<EditText>(R.id.nameEditText)
         val gamertagEditText = findViewById<EditText>(R.id.gamertagEditText)
-        val bioEditText = findViewById<EditText>(R.id.bioEditText) // Add bioEditText reference
-        val genderValue = Gender.values()[genderSpinner.selectedItemPosition]
-
+        val bioEditText = findViewById<EditText>(R.id.bioEditText)
+        val genderValue = Gender.entries[genderSpinner.selectedItemPosition]
         val name = nameEditText.text.toString().trim()
         val gamertag = gamertagEditText.text.toString().trim()
-        val bio = bioEditText.text.toString().trim() // Get the bio text
+        val bio = bioEditText.text.toString().trim()
 
-        if (name.isEmpty() || gamertag.isEmpty() || bio.isEmpty()) { // Check if bio is empty
+        if (name.isEmpty() || gamertag.isEmpty()) {
             Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show()
             return
         }
-
-        Log.d("EditProfile", "Checking if gamertag $gamertag is taken")
         databaseReference.child("users").orderByChild("gamerTag").equalTo(gamertag)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     if (dataSnapshot.exists()) {
                         Toast.makeText(this@editProfile, "Gamertag already taken. Please choose another one.", Toast.LENGTH_SHORT).show()
-                        Log.w("EditProfile", "Gamertag $gamertag is already taken")
                     } else {
                         val updatedUserData = userData.copy(
                             fullname = name,
@@ -204,11 +213,11 @@ class editProfile : AppCompatActivity() {
                             bio = bio
                         )
 
-                        Log.d("EditProfile", "Updating user profile: $updatedUserData")
                         databaseReference.setValue(updatedUserData).addOnCompleteListener {
                             Toast.makeText(this@editProfile, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                            uploadImageToFirebase() // Upload the image after updating the profile
-                            saveUserDataToPostgreSQL(updatedUserData) // Save to PostgreSQL
+                            uploadImageToFirebase()
+                            saveUserDataToPostgreSQL(updatedUserData)
+                            saveUserDataToSharedPreferences(updatedUserData)
                             redirect()
                         }.addOnFailureListener { e ->
                             Log.e("EditProfile", "Failed to update user profile: ${e.message}")
@@ -234,14 +243,12 @@ class editProfile : AppCompatActivity() {
             }
 
 
-            val url = "http://192.168.100.6:3000/api2/updateUser"
+            val url = "${Constants.SERVER_URL}api2/updateUser"
             val client = OkHttpClient()
-
             val request = Request.Builder()
                 .url(url)
                 .post(jsonData.toString().toRequestBody("application/json".toMediaType()))
                 .build()
-
             try {
                 val response: Response = client.newCall(request).execute()
                 withContext(Dispatchers.Main) {
@@ -260,7 +267,61 @@ class editProfile : AppCompatActivity() {
     private fun redirect() {
         val intent = Intent(this, UserProfile::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
+        startActivity((intent).putExtra("Activity", "EditProfile"))
+    }
+
+    @SuppressLint("CommitPrefEdits")
+    private fun saveUserDataToSharedPreferences(userData: UserData) {
+        val editor = sharedPreferences5.edit()
+        editor.putString("userId", userData.userId)
+        editor.putString("fullname", userData.fullname)
+        editor.putString("gamerTag", userData.gamerTag)
+        editor.putString("gender", userData.gender.toString())
+        editor.putString("bio", userData.bio)
+        editor.putString("profilePicture", userData.profilePicture)
+    }
+
+    private fun loadUserDataFromSharedPreferences() {
+        val userId = sharedPreferences5.getString("userId", "")
+        val fullname = sharedPreferences5.getString("fullname", "")
+        val gamerTag = sharedPreferences5.getString("gamerTag", "")
+        val bio = sharedPreferences5.getString("bio", "")
+        val profilePicture = sharedPreferences5.getString("profilePicture", "")
+        val savedGender = sharedPreferences5.getString("gender", "")
+        val genderIndex = Gender.entries.indexOfFirst { it.name == savedGender }
+        if (genderIndex != -1) {
+            genderSpinner.setSelection(genderIndex)
+        }
+
+        if (!userId.isNullOrEmpty() && !fullname.isNullOrEmpty() && !gamerTag.isNullOrEmpty()) {
+            populateUIWithUserData(userId, fullname, gamerTag, savedGender, bio, profilePicture)
+        }
+
+    }
+
+    private fun populateUIWithUserData(
+        userId: String?,
+        fullname: String?,
+        gamerTag: String?,
+        gender: String?,
+        bio: String?,
+        profilePicture: String?
+    ) {
+        findViewById<EditText>(R.id.nameEditText).setText(fullname)
+        findViewById<EditText>(R.id.gamertagEditText).setText(gamerTag)
+        findViewById<EditText>(R.id.bioEditText).setText(bio)
+        if (gender != null) {
+            val genderIndex = Gender.entries.indexOfFirst { it.name == gender }
+            if (genderIndex != -1) {
+                genderSpinner.setSelection(genderIndex)
+            }
+        }
+        profilePicture?.let { profilePictureUrl ->
+            Glide.with(this@editProfile)
+                .load(profilePictureUrl)
+                .circleCrop()
+                .into(profileImage)
+        }
     }
 
     companion object {

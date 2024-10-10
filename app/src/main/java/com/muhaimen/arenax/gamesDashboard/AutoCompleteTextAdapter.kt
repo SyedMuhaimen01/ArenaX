@@ -5,7 +5,7 @@ import android.widget.Filterable
 
 class GameAutoCompleteAdapter(
     context: Context,
-    private val gamesList: List<String>  // The full list of game names
+    private val gamesList: List<String>
 ) : ArrayAdapter<String>(context, android.R.layout.simple_dropdown_item_1line), Filterable {
 
     private var filteredGamesList: List<String> = gamesList  // To store the filtered data

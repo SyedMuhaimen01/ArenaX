@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.gamesDashboard
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
@@ -36,6 +37,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import com.github.mikephil.charting.data.BarEntry
 import com.google.firebase.auth.FirebaseAuth
+import com.muhaimen.arenax.utils.Constants
 import java.net.URLEncoder
 
 class ViewGameAnalytics : AppCompatActivity() {
@@ -94,31 +96,28 @@ class ViewGameAnalytics : AppCompatActivity() {
 
     private fun fetchUserGameStats(game: String) {
 
-        // Define the URL for the analytics endpoint
-        val url = "http://192.168.100.6:3000/analytics/gameAnalytics"
+        val url = "${Constants.SERVER_URL}analytics/gameAnalytics"
         Log.d(TAG, "Fetching data from URL: $url")
 
         val userId=auth.currentUser?.uid.toString()
         val requestBody = JSONObject().apply {
             put("gameName", game)
-            put("userId", userId) // Replace with actual userId
+            put("userId", userId)
         }
 
         val queue = Volley.newRequestQueue(this)
 
-// Create a JsonObjectRequest with POST method
         val jsonObjectRequest = JsonObjectRequest(Request.Method.POST, url, requestBody,
             { response ->
                 Log.d(TAG, "Response received: $response")
                 parseAndPopulateCharts(response)
             },
             { error ->
-                // Handle error
+
                 Log.e(TAG, "Error fetching data: ${error.message}")
                 error.printStackTrace()
             })
 
-// Add the request to the RequestQueue
         queue.add(jsonObjectRequest)
 
     }
@@ -134,16 +133,16 @@ class ViewGameAnalytics : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun parseAndPopulateCharts(response: JSONObject) {
-        // Parse the response and extract the data needed for the charts
         try {
-            val gameName = response.getString("gameName") // Extract game name
-            val gameLogo = response.getString("gameLogo") // Extract game logo
-            val totalPlaytimeData = response.getJSONArray("totalPlaytime") // Extract total playtime data
-            val totalHoursSpent = response.getInt("totalHoursSpent") // Extract total hours spent in that game
-            val sessionFrequencyData = response.getJSONArray("sessionFrequency") // Extract session frequency data
-            val peakPlayTimeData = response.getJSONArray("peakPlayTime") // Extract peak play time data
-            val gameComparisonData = response.getJSONObject("gameComparison") // Extract game comparison data
+            val gameName = response.getString("gameName")
+            val gameLogo = response.getString("gameLogo")
+            val totalPlaytimeData = response.getJSONArray("totalPlaytime")
+            val totalHoursSpent = response.getInt("totalHoursSpent")
+            val sessionFrequencyData = response.getJSONArray("sessionFrequency")
+            val peakPlayTimeData = response.getJSONArray("peakPlayTime")
+            val gameComparisonData = response.getJSONObject("gameComparison")
 
             Log.d(TAG, "Game Name: $gameName, Total Hours Spent: $totalHoursSpent")
 
@@ -151,31 +150,27 @@ class ViewGameAnalytics : AppCompatActivity() {
 
             val logoUrl = convertToUrl(gameLogo)
 
-            Glide.with(this) // Use 'this' to refer to the Activity context
-                .load(logoUrl) // Load the URL
-                .placeholder(R.drawable.circle) // Placeholder image while loading
-                .error(R.drawable.circle) // Error image if the load fails
-                .circleCrop() // Crop to circle
+            Glide.with(this)
+                .load(logoUrl)
+                .placeholder(R.drawable.circle)
+                .error(R.drawable.circle)
+                .circleCrop()
                 .into(gameIcon)
 
-            // Extracting specific values from the gameComparison object
-            val userTotalHours = gameComparisonData.getInt("userTotalHours") // Extract user total hours
-            val otherGamesTotalHours = gameComparisonData.getInt("otherGamesTotalHours") // Extract other games total hours
-            val totalUsersCompared = gameComparisonData.getInt("totalUsersCompared") // Extract total users compared
+            val userTotalHours = gameComparisonData.getInt("userTotalHours")
+            val otherGamesTotalHours = gameComparisonData.getInt("otherGamesTotalHours")
+            val totalUsersCompared = gameComparisonData.getInt("totalUsersCompared")
 
             Log.d(TAG, "User Total Hours: $userTotalHours, Other Games Total Hours: $otherGamesTotalHours, Total Users Compared: $totalUsersCompared")
 
-            // Convert JSON arrays to Kotlin Lists
             val totalPlaytime = (0 until totalPlaytimeData.length()).map { totalPlaytimeData[it].toString().toFloat() }
             val sessionFrequency = (0 until sessionFrequencyData.length()).map { sessionFrequencyData[it].toString().toFloat() }
             val peakPlayTimes = (0 until peakPlayTimeData.length()).map { peakPlayTimeData[it].toString().toFloat() }
 
-            // Set the total hours spent text view
             totalHours.text = "Total Hours: $totalHoursSpent"
 
-            // Set up the charts with the fetched data
-            setupTotalPlaytimeLineChart(totalPlaytime, listOf("Playtime")) // You can adjust labels based on your data
-            setupAverageSessionLengthChart(emptyList(), emptyList()) // Keep this empty for now as data isn't available
+            setupTotalPlaytimeLineChart(totalPlaytime, listOf("Playtime"))
+            setupAverageSessionLengthChart(emptyList(), emptyList())
             setupSessionFrequencyBarChart(sessionFrequency, listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
             setupPeakPlayTimeScatterChart(peakPlayTimes)
             setupGameComparisonPieChart(listOf(userTotalHours.toFloat(), otherGamesTotalHours.toFloat()), listOf("User", "Others"))

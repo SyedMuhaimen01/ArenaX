@@ -1,6 +1,8 @@
 package com.muhaimen.arenax.gamesDashboard
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.Toast
@@ -11,12 +13,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.RankingData
 import com.muhaimen.arenax.overallLeaderboardAdapter.overallLeaderboardAdapter
+import com.muhaimen.arenax.utils.Constants
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -24,9 +26,9 @@ class overallLeaderboard : AppCompatActivity() {
     private lateinit var overallLeaderboardRecyclerView: RecyclerView
     private lateinit var overallLeaderboardAdapter: overallLeaderboardAdapter
     private lateinit var backButton: ImageButton
+    private val sharedPreferences by lazy { getSharedPreferences("Leaderboard", Context.MODE_PRIVATE) }
 
-    // Define the base URL for the API
-    private val baseUrl = "http://192.168.100.6:3000/leaderboard/rankings" // Replace with your actual API URL
+    private val baseUrl = "${Constants.SERVER_URL}leaderboard/rankings"
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,33 +50,26 @@ class overallLeaderboard : AppCompatActivity() {
         overallLeaderboardRecyclerView = findViewById(R.id.leaderboardRecyclerView)
         overallLeaderboardRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Fetch the rankings from the API
         fetchRankings()
     }
 
     private fun fetchRankings() {
-        // Create a request queue
         val requestQueue = Volley.newRequestQueue(this)
 
-        // Create a JSON array request
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
             baseUrl,
             null,
             { response ->
-                // Parse the JSON response
                 val rankingsList = parseRankings(response)
-                // Update the adapter with the new data
                 overallLeaderboardAdapter = overallLeaderboardAdapter(rankingsList)
                 overallLeaderboardRecyclerView.adapter = overallLeaderboardAdapter
             },
             { error ->
-                // Handle the error
                 Toast.makeText(this, "Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         )
 
-        // Add the request to the RequestQueue
         requestQueue.add(jsonArrayRequest)
     }
 
@@ -85,11 +80,10 @@ class overallLeaderboard : AppCompatActivity() {
             val jsonObject: JSONObject = response.getJSONObject(i)
             val name = jsonObject.getString("name")
             val totalHrs = jsonObject.getInt("totalHours")
-            val profilePictureUrl = jsonObject.getString("profilePicture") // Fetch the URL
+            val profilePictureUrl = jsonObject.getString("profilePicture")
             val rank = jsonObject.getInt("rank")
             val gamerTag = jsonObject.getString("gamertag")
 
-            // Create a RankingData instance and add it to the list
             val rankingData = RankingData(
                 name = name,
                 totalHrs = totalHrs,
@@ -98,8 +92,61 @@ class overallLeaderboard : AppCompatActivity() {
                 gamerTag = gamerTag
             )
             rankingsList.add(rankingData)
+
+        }
+        saveRankingsToPreferences(rankingsList)
+        return rankingsList
+    }
+
+    private fun saveRankingsToPreferences(rankings: List<RankingData>) {
+        val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        val jsonArray = JSONArray()
+        for (ranking in rankings) {
+            val jsonObject = JSONObject().apply {
+                put("name", ranking.name)
+                put("gamerTag", ranking.gamerTag)
+                put("profilePicture", ranking.profilePicture)
+                put("rank", ranking.rank)
+                put("totalHours", ranking.totalHrs)
+            }
+            jsonArray.put(jsonObject)
         }
 
-        return rankingsList
+        editor.putString("rankingsList", jsonArray.toString())
+        editor.apply()
+    }
+
+    private fun loadRankingsFromPreferences(): List<RankingData> {
+
+        val jsonString = sharedPreferences.getString("rankingsList", null)
+
+        return if (jsonString != null) {
+            val jsonArray = JSONArray(jsonString)
+            val rankingsList = mutableListOf<RankingData>()
+
+            for (i in 0 until jsonArray.length()) {
+                val jsonObject = jsonArray.getJSONObject(i)
+                val name = jsonObject.getString("name")
+                val gamerTag = jsonObject.getString("gamerTag")
+                val profilePicture = jsonObject.getString("profilePicture")
+                val rank = jsonObject.getInt("rank")
+                val totalHrs = jsonObject.getInt("totalHours")
+
+                rankingsList.add(RankingData(name, gamerTag, profilePicture, rank, totalHrs))
+            }
+
+            rankingsList
+        } else {
+            emptyList()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val rankings = loadRankingsFromPreferences()
+        overallLeaderboardAdapter = overallLeaderboardAdapter(rankings)
+        overallLeaderboardRecyclerView.adapter = overallLeaderboardAdapter
     }
 }
