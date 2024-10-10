@@ -149,13 +149,13 @@
             android:text="Syed Muhaimen"
             android:textStyle="bold"
             android:textSize="@dimen/_16ssp"
-            android:paddingLeft="@dimen/_10sdp"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/textColor"/>
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_45sdp"
+            android:layout_height="@dimen/_25sdp"
             android:orientation="horizontal"
             android:background="@drawable/gamertag_background"
             android:weightSum="1"
@@ -185,6 +185,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="Rank: 010000"
+                android:textStyle="bold"
+                android:textSize="@dimen/_12sdp"
                 android:gravity="left"
                 android:textColor="@color/backgroundColor"
                 android:layout_gravity="end"
@@ -214,7 +216,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="vertical"
-          android:layout_marginTop="8dp">
+          android:layout_marginTop="@dimen/_2sdp">
 
         <TextView
             android:id="@+id/bioText"
@@ -289,6 +291,7 @@
           android:layout_width="match_parent"
           android:layout_height="@dimen/_130sdp"
           android:orientation="vertical"
+          android:background="@drawable/inputholder"
           android:layout_marginTop="@dimen/_10sdp">
         <LinearLayout
             android:layout_width="match_parent"
