@@ -31,33 +31,26 @@ class ForgotPassword : AppCompatActivity() {
         }
 
         auth = FirebaseAuth.getInstance()
-
-        // Get the email from the previous activity
         email = intent.getStringExtra("email") ?: ""
-
         resendEmail = findViewById(R.id.resendEmailButton)
-
-        // Resend verification email when clicked
         resendEmail.setOnClickListener {
             FirebaseManager.sendPasswordResetEmail(email) { success, errorMessage ->
                 if (success) {
-                    Toast.makeText(this, "Password reset email sent! Check your email.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Password reset email sent! Please check you email inbox", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Failed to send reset email: $errorMessage", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Failed to send password reset email: $errorMessage", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
-        // Handle the Reset Password button click to navigate to the login screen
         val resetPasswordBtn: Button = findViewById(R.id.resetPasswordBtn)
         resetPasswordBtn.setOnClickListener {
             navigateToLoginScreen()
         }
     }
 
-    // Navigate to the login screen
     private fun navigateToLoginScreen() {
-        startActivity(Intent(this, LoginScreen::class.java)) // Change LoginScreen to the actual login activity class name
-        finish() // Optionally finish this activity
+        startActivity(Intent(this, LoginScreen::class.java))
+        finish()
     }
 }

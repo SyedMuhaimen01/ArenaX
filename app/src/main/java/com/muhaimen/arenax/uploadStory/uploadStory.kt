@@ -31,6 +31,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
@@ -44,6 +45,7 @@ import com.muhaimen.arenax.dataClasses.DraggableText
 import com.muhaimen.arenax.dataClasses.Track
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.userProfile.UserProfile
+import com.muhaimen.arenax.utils.Constants
 
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
@@ -356,10 +358,12 @@ class uploadStory : AppCompatActivity() {
 
         val postRequest = JsonObjectRequest(
             Request.Method.POST,
-            "http://192.168.100.6:3000/stories/storyUpload", // Your backend endpoint
+            "${Constants.SERVER_URL}stories/storyUpload", // Your backend endpoint
             storyJson,
             { response ->
                 // Handle success response
+                val intent = Intent("NEW_STORY_ADDED")
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
                 Toast.makeText(this, "Story uploaded successfully", Toast.LENGTH_SHORT).show()
             },
             { error ->

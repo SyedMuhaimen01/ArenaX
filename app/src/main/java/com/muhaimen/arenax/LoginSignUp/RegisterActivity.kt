@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -51,7 +50,6 @@ class RegisterActivity : AppCompatActivity() {
                 intent.putExtra("email", email)
                 intent.putExtra("password", password)
                 startActivity(intent)
-                finish() // Close RegisterActivity to prevent going back
             }
         }
     }
@@ -71,7 +69,6 @@ class RegisterActivity : AppCompatActivity() {
             reEnterPasswordEditText.error = "Passwords do not match"
             return false
         }
-
         return true
     }
 }

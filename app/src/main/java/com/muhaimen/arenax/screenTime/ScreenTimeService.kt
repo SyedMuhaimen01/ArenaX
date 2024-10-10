@@ -4,9 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
-import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
@@ -17,7 +15,6 @@ import android.util.Log
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
-import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
@@ -28,7 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.*
 
 class ScreenTimeService : Service() {
     private val CHANNEL_ID = "ScreenTimeServiceChannel"
@@ -38,13 +34,12 @@ class ScreenTimeService : Service() {
     private lateinit var usageStatsManager: UsageStatsManager
     private lateinit var handler: Handler
     private var usageCheckRunnable: Runnable? = null
-    private val accumulatedPlaytime = mutableMapOf<String, Long>() // Initialize as a mutable map
-    private val hourlyPlaytime = mutableMapOf<String, Long>() // New variable for hourly tracking
+    private val accumulatedPlaytime = mutableMapOf<String, Long>()
+    private val hourlyPlaytime = mutableMapOf<String, Long>()
 
-    // Set usage check interval to 1 minute (60000 milliseconds)
-    private val usageCheckInterval: Long = 1000 // Check every minute
-    private val playtimeThreshold: Long = 1000 // Threshold to send playtime to backend (1 hour in milliseconds)
 
+    private val usageCheckInterval: Long = 60*1000
+    private val playtimeThreshold: Long = 60*1000
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -246,7 +241,6 @@ class ScreenTimeService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Stop the periodic usage check
         handler.removeCallbacks(usageCheckRunnable ?: return)
     }
 }

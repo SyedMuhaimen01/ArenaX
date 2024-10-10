@@ -1,6 +1,8 @@
 package com.muhaimen.arenax.overallLeaderboardAdapter
 
 import android.graphics.Color
+import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +13,7 @@ import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.RankingData
 
-class overallLeaderboardAdapter(private val rankingsList: List<RankingData>) : RecyclerView.Adapter<overallLeaderboardAdapter.overallLeaderboardViewHolder>() {
+class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerView.Adapter<overallLeaderboardAdapter.overallLeaderboardViewHolder>() {
 
     // ViewHolder class
     inner class overallLeaderboardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -27,9 +29,13 @@ class overallLeaderboardAdapter(private val rankingsList: List<RankingData>) : R
             totalHours.text = "Total Hours: ${data.totalHrs}"
 
 
-            // Load profile picture using Glide
+
+            val picture=formatUrl(data.profilePicture)
+            val uri = Uri.parse(data.profilePicture)
+            Log.e("Leaderboard", picture)
+
             Glide.with(itemView.context)
-                .load(data.profilePicture) // Load the URL
+                .load(uri)
                 .placeholder(R.drawable.circle) // Placeholder image while loading
                 .error(R.drawable.circle)
                 .circleCrop()// Error image if the load fails
@@ -75,6 +81,13 @@ class overallLeaderboardAdapter(private val rankingsList: List<RankingData>) : R
             else -> {
                 holder.itemView.setBackgroundColor(Color.WHITE) // Default background
             }
+        }
+    }
+    fun formatUrl(url: String?): String {
+        return when {
+            url.isNullOrEmpty() -> "" // Return empty string for null or empty input
+            url.startsWith("http://") || url.startsWith("https://") -> url // Return the URL as is
+            else -> "https:$url" // Prepend with https if it starts with //
         }
     }
 

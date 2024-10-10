@@ -12,10 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.gson.Gson
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.dataClasses.DraggableText
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.uploadStory.viewStory
-import java.util.Locale
 
 class highlightsAdapter(private val storiesList: List<Story>) : RecyclerView.Adapter<highlightsAdapter.StoryViewHolder>() {
 
@@ -23,54 +21,25 @@ class highlightsAdapter(private val storiesList: List<Story>) : RecyclerView.Ada
         private val storyImage: ImageView = itemView.findViewById(R.id.highlight_image)
         private val storyTitle: TextView = itemView.findViewById(R.id.highlight_title)
 
+        @SuppressLint("SetTextI18n")
         fun bind(story: Story) {
-            Log.d("HighlightsAdapter", "Media URL: ${story.mediaUrl}")
+            storyTitle.text = "Story Title"
+            val uri = Uri.parse(story.mediaUrl)
+            Glide.with(itemView.context)
+                .load(uri)
+                .thumbnail(0.1f)
+                .error(R.mipmap.appicon2)
+                .into(storyImage)
 
-            // Attempt to load the media when binding
-            loadMedia(story)
-
-            // Set the story title
-            storyTitle.text = "Story Title" // Customize as needed
-
-            // Set the click listener for the entire item view
             itemView.setOnClickListener {
                 val gson = Gson()
-
-                // Serialize the draggableTexts list to JSON
                 val draggableJson = gson.toJson(story.draggableTexts)
-
-                // Start the ViewStory activity and pass the media URL and other data
                 val intent = Intent(itemView.context, viewStory::class.java).apply {
                     putExtra("MEDIA_URL", story.mediaUrl)
                     putExtra("Audio", story.trimmedAudioUrl)
-                    putExtra("Texts", draggableJson) // Pass the serialized JSON
+                    putExtra("Texts", draggableJson)
                 }
-                itemView.context.startActivity(intent) // Start the activity
-            }
-
-
-        }
-
-        @SuppressLint("SuspiciousIndentation")
-        private fun loadMedia(story: Story) {
-            val uri = Uri.parse(story.mediaUrl)
-
-            // Check if the media exists before loading
-
-                Glide.with(itemView.context)
-                    .load(uri)
-                    .thumbnail(0.1f) // Show a thumbnail while loading
-                    .error(R.mipmap.appicon2) // Show a default error image if loading fails
-                    .into(storyImage)
-        }
-
-        private fun mediaExists(uri: Uri, contentResolver: ContentResolver): Boolean {
-            return try {
-                val cursor = contentResolver.query(uri, null, null, null, null)
-                cursor?.use { it.count > 0 } ?: false
-            } catch (e: Exception) {
-                Log.e("HighlightsAdapter", "Error checking media existence: ${e.message}")
-                false
+                itemView.context.startActivity(intent)
             }
         }
     }
@@ -88,4 +57,3 @@ class highlightsAdapter(private val storiesList: List<Story>) : RecyclerView.Ada
 
     override fun getItemCount(): Int = storiesList.size
 }
-

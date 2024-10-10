@@ -21,6 +21,7 @@ import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import com.google.firebase.auth.FirebaseAuth
+import com.muhaimen.arenax.utils.Constants
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -55,26 +56,23 @@ class MyGamesList : AppCompatActivity() {
         myGamesListRecyclerView = findViewById(R.id.myGamesListRecyclerView)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Set an empty adapter initially
         myGamesListAdapter = MyGamesListAdapter(emptyList())
         myGamesListRecyclerView.adapter = myGamesListAdapter
+
+        loadGamesFromPreferences()
+        refreshButton.setOnClickListener {
+            showRefreshDialog()
+        }
 
         addGame.setOnClickListener {
             val intent = Intent(this, gamesList::class.java)
             startActivity(intent)
         }
-
-        // Set up the refresh button's click listener
-        refreshButton.setOnClickListener {
-            showRefreshDialog()
-        }
-
-        loadGamesFromPreferences()
     }
 
     override fun onResume() {
         super.onResume()
-        loadGamesFromPreferences() // Reload games when the activity is resumed
+        loadGamesFromPreferences()
     }
 
     private fun loadGamesFromPreferences() {
@@ -88,7 +86,7 @@ class MyGamesList : AppCompatActivity() {
 
     private fun fetchUserGames() {
         val request = Request.Builder()
-            .url("http://192.168.100.6:3000/usergames/user/${auth.currentUser?.uid}/mygames")
+            .url("${Constants.SERVER_URL}usergames/user/${auth.currentUser?.uid}/mygames")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -106,7 +104,6 @@ class MyGamesList : AppCompatActivity() {
                         parseGamesData(responseBody)
                         saveGamesToPreferences(responseBody)
                     } else {
-                        // Update shared preferences to store an empty list when no games are returned
                         updateEmptyGameList()
                     }
                 } else {
@@ -120,11 +117,10 @@ class MyGamesList : AppCompatActivity() {
 
     private fun updateEmptyGameList() {
         with(sharedPreferences.edit()) {
-            putString("gamesList", "[]") // Store empty list as a JSON string
+            putString("gamesList", "[]")
             apply()
         }
         runOnUiThread {
-            // Show empty view in the RecyclerView
             myGamesListAdapter.updateGamesList(emptyList())
             Toast.makeText(this@MyGamesList, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
         }
@@ -140,7 +136,7 @@ class MyGamesList : AppCompatActivity() {
     private fun parseGamesData(responseBody: String) {
         try {
             val jsonObject = JSONObject(responseBody)
-            val gamesArray = jsonObject.getJSONArray("games") // Fetch the 'games' array from the JSON object
+            val gamesArray = jsonObject.getJSONArray("games")
 
             myGamesList = List(gamesArray.length()) { index ->
                 val gameObject = gamesArray.getJSONObject(index)
@@ -195,7 +191,6 @@ class MyGamesList : AppCompatActivity() {
                 it.gameName.contains(query, ignoreCase = true)
             }
         }
-
         myGamesListAdapter.updateGamesList(filteredList)
     }
 
