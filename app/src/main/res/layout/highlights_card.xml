@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/highlight_card_view"
-    android:layout_width="@dimen/_60sdp"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/_4sdp"
     app:cardBackgroundColor="@android:color/white"
@@ -30,7 +30,8 @@
             android:textSize="@dimen/_9sdp"
             android:textColor="@android:color/black"
             android:layout_marginTop="4dp"
-            android:gravity="center" />
+            android:gravity="center"
+            android:visibility="gone"/>
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

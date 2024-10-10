@@ -145,7 +145,7 @@ class UserProfile : AppCompatActivity() {
             val intent = Intent(this, uploadStory::class.java)
             startActivity(intent)
         }
-       
+
         // Initialize the RecyclerView for analytics
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -393,7 +393,7 @@ class UserProfile : AppCompatActivity() {
                 try {
                     // If the response contains rank, user exists
                     val rank = response.getInt("rank")
-                    rankTextView.text = "User Rank: $rank"
+                    rankTextView.text = "Rank: $rank"
                 } catch (e: JSONException) {
                     // User does not exist in Rankings, add user
                     addUserToRankingsIfNeeded(userId)
