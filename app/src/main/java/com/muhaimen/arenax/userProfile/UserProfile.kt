@@ -53,8 +53,15 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
+import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
 import com.muhaimen.arenax.screenTime.ScreenTimeService
+import highlightsAdapter
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
 import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
 
 
 class UserProfile : AppCompatActivity() {
@@ -62,10 +69,11 @@ class UserProfile : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
     private lateinit var storageReference: StorageReference
-    private lateinit var analyticsRecyclerView: RecyclerView
-    private lateinit var analyticsAdapter: AnalyticsAdapter
+    private lateinit var myGamesListRecyclerView: RecyclerView
+    private lateinit var myGamesListAdapter: MyGamesListAdapter
+    private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var highlightsRecyclerView: RecyclerView
-    private lateinit var highlightsAdapter: HighlightsAdapter
+    private lateinit var highlightsAdapter: highlightsAdapter
     private lateinit var synergyButton:ImageButton
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: PostsAdapter
@@ -81,6 +89,8 @@ class UserProfile : AppCompatActivity() {
     private lateinit var leaderboardButton: ImageButton
     private lateinit var rankTextView: TextView
     private lateinit var requestQueue: RequestQueue
+    private val client = OkHttpClient()
+    private val sharedPreferences by lazy { getSharedPreferences("MyGamesPrefs", Context.MODE_PRIVATE) }
 
     @SuppressLint("MissingInflatedId", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,18 +147,19 @@ class UserProfile : AppCompatActivity() {
         }
        
         // Initialize the RecyclerView for analytics
-        analyticsRecyclerView = findViewById(R.id.analytics_recyclerview)
-        analyticsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
+        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        // Load sample data into the analytics adapter
-        val sampleData = loadSampleAnalyticsData()
-        analyticsAdapter = AnalyticsAdapter(sampleData)
-        analyticsRecyclerView.adapter = analyticsAdapter
+        // Set an empty adapter initially
+        myGamesListAdapter = MyGamesListAdapter(emptyList())
+        myGamesListRecyclerView.adapter = myGamesListAdapter
+
 
         // Initialize the RecyclerView for highlights
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
+        loadGamesFromPreferences()
         fetchUserStories()
 
 
@@ -195,6 +206,96 @@ class UserProfile : AppCompatActivity() {
 
 
     }
+    override fun onResume() {
+        super.onResume()
+        loadGamesFromPreferences() // Reload games when the activity is resumed
+        fetchUserStories()
+    }
+    private fun loadGamesFromPreferences() {
+        val jsonString = sharedPreferences.getString("gamesList", null)
+        if (jsonString != null) {
+            parseGamesData(jsonString)
+        } else {
+            fetchUserGames()
+        }
+    }
+
+    private fun fetchUserGames() {
+        val request = okhttp3.Request.Builder()
+            .url("http://192.168.100.6:3000/usergames/user/${auth.currentUser?.uid}/mygames")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                runOnUiThread {
+                    Toast.makeText(this@UserProfile,"Failed to fetch games", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: okhttp3.Response) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string() ?: ""
+                    if (responseBody.isNotEmpty()) {
+                        parseGamesData(responseBody)
+                        saveGamesToPreferences(responseBody)
+                    } else {
+                        // Update shared preferences to store an empty list when no games are returned
+                        updateEmptyGameList()
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(this@UserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun updateEmptyGameList() {
+        with(sharedPreferences.edit()) {
+            putString("gamesList", "[]") // Store empty list as a JSON string
+            apply()
+        }
+        runOnUiThread {
+            // Show empty view in the RecyclerView
+            myGamesListAdapter.updateGamesList(emptyList())
+            Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
+        }
+    }
+
+    private fun saveGamesToPreferences(gamesJson: String) {
+        with(sharedPreferences.edit()) {
+            putString("gamesList", gamesJson)
+            apply()
+        }
+    }
+
+    private fun parseGamesData(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val gamesArray = jsonObject.getJSONArray("games") // Fetch the 'games' array from the JSON object
+
+            myGamesList = List(gamesArray.length()) { index ->
+                val gameObject = gamesArray.getJSONObject(index)
+                Log.d("MyGamesList", "Parsing game: ${gameObject.getString("gameName")}, Icon URL: ${gameObject.getString("gameIcon")}")
+                AnalyticsData(
+                    gameName = gameObject.getString("gameName"),
+                    totalHours = gameObject.getInt("totalHours"),
+                    iconResId = gameObject.getString("gameIcon"),
+                    graphData = emptyList()
+                )
+            }
+
+            runOnUiThread {
+                Log.d("MyGamesList", "Number of games fetched: ${myGamesList.size}")
+                myGamesListAdapter.updateGamesList(myGamesList)
+            }
+        } catch (e: Exception) {
+            Log.e("MyGamesList", "Error parsing games data", e)
+        }
+    }
+
 
     private fun isConnected(): Boolean {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -247,42 +348,7 @@ class UserProfile : AppCompatActivity() {
             })
         }
     }
-    // Sample function to load analytics data
-    private fun loadSampleAnalyticsData(): List<AnalyticsData> {
-        // Example data points for graph (Hours vs Days)
-        val hoursData1 = listOf(
-            DataPoint(1.0, 2.0),
-            DataPoint(2.0, 3.0),
-            DataPoint(3.0, 5.0),
-            DataPoint(4.0, 7.0),
-            DataPoint(5.0, 4.0)
-        )
-        val hoursData2 = listOf(
-            DataPoint(1.0, 1.0),
-            DataPoint(2.0, 2.5),
-            DataPoint(3.0, 4.5),
-            DataPoint(4.0, 6.0),
-            DataPoint(5.0, 5.0)
-        )
 
-        // Create AnalyticsData instances
-        val game1 = AnalyticsData(
-            gameName = "Game 1",
-            totalHours = 15,
-            iconResId = R.drawable.game_icon_foreground.toString(),
-            graphData = hoursData1
-        )
-
-        val game2 = AnalyticsData(
-            gameName = "Game 2",
-            totalHours = 20,
-            iconResId = R.drawable.game_icon_foreground.toString(),
-            graphData = hoursData2
-        )
-
-        // Return a list of analytics data
-        return listOf(game1, game2)
-    }
 
 
 
@@ -412,7 +478,7 @@ class UserProfile : AppCompatActivity() {
 
     // Function to update UI with the fetched stories
     private fun updateStoriesUI(stories: List<Story>) {
-        highlightsAdapter = HighlightsAdapter(stories) // Create a new adapter with fetched stories
+        highlightsAdapter = highlightsAdapter(stories) // Create a new adapter with fetched stories
         highlightsRecyclerView.adapter = highlightsAdapter // Set the adapter to RecyclerView
     }
 
