@@ -339,7 +339,7 @@ class UploadContent : AppCompatActivity() {
 
             uploadTask.addOnSuccessListener {
                 mediaRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    // Media uploaded successfully, send data to PostgreSQL via Volley
+
                     savePostDetailsToServer(userId, downloadUri.toString(), caption)
                 }
             }.addOnFailureListener {

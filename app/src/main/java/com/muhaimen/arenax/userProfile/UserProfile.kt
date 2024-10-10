@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -43,7 +44,24 @@ import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.uploadContent.UploadContent
 import android.provider.Settings
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import com.muhaimen.arenax.dataClasses.Post
+import com.muhaimen.arenax.dataClasses.Story
+import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
 import com.muhaimen.arenax.screenTime.ScreenTimeService
+import highlightsAdapter
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
 
 
 class UserProfile : AppCompatActivity() {
@@ -51,10 +69,11 @@ class UserProfile : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
     private lateinit var storageReference: StorageReference
-    private lateinit var analyticsRecyclerView: RecyclerView
-    private lateinit var analyticsAdapter: AnalyticsAdapter
+    private lateinit var myGamesListRecyclerView: RecyclerView
+    private lateinit var myGamesListAdapter: MyGamesListAdapter
+    private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var highlightsRecyclerView: RecyclerView
-    private lateinit var highlightsAdapter: HighlightsAdapter
+    private lateinit var highlightsAdapter: highlightsAdapter
     private lateinit var synergyButton:ImageButton
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: PostsAdapter
@@ -69,6 +88,10 @@ class UserProfile : AppCompatActivity() {
     private lateinit var settingsButton:Button
     private lateinit var leaderboardButton: ImageButton
     private lateinit var rankTextView: TextView
+    private lateinit var requestQueue: RequestQueue
+    private val client = OkHttpClient()
+    private val sharedPreferences by lazy { getSharedPreferences("MyGamesPrefs", Context.MODE_PRIVATE) }
+
     @SuppressLint("MissingInflatedId", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,7 +121,10 @@ class UserProfile : AppCompatActivity() {
         }
 
         rankTextView = findViewById(R.id.rankTextView)
-        rankTextView.text="Rank: 1"
+        requestQueue = Volley.newRequestQueue(this)
+        fetchUserRank()
+
+
         if (!checkUsageStatsPermission()) {
             requestUsageStatsPermission()
         } else {
@@ -121,31 +147,29 @@ class UserProfile : AppCompatActivity() {
         }
        
         // Initialize the RecyclerView for analytics
-        analyticsRecyclerView = findViewById(R.id.analytics_recyclerview)
-        analyticsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
+        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        // Load sample data into the analytics adapter
-        val sampleData = loadSampleAnalyticsData()
-        analyticsAdapter = AnalyticsAdapter(sampleData)
-        analyticsRecyclerView.adapter = analyticsAdapter
+        // Set an empty adapter initially
+        myGamesListAdapter = MyGamesListAdapter(emptyList())
+        myGamesListRecyclerView.adapter = myGamesListAdapter
+
 
         // Initialize the RecyclerView for highlights
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-        // Load sample data into the highlights adapter
-        val sampleHighlights = loadSampleHighlightsData()
-        highlightsAdapter = HighlightsAdapter(sampleHighlights)
-        highlightsRecyclerView.adapter = highlightsAdapter
+        loadGamesFromPreferences()
+        fetchUserStories()
+
+
 
         // Initialize the RecyclerView for posts
         postsRecyclerView = findViewById(R.id.posts_recyclerview)
         postsRecyclerView.layoutManager = GridLayoutManager(this, 3)
 
-        // Load sample data into the posts adapter
-        val samplePosts = loadSamplePostsData()
-        postsAdapter = PostsAdapter(samplePosts)
-        postsRecyclerView.adapter = postsAdapter
+        fetchUserPosts()
+
 
         // Initialize the Edit Profile button
         editProfileButton= findViewById(R.id.editProfileButton)
@@ -182,6 +206,96 @@ class UserProfile : AppCompatActivity() {
 
 
     }
+    override fun onResume() {
+        super.onResume()
+        loadGamesFromPreferences() // Reload games when the activity is resumed
+        fetchUserStories()
+    }
+    private fun loadGamesFromPreferences() {
+        val jsonString = sharedPreferences.getString("gamesList", null)
+        if (jsonString != null) {
+            parseGamesData(jsonString)
+        } else {
+            fetchUserGames()
+        }
+    }
+
+    private fun fetchUserGames() {
+        val request = okhttp3.Request.Builder()
+            .url("http://192.168.100.6:3000/usergames/user/${auth.currentUser?.uid}/mygames")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                runOnUiThread {
+                    Toast.makeText(this@UserProfile,"Failed to fetch games", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: okhttp3.Response) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string() ?: ""
+                    if (responseBody.isNotEmpty()) {
+                        parseGamesData(responseBody)
+                        saveGamesToPreferences(responseBody)
+                    } else {
+                        // Update shared preferences to store an empty list when no games are returned
+                        updateEmptyGameList()
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(this@UserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun updateEmptyGameList() {
+        with(sharedPreferences.edit()) {
+            putString("gamesList", "[]") // Store empty list as a JSON string
+            apply()
+        }
+        runOnUiThread {
+            // Show empty view in the RecyclerView
+            myGamesListAdapter.updateGamesList(emptyList())
+            Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
+        }
+    }
+
+    private fun saveGamesToPreferences(gamesJson: String) {
+        with(sharedPreferences.edit()) {
+            putString("gamesList", gamesJson)
+            apply()
+        }
+    }
+
+    private fun parseGamesData(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val gamesArray = jsonObject.getJSONArray("games") // Fetch the 'games' array from the JSON object
+
+            myGamesList = List(gamesArray.length()) { index ->
+                val gameObject = gamesArray.getJSONObject(index)
+                Log.d("MyGamesList", "Parsing game: ${gameObject.getString("gameName")}, Icon URL: ${gameObject.getString("gameIcon")}")
+                AnalyticsData(
+                    gameName = gameObject.getString("gameName"),
+                    totalHours = gameObject.getInt("totalHours"),
+                    iconResId = gameObject.getString("gameIcon"),
+                    graphData = emptyList()
+                )
+            }
+
+            runOnUiThread {
+                Log.d("MyGamesList", "Number of games fetched: ${myGamesList.size}")
+                myGamesListAdapter.updateGamesList(myGamesList)
+            }
+        } catch (e: Exception) {
+            Log.e("MyGamesList", "Error parsing games data", e)
+        }
+    }
+
 
     private fun isConnected(): Boolean {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -234,65 +348,8 @@ class UserProfile : AppCompatActivity() {
             })
         }
     }
-    // Sample function to load analytics data
-    private fun loadSampleAnalyticsData(): List<AnalyticsData> {
-        // Example data points for graph (Hours vs Days)
-        val hoursData1 = listOf(
-            DataPoint(1.0, 2.0),
-            DataPoint(2.0, 3.0),
-            DataPoint(3.0, 5.0),
-            DataPoint(4.0, 7.0),
-            DataPoint(5.0, 4.0)
-        )
-        val hoursData2 = listOf(
-            DataPoint(1.0, 1.0),
-            DataPoint(2.0, 2.5),
-            DataPoint(3.0, 4.5),
-            DataPoint(4.0, 6.0),
-            DataPoint(5.0, 5.0)
-        )
 
-        // Create AnalyticsData instances
-        val game1 = AnalyticsData(
-            gameName = "Game 1",
-            totalHours = 15,
-            iconResId = R.drawable.game_icon_foreground.toString(),
-            graphData = hoursData1
-        )
 
-        val game2 = AnalyticsData(
-            gameName = "Game 2",
-            totalHours = 20,
-            iconResId = R.drawable.game_icon_foreground.toString(),
-            graphData = hoursData2
-        )
-
-        // Return a list of analytics data
-        return listOf(game1, game2)
-    }
-
-    // Sample function to load highlights data
-    private fun loadSampleHighlightsData(): List<Highlight> {
-        return listOf(
-            Highlight(imageResId = R.drawable.profile_icon_foreground, title = "Highlight 1"),
-            Highlight(imageResId = R.drawable.profile_icon_foreground, title = "Highlight 2"),
-            Highlight(imageResId = R.drawable.profile_icon_foreground, title = "Highlight 3"),
-            Highlight(imageResId = R.drawable.profile_icon_foreground, title = "Highlight 4"),
-            Highlight(imageResId = R.drawable.profile_icon_foreground, title = "Highlight 5")
-        )
-    }
-
-    // Sample function to load posts data
-    private fun loadSamplePostsData(): List<Post> {
-        return listOf(
-            Post(imageResId = R.drawable.profile_icon_foreground),
-            Post(imageResId = R.drawable.profile_icon_foreground),
-            Post(imageResId = R.drawable.profile_icon_foreground),
-            Post(imageResId = R.drawable.profile_icon_foreground),
-            Post(imageResId = R.drawable.profile_icon_foreground),
-            Post(imageResId = R.drawable.profile_icon_foreground)
-        )
-    }
 
 
     // Check if the app has usage stats permission
@@ -317,4 +374,184 @@ class UserProfile : AppCompatActivity() {
     }
 
 
+    @SuppressLint("SetTextI18n")
+    private fun fetchUserRank() {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // First check if the user exists in Rankings
+        val checkRankUrl = "http://192.168.100.6:3000/leaderboard/user/$userId/rank"
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET,
+            checkRankUrl,
+            null,
+            { response ->
+                try {
+                    // If the response contains rank, user exists
+                    val rank = response.getInt("rank")
+                    rankTextView.text = "User Rank: $rank"
+                } catch (e: JSONException) {
+                    // User does not exist in Rankings, add user
+                    addUserToRankingsIfNeeded(userId)
+                }
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error fetching rank: ${error.message}")
+                Toast.makeText(this, "Error fetching rank", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Add the request to the RequestQueue
+        requestQueue.add(jsonObjectRequest)
+    }
+
+    private fun addUserToRankingsIfNeeded(userId: String) {
+        val addRankUrl = "http://192.168.100.6:3000/leaderboard/user/$userId/add"
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.POST,
+            addRankUrl,
+            null,
+            { response ->
+                // After successfully adding, fetch the rank again
+                fetchUserRank()
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error adding user to rankings: ${error.message}")
+                Toast.makeText(this, "Error adding user to rankings", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Add the request to the RequestQueue
+        requestQueue.add(jsonObjectRequest)
+    }
+
+
+    private fun fetchUserStories() {
+        val userId = auth.currentUser?.uid // Get the current user's ID
+        val url = "http://192.168.100.6:3000/stories/user/$userId/fetchStory"
+
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                try {
+                    // Initialize a list to hold the stories
+                    val storiesList = mutableListOf<Story>() // Assuming you have a Story data class
+
+                    // Loop through the JSON array to extract stories
+                    for (i in 0 until response.length()) {
+                        val storyJson = response.getJSONObject(i)
+                        // Extract story details, assuming the structure from your backend
+                        val storyId = storyJson.getInt("id")
+                        val mediaUrl = storyJson.getString("media_url")
+                        val duration = storyJson.getInt("duration")
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
+                        val draggableTexts = storyJson.optJSONArray("draggable_texts")
+
+                        // Create a Story object and add it to the list
+                        val story = Story(storyId, mediaUrl, duration, trimmedAudioUrl, draggableTexts)
+                        storiesList.add(story)
+                    }
+
+                    updateStoriesUI(storiesList)
+
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
+                }
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error fetching stories: ${error.message}")
+                Toast.makeText(this, "Error fetching stories", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Add the request to the RequestQueue
+        requestQueue.add(jsonArrayRequest)
+    }
+
+    // Function to update UI with the fetched stories
+    private fun updateStoriesUI(stories: List<Story>) {
+        highlightsAdapter = highlightsAdapter(stories) // Create a new adapter with fetched stories
+        highlightsRecyclerView.adapter = highlightsAdapter // Set the adapter to RecyclerView
+    }
+
+    private fun fetchUserPosts() {
+        val userId = auth.currentUser?.uid
+        val url = "http://192.168.100.6:3000/uploads/user/$userId/getUserPosts"
+
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                try {
+                    val postsList = mutableListOf<Post>()
+
+                    // Loop through the JSON array to extract posts
+                    for (i in 0 until response.length()) {
+                        val postJson = response.getJSONObject(i)
+
+                        // Extract post details
+                        val postId = postJson.getInt("post_id")
+                        val postContent = postJson.optString("post_content", null)
+                        val caption = postJson.optString("caption", null)
+                        val sponsored = postJson.getBoolean("sponsored")
+                        val likes = postJson.getInt("likes")
+                        val comments = postJson.getInt("post_comments")
+                        val shares = postJson.getInt("shares")
+                        val clicks = postJson.getInt("clicks")
+                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null)
+                        val createdAt = postJson.getString("created_at")
+
+                        // Create a Post object and add it to the list
+                        val post = Post(
+                            postId,
+                            postContent,
+                            caption,
+                            sponsored,
+                            likes,
+                            comments,
+                            shares,
+                            clicks,
+                            trimmedAudioUrl,
+                            createdAt
+                        )
+                        postsList.add(post)
+                    }
+
+                    // Update the UI with the fetched posts
+                    updatePostsUI(postsList)
+
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
+                }
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error fetching posts: ${error.message}")
+                Toast.makeText(this, "Error fetching posts", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Add the request to the RequestQueue
+        requestQueue.add(jsonArrayRequest)
+    }
+
+
+    // Function to update the UI with the fetched posts
+    private fun updatePostsUI(posts: List<Post>) {
+        postsAdapter = PostsAdapter(posts) // Create a new adapter with the fetched posts
+        postsRecyclerView.adapter = postsAdapter // Set the adapter to RecyclerView
+    }
+
+
 }
+
+

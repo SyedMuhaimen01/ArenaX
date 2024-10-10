@@ -43,6 +43,7 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.DraggableText
 import com.muhaimen.arenax.dataClasses.Track
 import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.userProfile.UserProfile
 
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
@@ -248,6 +249,8 @@ class uploadStory : AppCompatActivity() {
         // Button for uploading the story
         uploadButton.setOnClickListener {
             uploadStory()
+            val intent = Intent(this, UserProfile::class.java)
+            startActivity(intent)
         }
 
         // Button to add draggable text
@@ -299,10 +302,7 @@ class uploadStory : AppCompatActivity() {
             }
         }
 
-    override fun onPause() {
-        super.onPause()
-        adapter.releasePlayer()
-    }
+
     override fun onStop() {
         super.onStop()
         // Stop any background tasks or services if needed
@@ -436,14 +436,14 @@ class uploadStory : AppCompatActivity() {
         deleteButton.setOnClickListener {
             val parent = container.parent as ViewGroup
             parent.removeView(container) // Remove the entire container
-            draggableTextList.remove(DraggableText(draggableText.text.toString(),draggableText.x,draggableText.y))
+            draggableTextList.remove(DraggableText(draggableText.text.toString(),container.x,container.y,draggableText.backgroundTintList,draggableText.textColors))
         }
 
         // Set click listener to save the text and disable editing
         tickButton.setOnClickListener {
             draggableText.isEnabled = false // Disable editing when tick is clicked
             draggableText.clearFocus() // Remove focus from EditText
-            draggableTextList.add(DraggableText(draggableText.text.toString(),draggableText.x,draggableText.y))
+            draggableTextList.add(DraggableText(draggableText.text.toString(),container.x,container.y,draggableText.backgroundTintList,draggableText.textColors))
         }
 
         // Create a GestureDetector for double-click detection (for transparent background)
@@ -487,7 +487,7 @@ class uploadStory : AppCompatActivity() {
                         backgroundState = 3 // Update state to transparent with white text
                     }
                     3 -> { // Transparent with white text, change back to default background
-                        draggableText.setBackgroundResource(R.drawable.curved_rectangle)
+                        draggableText.setBackgroundColor(Color.WHITE)
                         draggableText.setTextColor(Color.BLACK) // Reset text color to default
                         backgroundState = 0 // Update state to default background
                     }
@@ -547,7 +547,7 @@ class uploadStory : AppCompatActivity() {
                     val y = location[1].toFloat() // Y-coordinate
 
                     // Add the text and its position to the list
-                    textContents.add(DraggableText(it.text.toString().trim(), x, y))
+                    textContents.add(DraggableText(it.text.toString().trim(), x, y, it.backgroundTintList, it.textColors))
                 }
             }
         }
@@ -738,5 +738,34 @@ class uploadStory : AppCompatActivity() {
         adapter.updateTracks(filteredList)
     }
 
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer?.let {
+            if (it.isPlaying) {
+                it.pause() // Pause the audio playback
+            }
+        }
+        Log.d("MediaPlayer", "Audio playback paused.")
+    }
 
+    // Properly release the MediaPlayer when the activity is destroyed
+    override fun onDestroy() {
+        super.onDestroy()
+        releaseMediaPlayer() // Release media player resources
+    }
+
+    // Handle back button press and release the MediaPlayer
+
+    // Release MediaPlayer resources to avoid memory leaks
+    private fun releaseMediaPlayer() {
+        adapter.releasePlayer()
+        mediaPlayer?.let {
+            if (it.isPlaying) {
+                it.stop() // Stop the playback
+            }
+            it.release() // Release the resources
+            mediaPlayer = null // Set to null after release
+            Log.d("MediaPlayer", "MediaPlayer released.")
+        }
+    }
 }
