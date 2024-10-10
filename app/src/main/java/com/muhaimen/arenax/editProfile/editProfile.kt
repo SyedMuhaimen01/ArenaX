@@ -54,6 +54,7 @@ class editProfile : AppCompatActivity() {
     private lateinit var editProfileImage: TextView
     private var imageUri: Uri? = null
     private lateinit var userData: UserData
+    private lateinit var backBUtton:ImageView
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,6 +73,7 @@ class editProfile : AppCompatActivity() {
 
         profileImage = findViewById(R.id.ProfilePicture)
         editProfileImage = findViewById(R.id.editProfilePictureText)
+        backBUtton=findViewById(R.id.backButton)
         editProfileImage.setOnClickListener { selectImage() }
 
         if (!isConnected()) {
@@ -79,7 +81,9 @@ class editProfile : AppCompatActivity() {
         } else {
             fetchUserDetailsFromFirebase()
         }
-
+    backBUtton.setOnClickListener {
+            finish()
+        }
         val editProfileButton = findViewById<Button>(R.id.updateChangesButton)
         editProfileButton.setOnClickListener {
             updateProfile()
