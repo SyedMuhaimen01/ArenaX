@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:text="Game Name"
                 android:textStyle="bold"
-                android:textSize="@dimen/_16ssp"
+                android:textSize="@dimen/_12ssp"
                 android:textColor="@color/textColor" />
 
             <!-- Total Hours -->

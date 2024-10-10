@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.userProfile
 
+import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -7,8 +8,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.gson.Gson
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Post
+import com.muhaimen.arenax.uploadContent.ViewPost
+import com.muhaimen.arenax.uploadStory.viewStory
 
 class PostsAdapter(private val postsList: List<Post>) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>() {
 
@@ -16,6 +20,21 @@ class PostsAdapter(private val postsList: List<Post>) : RecyclerView.Adapter<Pos
         private val postImage: ImageView = itemView.findViewById(R.id.image)
 
         fun bind(post: Post) {
+
+            itemView.setOnClickListener {
+
+                val intent = Intent(itemView.context, ViewPost::class.java).apply {
+                    putExtra("MEDIA", post.postContent)
+                    putExtra("Caption", post.caption)
+                    putExtra("Likes", post.likes)
+                    putExtra("Comments", post.comments)
+                    putExtra("Shares", post.shares)
+                    putExtra("trimAudio", post.trimmedAudioUrl)
+                    putExtra("createdAt", post.createdAt)
+                }
+                itemView.context.startActivity(intent) // Start the activity
+            }
+            // Check if the media exists before loading
             val uri = Uri.parse(post.postContent)
             Glide.with(itemView.context)
                 .load(uri)

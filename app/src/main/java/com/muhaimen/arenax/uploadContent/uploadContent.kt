@@ -40,7 +40,10 @@ import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Track
 import com.muhaimen.arenax.dataClasses.UserData
+
 import com.muhaimen.arenax.utils.Constants
+
+import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONObject
 import java.io.File
@@ -233,6 +236,8 @@ class UploadContent : AppCompatActivity() {
         // Upload post button action
         uploadPostButton.setOnClickListener {
             uploadContent()
+            val intent = Intent(this, UserProfile::class.java)
+            startActivity(intent)
         }
     }
 
@@ -560,5 +565,34 @@ class UploadContent : AppCompatActivity() {
         // Update the adapter with the filtered list
         adapter.updateTracks(filteredList)
     }
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer?.let {
+            if (it.isPlaying) {
+                it.pause() // Pause the audio playback
+            }
+        }
+        Log.d("MediaPlayer", "Audio playback paused.")
+    }
 
+    // Properly release the MediaPlayer when the activity is destroyed
+    override fun onDestroy() {
+        super.onDestroy()
+        releaseMediaPlayer() // Release media player resources
+    }
+
+    // Handle back button press and release the MediaPlayer
+
+    // Release MediaPlayer resources to avoid memory leaks
+    private fun releaseMediaPlayer() {
+        adapter.releasePlayer()
+        mediaPlayer?.let {
+            if (it.isPlaying) {
+                it.stop() // Stop the playback
+            }
+            it.release() // Release the resources
+            mediaPlayer = null // Set to null after release
+            Log.d("MediaPlayer", "MediaPlayer released.")
+        }
+    }
 }

@@ -159,6 +159,23 @@ class UserProfile : AppCompatActivity() {
             startActivity(intent)
         }
 
+
+        // Initialize the RecyclerView for analytics
+        myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
+        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+        // Set an empty adapter initially
+        myGamesListAdapter = MyGamesListAdapter(emptyList())
+        myGamesListRecyclerView.adapter = myGamesListAdapter
+
+
+        // Initialize the RecyclerView for highlights
+        highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
+        highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+
+        loadGamesFromPreferences()
+        fetchUserStories()
+
         rankTextView = findViewById(R.id.rankTextView)
 
 
@@ -373,6 +390,7 @@ class UserProfile : AppCompatActivity() {
             { response ->
                 try {
                     val rank = response.getInt("rank")
+
                     if(rank===0)
                     {
                         rankTextView.text = "Rank: Unranked"
@@ -380,6 +398,7 @@ class UserProfile : AppCompatActivity() {
                         rankTextView.text = "Rank: $rank"
                     }
                     saveRankToPreferences(rank)
+
                 } catch (e: JSONException) {
                     if (userId != null) {
                         addUserToRankingsIfNeeded(userId)

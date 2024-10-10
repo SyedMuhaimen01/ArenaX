@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     private var isFromPersonalInfo: Boolean = false
     private val emailVerificationCooldown: Long = 60 * 1000
     private var endTime: Long = 0
-
+    private var dummy: String = "dummy"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -30,7 +30,9 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         isFromPersonalInfo = intent.getBooleanExtra("fromPersonalInfo", false)
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
 
         handler = Handler(Looper.getMainLooper())
         handler.postDelayed({

@@ -34,6 +34,7 @@ class MyGamesList : AppCompatActivity() {
     private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var addGame: ImageButton
     private lateinit var refreshButton: Button
+    lateinit var backButton: ImageButton
     private lateinit var auth: FirebaseAuth
     private val client = OkHttpClient()
     private val sharedPreferences by lazy { getSharedPreferences("MyGamesPrefs", Context.MODE_PRIVATE) }
@@ -52,6 +53,7 @@ class MyGamesList : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         gamesSearchBar = findViewById(R.id.searchbar)
         addGame = findViewById(R.id.addGame)
+        backButton = findViewById(R.id.backButton)
         refreshButton = findViewById(R.id.refreshButton)
         myGamesListRecyclerView = findViewById(R.id.myGamesListRecyclerView)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -59,7 +61,18 @@ class MyGamesList : AppCompatActivity() {
         myGamesListAdapter = MyGamesListAdapter(emptyList())
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
+
         loadGamesFromPreferences()
+
+        backButton.setOnClickListener {
+            finish()
+        }
+        addGame.setOnClickListener {
+            val intent = Intent(this, gamesList::class.java)
+            startActivity(intent)
+        }
+
+        // Set up the refresh button's click listener
         refreshButton.setOnClickListener {
             showRefreshDialog()
         }

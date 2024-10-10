@@ -1,11 +1,14 @@
 package com.muhaimen.arenax.uploadStory
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -20,6 +23,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.DraggableText
 import java.io.IOException
 
 class viewStory : AppCompatActivity() {
@@ -29,6 +33,7 @@ class viewStory : AppCompatActivity() {
     private lateinit var storyImageView: ImageView
     private var mediaPlayer: MediaPlayer? = null // Change to nullable MediaPlayer
     private lateinit var draggableTextContainer: FrameLayout // Container for draggable text views
+    private val handler = Handler() // Create a Handler to schedule delayed tasks
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +84,11 @@ class viewStory : AppCompatActivity() {
         audioUrl?.let {
             playTrimmedAudio(it) // Call the function to play the trimmed audio
         }
+
+        // Schedule to finish the activity after 15 seconds
+        handler.postDelayed({
+            onBackPressed() // Navigate back after 15 seconds
+        }, 15000) // 15000 milliseconds = 15 seconds
     }
 
     private fun loadMedia(mediaUrl: String?) {
@@ -114,12 +124,17 @@ class viewStory : AppCompatActivity() {
                 val content = nameValuePairs.getString("content")
                 val x = nameValuePairs.getDouble("x").toFloat()
                 val y = nameValuePairs.getDouble("y").toFloat()
-                val backgroundColor = nameValuePairs.getString("backgroundColor")
-                val textColor = nameValuePairs.getString("textColor")
+                // Directly assign the integer values as colors
+                val backgroundColor = nameValuePairs.getInt("backgroundColor")
+                val textColor = nameValuePairs.getInt("textColor")
+
+                Log.d("DraggableText", "Content: $content, X: $x, Y: $y, BG: $backgroundColor, Text: $textColor")
+                // Create an instance of DraggableText
+                val draggableText = DraggableText(content, x, y, backgroundColor, textColor)
 
                 // Create the draggable text view with the specified content, position, and colors
-                val textView = createDraggableTextView(content, x, y, backgroundColor, textColor)
-                textView.textSize = 16f // Set text size
+                val textView = createDraggableTextView(draggableText)
+                textView.textSize = 20f // Set text size
                 draggableTextContainer.addView(textView)
             }
         } catch (e: JSONException) {
@@ -129,29 +144,26 @@ class viewStory : AppCompatActivity() {
         }
     }
 
-    private fun createDraggableTextView(content: String, x: Float, y: Float, backgroundColor: String, textColor: String): TextView {
+    private fun createDraggableTextView(draggableText: DraggableText): TextView {
         return TextView(this).apply {
-            text = content // Set the text content
+            text = draggableText.content // Set the text content
+            setTextSize(20f) // Set the text size
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
             )
-            this.x = x
-            this.y = y
+            this.x = draggableText.x
+            this.y = draggableText.y
 
-            // Set the background color and text color
-            try {
-                setBackgroundColor(Color.parseColor(backgroundColor)) // Convert the background color from string
-                setTextColor(Color.parseColor(textColor)) // Convert the text color from string
-            } catch (e: IllegalArgumentException) {
-                Log.e("ColorParseError", "Error parsing color: ${e.message}")
-            }
+            // Set the background color and text color using the DraggableText methods
+            setBackgroundColor(draggableText.getBackgroundColor())
+            setTextColor(draggableText.getTextColor())
 
             // Make sure the TextView is visible
             visibility = TextView.VISIBLE
+            typeface = Typeface.create(typeface, Typeface.BOLD)
         }
     }
-
 
     private fun playTrimmedAudio(outputPath: String) {
         try {
@@ -190,6 +202,7 @@ class viewStory : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         releaseMediaPlayer() // Release media player resources
+        handler.removeCallbacksAndMessages(null) // Remove any pending callbacks
     }
 
     // Handle back button press and release the MediaPlayer

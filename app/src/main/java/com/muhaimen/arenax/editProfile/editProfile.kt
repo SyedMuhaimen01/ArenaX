@@ -58,7 +58,10 @@ class editProfile : AppCompatActivity() {
     private var imageUri: Uri? = null
     private lateinit var userId: String
     private lateinit var userData: UserData
+
     private val sharedPreferences5 by lazy { getSharedPreferences("UserInfoPrefs", Context.MODE_PRIVATE) }
+
+    private lateinit var backBUtton:ImageView
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +80,7 @@ class editProfile : AppCompatActivity() {
 
         profileImage = findViewById(R.id.ProfilePicture)
         editProfileImage = findViewById(R.id.editProfilePictureText)
+        backBUtton=findViewById(R.id.backButton)
         editProfileImage.setOnClickListener { selectImage() }
         genderSpinner = findViewById(R.id.genderSpinner)
         val genderOptions = Gender.entries.map { it.displayName }
@@ -89,7 +93,9 @@ class editProfile : AppCompatActivity() {
         }else{
             loadUserDataFromSharedPreferences()
         }
-
+    backBUtton.setOnClickListener {
+            finish()
+        }
         val editProfileButton = findViewById<Button>(R.id.updateChangesButton)
         editProfileButton.setOnClickListener {
             updateProfile()
