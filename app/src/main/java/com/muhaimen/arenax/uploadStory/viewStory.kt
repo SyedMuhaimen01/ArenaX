@@ -134,7 +134,7 @@ class viewStory : AppCompatActivity() {
 
                 // Create the draggable text view with the specified content, position, and colors
                 val textView = createDraggableTextView(draggableText)
-                textView.textSize = 16f // Set text size
+                textView.textSize = 20f // Set text size
                 draggableTextContainer.addView(textView)
             }
         } catch (e: JSONException) {
