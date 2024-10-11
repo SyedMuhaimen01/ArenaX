@@ -36,9 +36,9 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
 
             Glide.with(itemView.context)
                 .load(uri)
-                .placeholder(R.drawable.circle) // Placeholder image while loading
+                .placeholder(R.drawable.circle)
                 .error(R.drawable.circle)
-                .circleCrop()// Error image if the load fails
+                .circleCrop()
                 .into(profilePicture)
 
             rank.text = data.rank.toString()
