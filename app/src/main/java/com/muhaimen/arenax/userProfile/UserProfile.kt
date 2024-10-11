@@ -34,7 +34,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import com.jjoe64.graphview.series.DataPoint
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.accountSettings.accountSettings
 import com.muhaimen.arenax.dataClasses.AnalyticsData
@@ -46,7 +45,6 @@ import com.muhaimen.arenax.uploadContent.UploadContent
 import android.provider.Settings
 import com.android.volley.Request
 import com.android.volley.RequestQueue
-import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
@@ -104,6 +102,7 @@ class UserProfile : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        window.statusBarColor = resources.getColor(R.color.LogoBackground)
 
         auth = FirebaseAuth.getInstance()
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(auth.currentUser?.uid ?: "")
