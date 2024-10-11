@@ -20,6 +20,7 @@ import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.GameStats
+import com.muhaimen.arenax.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -85,7 +86,7 @@ class ScreenTimeService : Service() {
     }
 
     private fun fetchUserGames(userId: String) {
-        val url = "http://192.168.100.6:3000/usergames/user/$userId/mygames"
+        val url = "${Constants.SERVER_URL}usergames/user/$userId/mygames"
 
         val jsonObjectRequest = object : JsonObjectRequest(
             Method.GET,
@@ -221,7 +222,7 @@ class ScreenTimeService : Service() {
 
             val request = JsonObjectRequest(
                 Request.Method.POST,
-                "http://192.168.100.6:3000/analytics/user/$userId/userGameTracking",
+                "${Constants.SERVER_URL}analytics/user/$userId/userGameTracking",
                 jsonObject,
                 { response ->
                     Log.d("GameStatsRepository", "Successfully sent playtime to backend: $response")

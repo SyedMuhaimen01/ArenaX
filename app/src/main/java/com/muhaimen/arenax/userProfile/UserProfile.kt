@@ -357,6 +357,7 @@ class UserProfile : AppCompatActivity() {
                 override fun onCancelled(error: DatabaseError) {
               //      Toast.makeText(this@UserProfile, "Failed to load user details: ${error.message}", Toast.LENGTH_SHORT).show()
                     Log.e("EditUserProfile", "Database error: ${error.message}")
+                    loadUserDataFromSharedPreferences()
                 }
             })
         }
