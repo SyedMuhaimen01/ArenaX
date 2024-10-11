@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -35,7 +36,8 @@ class overallLeaderboard : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_overall_leaderboard)
-
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -66,7 +68,7 @@ class overallLeaderboard : AppCompatActivity() {
                 overallLeaderboardRecyclerView.adapter = overallLeaderboardAdapter
             },
             { error ->
-                Toast.makeText(this, "Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
+             //   Toast.makeText(this, "Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         )
 
@@ -95,6 +97,7 @@ class overallLeaderboard : AppCompatActivity() {
 
         }
         saveRankingsToPreferences(rankingsList)
+        Log.e("Rankings", rankingsList.toString())
         return rankingsList
     }
 

@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.overallLeaderboardAdapter
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.net.Uri
 import android.util.Log
@@ -24,12 +25,13 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
         val gamerTag: TextView = itemView.findViewById(R.id.gamerTagTextView)
 
         // Function to populate the view with data
+        @SuppressLint("SetTextI18n")
         fun bind(data: RankingData) {
             name.text = data.name
             totalHours.text = "Total Hours: ${data.totalHrs}"
 
 
-
+            Log.e("Leaderboard profilepicture", data.profilePicture)
             val picture=formatUrl(data.profilePicture)
             val uri = Uri.parse(data.profilePicture)
             Log.e("Leaderboard", picture)

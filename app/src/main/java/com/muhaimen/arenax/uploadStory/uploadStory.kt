@@ -1,9 +1,12 @@
 package com.muhaimen.arenax.uploadStory
 
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -34,6 +37,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,10 +48,12 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.arthenica.mobileffmpeg.FFmpeg
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.DraggableText
 import com.muhaimen.arenax.dataClasses.Track
 import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.uploadContent.UploadContent.Companion.CAMERA_PERMISSION_REQUEST_CODE
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.Constants
 
@@ -55,6 +62,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import java.util.UUID
 
 
 class uploadStory : AppCompatActivity() {
@@ -67,6 +75,7 @@ class uploadStory : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var userData: UserData
     private lateinit var auth: FirebaseAuth
+    private val firebaseStorage = FirebaseStorage.getInstance()
     private var selectedImageUri: Uri? = null
     private lateinit var tracksRecyclerView: RecyclerView
     private lateinit var adapter: TracksAdapter
@@ -87,6 +96,7 @@ class uploadStory : AppCompatActivity() {
     private var startTime: Int = 0
     private var endTime: Int = 0
     val fixedDuration=15
+    private var mediaUri: Uri? = null
     private var trimmedAudioUrl:String?=null
     private lateinit var draggableContainers: MutableList<FrameLayout>
     private var draggableTextList = mutableListOf<DraggableText>()
@@ -97,7 +107,8 @@ class uploadStory : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload_story)
-
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
         storyPreviewImageView = findViewById(R.id.previewImageView)
         textButton = findViewById(R.id.textButton)
         galleryButton = findViewById(R.id.galleryButton)
@@ -233,7 +244,7 @@ class uploadStory : AppCompatActivity() {
                 trimTrackLayout.visibility = View.GONE
                 isPlaying = false
             } else {
-                Toast.makeText(this, "Invalid time range", Toast.LENGTH_SHORT).show()
+             //   Toast.makeText(this, "Invalid time range", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -250,12 +261,17 @@ class uploadStory : AppCompatActivity() {
 
         // Button for capturing an image using the camera
         cameraButton.setOnClickListener {
-            captureImage()
+            if (checkCameraPermission()) {
+                openCamera()
+            } else {
+                requestCameraPermission()
+            }
         }
 
         // Button for uploading the story
         uploadButton.setOnClickListener {
             uploadStory()
+            adapter.releasePlayer()
             val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
         }
@@ -283,6 +299,10 @@ class uploadStory : AppCompatActivity() {
     }
 
 
+
+
+
+    // Function to open gallery
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         galleryActivityResultLauncher.launch(intent)
@@ -290,24 +310,58 @@ class uploadStory : AppCompatActivity() {
 
     private val galleryActivityResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK && result.data != null) {
-                selectedImageUri = result.data?.data
-                storyPreviewImageView.setImageURI(selectedImageUri)
+            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+                mediaUri = result.data?.data
+                storyPreviewImageView.setImageURI(mediaUri)
             }
         }
 
-    private fun captureImage() {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+    // Function to open camera
+    private fun openCamera() {
+        val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
         cameraActivityResultLauncher.launch(intent)
     }
 
     private val cameraActivityResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK && result.data != null) {
-                val bitmap = result.data?.extras?.get("data") as Bitmap
-                storyPreviewImageView.setImageBitmap(bitmap)
+            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+                mediaUri = result.data?.data
+                storyPreviewImageView.setImageURI(mediaUri)
             }
         }
+
+    // Function to check camera permission
+    private fun checkCameraPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    // Function to request camera permission
+    private fun requestCameraPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.CAMERA),
+            CAMERA_PERMISSION_REQUEST_CODE
+        )
+    }
+
+    // Handle permission result
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openCamera()
+            } else {
+                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
 
     override fun onStop() {
@@ -316,18 +370,17 @@ class uploadStory : AppCompatActivity() {
         adapter.releasePlayer()// Example function to stop background tasks
     }
     private fun uploadStory() {
-        if (selectedImageUri != null) {
+        if (mediaUri != null) {
             val userId = auth.currentUser?.uid
             userData = UserData(userId = userId.toString())
 
             // Get the list of draggable texts
             val draggableTexts = getDraggableTextContent()
-            val mediaUrl = selectedImageUri.toString()
+            val mediaUrl = mediaUri.toString()
             val duration = 24 * 60 * 60 // 24 hours
 
             val storyJson = JSONObject().apply {
                 put("userId", userData.userId)
-                put("mediaUrl", mediaUrl)
                 put("duration", duration)
                 put("trimmedAudioUrl", trimmedAudioUrl ?: JSONObject.NULL)
 
@@ -351,16 +404,31 @@ class uploadStory : AppCompatActivity() {
             Log.d("UploadStory", storyJson.toString())
 
             // Send the JSON to the server
-            saveStoryToServer(storyJson)
+            uploadToFirebaseStorage(storyJson)
         } else {
             Toast.makeText(this, "Please select an image.", Toast.LENGTH_SHORT).show()
         }
     }
 
+    private fun uploadToFirebaseStorage(storyJson: JSONObject) {
+        val mediaRef = firebaseStorage.reference.child("stories/${UUID.randomUUID()}")
 
+        mediaUri?.let { uri ->
+            val uploadTask = mediaRef.putFile(uri)
+
+            uploadTask.addOnSuccessListener {
+                mediaRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    storyJson.put("mediaUrl", downloadUri.toString())
+                    saveStoryToServer(storyJson)
+                }
+            }.addOnFailureListener {
+                Toast.makeText(this, "Upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
     private fun saveStoryToServer(storyJson: JSONObject) {
         val requestQueue = Volley.newRequestQueue(this)
-
+        Log.d("uploadStory", "Story JSON: $storyJson")
         val postRequest = JsonObjectRequest(
             Request.Method.POST,
             "${Constants.SERVER_URL}stories/storyUpload", // Your backend endpoint
@@ -373,8 +441,8 @@ class uploadStory : AppCompatActivity() {
             },
             { error ->
                 // Handle error
-                Toast.makeText(this, "Error uploading story: ${error.message}", Toast.LENGTH_SHORT)
-                    .show()
+            //    Toast.makeText(this, "Error uploading story: ${error.message}", Toast.LENGTH_SHORT)
+              //      .show()
             }
         )
 
@@ -656,7 +724,7 @@ class uploadStory : AppCompatActivity() {
         val startTime = startSeekBar.progress // in seconds
         val endTime = endSeekBar.progress // in seconds
         if (endTime <= startTime) {
-            Toast.makeText(this, "End time must be greater than start time.", Toast.LENGTH_SHORT).show()
+         //   Toast.makeText(this, "End time must be greater than start time.", Toast.LENGTH_SHORT).show()
             return
         }
         val duration = endTime - startTime

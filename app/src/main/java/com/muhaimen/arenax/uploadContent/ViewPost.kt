@@ -39,7 +39,7 @@ class ViewPost : AppCompatActivity() {
     private lateinit var shareCount: TextView // TextView for shares
     private lateinit var textureView: TextureView // TextureView for playing video
     private var mediaPlayer: MediaPlayer? = null
-    private val handler = Handler()
+
     private val client = OkHttpClient() // Initialize OkHttpClient
     private var isExpanded: Boolean = false // Flag to track caption expansion
 
@@ -54,7 +54,8 @@ class ViewPost : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
         // Initialize views
         backButton = findViewById(R.id.backButton)
         imageView = findViewById(R.id.ImageView) // Initialize ImageView
@@ -277,4 +278,9 @@ class ViewPost : AppCompatActivity() {
         mediaPlayer?.release()
         mediaPlayer = null
     }
+    override fun onBackPressed() {
+        mediaPlayer?.release()
+        super.onBackPressed() // Call super to finish the activity
+    }
+
 }

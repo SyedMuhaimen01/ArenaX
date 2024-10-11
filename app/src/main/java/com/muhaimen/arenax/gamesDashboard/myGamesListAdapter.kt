@@ -52,23 +52,38 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>) : Recyc
             series.color = itemView.context.getColor(R.color.primaryColor)
             series.isDrawDataPoints = false
             series.dataPointsRadius = 5f
+
+            // Clear previous series
             graphView.removeAllSeries()
+
+            // Add the series to the graph view
             graphView.addSeries(series)
+
+            // Customize grid and axes
             graphView.gridLabelRenderer.isHorizontalLabelsVisible = false
             graphView.gridLabelRenderer.isVerticalLabelsVisible = false
             graphView.gridLabelRenderer.gridColor = Color.TRANSPARENT // Remove grid color
-            graphView.gridLabelRenderer.setGridStyle(GridLabelRenderer.GridStyle.BOTH)
+
+
+            // Show only X and Y axes
+            graphView.gridLabelRenderer.setGridStyle(GridLabelRenderer.GridStyle.BOTH) // Show both axes
+            graphView.gridLabelRenderer.horizontalAxisTitle = "" // Remove horizontal axis title
+            graphView.gridLabelRenderer.verticalAxisTitle = "" // Remove vertical axis title
+
+            // Configure the viewport
             graphView.viewport.isXAxisBoundsManual = true
             graphView.viewport.isYAxisBoundsManual = true
 
+            // Set manual bounds for the viewport
             val maxX = hoursData.size.toDouble()
-            graphView.viewport.setMinX(maxX - 4.0)
+            graphView.viewport.setMinX(maxX - 4.0)  // Display the last 4 points
             graphView.viewport.setMaxX(maxX)
             graphView.viewport.setMinY(0.0)
-            graphView.viewport.setMaxY(100.0)
+            graphView.viewport.setMaxY(100.0) // Adjust this according to your data
         }
-    }
 
+
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnalyticsViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.analytics_card, parent, false)

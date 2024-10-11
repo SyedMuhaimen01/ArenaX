@@ -39,7 +39,8 @@ class PersonalInfoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_personal_info)
-
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
         fullNameEditText = findViewById(R.id.fullNameEditText)
         dOBEditText = findViewById(R.id.dateOfBirthEditText)
         genderSpinner = findViewById(R.id.genderSpinner)
@@ -102,12 +103,12 @@ class PersonalInfoActivity : AppCompatActivity() {
         showLoadingUI()
 
         val email = email ?: run {
-            showToast("Error retrieving email.")
+        //    showToast("Error retrieving email.")
             hideLoadingUI()
             return
         }
         val password = password ?: run {
-            showToast("Error retrieving password.")
+         //   showToast("Error retrieving password.")
             hideLoadingUI()
             return
         }

@@ -1,9 +1,12 @@
 package com.muhaimen.arenax.gamesDashboard
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -44,6 +47,7 @@ class ViewGameAnalytics : AppCompatActivity() {
     private lateinit var gameName: TextView
     private lateinit var totalHours: TextView
     private lateinit var gameIcon: ImageView
+    private lateinit var backButton: ImageButton
     private lateinit var totalPlaytimeLineChart: LineChart
     private lateinit var averageSessionLengthLineChart: LineChart
     private lateinit var sessionFrequencyBarChart: BarChart
@@ -64,8 +68,8 @@ class ViewGameAnalytics : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
         // Initialize the views
         gameName = findViewById(R.id.game_name)
         totalHours = findViewById(R.id.total_hours)
@@ -76,7 +80,11 @@ class ViewGameAnalytics : AppCompatActivity() {
         peakPlayTimeScatterChart = findViewById(R.id.peakPlayTimeChart)
         gameComparisonPieChart = findViewById(R.id.gameComparisonPieChart)
         gameIcon.setImageResource(R.drawable.game_icon_foreground)
+        backButton = findViewById(R.id.backButton)
 
+        backButton.setOnClickListener {
+            finish()
+        }
         auth = FirebaseAuth.getInstance()
 
         // Retrieve game name from the intent
@@ -173,7 +181,7 @@ class ViewGameAnalytics : AppCompatActivity() {
             setupAverageSessionLengthChart(emptyList(), emptyList())
             setupSessionFrequencyBarChart(sessionFrequency, listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
             setupPeakPlayTimeScatterChart(peakPlayTimes)
-            setupGameComparisonPieChart(listOf(userTotalHours.toFloat(), otherGamesTotalHours.toFloat()), listOf("User", "Others"))
+            setupGameComparisonPieChart(listOf(userTotalHours.toFloat(), otherGamesTotalHours.toFloat()), listOf(gameName, "Other Games"))
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing response: ${e.message}")
             e.printStackTrace()
@@ -205,41 +213,115 @@ class ViewGameAnalytics : AppCompatActivity() {
             setDrawGridLines(true)
             axisMinimum = 0f
         }
+        totalPlaytimeLineChart.description.isEnabled = false
         totalPlaytimeLineChart.invalidate()
         Log.d(TAG, "Total Playtime Line Chart set up with data: $playtimeData")
     }
 
     private fun setupAverageSessionLengthChart(sessionData: List<Float>, labels: List<String>) {
-        // Placeholder function for now
-        Log.d(TAG, "Average Session Length Chart setup called, but data is not available.")
+        // Create a basic dataset with 0 values for now (to ensure the chart displays)
+        val entries = labels.mapIndexed { index, _ ->
+            com.github.mikephil.charting.data.BarEntry(index.toFloat(), 0f)  // No data, y-value set to 0
+        }
+
+        // Create a BarDataSet with placeholder data
+        val lineDataSet = LineDataSet(entries, "Average Session Length (hrs)").apply {
+            color = ColorTemplate.COLORFUL_COLORS[3]  // Set bar color
+            valueTextColor = Color.BLACK              // Set value text color
+            valueTextSize = 12f                       // Set text size for values
+        }
+
+        // Create the BarData object, ensuring it's not empty
+        val lineData = LineData(lineDataSet)
+
+        // Set up the X-axis labels and properties
+        averageSessionLengthLineChart.xAxis.apply {
+            valueFormatter = IndexAxisValueFormatter(labels)  // Label formatter
+            position = XAxis.XAxisPosition.BOTTOM             // Labels on bottom
+            granularity = 1f                                  // Show every label
+            setDrawLabels(true)                               // Ensure labels are drawn
+            setDrawGridLines(false)                           // Remove grid lines
+            labelCount = labels.size                          // Set label count
+        }
+
+        // Set up the Y-axis to display hours
+        averageSessionLengthLineChart.axisLeft.apply {
+            axisMinimum = 0f                  // Y-axis minimum value (hours)
+            axisMaximum = 24f                 // Y-axis maximum, assuming 24 hours
+            setDrawGridLines(true)            // Keep grid lines on the Y-axis
+            granularity = 2f                  // Show ticks every 2 hours
+            labelCount = 12                   // Show 12 ticks (every 2 hours)
+        }
+
+        // Disable the right Y-axis
+        averageSessionLengthLineChart.axisRight.isEnabled = false
+
+        // Disable chart description
+        averageSessionLengthLineChart.description.isEnabled = false
+
+        // Set the data and refresh the chart
+        averageSessionLengthLineChart.data = lineData
+        averageSessionLengthLineChart.setNoDataText("")  // Remove "No chart data available" message
+        averageSessionLengthLineChart.invalidate()       // Refresh the chart
+
+        Log.d(TAG, "Average Session Length Chart set up with placeholder data.")
     }
 
+
     private fun setupSessionFrequencyBarChart(sessionData: List<Float>, labels: List<String>) {
-        val entries = sessionData.mapIndexed { index, sessions ->
+        // Ensure sessionData has entries for all 7 days (with 0 if data is missing)
+        val completeSessionData = mutableListOf<Float>()
+        for (i in labels.indices) {
+            if (i < sessionData.size) {
+                completeSessionData.add(sessionData[i])
+            } else {
+                completeSessionData.add(0f)  // Add 0 if no data exists for that day
+            }
+        }
+
+        // Create BarEntries for each day, even if the value is 0
+        val entries = completeSessionData.mapIndexed { index, sessions ->
             com.github.mikephil.charting.data.BarEntry(index.toFloat(), sessions)
         }
 
+        // Set up the BarDataSet
         val barDataSet = BarDataSet(entries, "Sessions Frequency").apply {
             color = ColorTemplate.COLORFUL_COLORS[3]
         }
 
+        // Prepare the BarData
         val barData = BarData(barDataSet)
-        sessionFrequencyBarChart.data = barData
+
+        // Configure the xAxis to show all 7 labels
         sessionFrequencyBarChart.xAxis.apply {
-            valueFormatter = IndexAxisValueFormatter(labels)
+            valueFormatter = IndexAxisValueFormatter(labels)  // Use labels for x-axis
             position = XAxis.XAxisPosition.BOTTOM
-            granularity = 1f
+            granularity = 1f  // Ensure that every label is displayed
             setDrawLabels(true)
             setDrawGridLines(false)
+            labelCount = labels.size  // Set the label count to the number of days
+            axisMinimum = 0f
+            axisMaximum = labels.size.toFloat() - 1  // Ensure x-axis spans all labels
         }
+
+        // Configure the left axis (Y-axis)
         sessionFrequencyBarChart.axisLeft.apply {
             setDrawGridLines(false)
         }
+
+        // Disable the right Y-axis
         sessionFrequencyBarChart.axisRight.isEnabled = false
+
+        // Disable chart description
+        sessionFrequencyBarChart.description.isEnabled = false
+
+        // Set the bar data and refresh the chart
+        sessionFrequencyBarChart.data = barData
         sessionFrequencyBarChart.invalidate()
 
-        Log.d(TAG, "Session Frequency Bar Chart set up with data: ")
+        Log.d(TAG, "Session Frequency Bar Chart set up with complete data: $completeSessionData")
     }
+
 
 
 
@@ -255,6 +337,7 @@ class ViewGameAnalytics : AppCompatActivity() {
 
         val scatterData = ScatterData(scatterDataSet)
         peakPlayTimeScatterChart.data = scatterData
+        peakPlayTimeScatterChart.description.isEnabled = false
         peakPlayTimeScatterChart.invalidate()
         Log.d(TAG, "Peak Play Time Scatter Chart set up with data: $peakPlayTimes")
     }
@@ -266,15 +349,17 @@ class ViewGameAnalytics : AppCompatActivity() {
 
         val pieDataSet = PieDataSet(entries, "Game Comparison").apply {
             colors = ColorTemplate.MATERIAL_COLORS.toList()
-            valueTextColor = ColorTemplate.COLORFUL_COLORS[3]
-            valueTextSize = 16f
+            // Hide the labels (values) on top of the pie chart
+            setDrawValues(false)  // This will hide the values on top of each slice
         }
 
         val pieData = PieData(pieDataSet)
         gameComparisonPieChart.data = pieData
+        gameComparisonPieChart.description.isEnabled = false
         gameComparisonPieChart.invalidate()
         Log.d(TAG, "Game Comparison Pie Chart set up with data: $comparisonData")
     }
+
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {

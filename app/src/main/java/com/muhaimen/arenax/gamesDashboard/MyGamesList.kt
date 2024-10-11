@@ -21,6 +21,8 @@ import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import com.google.firebase.auth.FirebaseAuth
+import com.muhaimen.arenax.uploadContent.UploadContent
+import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.Constants
 import okhttp3.*
 import org.json.JSONArray
@@ -32,6 +34,8 @@ class MyGamesList : AppCompatActivity() {
     private lateinit var myGamesListAdapter: MyGamesListAdapter
     private lateinit var gamesSearchBar: AutoCompleteTextView
     private lateinit var myGamesList: List<AnalyticsData>
+    private lateinit var postButton:ImageButton
+    private lateinit var profileButton:ImageButton
     private lateinit var addGame: ImageButton
     private lateinit var refreshButton: Button
     lateinit var backButton: ImageButton
@@ -49,7 +53,8 @@ class MyGamesList : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
         auth = FirebaseAuth.getInstance()
         gamesSearchBar = findViewById(R.id.searchbar)
         addGame = findViewById(R.id.addGame)
@@ -57,6 +62,18 @@ class MyGamesList : AppCompatActivity() {
         refreshButton = findViewById(R.id.refreshButton)
         myGamesListRecyclerView = findViewById(R.id.myGamesListRecyclerView)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        postButton = findViewById(R.id.addPostButton)
+        postButton.setOnClickListener {
+            val intent = Intent(this, UploadContent::class.java)
+            startActivity(intent)
+        }
+
+        profileButton = findViewById(R.id.profileButton)
+        profileButton.setOnClickListener {
+            val intent = Intent(this, UserProfile::class.java)
+            startActivity(intent)
+        }
 
         myGamesListAdapter = MyGamesListAdapter(emptyList())
         myGamesListRecyclerView.adapter = myGamesListAdapter
@@ -106,7 +123,7 @@ class MyGamesList : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 runOnUiThread {
-                    Toast.makeText(this@MyGamesList, "Failed to fetch games", Toast.LENGTH_SHORT).show()
+                  //  Toast.makeText(this@MyGamesList, "Failed to fetch games", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -121,7 +138,7 @@ class MyGamesList : AppCompatActivity() {
                     }
                 } else {
                     runOnUiThread {
-                        Toast.makeText(this@MyGamesList, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
+                    //    Toast.makeText(this@MyGamesList, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -135,7 +152,7 @@ class MyGamesList : AppCompatActivity() {
         }
         runOnUiThread {
             myGamesListAdapter.updateGamesList(emptyList())
-            Toast.makeText(this@MyGamesList, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
+         //   Toast.makeText(this@MyGamesList, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
         }
     }
 

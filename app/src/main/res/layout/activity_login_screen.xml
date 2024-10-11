@@ -78,7 +78,7 @@
             android:layout_marginRight="@dimen/_17sdp"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_35sdp"
-            android:background="@drawable/buttonholder"
+            android:background="@drawable/buttonholder2"
             android:text="Login"
             android:textColor="@color/white"
             android:textSize="@dimen/_13ssp"

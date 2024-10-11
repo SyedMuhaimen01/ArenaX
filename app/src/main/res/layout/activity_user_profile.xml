@@ -71,7 +71,8 @@
               android:gravity="center">
 
             <TextView
-                android:text="15"
+                android:id="@+id/postsCount"
+                android:text="0"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_width="wrap_content"
@@ -95,7 +96,7 @@
               android:layout_weight="1">
 
             <TextView
-                android:text="150"
+                android:text="0"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_width="wrap_content"
@@ -119,7 +120,7 @@
               android:layout_weight="1">
 
             <TextView
-                android:text="100"
+                android:text="0"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_width="wrap_content"

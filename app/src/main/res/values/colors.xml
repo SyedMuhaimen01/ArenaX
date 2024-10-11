@@ -11,4 +11,5 @@
     <color name="fieldOutline">#FF000080</color>
     <color name="LogoBackground"> #FF111B33</color>
     <color name="Silver">#FFC0C0C0</color>
+    <color name="ImagePlaceholder">#E6000000</color>
 </resources>

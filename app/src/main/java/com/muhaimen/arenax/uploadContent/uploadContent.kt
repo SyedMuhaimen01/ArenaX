@@ -85,7 +85,8 @@ class UploadContent : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload_content)
-
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
         previewImageView = findViewById(R.id.previewImageView)
         captionEditText = findViewById(R.id.captionEditText)
         galleryButton = findViewById(R.id.galleryButton)
@@ -205,7 +206,7 @@ class UploadContent : AppCompatActivity() {
                 uploadToolbar.visibility = View.VISIBLE
                 isPlaying = false
             } else {
-                Toast.makeText(this, "Invalid time range", Toast.LENGTH_SHORT).show()
+              //  Toast.makeText(this, "Invalid time range", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -236,6 +237,7 @@ class UploadContent : AppCompatActivity() {
         // Upload post button action
         uploadPostButton.setOnClickListener {
             uploadContent()
+            adapter.releasePlayer()
             val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
         }
@@ -329,7 +331,7 @@ class UploadContent : AppCompatActivity() {
             if (userId != null) {
                 uploadToFirebaseStorage(userId, caption)
             } else {
-                Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
+             //   Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
             }
         } else {
             Toast.makeText(this, "Please select media and write a caption.", Toast.LENGTH_SHORT)
@@ -379,8 +381,8 @@ class UploadContent : AppCompatActivity() {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
             },
             { error ->
-                Toast.makeText(this, "Error uploading post: ${error.message}", Toast.LENGTH_SHORT)
-                    .show()
+              //  Toast.makeText(this, "Error uploading post: ${error.message}", Toast.LENGTH_SHORT)
+                //    .show()
             }
         )
 
@@ -456,7 +458,7 @@ class UploadContent : AppCompatActivity() {
         val startTime = startSeekBar.progress * 1000 // Convert seconds to milliseconds
         val endTime = endSeekBar.progress * 1000 // Convert seconds to milliseconds
         if (endTime <= startTime) {
-            Toast.makeText(this, "End time must be greater than start time.", Toast.LENGTH_SHORT).show()
+         //   Toast.makeText(this, "End time must be greater than start time.", Toast.LENGTH_SHORT).show()
             return
         }
         val duration = endTime - startTime
@@ -484,6 +486,7 @@ class UploadContent : AppCompatActivity() {
             "-acodec", "libmp3lame", // Use libmp3lame for MP3 output
             outputPath
         )
+        trimmedAudioUrl=outputPath
 
         Log.d("FFmpeg Command", "FFmpeg command: ${command.joinToString(" ")}") // Log the full command
 
