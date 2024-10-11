@@ -408,6 +408,7 @@ class UserProfile : AppCompatActivity() {
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching rank: ${error.message}")
                 Toast.makeText(this, "Error fetching rank", Toast.LENGTH_SHORT).show()
+                loadRankFromPreferences()
             }
         )
         requestQueue.add(jsonObjectRequest)
@@ -428,7 +429,6 @@ class UserProfile : AppCompatActivity() {
             }
         )
 
-        // Add the request to the RequestQueue
         requestQueue.add(jsonObjectRequest)
     }
 
@@ -464,6 +464,7 @@ class UserProfile : AppCompatActivity() {
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching stories: ${error.message}")
+                loadStoriesFromSharedPreferences()
                 Toast.makeText(this, "Error fetching stories", Toast.LENGTH_SHORT).show()
             }
         )
@@ -512,6 +513,7 @@ class UserProfile : AppCompatActivity() {
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching posts: ${error.message}")
+                loadPostsFromSharedPreferences()
                 Toast.makeText(this, "Error fetching posts", Toast.LENGTH_SHORT).show()
             }
         )
