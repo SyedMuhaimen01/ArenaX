@@ -48,7 +48,7 @@
             android:layout_height="@dimen/_20sdp"
             android:importantForAccessibility="no"
             android:src="@drawable/add_white_icon_foreground"
-            android:backgroundTint="@color/primaryColor"
+            android:backgroundTint="@color/LogoBackground"
             android:background="@drawable/circle"
             android:scaleType="fitXY"
             android:layout_marginStart="-40dp"
@@ -292,6 +292,7 @@
           android:layout_height="@dimen/_130sdp"
           android:orientation="vertical"
           android:background="@drawable/inputholder"
+          android:backgroundTint="@color/LogoBackground"
           android:layout_marginTop="@dimen/_10sdp">
         <LinearLayout
             android:layout_width="match_parent"
@@ -304,7 +305,7 @@
               android:textStyle="bold"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:textColor="@color/textColor"
+              android:textColor="@color/backgroundColor"
               android:layout_gravity="start"
               android:layout_weight="2"/>
 

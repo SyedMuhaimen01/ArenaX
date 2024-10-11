@@ -20,7 +20,6 @@ class MainActivity : AppCompatActivity() {
     private var isFromPersonalInfo: Boolean = false
     private val emailVerificationCooldown: Long = 60 * 1000
     private var endTime: Long = 0
-    private var dummy: String = "dummy"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
