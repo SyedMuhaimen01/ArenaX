@@ -3,6 +3,7 @@ package com.muhaimen.arenax.uploadStory
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.SurfaceTexture
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
@@ -10,6 +11,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.Surface
+import android.view.TextureView
+import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
@@ -24,6 +28,13 @@ import org.json.JSONException
 import org.json.JSONObject
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.DraggableText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import java.io.IOException
 
 class viewStory : AppCompatActivity() {
@@ -34,7 +45,8 @@ class viewStory : AppCompatActivity() {
     private var mediaPlayer: MediaPlayer? = null // Change to nullable MediaPlayer
     private lateinit var draggableTextContainer: FrameLayout // Container for draggable text views
     private val handler = Handler() // Create a Handler to schedule delayed tasks
-
+    private lateinit var textureView: TextureView
+    private val client = OkHttpClient()
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +55,7 @@ class viewStory : AppCompatActivity() {
         // Initialize views after setContentView
         backButton = findViewById(R.id.backButton)
         storyImageView = findViewById(R.id.ImageView)
-
+        textureView = findViewById(R.id.VideoView)
         // Create a FrameLayout programmatically for draggable text views
         draggableTextContainer = FrameLayout(this).apply {
             layoutParams = ViewGroup.LayoutParams(
@@ -62,7 +74,8 @@ class viewStory : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
         // Set the back button action to close the activity
         backButton.setOnClickListener {
             onBackPressed() // Call onBackPressed for better navigation handling
@@ -70,12 +83,14 @@ class viewStory : AppCompatActivity() {
 
         // Get media and audio URLs from intent
         val mediaUrl = intent.getStringExtra("MEDIA_URL")
+        Log.d("ViewStory", "Received media URL: $mediaUrl")
         val audioUrl = intent.getStringExtra("Audio")
         Log.d("ViewStory", "Received audio URL: $audioUrl")
         val texts = intent.getStringExtra("Texts")
 
-        // Load the media into the ImageView
-        loadMedia(mediaUrl)
+        mediaUrl?.let {
+            loadMedia(it) // Load media content
+        } ?: Log.d("ViewStory", "Media content is null.")
 
         // Use raw JSON to display draggable texts
         texts?.let { displayDraggableTexts(it) }
@@ -91,18 +106,121 @@ class viewStory : AppCompatActivity() {
         }, 15000) // 15000 milliseconds = 15 seconds
     }
 
-    private fun loadMedia(mediaUrl: String?) {
-        mediaUrl?.let {
-            val uri = Uri.parse(it)
+    private fun loadMedia(mediaUrl: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val mediaType = getMediaType(mediaUrl)
 
-            // Use Glide to load the image or video thumbnail into the ImageView
+            // Switch back to the main thread to update UI
+            withContext(Dispatchers.Main) {
+                if (mediaType != null) {
+                    when {
+                        mediaType.startsWith("image/") -> {
+                            storyImageView.visibility = View.VISIBLE
+                            textureView.visibility = View.GONE
+                            setImage(mediaUrl)
+                        }
+                        mediaType.startsWith("video/mp4") -> {
+                            storyImageView.visibility = View.GONE
+                            textureView.visibility = View.VISIBLE
+                            playVideo(mediaUrl)
+                        }
+                        else -> {
+                            Log.e("ViewPost", "Unsupported media type: $mediaType")
+                        }
+                    }
+                } else {
+                    Log.e("ViewPost", "Failed to retrieve media type.")
+                }
+            }
+        }
+    }
+    private fun playVideo(videoPath: String) {
+        val uri = Uri.parse(videoPath)
+        Log.d("ViewPost", "Attempting to play video from path: $videoPath")
+
+        // Set up the TextureView surface
+        textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+            override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(videoPath)
+                    setSurface(Surface(surface))
+                    prepareAsync() // Prepare in the background
+
+                    setOnPreparedListener {
+                        isLooping = true // Loop the video
+                        start() // Start playing the video
+                        Log.d("ViewPost", "Video playback started.")
+                    }
+
+                    // Add buffering listeners
+                    setOnInfoListener { mp, what, extra ->
+                        when (what) {
+                            MediaPlayer.MEDIA_INFO_BUFFERING_START -> {
+                                Log.d("ViewPost", "Buffering started")
+                                // Show buffering indicator (if any)
+                            }
+                            MediaPlayer.MEDIA_INFO_BUFFERING_END -> {
+                                Log.d("ViewPost", "Buffering ended")
+                                // Hide buffering indicator (if any)
+                            }
+                        }
+                        true
+                    }
+
+                    setOnCompletionListener {
+                        Log.d("ViewPost", "Video playback completed.")
+                        seekTo(0) // Reset the video to the start
+                        start() // Optionally, restart the video
+                    }
+
+                    setOnErrorListener { mp, what, extra ->
+                        Log.e("ViewPost", "Error occurred while playing video. What: $what, Extra: $extra")
+                        true // Returning true indicates that we've handled the error
+                    }
+                }
+            }
+
+            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
+            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
+                mediaPlayer?.release()
+                mediaPlayer = null
+                return true
+            }
+
+            override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
+        }
+    }
+
+    private suspend fun getMediaType(mediaUrl: String): String? {
+        val request = Request.Builder()
+            .url(mediaUrl)
+            .head() // Use HEAD to get the headers only
+            .build()
+
+        return try {
+            val response: Response = client.newCall(request).execute()
+            // Handle response and return media type
+            response.header("Content-Type").also {
+                Log.d("ViewPost", "Media type retrieved: $it")
+            }
+        } catch (e: Exception) {
+            Log.e("ViewPost", "Error retrieving media type: ${e.message}")
+            null
+        }
+    }
+
+    private fun setImage(imageUrl: String) {
+        try {
+            val uri = Uri.parse(imageUrl)
             Glide.with(this)
                 .load(uri)
-                .thumbnail(0.1f)
-                .error(R.mipmap.appicon2) // Fallback image if loading fails
+                .thumbnail(0.1f) // Show a thumbnail while loading
+                .error(R.mipmap.appicon2) // Show a default error image if loading fails
                 .into(storyImageView)
-        } ?: run {
-            Log.e("ViewStory", "Media URL is null.")
+            Log.d("ViewPost", "Attempting to load image from URL: $imageUrl")
+
+        } catch (e: Exception) {
+            Log.e("ViewPost", "Exception while loading image: ${e.message}")
         }
     }
 

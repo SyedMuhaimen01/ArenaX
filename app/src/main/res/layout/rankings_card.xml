@@ -37,7 +37,6 @@
             android:layout_marginEnd="@dimen/_10sdp"
             android:layout_marginStart="@dimen/_10sdp"
             android:scaleType="centerCrop"
-
             android:layout_gravity="center"
             android:contentDescription="Profile Picture"
             tools:ignore="HardcodedText" />

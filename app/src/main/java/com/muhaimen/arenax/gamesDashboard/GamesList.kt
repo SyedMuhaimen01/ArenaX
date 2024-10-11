@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.ImageButton
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -34,6 +35,7 @@ class gamesList : AppCompatActivity() {
     private lateinit var gamesListAdapter: gamesListAdapter
     private lateinit var gamesSearchBar: AutoCompleteTextView
     private lateinit var originalGamesList: MutableList<AppInfo>
+    private lateinit var backButton: ImageButton
     private lateinit var auth: FirebaseAuth
     private lateinit var refreshButton: Button
     private val sharedPrefsName = "games_prefs"
@@ -44,7 +46,8 @@ class gamesList : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_games_list)
-
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
         auth = FirebaseAuth.getInstance()
         originalGamesList = mutableListOf()
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -52,18 +55,24 @@ class gamesList : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        loadGamesFromSharedPreferences()
+        backButton = findViewById(R.id.backButton)
+        backButton.setOnClickListener {
+            finish()
+        }
+
+        gamesListAdapter = gamesListAdapter(originalGamesList, auth.currentUser?.uid ?: "") {
+            fetchInstalledApps()
+        }
         gamesListRecyclerView = findViewById(R.id.gamesListRecyclerView)
         gamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         gamesSearchBar = findViewById(R.id.searchbar)
+        gamesListRecyclerView.adapter = gamesListAdapter
+        loadGamesFromSharedPreferences()
+
         refreshButton = findViewById(R.id.refreshButton)
         refreshButton.setOnClickListener {
             showRefreshDialog()
         }
-        gamesListAdapter = gamesListAdapter(originalGamesList, auth.currentUser?.uid ?: "") {
-            fetchInstalledApps()
-        }
-        gamesListRecyclerView.adapter = gamesListAdapter
 
     }
     private fun showRefreshDialog() {
@@ -153,7 +162,7 @@ class gamesList : AppCompatActivity() {
                 error.printStackTrace()
                 if (error.networkResponse != null) {
                     val errorResponse = String(error.networkResponse.data)
-                    Toast.makeText(this, "Error fetching games: $errorResponse", Toast.LENGTH_SHORT).show()
+                 //   Toast.makeText(this, "Error fetching games: $errorResponse", Toast.LENGTH_SHORT).show()
                 }
             }
         )

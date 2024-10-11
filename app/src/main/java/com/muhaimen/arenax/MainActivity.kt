@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
 
         isFromPersonalInfo = intent.getBooleanExtra("fromPersonalInfo", false)
         window.statusBarColor = resources.getColor(R.color.primaryColor)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
 
         handler = Handler(Looper.getMainLooper())
         handler.postDelayed({

@@ -21,7 +21,8 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_register)
-
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
         emailEditText = findViewById(R.id.emailEditText)
         passwordEditText = findViewById(R.id.passwordEditText)
         reEnterPasswordEditText = findViewById(R.id.reEnterPasswordEditText)

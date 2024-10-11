@@ -91,7 +91,7 @@ class gamesListAdapter(
             },
             { error ->
                 error.printStackTrace()
-                Toast.makeText(context, "Error adding game", Toast.LENGTH_SHORT).show()
+             //   Toast.makeText(context, "Error adding game", Toast.LENGTH_SHORT).show()
             }
         )
         queue.add(jsonObjectRequest)

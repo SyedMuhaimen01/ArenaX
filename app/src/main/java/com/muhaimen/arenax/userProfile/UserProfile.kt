@@ -79,6 +79,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var highlightsRecyclerView: RecyclerView
     private lateinit var highlightsAdapter: highlightsAdapter
     private lateinit var synergyButton:ImageButton
+    private lateinit var postsCount:TextView
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: PostsAdapter
     private lateinit var profileImage: ImageView
@@ -112,7 +113,7 @@ class UserProfile : AppCompatActivity() {
             insets
         }
         window.statusBarColor = resources.getColor(R.color.LogoBackground)
-
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
         auth = FirebaseAuth.getInstance()
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(auth.currentUser?.uid ?: "")
         storageReference = FirebaseStorage.getInstance().reference.child("profileImages/${auth.currentUser?.uid}")
@@ -123,11 +124,14 @@ class UserProfile : AppCompatActivity() {
         myGamesListAdapter = MyGamesListAdapter(emptyList())
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
+
+
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         postsRecyclerView = findViewById(R.id.posts_recyclerview)
         postsRecyclerView.layoutManager = GridLayoutManager(this, 3)
+
 
 
         if (!checkUsageStatsPermission()) {
@@ -241,7 +245,7 @@ class UserProfile : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 runOnUiThread {
-                    Toast.makeText(this@UserProfile,"Failed to fetch games", Toast.LENGTH_SHORT).show()
+                 //   Toast.makeText(this@UserProfile,"Failed to fetch games", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -256,7 +260,7 @@ class UserProfile : AppCompatActivity() {
                     }
                 } else {
                     runOnUiThread {
-                        Toast.makeText(this@UserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
+                    //    Toast.makeText(this@UserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -271,7 +275,7 @@ class UserProfile : AppCompatActivity() {
         runOnUiThread {
             // Show empty view in the RecyclerView
             myGamesListAdapter.updateGamesList(emptyList())
-            Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
+         //   Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
         }
     }
 
@@ -351,7 +355,7 @@ class UserProfile : AppCompatActivity() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(this@UserProfile, "Failed to load user details: ${error.message}", Toast.LENGTH_SHORT).show()
+              //      Toast.makeText(this@UserProfile, "Failed to load user details: ${error.message}", Toast.LENGTH_SHORT).show()
                     Log.e("EditUserProfile", "Database error: ${error.message}")
                 }
             })
@@ -408,7 +412,7 @@ class UserProfile : AppCompatActivity() {
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching rank: ${error.message}")
-                Toast.makeText(this, "Error fetching rank", Toast.LENGTH_SHORT).show()
+          //      Toast.makeText(this, "Error fetching rank", Toast.LENGTH_SHORT).show()
                 loadRankFromPreferences()
             }
         )
@@ -426,7 +430,7 @@ class UserProfile : AppCompatActivity() {
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error adding user to rankings: ${error.message}")
-                Toast.makeText(this, "Error adding user to rankings", Toast.LENGTH_SHORT).show()
+            //    Toast.makeText(this, "Error adding user to rankings", Toast.LENGTH_SHORT).show()
             }
         )
 
@@ -460,13 +464,13 @@ class UserProfile : AppCompatActivity() {
 
                 } catch (e: JSONException) {
                     e.printStackTrace()
-                    Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
+              //      Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching stories: ${error.message}")
                 loadStoriesFromSharedPreferences()
-                Toast.makeText(this, "Error fetching stories", Toast.LENGTH_SHORT).show()
+           //     Toast.makeText(this, "Error fetching stories", Toast.LENGTH_SHORT).show()
             }
         )
         requestQueue.add(jsonArrayRequest)
@@ -509,13 +513,13 @@ class UserProfile : AppCompatActivity() {
 
                 } catch (e: JSONException) {
                     e.printStackTrace()
-                    Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
+                //    Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching posts: ${error.message}")
                 loadPostsFromSharedPreferences()
-                Toast.makeText(this, "Error fetching posts", Toast.LENGTH_SHORT).show()
+            //    Toast.makeText(this, "Error fetching posts", Toast.LENGTH_SHORT).show()
             }
         )
 
@@ -527,7 +531,9 @@ class UserProfile : AppCompatActivity() {
     // Function to update the UI with the fetched posts
     private fun updatePostsUI(posts: List<Post>) {
         postsAdapter = PostsAdapter(posts) // Create a new adapter with the fetched posts
-        postsRecyclerView.adapter = postsAdapter // Set the adapter to RecyclerView
+        postsRecyclerView.adapter = postsAdapter
+        postsCount=findViewById(R.id.postsCount)
+        postsCount.setText(postsAdapter.itemCount.toString())// Set the adapter to RecyclerView
     }
 
     private fun saveRankToPreferences(rank: Int) {

@@ -37,6 +37,8 @@ class LoginScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_screen)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -114,7 +116,7 @@ class LoginScreen : AppCompatActivity() {
                 Log.e(TAG, "User data not found for ID: $uid")
             }
         }.addOnFailureListener { exception ->
-            Toast.makeText(this, "Failed to fetch user data: ${exception.message}", Toast.LENGTH_SHORT).show()
+           // Toast.makeText(this, "Failed to fetch user data: ${exception.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
