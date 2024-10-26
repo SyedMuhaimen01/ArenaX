@@ -240,6 +240,7 @@ class ScreenTimeService : Service() {
         }
     }
 
+
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(usageCheckRunnable ?: return)
