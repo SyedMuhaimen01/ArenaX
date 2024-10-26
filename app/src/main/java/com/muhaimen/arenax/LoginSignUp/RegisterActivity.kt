@@ -1,7 +1,11 @@
 package com.muhaimen.arenax.LoginSignUp
 
+import android.app.AlertDialog
+import android.app.AppOpsManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -33,6 +37,10 @@ class RegisterActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        if (!checkUsageStatsPermission()) {
+            showUsageStatsPermissionDialog()
         }
 
         loginBtn.setOnClickListener {
@@ -71,5 +79,28 @@ class RegisterActivity : AppCompatActivity() {
             return false
         }
         return true
+    }
+
+    private fun checkUsageStatsPermission(): Boolean {
+        val appOpsManager = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val mode = appOpsManager.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            android.os.Process.myUid(), packageName
+        )
+        return mode == AppOpsManager.MODE_ALLOWED
+    }
+
+    private fun showUsageStatsPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Usage Access Required")
+            .setMessage("This app needs usage access permission to track screen time of games.\n To enjoy full in-app features" +
+                    " please enable Usage Access in the settings.")
+            .setPositiveButton("Go to Settings") { _, _ ->
+                startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 }

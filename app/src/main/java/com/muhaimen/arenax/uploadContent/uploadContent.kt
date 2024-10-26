@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
@@ -81,6 +82,8 @@ class UploadContent : AppCompatActivity() {
     private var TrackList: List<Track> = emptyList()
     private var mediaPlayer: MediaPlayer? = null
     private var trimmedAudioUrl:String?=null
+    private val sharedPreferences6 by lazy { getSharedPreferences("UserLocationPrefs", Context.MODE_PRIVATE) }
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -360,6 +363,8 @@ class UploadContent : AppCompatActivity() {
     // Function to send post details to the backend server
     private fun savePostDetailsToServer(userId: String, mediaUrl: String, caption: String) {
         userData= UserData(userId = userId)
+        val (city, country) = loadLocationFromSharedPreferences()
+
         val requestQueue = Volley.newRequestQueue(this)
 
         val jsonRequest = JSONObject().apply {
@@ -367,6 +372,8 @@ class UploadContent : AppCompatActivity() {
             put("content", mediaUrl)
             put("caption", caption)
             put("sponsored", false)
+            //put("city", city)
+            //put("country", country)
             put("created_at", System.currentTimeMillis())
             put("trimmed_audio_url", trimmedAudioUrl)
         }
@@ -597,5 +604,11 @@ class UploadContent : AppCompatActivity() {
             mediaPlayer = null // Set to null after release
             Log.d("MediaPlayer", "MediaPlayer released.")
         }
+    }
+
+    private fun loadLocationFromSharedPreferences(): Pair<String?, String?> {
+        val city = sharedPreferences6.getString("city", null)
+        val country = sharedPreferences6.getString("country", null)
+        return Pair(city, country)
     }
 }

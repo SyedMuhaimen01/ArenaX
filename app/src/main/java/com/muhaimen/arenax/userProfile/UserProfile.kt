@@ -1,6 +1,8 @@
 package com.muhaimen.arenax.userProfile
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.AppOpsManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,6 +11,9 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.location.Location
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
@@ -45,6 +50,8 @@ import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.uploadContent.UploadContent
 import android.provider.Settings
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.volley.Request
 import com.android.volley.RequestQueue
@@ -52,6 +59,8 @@ import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
@@ -65,11 +74,14 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.util.Locale
 
 
 @Suppress("DEPRECATED_IDENTITY_EQUALS")
 class UserProfile : AppCompatActivity() {
     private val USAGE_STATS_PERMISSION_REQUEST_CODE = 1001
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1001
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
     private lateinit var storageReference: StorageReference
@@ -101,6 +113,7 @@ class UserProfile : AppCompatActivity() {
     private val sharedPreferences3 by lazy { getSharedPreferences("MyPostsPrefs", Context.MODE_PRIVATE) }
     private val sharedPreferences4 by lazy { getSharedPreferences("MyRankPrefs", Context.MODE_PRIVATE) }
     private val sharedPreferences5 by lazy { getSharedPreferences("UserDataPrefs", Context.MODE_PRIVATE) }
+    private val sharedPreferences6 by lazy { getSharedPreferences("UserLocationPrefs", Context.MODE_PRIVATE) }
     @SuppressLint("MissingInflatedId", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,20 +137,24 @@ class UserProfile : AppCompatActivity() {
         myGamesListAdapter = MyGamesListAdapter(emptyList())
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
-
-
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         postsRecyclerView = findViewById(R.id.posts_recyclerview)
         postsRecyclerView.layoutManager = GridLayoutManager(this, 3)
 
-
-
         if (!checkUsageStatsPermission()) {
             requestUsageStatsPermission()
         } else {
             startTrackingService()
+        }
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        if (checkLocationPermission()) {
+            getUserLocation()
+        } else {
+            showLocationPermissionDialog()
         }
 
         if (!isConnected()) {
@@ -656,6 +673,20 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
+    private fun saveLocationToSharedPreferences(city: String, country: String) {
+        with(sharedPreferences6.edit()) {
+            putString("city", city)
+            putString("country", country)
+            apply()
+        }
+    }
+
+    private fun loadLocationFromSharedPreferences(): Pair<String?, String?> {
+        val city = sharedPreferences6.getString("city", null)
+        val country = sharedPreferences6.getString("country", null)
+        return Pair(city, country)
+    }
+
     private fun loadPostsFromSharedPreferences() {
         val postsJson = sharedPreferences3.getString("postsList", null)
         if (postsJson != null) {
@@ -680,8 +711,6 @@ class UserProfile : AppCompatActivity() {
             updatePostsUI(posts)
         }
     }
-
-
 
     override fun onResume() {
         super.onResume()
@@ -714,6 +743,108 @@ class UserProfile : AppCompatActivity() {
         super.onPause()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver2)
+    }
+
+    private fun checkLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun showLocationPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Location Permission Required")
+            .setMessage("For improved user experience, this app requires user's location. Please allow the app to discover user's location.")
+            .setPositiveButton("Allow") { _, _ ->
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    LOCATION_PERMISSION_REQUEST_CODE
+                )
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun getUserLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+                location?.let {
+                    val latitude = it.latitude
+                    val longitude = it.longitude
+
+                    getCityAndCountry(latitude, longitude)
+                } ?: run {
+                   // Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+             //   Toast.makeText(this, "Failed to get location: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun getCityAndCountry(latitude: Double, longitude: Double) {
+        val geocoder = Geocoder(this, Locale.getDefault())
+        try {
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            if (addresses != null) {
+                if (addresses.isNotEmpty()) {
+                    val city = addresses[0].locality
+                    val country = addresses[0].countryName
+                    val (previousCity, previousCountry) = loadLocationFromSharedPreferences()
+
+                    if (city != previousCity || country != previousCountry) {
+                        updateUserLocation(city, country)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting city and country: ${e.message}")
+        }
+    }
+
+    // Handle the result of the permission request
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getUserLocation()
+            } else {
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun updateUserLocation(city: String?, country: String?) {
+        val url="${Constants.SERVER_URL}userLocation/user/${auth.currentUser?.uid}/updateLocation"
+        val requestBody = JSONObject().apply {
+            put("city", city)
+            put("country", country)
+        }
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.POST,
+            url,
+            requestBody,
+            { _ ->
+                saveLocationToSharedPreferences(city ?: "", country ?: "")
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error updating user location: ${error.message}")
+            }
+        )
+
+        requestQueue.add(jsonObjectRequest)
     }
 
 }

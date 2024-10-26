@@ -6,6 +6,8 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -71,9 +73,6 @@
             android:exported="false" />
         <activity
             android:name=".gamesDashboard.gamesList"
-            android:exported="false" />
-        <activity
-            android:name=".settings.settingsScreen"
             android:exported="false" />
         <activity
             android:name=".editProfile.editProfile"
