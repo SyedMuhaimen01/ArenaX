@@ -61,6 +61,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.jjoe64.graphview.series.DataPoint
 import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
@@ -262,7 +263,7 @@ class UserProfile : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 runOnUiThread {
-                 //   Toast.makeText(this@UserProfile,"Failed to fetch games", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@UserProfile, "Failed to fetch games", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -277,7 +278,7 @@ class UserProfile : AppCompatActivity() {
                     }
                 } else {
                     runOnUiThread {
-                    //    Toast.makeText(this@UserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@UserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -292,7 +293,7 @@ class UserProfile : AppCompatActivity() {
         runOnUiThread {
             // Show empty view in the RecyclerView
             myGamesListAdapter.updateGamesList(emptyList())
-         //   Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
+            Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
         }
     }
 
@@ -311,11 +312,22 @@ class UserProfile : AppCompatActivity() {
             myGamesList = List(gamesArray.length()) { index ->
                 val gameObject = gamesArray.getJSONObject(index)
                 Log.d("MyGamesList", "Parsing game: ${gameObject.getString("gameName")}, Icon URL: ${gameObject.getString("gameIcon")}")
+
+                // Assuming graphData is coming from the server as a List of objects
+                val graphDataArray = gameObject.getJSONArray("graphData")
+                val graphData = List(graphDataArray.length()) { gIndex ->
+                    val dataPoint = graphDataArray.getJSONObject(gIndex)
+                    val date = dataPoint.getString("date") // Get date
+                    val totalHours = dataPoint.getDouble("totalHours") // Get total hours
+                    Pair(date, totalHours)
+                }
+
+                // Create AnalyticsData object
                 AnalyticsData(
                     gameName = gameObject.getString("gameName"),
-                    totalHours = gameObject.getInt("totalHours"),
+                    totalHours = gameObject.getDouble("totalHours"), // Assuming totalHours is a double
                     iconResId = gameObject.getString("gameIcon"),
-                    graphData = emptyList()
+                    graphData = graphData // Assign the graph data
                 )
             }
 

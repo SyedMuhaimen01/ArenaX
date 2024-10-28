@@ -1,11 +1,9 @@
 package com.muhaimen.arenax.dataClasses
 
-import com.jjoe64.graphview.series.DataPoint
-
 data class AnalyticsData(
     val gameName: String,
-    val totalHours: Int,
+    val totalHours: Double,
     val iconResId: String,
-    val graphData: List<DataPoint>
+    val graphData: List<Pair<String, Double>>
 
 )
