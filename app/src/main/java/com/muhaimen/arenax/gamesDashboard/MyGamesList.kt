@@ -8,7 +8,6 @@ import android.text.TextWatcher
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -25,7 +24,6 @@ import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.Constants
 import okhttp3.*
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
@@ -123,7 +121,8 @@ class MyGamesList : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 runOnUiThread {
-                  //  Toast.makeText(this@MyGamesList, "Failed to fetch games", Toast.LENGTH_SHORT).show()
+                    // Uncomment the next line to show a toast message on failure
+                    // Toast.makeText(this@MyGamesList, "Failed to fetch games", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -138,12 +137,52 @@ class MyGamesList : AppCompatActivity() {
                     }
                 } else {
                     runOnUiThread {
-                    //    Toast.makeText(this@MyGamesList, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
+                        // Uncomment the next line to show a toast message on error
+                        // Toast.makeText(this@MyGamesList, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         })
     }
+
+    private fun parseGamesData(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val gamesArray = jsonObject.getJSONArray("games")
+
+            myGamesList = List(gamesArray.length()) { index ->
+                val gameObject = gamesArray.getJSONObject(index)
+                Log.d("MyGamesList", "Parsing game: ${gameObject.getString("gameName")}, Icon URL: ${gameObject.getString("gameIcon")}")
+
+                // Extract the graph data as a List of Pair<Date, TotalHours>
+                val graphDataArray = gameObject.getJSONArray("graphData")
+                val graphData = List(graphDataArray.length()) { gIndex ->
+                    val dataPoint = graphDataArray.getJSONObject(gIndex)
+                    val date = dataPoint.getString("date") // Get date
+                    val totalHours = dataPoint.getDouble("totalHours") // Get total hours
+                    Pair(date, totalHours)
+                }
+
+                // Create AnalyticsData object
+                AnalyticsData(
+                    gameName = gameObject.getString("gameName"),
+                    totalHours = gameObject.getDouble("totalHours"), // Assuming totalHours is a double
+                    iconResId = gameObject.getString("gameIcon"),
+                    graphData = graphData // Assign the graph data
+                )
+            }
+
+            runOnUiThread {
+                Log.d("MyGamesList", "Number of games fetched: ${myGamesList.size}")
+                myGamesListAdapter.updateGamesList(myGamesList)
+                setupAutoComplete()
+                setupSearchFilter()
+            }
+        } catch (e: Exception) {
+            Log.e("MyGamesList", "Error parsing games data", e)
+        }
+    }
+
 
     private fun updateEmptyGameList() {
         with(sharedPreferences.edit()) {
@@ -163,32 +202,7 @@ class MyGamesList : AppCompatActivity() {
         }
     }
 
-    private fun parseGamesData(responseBody: String) {
-        try {
-            val jsonObject = JSONObject(responseBody)
-            val gamesArray = jsonObject.getJSONArray("games")
 
-            myGamesList = List(gamesArray.length()) { index ->
-                val gameObject = gamesArray.getJSONObject(index)
-                Log.d("MyGamesList", "Parsing game: ${gameObject.getString("gameName")}, Icon URL: ${gameObject.getString("gameIcon")}")
-                AnalyticsData(
-                    gameName = gameObject.getString("gameName"),
-                    totalHours = gameObject.getInt("totalHours"),
-                    iconResId = gameObject.getString("gameIcon"),
-                    graphData = emptyList()
-                )
-            }
-
-            runOnUiThread {
-                Log.d("MyGamesList", "Number of games fetched: ${myGamesList.size}")
-                myGamesListAdapter.updateGamesList(myGamesList)
-                setupAutoComplete()
-                setupSearchFilter()
-            }
-        } catch (e: Exception) {
-            Log.e("MyGamesList", "Error parsing games data", e)
-        }
-    }
 
     private fun setupAutoComplete() {
         val gameNames = myGamesList.map { it.gameName }
