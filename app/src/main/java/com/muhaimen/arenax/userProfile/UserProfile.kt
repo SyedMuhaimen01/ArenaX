@@ -1,6 +1,8 @@
 package com.muhaimen.arenax.userProfile
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.AppOpsManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,9 +11,13 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.location.Location
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -21,13 +27,24 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
-import com.muhaimen.arenax.uploadStory.uploadStory
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -39,9 +56,11 @@ import com.google.firebase.storage.StorageReference
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.accountSettings.accountSettings
 import com.muhaimen.arenax.dataClasses.AnalyticsData
+import com.muhaimen.arenax.dataClasses.Post
+import com.muhaimen.arenax.dataClasses.Story
+import com.muhaimen.arenax.dataClasses.StoryWithTimeAgo
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.editProfile.editProfile
-import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.uploadContent.UploadContent
 import android.provider.Settings
@@ -55,8 +74,12 @@ import com.android.volley.toolbox.Volley
 import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.explore.ExplorePage
+
 import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
+import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.screenTime.ScreenTimeService
+import com.muhaimen.arenax.uploadContent.UploadContent
+import com.muhaimen.arenax.uploadStory.uploadStory
 import com.muhaimen.arenax.utils.Constants
 import highlightsAdapter
 import okhttp3.Call
@@ -66,11 +89,16 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 
 @Suppress("DEPRECATED_IDENTITY_EQUALS")
 class UserProfile : AppCompatActivity() {
     private val USAGE_STATS_PERMISSION_REQUEST_CODE = 1001
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1001
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
     private lateinit var storageReference: StorageReference
@@ -90,6 +118,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var myGamesButton: ImageButton
     private lateinit var addPost: ImageButton
     private lateinit var uploadStoryButton: ImageButton
+    private lateinit var storyRing: ImageView
     private lateinit var userData: UserData
     private lateinit var settingsButton:Button
     private lateinit var leaderboardButton: ImageButton
@@ -102,7 +131,8 @@ class UserProfile : AppCompatActivity() {
     private val sharedPreferences3 by lazy { getSharedPreferences("MyPostsPrefs", Context.MODE_PRIVATE) }
     private val sharedPreferences4 by lazy { getSharedPreferences("MyRankPrefs", Context.MODE_PRIVATE) }
     private val sharedPreferences5 by lazy { getSharedPreferences("UserDataPrefs", Context.MODE_PRIVATE) }
-    @SuppressLint("MissingInflatedId", "SetTextI18n")
+    private val sharedPreferences6 by lazy { getSharedPreferences("UserLocationPrefs", Context.MODE_PRIVATE) }
+    @SuppressLint("MissingInflatedId", "SetTextI18n", "CutPasteId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -125,20 +155,24 @@ class UserProfile : AppCompatActivity() {
         myGamesListAdapter = MyGamesListAdapter(emptyList())
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
-
-
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         postsRecyclerView = findViewById(R.id.posts_recyclerview)
         postsRecyclerView.layoutManager = GridLayoutManager(this, 3)
 
-
-
         if (!checkUsageStatsPermission()) {
             requestUsageStatsPermission()
         } else {
             startTrackingService()
+        }
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        if (checkLocationPermission()) {
+            getUserLocation()
+        } else {
+            showLocationPermissionDialog()
         }
 
         if (!isConnected()) {
@@ -221,6 +255,17 @@ class UserProfile : AppCompatActivity() {
             startActivity(intent)
         }
 
+        storyRing = findViewById(R.id.storyRing)
+        val userId=auth.currentUser?.uid
+        if (userId != null) {
+            checkRecentStories(userId, storyRing)
+        }
+
+        profileImage.setOnClickListener {
+            onProfilePictureClick()
+        }
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "TrackingServiceChannel",
@@ -252,7 +297,7 @@ class UserProfile : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 runOnUiThread {
-                 //   Toast.makeText(this@UserProfile,"Failed to fetch games", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@UserProfile, "Failed to fetch games", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -267,7 +312,7 @@ class UserProfile : AppCompatActivity() {
                     }
                 } else {
                     runOnUiThread {
-                    //    Toast.makeText(this@UserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@UserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -282,7 +327,7 @@ class UserProfile : AppCompatActivity() {
         runOnUiThread {
             // Show empty view in the RecyclerView
             myGamesListAdapter.updateGamesList(emptyList())
-         //   Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
+            Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
         }
     }
 
@@ -301,11 +346,22 @@ class UserProfile : AppCompatActivity() {
             myGamesList = List(gamesArray.length()) { index ->
                 val gameObject = gamesArray.getJSONObject(index)
                 Log.d("MyGamesList", "Parsing game: ${gameObject.getString("gameName")}, Icon URL: ${gameObject.getString("gameIcon")}")
+
+                // Assuming graphData is coming from the server as a List of objects
+                val graphDataArray = gameObject.getJSONArray("graphData")
+                val graphData = List(graphDataArray.length()) { gIndex ->
+                    val dataPoint = graphDataArray.getJSONObject(gIndex)
+                    val date = dataPoint.getString("date") // Get date
+                    val totalHours = dataPoint.getDouble("totalHours") // Get total hours
+                    Pair(date, totalHours)
+                }
+
+                // Create AnalyticsData object
                 AnalyticsData(
                     gameName = gameObject.getString("gameName"),
-                    totalHours = gameObject.getInt("totalHours"),
+                    totalHours = gameObject.getDouble("totalHours"), // Assuming totalHours is a double
                     iconResId = gameObject.getString("gameIcon"),
-                    graphData = emptyList()
+                    graphData = graphData // Assign the graph data
                 )
             }
 
@@ -364,6 +420,7 @@ class UserProfile : AppCompatActivity() {
                 override fun onCancelled(error: DatabaseError) {
               //      Toast.makeText(this@UserProfile, "Failed to load user details: ${error.message}", Toast.LENGTH_SHORT).show()
                     Log.e("EditUserProfile", "Database error: ${error.message}")
+                    loadUserDataFromSharedPreferences()
                 }
             })
         }
@@ -447,7 +504,7 @@ class UserProfile : AppCompatActivity() {
 
     private fun fetchUserStories() {
         val userId = auth.currentUser?.uid
-        val url = "${Constants.SERVER_URL}stories/user/$userId/fetchStory"
+        val url = "${Constants.SERVER_URL}stories/user/$userId/fetchStoryHighlights"
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
             url,
@@ -662,6 +719,20 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
+    private fun saveLocationToSharedPreferences(city: String, country: String) {
+        with(sharedPreferences6.edit()) {
+            putString("city", city)
+            putString("country", country)
+            apply()
+        }
+    }
+
+    private fun loadLocationFromSharedPreferences(): Pair<String?, String?> {
+        val city = sharedPreferences6.getString("city", null)
+        val country = sharedPreferences6.getString("country", null)
+        return Pair(city, country)
+    }
+
     private fun loadPostsFromSharedPreferences() {
         val postsJson = sharedPreferences3.getString("postsList", null)
         if (postsJson != null) {
@@ -687,8 +758,6 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
-
-
     override fun onResume() {
         super.onResume()
         if(activity=="EditProfile")
@@ -713,6 +782,7 @@ class UserProfile : AppCompatActivity() {
     private val broadcastReceiver2 = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             fetchUserStories()
+            checkRecentStories(auth.currentUser?.uid ?: "", storyRing)
         }
     }
 
@@ -722,6 +792,236 @@ class UserProfile : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver2)
     }
 
+    private fun checkLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun showLocationPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Location Permission Required")
+            .setMessage("For improved user experience, this app requires user's location. Please allow the app to discover user's location.")
+            .setPositiveButton("Allow") { _, _ ->
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    LOCATION_PERMISSION_REQUEST_CODE
+                )
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun getUserLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+                location?.let {
+                    val latitude = it.latitude
+                    val longitude = it.longitude
+
+                    getCityAndCountry(latitude, longitude)
+                } ?: run {
+                   // Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+             //   Toast.makeText(this, "Failed to get location: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun getCityAndCountry(latitude: Double, longitude: Double) {
+        val geocoder = Geocoder(this, Locale.getDefault())
+        try {
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            if (addresses != null) {
+                if (addresses.isNotEmpty()) {
+                    val city = addresses[0].locality
+                    val country = addresses[0].countryName
+                    val (previousCity, previousCountry) = loadLocationFromSharedPreferences()
+
+                    if (city != previousCity || country != previousCountry) {
+                        updateUserLocation(city, country)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting city and country: ${e.message}")
+        }
+    }
+
+    // Handle the result of the permission request
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getUserLocation()
+            } else {
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun updateUserLocation(city: String?, country: String?) {
+        val url="${Constants.SERVER_URL}userLocation/user/${auth.currentUser?.uid}/updateLocation"
+        val requestBody = JSONObject().apply {
+            put("city", city)
+            put("country", country)
+        }
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.POST,
+            url,
+            requestBody,
+            { _ ->
+                saveLocationToSharedPreferences(city ?: "", country ?: "")
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error updating user location: ${error.message}")
+            }
+        )
+
+        requestQueue.add(jsonObjectRequest)
+    }
+
+
+    private fun onProfilePictureClick() {
+        val userId = auth.currentUser?.uid ?: return
+        fetchUserStory(userId)
+    }
+
+    private fun fetchUserStory(userId: String) {
+        val url = "${Constants.SERVER_URL}stories/user/$userId/fetchRecentStories"
+
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                try {
+                    val storiesList = mutableListOf<StoryWithTimeAgo>()
+                    for (i in 0 until response.length()) {
+                        val storyJson = response.getJSONObject(i)
+                        val storyId = storyJson.getInt("id")
+                        val mediaUrl = storyJson.getString("media_url")
+                        val duration = storyJson.getInt("duration")
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
+                        val draggableTexts = storyJson.optJSONArray("draggable_texts")
+                        val createdAt = storyJson.getString("created_at")  // Fetch created_at timestamp
+
+                        // Create the Story object
+                        val story = Story(
+                            id = storyId,
+                            mediaUrl = mediaUrl,
+                            duration = duration,
+                            trimmedAudioUrl = trimmedAudioUrl,
+                            draggableTexts = draggableTexts
+                        )
+
+                        // Calculate "hours ago"
+                        val hoursAgo = calculateHoursAgo(createdAt)
+
+                        // Create StoryWithTimeAgo object
+                        val storyWithTimeAgo = StoryWithTimeAgo(story, hoursAgo)
+                        storiesList.add(storyWithTimeAgo)
+                    }
+
+                    // Show or hide the story ring based on the presence of valid stories
+                    if (storiesList.isNotEmpty()) {
+                        // Show the story ring
+                        findViewById<ImageView>(R.id.storyRing).visibility = View.VISIBLE
+
+                        // Launch StoryViewActivity if there are stories
+                        val intent = Intent(this, StoryViewActivity::class.java).apply {
+                            putParcelableArrayListExtra("storiesList", ArrayList(storiesList))
+                            putExtra("currentIndex", 0)
+                        }
+                        startActivity(intent)
+                    } else {
+                        // Hide the story ring if there are no stories
+                        findViewById<ImageView>(R.id.storyRing).visibility = View.GONE
+
+                        // Handle case for no stories, e.g., navigate to a profile picture view
+                        navigateToFullProfilePicture()
+                    }
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    // Optionally handle error display to the user
+                }
+            },
+            { error ->
+                error.printStackTrace()
+                // Optionally handle error display to the user
+            }
+        )
+
+        requestQueue.add(jsonArrayRequest)
+    }
+
+    private fun calculateHoursAgo(createdAt: String): Long {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+        val createdDate = dateFormat.parse(createdAt)
+
+        // Get the current time
+        val currentTime = System.currentTimeMillis()
+
+        // Calculate the difference in milliseconds
+        val differenceInMillis = currentTime - createdDate.time
+
+        // Convert milliseconds to hours
+        return TimeUnit.MILLISECONDS.toHours(differenceInMillis)
+    }
+
+
+    private fun navigateToFullProfilePicture() {
+        val user = auth.currentUser
+        val profilePictureUrl = sharedPreferences5.getString("profilePicture", null)
+        val intent = Intent(this, ProfilePictureActivity::class.java).apply {
+            putExtra("profilePictureUrl", profilePictureUrl)
+        }
+        startActivity(intent)
+    }
+
+    fun checkRecentStories(userId: String, storyRing: ImageView) {
+        val url = "${Constants.SERVER_URL}stories/user/$userId/hasRecentStory"
+
+        // Create a JsonObjectRequest to make the network call
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                // Assuming the response is a JSON object containing a boolean field 'hasRecentStory'
+                val hasRecentStory = response.getBoolean("hasRecentStory")
+                if (hasRecentStory) {
+                    // User has recent stories, make the ring visible
+                    storyRing.visibility = View.VISIBLE
+                } else {
+                    // No recent stories, keep the ring hidden
+                    storyRing.visibility = View.GONE
+                }
+            },
+            { error ->
+                // Handle error
+                error.printStackTrace()
+                // Hide ring on error as well
+                storyRing.visibility = View.GONE
+            }
+        )
+
+        // Add the request to the RequestQueue
+        Volley.newRequestQueue(storyRing.context).add(jsonObjectRequest)
+    }
 }
 
 

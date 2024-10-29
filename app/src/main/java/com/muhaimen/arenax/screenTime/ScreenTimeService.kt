@@ -20,41 +20,41 @@ import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.GameStats
+import com.muhaimen.arenax.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONArray
 import org.json.JSONObject
+import java.util.*
 
 class ScreenTimeService : Service() {
     private val CHANNEL_ID = "ScreenTimeServiceChannel"
     private lateinit var auth: FirebaseAuth
-    private var userGames: List<GameStats> = emptyList()
     private lateinit var queue: RequestQueue
     private lateinit var usageStatsManager: UsageStatsManager
     private lateinit var handler: Handler
     private var usageCheckRunnable: Runnable? = null
-    private val accumulatedPlaytime = mutableMapOf<String, Long>()
-    private val hourlyPlaytime = mutableMapOf<String, Long>()
+    private var retryCount = 0
+    private val initialRetryDelay: Long = 60*10000 // Initial delay of 1 minute
+    private val maxRetryCount = 10 // Max number of retries
 
+    private val usageCheckInterval: Long = 60 * 1000 // Check every minute
+    private val sessionData = mutableMapOf<String, MutableList<Long>>() // Store session lengths per game
+    private var sessionCount = mutableMapOf<String, Int>() // Store session count per game
+    private val currentSessionStartTime = mutableMapOf<String, Long>() // Track current session start time
 
-    private val usageCheckInterval: Long = 60*1000
-    private val playtimeThreshold: Long = 60*1000
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
         startForeground(1, getNotification())
-        queue = Volley.newRequestQueue(this) // Initialize the RequestQueue
-        usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager // Initialize UsageStatsManager
-        handler = Handler() // Initialize Handler
+        queue = Volley.newRequestQueue(this)
+        usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        handler = Handler()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        CoroutineScope(Dispatchers.IO).launch {
-            auth = FirebaseAuth.getInstance()
-            val userId = auth.currentUser?.uid ?: ""
-            fetchUserGames(userId)
-        }
+        auth = FirebaseAuth.getInstance()
+        startUsageCheck()
         return START_STICKY
     }
 
@@ -68,7 +68,7 @@ class ScreenTimeService : Service() {
             .setContentTitle("Screen Time Tracker")
             .setContentText("Tracking screen time...")
             .setSmallIcon(R.mipmap.appicon2)
-            .setPriority(Notification.PRIORITY_HIGH) // Set priority for visibility on newer devices
+            .setPriority(Notification.PRIORITY_HIGH)
             .build()
     }
 
@@ -84,79 +84,19 @@ class ScreenTimeService : Service() {
         }
     }
 
-    private fun fetchUserGames(userId: String) {
-        val url = "http://192.168.100.6:3000/usergames/user/$userId/mygames"
-
-        val jsonObjectRequest = object : JsonObjectRequest(
-            Method.GET,
-            url,
-            null,
-            Response.Listener { response ->
-                val gamesArray = response.optJSONArray("games") ?: JSONArray()
-
-                // Populate userGames with GameStats objects
-                userGames = List(gamesArray.length()) { index ->
-                    val gameObject = gamesArray.getJSONObject(index)
-                    GameStats(
-                        userGameId = gameObject.getInt("gameId"),
-                        gameName = gameObject.getString("gameName"),
-                        packageName = gameObject.getString("packageName"),
-                        logoUrl = gameObject.getString("gameIcon"),
-                        totalHours = gameObject.getInt("totalHours"),
-                        avgPlaytime = 0, // Default value
-                        peakPlaytime = 0 // Default value
-                    )
-                }
-
-                Log.d("GameStatsRepository", "Fetched user games: $userGames")
-
-                // Call to track screen time
-                if (userGames.isNotEmpty()) {
-                    trackScreenTime(userGames)
-                } else {
-                    Log.d("ScreenTimeService", "No games found for user: $userId")
-                }
-            },
-            Response.ErrorListener { error ->
-                Log.e("GameStatsRepository", "Error fetching user games: ${error.message}")
-            }
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                return hashMapOf("Content-Type" to "application/json")
-            }
-        }
-
-        queue.add(jsonObjectRequest)
-    }
-
-    private fun trackScreenTime(matchedGames: List<GameStats>) {
-        // Start the periodic usage check
-        startUsageCheck(matchedGames)
-    }
-
-    private fun startUsageCheck(matchedGames: List<GameStats>) {
+    private fun startUsageCheck() {
         usageCheckRunnable = object : Runnable {
             override fun run() {
-                matchedGames.forEach { game ->
-                    checkAppUsage(game.packageName)
-                }
-                handler.postDelayed(this, usageCheckInterval) // Schedule the next check
+                checkAppUsage()
+                handler.postDelayed(this, usageCheckInterval)
             }
         }
-        handler.post(usageCheckRunnable as Runnable) // Start the runnable
+        handler.post(usageCheckRunnable as Runnable)
     }
 
-    private fun checkAppUsage(packageName: String?) {
-        // Ensure packageName is not null before proceeding
-        if (packageName == null) {
-            Log.d("GameStatsRepository", "Package name is null, skipping...")
-            return // Exit the method if packageName is null
-        }
-
+    private fun checkAppUsage() {
         val endTime = System.currentTimeMillis()
         val startTime = endTime - usageCheckInterval
-
-        Log.d("GameStatsRepository", "Checking usage for $packageName from $startTime to $endTime")
 
         val usageStatsList = usageStatsManager.queryUsageStats(
             UsageStatsManager.INTERVAL_DAILY,
@@ -164,80 +104,90 @@ class ScreenTimeService : Service() {
             endTime
         )
 
-        var totalTimeInForeground = 0L
-        var isCurrentlyRunning = false
-
         usageStatsList.forEach { usageStats ->
-            if (usageStats.packageName == packageName) {
-                totalTimeInForeground += usageStats.totalTimeInForeground // Accumulate total time
-                isCurrentlyRunning = true
-                Log.d("GameStatsRepository", "Package: $packageName, Time in foreground: $totalTimeInForeground ms")
-            }
-        }
+            val packageName = usageStats.packageName
+            val totalTimeInForeground = usageStats.totalTimeInForeground
 
-        if (isCurrentlyRunning) {
-            Log.d("GameStatsRepository", "App is currently running: $packageName")
+            if (totalTimeInForeground > 0) {
+                val currentSessionEndTime = System.currentTimeMillis()
+                if (!currentSessionStartTime.containsKey(packageName)) {
+                    // Start a new session
+                    currentSessionStartTime[packageName] = currentSessionEndTime
+                } else {
+                    // Existing session: check if it should end
+                    val sessionLength = currentSessionEndTime - currentSessionStartTime[packageName]!!
+                    sessionData.getOrPut(packageName) { mutableListOf() }.add(sessionLength)
+                    sessionCount[packageName] = sessionCount.getOrDefault(packageName, 0) + 1
 
-            // Get the previous accumulated playtime
-            val previousAccumulated = accumulatedPlaytime[packageName] ?: 0L
-            val hourlyAccumulated = hourlyPlaytime[packageName] ?: 0L
-
-            // Calculate the change in playtime
-            val changeInPlaytime = (totalTimeInForeground - previousAccumulated).coerceAtLeast(0) // Ensure no negative values
-
-            Log.d("GameStatsRepository", "Change in playtime for $packageName: $changeInPlaytime ms")
-
-            // Update the accumulated playtime and hourly playtime
-            accumulatedPlaytime[packageName] = totalTimeInForeground
-            hourlyPlaytime[packageName] = hourlyAccumulated + changeInPlaytime
-
-            // Send the change in playtime to the backend only if it exceeds the threshold
-            if (changeInPlaytime >= playtimeThreshold) {
-                sendPlaytimeToBackend(applicationContext, changeInPlaytime, packageName) // Use changeInPlaytime instead of playtime
-            } else {
-                Log.d("GameStatsRepository", "Playtime change for $packageName is below threshold, not sending to backend")
-            }
-
-        } else {
-            Log.d("GameStatsRepository", "App is not currently running: $packageName")
-        }
-    }
-
-    private fun resetHourlyPlaytime() {
-        // Reset the hourly playtime map at the end of the day
-        hourlyPlaytime.clear()
-    }
-
-    private fun sendPlaytimeToBackend(context: Context, playtime: Long, packageName: String) {
-        if (playtime > 0) {
-            val userId = auth.currentUser?.uid ?: return // Get userId here
-            val playtimeInMillis = playtime // Already in milliseconds
-
-            val jsonObject = JSONObject().apply {
-                put("game_package", packageName)
-                put("playtime", playtimeInMillis) // Sending updated playtime
-                put("user_id", userId)
-            }
-
-            val request = JsonObjectRequest(
-                Request.Method.POST,
-                "http://192.168.100.6:3000/analytics/user/$userId/userGameTracking",
-                jsonObject,
-                { response ->
-                    Log.d("GameStatsRepository", "Successfully sent playtime to backend: $response")
-                },
-                { error ->
-                    Log.e("GameStatsRepository", "Error sending playtime to backend: ${error.message}")
-                    error.printStackTrace() // Print stack trace for debugging
+                    // Reset the session start time for next session
+                    currentSessionStartTime[packageName] = currentSessionEndTime
                 }
-            )
+            }
+        }
 
-            // Add the request to the queue using the provided context
-            Volley.newRequestQueue(context).add(request)
-        } else {
-            Log.d("GameStatsRepository", "No playtime to send for $packageName")
+        // Send metrics to backend at the end of the day (8 AM to 8 AM)
+        val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        if (currentHour == 8 && Calendar.getInstance().get(Calendar.MINUTE) == 0) {
+            sendMetricsToBackend()
         }
     }
+
+
+    private fun sendMetricsToBackend() {
+        val userId = auth.currentUser?.uid ?: return
+        val gameMetrics = JSONObject().apply {
+            sessionData.forEach { (packageName, sessionLengths) ->
+                val totalPlaytimeMillis = sessionLengths.sum()
+                val averagePlaytimeMillis = sessionLengths.average()
+                val peakPlaytimeMillis = sessionLengths.maxOrNull()
+
+                put(packageName, JSONObject().apply {
+                    put("totalSessions", sessionCount[packageName])
+                    put("sessionLengths", sessionLengths.map { it / 3600000.0 })
+                    put("totalPlaytime", totalPlaytimeMillis / 3600000.0)
+                    put("averagePlaytime", averagePlaytimeMillis / 3600000.0)
+                    put("peakPlaytime", peakPlaytimeMillis?.div(3600000.0))
+                })
+            }
+        }
+
+        val jsonObject = JSONObject().apply {
+            put("user_id", userId)
+            put("game_metrics", gameMetrics)
+        }
+
+        val request = JsonObjectRequest(
+            Request.Method.POST,
+            "${Constants.SERVER_URL}gameMetrics/user/$userId/gamesSessionMetrics",
+            jsonObject,
+            { response ->
+                Log.d("ScreenTimeService", "Successfully sent metrics to backend: $response")
+                // Clear session data and retry count after successful send
+                sessionData.clear()
+                sessionCount.clear()
+                currentSessionStartTime.clear()
+                retryCount = 0
+            },
+            { error ->
+                Log.e("ScreenTimeService", "Error sending metrics to backend: ${error.message}")
+                scheduleRetry() // Schedule a retry if the request fails
+            }
+        )
+
+        queue.add(request)
+    }
+
+    private fun scheduleRetry() {
+        if (retryCount < maxRetryCount) {
+            retryCount++
+            val retryDelay = initialRetryDelay * retryCount
+            handler.postDelayed({ sendMetricsToBackend() }, retryDelay)
+            Log.d("ScreenTimeService", "Retrying in ${retryDelay / 1000} seconds (Attempt $retryCount)")
+        } else {
+            Log.e("ScreenTimeService", "Max retries reached. Failed to send metrics.")
+        }
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()

@@ -38,7 +38,9 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>) : Recyc
                 .placeholder(R.drawable.circle)
                 .error(R.drawable.back_icon_foreground)
                 .into(gameIcon)
+
             populateGraph(data.graphData)
+
             itemView.setOnClickListener {
                 val intent = Intent(itemView.context, ViewGameAnalytics::class.java).apply {
                     putExtra("GAME_NAME", data.gameName)
@@ -47,8 +49,13 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>) : Recyc
             }
         }
 
-        private fun populateGraph(hoursData: List<DataPoint>) {
-            val series = LineGraphSeries(hoursData.toTypedArray())
+        private fun populateGraph(graphData: List<Pair<String, Double>>) {
+            // Convert the List<Pair<String, Double>> to DataPoint[]
+            val dataPoints = graphData.mapIndexed { index, pair ->
+                DataPoint(index.toDouble(), pair.second) // Use index for X-axis and total hours for Y-axis
+            }.toTypedArray()
+
+            val series = LineGraphSeries(dataPoints)
             series.color = itemView.context.getColor(R.color.primaryColor)
             series.isDrawDataPoints = false
             series.dataPointsRadius = 5f
@@ -64,7 +71,6 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>) : Recyc
             graphView.gridLabelRenderer.isVerticalLabelsVisible = false
             graphView.gridLabelRenderer.gridColor = Color.TRANSPARENT // Remove grid color
 
-
             // Show only X and Y axes
             graphView.gridLabelRenderer.setGridStyle(GridLabelRenderer.GridStyle.BOTH) // Show both axes
             graphView.gridLabelRenderer.horizontalAxisTitle = "" // Remove horizontal axis title
@@ -75,15 +81,14 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>) : Recyc
             graphView.viewport.isYAxisBoundsManual = true
 
             // Set manual bounds for the viewport
-            val maxX = hoursData.size.toDouble()
+            val maxX = dataPoints.size.toDouble()
             graphView.viewport.setMinX(maxX - 4.0)  // Display the last 4 points
             graphView.viewport.setMaxX(maxX)
             graphView.viewport.setMinY(0.0)
-            graphView.viewport.setMaxY(100.0) // Adjust this according to your data
+            graphView.viewport.setMaxY(dataPoints.maxOfOrNull { it.y } ?: 100.0) // Adjust according to your data
         }
-
-
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnalyticsViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.analytics_card, parent, false)
@@ -112,5 +117,4 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>) : Recyc
             else -> "https:$url" // Prepend with https if it starts with //
         }
     }
-
 }

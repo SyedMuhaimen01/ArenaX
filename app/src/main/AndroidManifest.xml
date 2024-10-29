@@ -6,6 +6,8 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -48,6 +50,16 @@
         <activity
             android:name=".userFeed.UserFeed"
             android:exported="false" />
+
+            android:name=".userProfile.ProfilePictureActivity"
+            android:exported="false" />
+        <activity
+            android:name=".userProfile.StoryViewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".userProfile.otherUserProfile"
+            android:exported="false" />
+
         <activity
             android:name=".uploadContent.ViewPost"
             android:exported="false" />
@@ -61,7 +73,9 @@
         <service
             android:name=".screenTime.ScreenTimeService"
             android:foregroundServiceType="dataSync"
-            tools:ignore="ForegroundServicePermission" />
+            tools:ignore="ForegroundServicePermission"
+            android:enabled="true"
+            android:exported="true"/>
 
         <activity
             android:name=".uploadStory.uploadStory"
@@ -83,9 +97,6 @@
             android:exported="false" />
         <activity
             android:name=".gamesDashboard.gamesList"
-            android:exported="false" />
-        <activity
-            android:name=".settings.settingsScreen"
             android:exported="false" />
         <activity
             android:name=".editProfile.editProfile"
