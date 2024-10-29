@@ -51,6 +51,7 @@
             android:name=".userFeed.UserFeed"
             android:exported="false" />
 
+        <activity
             android:name=".userProfile.ProfilePictureActivity"
             android:exported="false" />
         <activity
