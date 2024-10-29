@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".synergy.synergy">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="UselessLeaf">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/synergyRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>
+    <!-- Bottom Navigation -->
+    <LinearLayout
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/backgroundColor"
+        >
+
+        <!-- Home Button -->
+        <ImageButton
+            android:id="@+id/home"
+            android:src="@drawable/home_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1"
+            tools:ignore="ContentDescription" />
+
+        <!-- MyGames Button -->
+        <ImageButton
+            android:id="@+id/myGamesButton"
+            android:src="@drawable/game_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1"
+            tools:ignore="ContentDescription" />
+
+        <!-- Synergy Button -->
+        <ImageButton
+            android:id="@+id/synergyButton"
+            android:src="@drawable/synergy_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1"
+            tools:ignore="ContentDescription" />
+        <!-- Add Post Button -->
+        <ImageButton
+            android:id="@+id/addPostButton"
+            android:src="@drawable/post_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1"
+            tools:ignore="ContentDescription" />
+        <!-- TalentXchange Button -->
+        <ImageButton
+            android:id="@+id/talentXchangeButton"
+            android:src="@mipmap/talent_exchange_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1"
+            tools:ignore="ContentDescription" />
+
+        <!-- Battleground Button -->
+        <ImageButton
+            android:id="@+id/battlegroundButton"
+            android:src="@mipmap/battlegrounds_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1"
+            tools:ignore="ContentDescription" />
+
+
+        <!-- Add Profile Button -->
+        <ImageButton
+            android:id="@+id/profileButton"
+            android:src="@drawable/profile_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1"
+            tools:ignore="ContentDescription" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

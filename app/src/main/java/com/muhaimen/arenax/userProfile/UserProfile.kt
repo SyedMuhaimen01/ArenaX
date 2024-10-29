@@ -54,6 +54,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
+import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
 import com.muhaimen.arenax.screenTime.ScreenTimeService
 import com.muhaimen.arenax.utils.Constants
@@ -78,7 +79,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var highlightsRecyclerView: RecyclerView
     private lateinit var highlightsAdapter: highlightsAdapter
-    private lateinit var synergyButton:ImageButton
+    private lateinit var exploreButton:ImageButton
     private lateinit var postsCount:TextView
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: PostsAdapter
@@ -200,6 +201,12 @@ class UserProfile : AppCompatActivity() {
         addPost= findViewById(R.id.addPostButton)
         addPost.setOnClickListener {
             val intent = Intent(this, UploadContent::class.java)
+            startActivity(intent)
+        }
+
+        exploreButton= findViewById(R.id.exploreButton)
+        exploreButton.setOnClickListener {
+            val intent = Intent(this, ExplorePage::class.java)
             startActivity(intent)
         }
 

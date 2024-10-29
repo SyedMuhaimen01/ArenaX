@@ -409,8 +409,8 @@
 
     <!-- Synergy Button -->
     <ImageButton
-        android:id="@+id/synergyButton"
-        android:src="@drawable/synergy_icon_foreground"
+        android:id="@+id/exploreButton"
+        android:src="@drawable/search_black_icon_foreground"
         android:layout_width="@dimen/_40sdp"
         android:layout_height="@dimen/_40sdp"
         android:scaleType="centerInside"
