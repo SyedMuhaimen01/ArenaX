@@ -95,7 +95,7 @@ class uploadStory : AppCompatActivity() {
     private var isPlaying = false
     private var startTime: Int = 0
     private var endTime: Int = 0
-    val fixedDuration=15
+    val fixedDuration=15000 //15 seconds
     private var mediaUri: Uri? = null
     private var trimmedAudioUrl:String?=null
     private lateinit var draggableContainers: MutableList<FrameLayout>
@@ -377,7 +377,7 @@ class uploadStory : AppCompatActivity() {
             // Get the list of draggable texts
             val draggableTexts = getDraggableTextContent()
             val mediaUrl = mediaUri.toString()
-            val duration = 24 * 60 * 60 // 24 hours
+            val duration = fixedDuration
 
             val storyJson = JSONObject().apply {
                 put("userId", userData.userId)

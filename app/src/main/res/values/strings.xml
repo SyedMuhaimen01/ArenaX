@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">ArenaX</string>
     <string name="default_web_client_id">258797999918-7e31ift32pefnc518bl6o6e6427pbv8s.apps.googleusercontent.com</string>
+    <string name="profile_picture">Profile Picture</string>
+
 </resources>
