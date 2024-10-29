@@ -62,17 +62,7 @@ import com.muhaimen.arenax.dataClasses.StoryWithTimeAgo
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.editProfile.editProfile
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
-import com.muhaimen.arenax.uploadContent.UploadContent
-import android.provider.Settings
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.android.volley.Request
-import com.android.volley.RequestQueue
-import com.android.volley.VolleyError
-import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
-import com.muhaimen.arenax.dataClasses.Post
-import com.muhaimen.arenax.dataClasses.Story
+
 import com.muhaimen.arenax.explore.ExplorePage
 
 import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
