@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".userProfile.otherUserProfile">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="UnknownId"
+        android:background="@color/backgroundColor"
+        android:scrollbars="none">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <!-- Profile Picture and Follow Info -->
+            <LinearLayout
+                android:id="@+id/profileHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/profilePicture"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:scaleType="centerCrop"
+                    android:backgroundTint="@color/textColor"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/circle"
+                    android:clipToOutline="true" />
+
+
+
+
+                <LinearLayout
+                    android:layout_marginLeft="-10dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    tools:ignore="DisableBaselineAlignment">
+
+                    <!-- Posts Count -->
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/postsCount"
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColor"
+                            />
+
+                        <TextView
+                            android:text="Posts"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColor"/>
+                    </LinearLayout>
+
+                    <!-- SynerG Count -->
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColor"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:text="SynerG"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColor"/>
+                    </LinearLayout>
+
+                    <!-- Followers Count -->
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColor"/>
+
+                        <TextView
+                            android:text="Followers"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColor"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Name and Handle -->
+            <LinearLayout
+                android:id="@+id/nameCredentials"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/userName"
+                    android:text="Syed Muhaimen"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_16ssp"
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/textColor"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_25sdp"
+                    android:orientation="horizontal"
+                    android:background="@drawable/gamertag_background"
+                    android:weightSum="1"
+                    >
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:weightSum="1"
+                        android:paddingLeft="@dimen/_10sdp">
+                        <TextView
+                            android:id="@+id/gamerTag"
+                            android:text="mYm XEROXXX"
+                            android:textSize="@dimen/_12ssp"
+                            android:textStyle="bold"
+                            android:textColor="@color/backgroundColor"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.75"
+                            android:paddingEnd="@dimen/_10sdp"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            />
+
+                        <TextView
+                            android:id="@+id/rankTextView"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="Rank: 010000"
+                            android:textStyle="bold"
+                            android:textSize="@dimen/_12sdp"
+                            android:gravity="left"
+                            android:textColor="@color/backgroundColor"
+                            android:layout_gravity="end"
+                            android:layout_weight="0.25"
+                            android:maxLines="1"
+                            />
+
+                        <ImageButton
+
+                            android:id="@+id/leaderboardButton"
+                            android:layout_width="@dimen/_20sdp"
+                            android:layout_height="@dimen/_20sdp"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/arrow_right_icon_foreground"
+                            android:background="@drawable/arrow_right_icon_foreground"
+                            android:layout_gravity="end"
+                            android:layout_weight="0.1"
+                            />
+                    </LinearLayout>
+                </LinearLayout>
+
+
+            </LinearLayout>
+            <!-- Bio Section -->
+            <LinearLayout
+                android:id="@+id/bioSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/_2sdp">
+
+                <TextView
+                    android:id="@+id/bioText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    android:text="This is a sample bio..."
+                    android:textColor="@color/textColor"
+                    android:textSize="@dimen/_11ssp" />
+
+                <!-- Show More -->
+                <TextView
+                    android:id="@+id/showMore"
+                    android:text="See More"
+                    android:textSize="@dimen/_10ssp"
+                    android:textColor="#007AFF"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- Settings Buttons -->
+            <LinearLayout
+                android:id="@+id/settingsBoard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <Button
+                    android:id="@+id/editProfileButton"
+                    android:text="Edit Profile"
+                    android:layout_width="@dimen/_15sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:textAlignment="center"
+                    android:textSize="@dimen/_9sdp"
+                    android:layout_weight="1"
+                    android:textColor="@color/textColor"
+                    android:backgroundTint="@color/secondaryColor"
+                    android:background="@drawable/curved_rectangle"
+                    android:layout_marginEnd="@dimen/_8sdp" />
+
+                <Button
+                    android:id="@+id/settingsButton"
+                    android:text="Settings"
+                    android:layout_width="@dimen/_15sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:textAlignment="center"
+                    android:textSize="@dimen/_9sdp"
+                    android:layout_weight="1"
+                    android:textColor="@color/textColor"
+                    android:backgroundTint="@color/secondaryColor"
+                    android:background="@drawable/curved_rectangle"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    tools:ignore="HardcodedText" />
+
+                <ImageButton
+                    android:src="@drawable/share_icon_foreground"
+                    android:layout_width="@dimen/_24sdp"
+                    android:layout_height="@dimen/_22sdp"
+                    android:scaleType="centerInside"
+                    android:adjustViewBounds="true"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:backgroundTint="@color/secondaryColor"
+                    android:background="?android:selectableItemBackgroundBorderless" />
+
+            </LinearLayout>
+            <!-- Analytics Section -->
+            <LinearLayout
+                android:id="@+id/analyticsBoard"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_130sdp"
+                android:orientation="vertical"
+                android:background="@drawable/inputholder"
+                android:backgroundTint="@color/LogoBackground"
+                android:layout_marginTop="@dimen/_10sdp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="3">
+                    <TextView
+                        android:text="Games Dashboard"
+                        android:textSize="@dimen/_12sdp"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/backgroundColor"
+                        android:layout_gravity="start"
+                        android:layout_weight="2"/>
+
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/analytics_recyclerview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+
+                </androidx.recyclerview.widget.RecyclerView>
+
+            </LinearLayout>
+
+            <!-- Highlights -->
+            <LinearLayout
+                android:id="@+id/highlightsBox"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_85sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:orientation="vertical"
+                >
+                <TextView
+                    android:text="Highlights"
+                    android:textSize="@dimen/_12sdp"
+                    android:textStyle="bold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/textColor"
+                    tools:ignore="HardcodedText,InefficientWeight" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/highlights_recyclerview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+
+                </androidx.recyclerview.widget.RecyclerView>
+
+            </LinearLayout>
+
+            <!-- Posts -->
+            <LinearLayout
+                android:id="@+id/postsBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:text="Posts"
+                    android:textSize="@dimen/_12sdp"
+                    android:textStyle="bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/textColor"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/posts_recyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                </androidx.recyclerview.widget.RecyclerView>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+    <!-- Bottom Navigation -->
+    <LinearLayout
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/backgroundColor"
+        >
+
+        <!-- Home Button -->
+        <ImageButton
+            android:id="@+id/home"
+            android:src="@drawable/home_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1"/>
+
+        <!-- MyGames Button -->
+        <ImageButton
+            android:id="@+id/myGamesButton"
+            android:src="@drawable/game_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1" />
+
+        <!-- Synergy Button -->
+        <ImageButton
+            android:id="@+id/synergyButton"
+            android:src="@drawable/synergy_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1" />
+        <!-- Add Post Button -->
+        <ImageButton
+            android:id="@+id/addPostButton"
+            android:src="@drawable/post_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1" />
+        <!-- TalentXchange Button -->
+        <ImageButton
+            android:id="@+id/talentXchangeButton"
+            android:src="@mipmap/talent_exchange_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1" />
+
+        <!-- Battleground Button -->
+        <ImageButton
+            android:id="@+id/battlegroundButton"
+            android:src="@mipmap/battlegrounds_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1" />
+
+
+        <!-- Add Profile Button -->
+        <ImageButton
+            android:id="@+id/profileButton"
+            android:src="@drawable/profile_icon_foreground"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@color/secondaryColor"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
