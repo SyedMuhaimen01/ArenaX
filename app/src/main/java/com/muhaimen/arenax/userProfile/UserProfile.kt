@@ -62,6 +62,19 @@ import com.muhaimen.arenax.dataClasses.StoryWithTimeAgo
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.editProfile.editProfile
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
+import com.muhaimen.arenax.uploadContent.UploadContent
+import android.provider.Settings
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import com.muhaimen.arenax.dataClasses.Post
+import com.muhaimen.arenax.dataClasses.Story
+import com.muhaimen.arenax.explore.ExplorePage
+
 import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.screenTime.ScreenTimeService
@@ -94,7 +107,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var highlightsRecyclerView: RecyclerView
     private lateinit var highlightsAdapter: highlightsAdapter
-    private lateinit var synergyButton:ImageButton
+    private lateinit var exploreButton:ImageButton
     private lateinit var postsCount:TextView
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: PostsAdapter
@@ -222,6 +235,12 @@ class UserProfile : AppCompatActivity() {
         addPost= findViewById(R.id.addPostButton)
         addPost.setOnClickListener {
             val intent = Intent(this, UploadContent::class.java)
+            startActivity(intent)
+        }
+
+        exploreButton= findViewById(R.id.exploreButton)
+        exploreButton.setOnClickListener {
+            val intent = Intent(this, ExplorePage::class.java)
             startActivity(intent)
         }
 

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/_100sdp"
+    android:orientation="horizontal"
+    tools:ignore="DisableBaselineAlignment,MissingConstraints"
+    android:background="@color/backgroundColor"
+    android:weightSum="3">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        tools:ignore="Suspicious0dp,UselessLeaf"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/profilePicture"
+            android:layout_width="@dimen/_70sdp"
+            android:layout_height="@dimen/_70sdp"
+            android:background="@drawable/circle"
+            tools:ignore="ContentDescription"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_gravity="center"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        tools:ignore="Suspicious0dp,UselessLeaf"
+        android:layout_weight="2"
+        android:orientation="vertical">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="UselessParent">
+    <TextView
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="username"
+        android:textColor="@color/textColor"
+        android:textSize="@dimen/_16sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        tools:ignore="HardcodedText" />
+</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/_20sdp">
+
+            <Button
+                android:id="@+id/cancelButton"
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:textAlignment="center"
+                android:gravity="center"
+                android:textSize="@dimen/_12sdp"
+                android:text="Accept"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:background="@drawable/buttonholder"
+                tools:ignore="ButtonStyle,HardcodedText" />
+
+            <Button
+                android:id="@+id/rescheduleButton"
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:textSize="@dimen/_12sdp"
+                android:text="Reject"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:background="@drawable/buttonholder"
+                android:layout_marginStart="@dimen/_10sdp"
+                tools:ignore="ButtonStyle,HardcodedText" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

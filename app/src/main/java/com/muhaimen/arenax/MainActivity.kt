@@ -12,6 +12,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.muhaimen.arenax.LoginSignUp.LoginScreen
 import com.muhaimen.arenax.LoginSignUp.PersonalInfoActivity
 import com.muhaimen.arenax.LoginSignUp.RegisterActivity
+import com.muhaimen.arenax.explore.ExplorePage
+import com.muhaimen.arenax.userFeed.UserFeed
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.FirebaseManager
 
