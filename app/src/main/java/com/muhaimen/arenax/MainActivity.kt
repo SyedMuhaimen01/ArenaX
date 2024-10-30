@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                 checkEmailVerificationAndNavigate()
             }
         } else {
-            navigateToLoginActivity() //if user is not registered , navigate to Register activity
+            navigateToLoginActivity()
         }
     }
 

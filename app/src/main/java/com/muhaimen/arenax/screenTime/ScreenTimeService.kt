@@ -19,7 +19,6 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.dataClasses.GameStats
 import com.muhaimen.arenax.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,11 +33,10 @@ class ScreenTimeService : Service() {
     private lateinit var usageStatsManager: UsageStatsManager
     private lateinit var handler: Handler
     private var usageCheckRunnable: Runnable? = null
-    private var retryCount = 0
-    private val initialRetryDelay: Long = 60*10000 // Initial delay of 1 minute
-    private val maxRetryCount = 10 // Max number of retries
+    private val retryInterval: Long = 30 * 60 * 1000 // 30 minutes in milliseconds
+    private val usageCheckInterval: Long = 60 * 1000 // 1 minute in milliseconds
+    private var dataSentToday = false // Flag to track daily data send
 
-    private val usageCheckInterval: Long = 60 * 1000 // Check every minute
     private val sessionData = mutableMapOf<String, MutableList<Long>>() // Store session lengths per game
     private var sessionCount = mutableMapOf<String, Int>() // Store session count per game
     private val currentSessionStartTime = mutableMapOf<String, Long>() // Track current session start time
@@ -119,19 +117,19 @@ class ScreenTimeService : Service() {
                     sessionData.getOrPut(packageName) { mutableListOf() }.add(sessionLength)
                     sessionCount[packageName] = sessionCount.getOrDefault(packageName, 0) + 1
 
-                    // Reset the session start time for next session
+                    // Reset the session start time for the next session
                     currentSessionStartTime[packageName] = currentSessionEndTime
                 }
             }
         }
 
-        // Send metrics to backend at the end of the day (8 AM to 8 AM)
+        // Send metrics to backend at 8 AM if not already sent today
         val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-        if (currentHour == 8 && Calendar.getInstance().get(Calendar.MINUTE) == 0) {
+        val currentMinute = Calendar.getInstance().get(Calendar.MINUTE)
+        if (currentHour == 8 && currentMinute == 0 && !dataSentToday) {
             sendMetricsToBackend()
         }
     }
-
 
     private fun sendMetricsToBackend() {
         val userId = auth.currentUser?.uid ?: return
@@ -162,15 +160,16 @@ class ScreenTimeService : Service() {
             jsonObject,
             { response ->
                 Log.d("ScreenTimeService", "Successfully sent metrics to backend: $response")
-                // Clear session data and retry count after successful send
+                dataSentToday = true
                 sessionData.clear()
                 sessionCount.clear()
                 currentSessionStartTime.clear()
-                retryCount = 0
             },
             { error ->
                 Log.e("ScreenTimeService", "Error sending metrics to backend: ${error.message}")
-                scheduleRetry() // Schedule a retry if the request fails
+                if (!dataSentToday) {
+                    scheduleRetry()
+                }
             }
         )
 
@@ -178,16 +177,9 @@ class ScreenTimeService : Service() {
     }
 
     private fun scheduleRetry() {
-        if (retryCount < maxRetryCount) {
-            retryCount++
-            val retryDelay = initialRetryDelay * retryCount
-            handler.postDelayed({ sendMetricsToBackend() }, retryDelay)
-            Log.d("ScreenTimeService", "Retrying in ${retryDelay / 1000} seconds (Attempt $retryCount)")
-        } else {
-            Log.e("ScreenTimeService", "Max retries reached. Failed to send metrics.")
-        }
+        handler.postDelayed({ sendMetricsToBackend() }, retryInterval)
+        Log.d("ScreenTimeService", "Retrying in ${retryInterval / 60000} minutes")
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

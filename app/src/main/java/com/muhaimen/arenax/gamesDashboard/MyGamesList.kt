@@ -1,7 +1,9 @@
 package com.muhaimen.arenax.gamesDashboard
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -19,6 +21,8 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userProfile.UserProfile
@@ -35,10 +39,11 @@ class MyGamesList : AppCompatActivity() {
     private lateinit var postButton:ImageButton
     private lateinit var profileButton:ImageButton
     private lateinit var addGame: ImageButton
-    private lateinit var refreshButton: Button
     lateinit var backButton: ImageButton
     private lateinit var auth: FirebaseAuth
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private val client = OkHttpClient()
+    private var isGameAdded = false
     private val sharedPreferences by lazy { getSharedPreferences("MyGamesPrefs", Context.MODE_PRIVATE) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +62,7 @@ class MyGamesList : AppCompatActivity() {
         gamesSearchBar = findViewById(R.id.searchbar)
         addGame = findViewById(R.id.addGame)
         backButton = findViewById(R.id.backButton)
-        refreshButton = findViewById(R.id.refreshButton)
+
         myGamesListRecyclerView = findViewById(R.id.myGamesListRecyclerView)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -76,6 +81,13 @@ class MyGamesList : AppCompatActivity() {
         myGamesListAdapter = MyGamesListAdapter(emptyList())
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
+        swipeRefreshLayout.setColorSchemeResources(R.color.white)
+        swipeRefreshLayout.setOnRefreshListener {
+            fetchUserGames()
+            swipeRefreshLayout.isRefreshing = false
+        }
 
         loadGamesFromPreferences()
 
@@ -87,10 +99,6 @@ class MyGamesList : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Set up the refresh button's click listener
-        refreshButton.setOnClickListener {
-            showRefreshDialog()
-        }
 
         addGame.setOnClickListener {
             val intent = Intent(this, gamesList::class.java)
@@ -100,7 +108,28 @@ class MyGamesList : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        loadGamesFromPreferences()
+        Log.e("MyGamesList", "onResume called ")
+        isGameAdded = false
+        val filter = IntentFilter("NEW_GAME_ADDED")
+        LocalBroadcastManager.getInstance(this).registerReceiver(gameBroadcastReceiver, filter)
+        if (!isGameAdded) {
+            loadGamesFromPreferences()
+        }
+    }
+
+
+    private val gameBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.e("BroadcastReceiver", "Game added broadcast received")
+            isGameAdded = true
+            fetchUserGames()
+        }
+    }
+
+
+    override fun onPause() {
+        super.onPause()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(gameBroadcastReceiver)
     }
 
     private fun loadGamesFromPreferences() {
@@ -137,7 +166,6 @@ class MyGamesList : AppCompatActivity() {
                     }
                 } else {
                     runOnUiThread {
-                        // Uncomment the next line to show a toast message on error
                         // Toast.makeText(this@MyGamesList, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -238,14 +266,4 @@ class MyGamesList : AppCompatActivity() {
         myGamesListAdapter.updateGamesList(filteredList)
     }
 
-    private fun showRefreshDialog() {
-        val dialogBuilder = AlertDialog.Builder(this)
-        dialogBuilder.setMessage("Do you want to refresh the game list?")
-            .setCancelable(false)
-            .setPositiveButton("Yes") { _, _ -> fetchUserGames() }
-            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
-        val alert = dialogBuilder.create()
-        alert.setTitle("Refresh Games")
-        alert.show()
-    }
 }
