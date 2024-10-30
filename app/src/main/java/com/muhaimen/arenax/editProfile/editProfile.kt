@@ -20,6 +20,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -138,6 +140,7 @@ class editProfile : AppCompatActivity() {
         Log.d("EditProfile", "Updating profile picture URL: $imageUrl")
         databaseReference.child("profilePicture").setValue(imageUrl)
             .addOnCompleteListener {
+                updateProfilePictureUrlOnBackend(userId, imageUrl)
                 Toast.makeText(this, "Profile picture updated successfully", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { e ->
@@ -232,6 +235,30 @@ class editProfile : AppCompatActivity() {
                     Log.e("EditProfile", "Failed to check gamertag: ${databaseError.message}")
                 }
             })
+    }
+
+    private fun updateProfilePictureUrlOnBackend(userId: String, imageUrl: String) {
+        // Construct the URL with userId in the path
+        val url = "${Constants.SERVER_URL}api2/user/$userId/updateProfilePicture"
+
+        val jsonData = JSONObject().apply {
+            put("profilePictureUrl", imageUrl)
+        }
+
+        // Create a new Volley request
+        val jsonObjectRequest = JsonObjectRequest(
+            com.android.volley.Request.Method.POST, url, jsonData,
+            { response ->
+                // Handle successful response
+            },
+            { error ->
+                // Handle error response
+                Log.e("EditProfile", "Failed to update profile picture URL on backend: ${error.message}")
+            }
+        )
+
+        // Add the request to the Volley request queue
+        Volley.newRequestQueue(this).add(jsonObjectRequest)
     }
 
     private fun saveUserDataToPostgreSQL(userData: UserData) {

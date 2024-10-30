@@ -1,5 +1,7 @@
 package com.muhaimen.arenax.explore
 
+import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,13 +10,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.UserProfile
 
-data class UserProfile(
-    val fullName: String,
-    val gamerTag: String,
-    val gamerRank: String,
-    val profilePictureUrl: String
-)
+
 class exploreAccountsAdapter(private val profiles: List<UserProfile>) :
     RecyclerView.Adapter<exploreAccountsAdapter.UserProfileViewHolder>() {
 
@@ -29,9 +27,12 @@ class exploreAccountsAdapter(private val profiles: List<UserProfile>) :
             gamerTagTextView.text = profile.gamerTag
             gamerRankTextView.text = profile.gamerRank
 
+            Log.e("explore profilepicture", profile.profilePictureUrl)
+            val uri = Uri.parse(profile.profilePictureUrl)
+            Log.e("explore profilepicture uri", uri.toString())
             // Load profile picture with Glide
             Glide.with(itemView.context)
-                .load(profile.profilePictureUrl)
+                .load(uri)
                 .placeholder(R.drawable.game_icon_foreground) // Optional placeholder image
                 .error(R.drawable.game_icon_foreground)       // Error image
                 .circleCrop()                                  // To apply circle cropping
@@ -51,4 +52,6 @@ class exploreAccountsAdapter(private val profiles: List<UserProfile>) :
     }
 
     override fun getItemCount(): Int = profiles.size
+
+
 }
