@@ -31,10 +31,9 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
             totalHours.text = "Total Hours: ${data.totalHrs}"
 
 
-            Log.e("Leaderboard profilepicture", data.profilePicture)
-            val picture=formatUrl(data.profilePicture)
+
             val uri = Uri.parse(data.profilePicture)
-            Log.e("Leaderboard", picture)
+
 
             Glide.with(itemView.context)
                 .load(uri)
@@ -85,13 +84,7 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
             }
         }
     }
-    fun formatUrl(url: String?): String {
-        return when {
-            url.isNullOrEmpty() -> "" // Return empty string for null or empty input
-            url.startsWith("http://") || url.startsWith("https://") -> url // Return the URL as is
-            else -> "https:$url" // Prepend with https if it starts with //
-        }
-    }
+
 
     // Return the size of the dataset
     override fun getItemCount(): Int {

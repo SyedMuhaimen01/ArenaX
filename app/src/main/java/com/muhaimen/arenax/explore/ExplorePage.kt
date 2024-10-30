@@ -33,7 +33,7 @@ class ExplorePage : AppCompatActivity() {
             insets
         }
 
-        // Set the status and navigation bar colors
+
         window.statusBarColor = resources.getColor(R.color.primaryColor, theme)
         window.navigationBarColor = resources.getColor(R.color.primaryColor, theme)
 
