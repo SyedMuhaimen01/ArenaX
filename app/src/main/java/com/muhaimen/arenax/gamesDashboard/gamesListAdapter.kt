@@ -2,6 +2,8 @@ package com.muhaimen.arenax.gamesDashboard
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +11,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
@@ -20,6 +23,7 @@ import com.muhaimen.arenax.utils.Constants
 import org.json.JSONObject
 
 class gamesListAdapter(
+    private val activityContext: Context, // Add this parameter
     private var gamesList: MutableList<AppInfo>,
     private val userId: String,
     private val fetchInstalledApps: () -> Unit
@@ -45,7 +49,7 @@ class gamesListAdapter(
                 .into(gameIcon)
 
             addButton.setOnClickListener {
-                addGame(game, userId, itemView.context)
+                addGame(game, userId, itemView.context, activityContext)
                 addButton.isEnabled = false
             }
         }
@@ -68,8 +72,8 @@ class gamesListAdapter(
         notifyDataSetChanged()
     }
 
-    private fun addGame(appInfo: AppInfo, userId: String, context: Context) {
-        val queue = Volley.newRequestQueue(context)
+    private fun addGame(appInfo: AppInfo, userId: String, itemViewContext: Context, activityContext: Context) {
+        val queue = Volley.newRequestQueue(itemViewContext) // Use itemView context for the request queue
         val url = "${Constants.SERVER_URL}installedGame/user/$userId/addGame"
 
         val jsonBody = JSONObject().apply {
@@ -85,17 +89,22 @@ class gamesListAdapter(
             Request.Method.POST, url, jsonBody,
             { response ->
                 if (response.getString("message") == "Game added successfully") {
-                    Toast.makeText(context, "Game added successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(itemViewContext, "Game added successfully", Toast.LENGTH_SHORT).show()
+                    val intent = Intent("NEW_GAME_ADDED")
+                    LocalBroadcastManager.getInstance(activityContext).sendBroadcast(intent)
+                    Log.e("BroadcastSender", "Sending NEW_GAME_ADDED broadcast")
+
                     fetchInstalledApps()
                 }
             },
             { error ->
                 error.printStackTrace()
-             //   Toast.makeText(context, "Error adding game", Toast.LENGTH_SHORT).show()
+                // Toast.makeText(itemViewContext, "Error adding game", Toast.LENGTH_SHORT).show()
             }
         )
         queue.add(jsonObjectRequest)
     }
+
 
     fun formatUrl(url: String?): String {
         return when {

@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipeRefreshLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".gamesDashboard.gamesList">
+    tools:context=".gamesDashboard.MyGamesList">
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -91,18 +95,7 @@
             android:layout_marginRight="@dimen/_10sdp"
             android:background="@color/secondaryColor"
             android:src="@mipmap/add_icon"></ImageButton>
-        <Button
-            android:id="@+id/refreshButton"
-            android:layout_marginTop="-60dp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
-            android:layout_width="@dimen/_200sdp"
-            android:layout_height="@dimen/_35sdp"
-            android:background="@drawable/buttonholder"
-            android:text="Refresh"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_13ssp"
-            />
+
     </LinearLayout>
 
 
@@ -209,3 +202,4 @@
             android:layout_weight="1" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

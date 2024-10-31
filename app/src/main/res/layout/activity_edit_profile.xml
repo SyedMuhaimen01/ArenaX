@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipeRefreshLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".editProfile.editProfile">
+
+<LinearLayout
+
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".editProfile.editProfile"
+
     android:orientation="vertical"
     android:background="@drawable/screenbackground"
     >
@@ -164,3 +170,4 @@
 
 
 </LinearLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

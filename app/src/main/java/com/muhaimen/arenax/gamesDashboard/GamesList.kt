@@ -2,6 +2,7 @@ package com.muhaimen.arenax.gamesDashboard
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -20,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.ImageButton
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -37,7 +40,7 @@ class gamesList : AppCompatActivity() {
     private lateinit var originalGamesList: MutableList<AppInfo>
     private lateinit var backButton: ImageButton
     private lateinit var auth: FirebaseAuth
-    private lateinit var refreshButton: Button
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private val sharedPrefsName = "games_prefs"
     private val gamesKey = "stored_games"
 
@@ -60,7 +63,7 @@ class gamesList : AppCompatActivity() {
             finish()
         }
 
-        gamesListAdapter = gamesListAdapter(originalGamesList, auth.currentUser?.uid ?: "") {
+        gamesListAdapter = gamesListAdapter(this, originalGamesList, auth.currentUser?.uid ?: "") {
             fetchInstalledApps()
         }
         gamesListRecyclerView = findViewById(R.id.gamesListRecyclerView)
@@ -68,21 +71,14 @@ class gamesList : AppCompatActivity() {
         gamesSearchBar = findViewById(R.id.searchbar)
         gamesListRecyclerView.adapter = gamesListAdapter
         loadGamesFromSharedPreferences()
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
+        swipeRefreshLayout.setColorSchemeResources(R.color.white)
+        swipeRefreshLayout.setOnRefreshListener {
+            fetchInstalledApps()
 
-        refreshButton = findViewById(R.id.refreshButton)
-        refreshButton.setOnClickListener {
-            showRefreshDialog()
         }
 
-    }
-    private fun showRefreshDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Refresh Game List")
-            .setMessage("Do you want to refresh the game list to check for newly installed games?")
-            .setPositiveButton("Yes") { _, _ -> fetchInstalledApps() }
-            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
-            .create()
-            .show()
     }
 
     private fun loadGamesFromSharedPreferences() {
@@ -151,7 +147,7 @@ class gamesList : AppCompatActivity() {
                     )
                     receivedGamesList.add(appInfo)
                 }
-
+                swipeRefreshLayout.isRefreshing = false
                 originalGamesList = receivedGamesList
                 gamesListAdapter.updateGamesList(originalGamesList)
                 storeGamesInSharedPreferences(originalGamesList)
@@ -226,4 +222,5 @@ class gamesList : AppCompatActivity() {
             Toast.makeText(this, "No games found", Toast.LENGTH_SHORT).show()
         }
     }
+
 }
