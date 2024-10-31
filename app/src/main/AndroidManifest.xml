@@ -40,6 +40,12 @@
         android:theme="@style/Theme.ArenaX"
         tools:targetApi="31">
         <activity
+            android:name=".Threads.viewChatMedia"
+            android:exported="false" />
+        <activity
+            android:name=".Threads.ChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".Threads.ViewAllChats"
             android:exported="false" />
         <activity
@@ -51,7 +57,6 @@
         <activity
             android:name=".userFeed.UserFeed"
             android:exported="false" />
-
         <activity
 
             android:name=".userProfile.ProfilePictureActivity"
@@ -60,7 +65,6 @@
         <activity
             android:name=".userProfile.otherUserProfile"
             android:exported="false" />
-
         <activity
             android:name=".uploadContent.ViewPost"
             android:exported="false" />
@@ -73,10 +77,10 @@
 
         <service
             android:name=".screenTime.ScreenTimeService"
-            android:foregroundServiceType="dataSync"
-            tools:ignore="ForegroundServicePermission"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true"
+            android:foregroundServiceType="dataSync"
+            tools:ignore="ForegroundServicePermission" />
 
         <activity
             android:name=".uploadStory.uploadStory"

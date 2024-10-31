@@ -73,6 +73,9 @@ object FirebaseManager {
     fun getStorageInstance(): FirebaseStorage {
         return FirebaseStorage.getInstance()
     }
+    fun getDatabseInstance(): FirebaseDatabase {
+        return FirebaseDatabase.getInstance()
+    }
     fun sendPasswordResetEmail(email: String, callback: (Boolean, String?) -> Unit) {
         auth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
             if (task.isSuccessful) {

@@ -19,6 +19,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.LoginSignUp.LoginScreen
 import com.muhaimen.arenax.LoginSignUp.PersonalInfoActivity
 import com.muhaimen.arenax.LoginSignUp.RegisterActivity
+
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.userFeed.UserFeed

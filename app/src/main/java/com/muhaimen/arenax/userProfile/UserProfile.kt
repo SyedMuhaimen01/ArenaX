@@ -69,7 +69,11 @@ import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.screenTime.ScreenTimeService
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.uploadStory.uploadStory
+
 import com.muhaimen.arenax.uploadStory.viewStory
+
+import com.muhaimen.arenax.userFeed.UserFeed
+
 import com.muhaimen.arenax.utils.Constants
 import highlightsAdapter
 import okhttp3.Call
@@ -109,6 +113,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var myGamesButton: ImageButton
     private lateinit var addPost: ImageButton
     private lateinit var uploadStoryButton: ImageButton
+    private lateinit var homeButton: ImageButton
     private lateinit var storyRing: ImageView
     private lateinit var userData: UserData
     private lateinit var settingsButton:Button
@@ -214,6 +219,13 @@ class UserProfile : AppCompatActivity() {
         uploadStoryButton = findViewById(R.id.uploadStoryButton)
         uploadStoryButton.setOnClickListener {
             val intent = Intent(this, uploadStory::class.java)
+            startActivity(intent)
+        }
+
+
+        homeButton = findViewById(R.id.home)
+        homeButton.setOnClickListener {
+            val intent = Intent(this, UserFeed::class.java)
             startActivity(intent)
         }
 
