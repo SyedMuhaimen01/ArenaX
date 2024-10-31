@@ -11,7 +11,8 @@ android:layout_width="match_parent"
 android:layout_height="wrap_content"
     android:background="@drawable/curved_rectangle"
     tools:ignore="MissingConstraints"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:id="@+id/layoutCard">
 
 <ImageView
 android:id="@+id/profilePicture"

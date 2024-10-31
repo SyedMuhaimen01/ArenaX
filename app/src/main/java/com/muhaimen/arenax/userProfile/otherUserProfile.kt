@@ -1,21 +1,613 @@
 package com.muhaimen.arenax.userProfile
 
+import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+
+import android.content.ContentValues.TAG
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+
+import android.util.Log
+import android.view.View
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.AnalyticsData
+import com.muhaimen.arenax.dataClasses.Post
+import com.muhaimen.arenax.dataClasses.Story
+import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.explore.ExplorePage
+import com.muhaimen.arenax.gamesDashboard.MyGamesList
+import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
+import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
+import com.muhaimen.arenax.uploadContent.UploadContent
+import com.muhaimen.arenax.uploadStory.uploadStory
+import com.muhaimen.arenax.uploadStory.viewStory
+import com.muhaimen.arenax.utils.Constants
+import highlightsAdapter
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 
+
+@Suppress("DEPRECATED_IDENTITY_EQUALS")
 class otherUserProfile : AppCompatActivity() {
+    private lateinit var auth: FirebaseAuth
+    private lateinit var databaseReference: DatabaseReference
+    private lateinit var storageReference: StorageReference
+    private lateinit var myGamesListRecyclerView: RecyclerView
+    private lateinit var myGamesListAdapter: MyGamesListAdapter
+    private lateinit var myGamesList: List<AnalyticsData>
+    private lateinit var highlightsRecyclerView: RecyclerView
+    private lateinit var highlightsAdapter: highlightsAdapter
+    private lateinit var exploreButton: ImageButton
+    private lateinit var postsCount: TextView
+    private lateinit var postsRecyclerView: RecyclerView
+    private lateinit var postsAdapter: PostsAdapter
+    private lateinit var profileImage: ImageView
+    private lateinit var bioTextView: TextView
+    private lateinit var showMoreTextView: TextView
+    private lateinit var requestAllianceButton: Button
+    private lateinit var myGamesButton: ImageButton
+    private lateinit var addPost: ImageButton
+    private lateinit var uploadStoryButton: ImageButton
+    private lateinit var storyRing: ImageView
+    private lateinit var userData: UserData
+    private lateinit var messageButton: Button
+    private lateinit var leaderboardButton: ImageButton
+    private lateinit var rankTextView: TextView
+    private lateinit var requestQueue: RequestQueue
+    private val client = OkHttpClient()
+    private lateinit var activity : String
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var receivedUserId: String
+    private lateinit var picture:String
+    @SuppressLint("MissingInflatedId", "SetTextI18n", "CutPasteId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_other_user_profile)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        window.statusBarColor = resources.getColor(R.color.LogoBackground)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
+        auth = FirebaseAuth.getInstance()
+        receivedUserId = intent.getStringExtra("userId").toString()
+        databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(receivedUserId ?: "")
+        storageReference = FirebaseStorage.getInstance().reference.child("profileImages/$receivedUserId")
+        requestQueue = Volley.newRequestQueue(this)
+        activity="otherUserProfile"
+        myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
+        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        myGamesListAdapter = MyGamesListAdapter(emptyList(), receivedUserId)
+        myGamesListRecyclerView.adapter = myGamesListAdapter
+
+        highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
+        highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+
+        postsRecyclerView = findViewById(R.id.posts_recyclerview)
+        postsRecyclerView.layoutManager = GridLayoutManager(this, 3)
+
+        fetchUserDetailsFromFirebase()
+        fetchUserStories()
+        fetchUserPosts()
+        fetchUserRank()
+        fetchUserGames()
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
+        profileImage = findViewById(R.id.profilePicture)
+        bioTextView = findViewById(R.id.bioText)
+        showMoreTextView = findViewById(R.id.showMore)
+
+        leaderboardButton = findViewById(R.id.leaderboardButton)
+        leaderboardButton.setOnClickListener {
+            val intent = Intent(this, overallLeaderboard::class.java)
+            startActivity(intent)
+        }
+
+        // Initialize the RecyclerView for analytics
+        myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
+        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+        // Set an empty adapter initially
+        myGamesListAdapter = MyGamesListAdapter(emptyList(), receivedUserId)
+        myGamesListRecyclerView.adapter = myGamesListAdapter
+
+        // Initialize the RecyclerView for highlights
+        highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
+        highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        rankTextView = findViewById(R.id.rankTextView)
+
+
+        uploadStoryButton = findViewById(R.id.uploadStoryButton)
+        uploadStoryButton.setOnClickListener {
+            val intent = Intent(this, uploadStory::class.java)
+            startActivity(intent)
+        }
+
+        requestAllianceButton= findViewById(R.id.requestAllianceButton)
+        requestAllianceButton.setOnClickListener {
+
+        }
+        addPost= findViewById(R.id.addPostButton)
+        addPost.setOnClickListener {
+            val intent = Intent(this, UploadContent::class.java)
+            startActivity(intent)
+        }
+
+        exploreButton= findViewById(R.id.exploreButton)
+        exploreButton.setOnClickListener {
+            val intent = Intent(this, ExplorePage::class.java)
+            startActivity(intent)
+        }
+
+        messageButton=findViewById(R.id.messageButton)
+        messageButton.setOnClickListener {
+
+        }
+        myGamesButton= findViewById(R.id.myGamesButton)
+        myGamesButton.setOnClickListener {
+            val intent = Intent(this, MyGamesList::class.java)
+            startActivity(intent)
+        }
+
+        storyRing = findViewById(R.id.storyRing)
+        checkRecentStories(receivedUserId, storyRing)
+
+        profileImage.setOnClickListener {
+            onProfilePictureClick()
+        }
+
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
+        swipeRefreshLayout.setColorSchemeResources(R.color.white)
+        swipeRefreshLayout.setOnRefreshListener {
+            fetchUserDetailsFromFirebase()
+            fetchUserStories()
+            fetchUserPosts()
+            fetchUserRank()
+            fetchUserGames()
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "TrackingServiceChannel",
+                "Game Tracking Notifications",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+
+
+    }
+
+
+    private fun fetchUserGames() {
+        val request = okhttp3.Request.Builder()
+            .url("${Constants.SERVER_URL}usergames/user/${receivedUserId}/mygames")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+                runOnUiThread {
+                    Toast.makeText(this@otherUserProfile, "Failed to fetch games", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: okhttp3.Response) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string() ?: ""
+                    if (responseBody.isNotEmpty()) {
+                        parseGamesData(responseBody)
+
+                    } else {
+                        updateEmptyGameList()
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(this@otherUserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun updateEmptyGameList() {
+        runOnUiThread {
+            myGamesListAdapter.updateGamesList(emptyList())
+        }
+    }
+
+    private fun parseGamesData(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val gamesArray = jsonObject.getJSONArray("games") // Fetch the 'games' array from the JSON object
+
+            myGamesList = List(gamesArray.length()) { index ->
+                val gameObject = gamesArray.getJSONObject(index)
+                Log.d("MyGamesList", "Parsing game: ${gameObject.getString("gameName")}, Icon URL: ${gameObject.getString("gameIcon")}")
+
+                // Assuming graphData is coming from the server as a List of objects
+                val graphDataArray = gameObject.getJSONArray("graphData")
+                val graphData = List(graphDataArray.length()) { gIndex ->
+                    val dataPoint = graphDataArray.getJSONObject(gIndex)
+                    val date = dataPoint.getString("date") // Get date
+                    val totalHours = dataPoint.getDouble("totalHours") // Get total hours
+                    Pair(date, totalHours)
+                }
+
+                // Create AnalyticsData object
+                AnalyticsData(
+                    gameName = gameObject.getString("gameName"),
+                    totalHours = gameObject.getDouble("totalHours"), // Assuming totalHours is a double
+                    iconResId = gameObject.getString("gameIcon"),
+                    graphData = graphData // Assign the graph data
+                )
+            }
+
+            runOnUiThread {
+                Log.d("MyGamesList", "Number of games fetched: ${myGamesList.size}")
+                myGamesListAdapter.updateGamesList(myGamesList)
+            }
+        } catch (e: Exception) {
+            Log.e("MyGamesList", "Error parsing games data", e)
+        }
+    }
+
+    private fun fetchUserDetailsFromFirebase() {
+        receivedUserId.let { uid ->
+            databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        userData = snapshot.getValue(UserData::class.java) ?: UserData()
+                        Log.d("UserProfile", "Data loaded from Firebase: $userData")
+                        findViewById<TextView>(R.id.userName).text = userData.fullname
+                        findViewById<TextView>(R.id.gamerTag).text = userData.gamerTag
+                        findViewById<TextView>(R.id.bioText).text = userData.bio
+                        val bio=userData.bio
+                        swipeRefreshLayout.isRefreshing = false
+                        if (bio != null) {
+                            if (bio.length > 50) {
+                                showMoreTextView.visibility = View.VISIBLE
+                            }
+                        }
+                        showMoreTextView.setOnClickListener {
+                            bioTextView.maxLines = Int.MAX_VALUE
+                            bioTextView.ellipsize = null
+                            showMoreTextView.visibility = View.GONE
+                        }
+                        picture=userData.profilePicture.toString()
+                        userData.profilePicture?.let { url ->
+                            Glide.with(this@otherUserProfile)
+                                .load(url)
+                                .circleCrop()
+                                .into(profileImage)
+                        }
+                    } else {
+                        Log.w("UserProfile", "No data found for user ID: $uid")
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("EditUserProfile", "Database error: ${error.message}")
+                }
+            })
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun fetchUserRank() {
+        val checkRankUrl = "${Constants.SERVER_URL}leaderboard/user/${receivedUserId}/rank"
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET,
+            checkRankUrl,
+            null,
+            { response ->
+                try {
+                    val rank = response.getInt("rank")
+
+                    if(rank===1)
+                    {
+                        rankTextView.text = "Rank: Unranked"
+                    }else{
+                        rankTextView.text = "Rank: $rank"
+                    }
+                } catch (e: JSONException) {
+                    addUserToRankingsIfNeeded(receivedUserId)
+                }
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error fetching rank: ${error.message}")
+            }
+        )
+        requestQueue.add(jsonObjectRequest)
+    }
+
+    private fun addUserToRankingsIfNeeded(userId: String) {
+        val addRankUrl = "${Constants.SERVER_URL}leaderboard/user/$userId/add"
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.POST,
+            addRankUrl,
+            null,
+            { _ ->
+                fetchUserRank()
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error adding user to rankings: ${error.message}")
+            }
+        )
+        requestQueue.add(jsonObjectRequest)
+    }
+
+    private fun fetchUserStories() {
+        val url = "${Constants.SERVER_URL}stories/user/$receivedUserId/fetchStoryHighlights"
+
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                try {
+                    val storiesList = mutableListOf<Story>()
+                    for (i in 0 until response.length()) {
+                        val storyJson = response.getJSONObject(i)
+                        val storyId = storyJson.getInt("id")
+                        val mediaUrl = storyJson.getString("media_url")
+                        val duration = storyJson.getInt("duration")
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
+                        val draggableTexts = storyJson.optJSONArray("draggable_texts")
+                        val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
+
+                        // Convert createdAt string to Date
+                        val uploadedAt = parseDate(createdAt)
+
+                        // Create the Story object
+                        val story = Story(
+                            id = storyId,
+                            mediaUrl = mediaUrl,
+                            duration = duration,
+                            trimmedAudioUrl = trimmedAudioUrl,
+                            draggableTexts = draggableTexts,
+                            uploadedAt = uploadedAt
+                        )
+
+                        storiesList.add(story)
+                    }
+                    updateStoriesUI(storiesList)
+
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+
+                }
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error fetching stories: ${error.message}")
+
+            }
+        )
+        requestQueue.add(jsonArrayRequest)
+    }
+
+
+    // Helper function to parse the date string
+    private fun parseDate(dateString: String): Date? {
+        return try {
+            val format = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault())
+            format.parse(dateString)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+
+    private fun updateStoriesUI(stories: List<Story>) {
+        highlightsAdapter = highlightsAdapter(stories)
+        highlightsRecyclerView.adapter = highlightsAdapter
+    }
+
+    private fun fetchUserPosts() {
+        val url = "${Constants.SERVER_URL}uploads/user/$receivedUserId/getUserPosts"
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                try {
+                    val postsList = mutableListOf<Post>()
+                    for (i in 0 until response.length()) {
+                        val postJson = response.getJSONObject(i)
+
+                        val postId = postJson.getInt("post_id")
+                        val postContent = postJson.optString("post_content", null.toString())
+                        val caption = postJson.optString("caption", null.toString())
+                        val sponsored = postJson.getBoolean("sponsored")
+                        val likes = postJson.getInt("likes")
+                        val comments = postJson.getInt("post_comments")
+                        val shares = postJson.getInt("shares")
+                        val clicks = postJson.getInt("clicks")
+                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null.toString())
+                        val createdAt = postJson.getString("created_at")
+                        val post = Post(postId, postContent, caption, sponsored, likes, comments, shares, clicks, trimmedAudioUrl, createdAt)
+                        postsList.add(post)
+                    }
+                    updatePostsUI(postsList)
+
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+            },
+            { error: VolleyError ->
+                Log.e(TAG, "Error fetching posts: ${error.message}")
+            }
+        )
+        requestQueue.add(jsonArrayRequest)
+    }
+
+
+    // Function to update the UI with the fetched posts
+    private fun updatePostsUI(posts: List<Post>) {
+        postsAdapter = PostsAdapter(posts) // Create a new adapter with the fetched posts
+        postsRecyclerView.adapter = postsAdapter
+        postsCount=findViewById(R.id.postsCount)
+        postsCount.setText(postsAdapter.itemCount.toString())// Set the adapter to RecyclerView
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        fetchUserDetailsFromFirebase()
+        fetchUserStories()
+        fetchUserPosts()
+        fetchUserRank()
+        fetchUserGames()
+    }
+
+
+    private fun onProfilePictureClick() {
+        fetchUserStory(receivedUserId)
+    }
+
+    private fun fetchUserStory(userId: String) {
+        val url = "${Constants.SERVER_URL}stories/user/$userId/fetchRecentStories"
+
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                try {
+                    val storiesList = mutableListOf<Story>()
+                    for (i in 0 until response.length()) {
+                        val storyJson = response.getJSONObject(i)
+                        val storyId = storyJson.getInt("id")
+                        val mediaUrl = storyJson.getString("media_url")
+                        val duration = storyJson.getInt("duration")
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
+                        val draggableTexts = storyJson.optJSONArray("draggable_texts")
+                        val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
+
+                        // Convert createdAt string to Date
+                        val uploadedAt = parseDate(createdAt)
+
+                        // Create the Story object
+                        val story = Story(
+                            id = storyId,
+                            mediaUrl = mediaUrl,
+                            duration = duration,
+                            trimmedAudioUrl = trimmedAudioUrl,
+                            draggableTexts = draggableTexts,
+                            uploadedAt = uploadedAt
+                        )
+
+                        storiesList.add(story)
+                    }
+
+                    // Show or hide the story ring based on the presence of valid stories
+                    if (storiesList.isNotEmpty()) {
+                        // Show the story ring
+                        findViewById<ImageView>(R.id.storyRing).visibility = View.VISIBLE
+
+                        // Launch StoryViewActivity if there are stories
+                        val intent = Intent(this, viewStory::class.java).apply {
+                            putParcelableArrayListExtra("storiesList", ArrayList(storiesList))
+                            putExtra("currentIndex", 0)
+                        }
+                        startActivity(intent)
+                    } else {
+                        // Hide the story ring if there are no stories
+                        findViewById<ImageView>(R.id.storyRing).visibility = View.GONE
+                        navigateToFullProfilePicture()
+                    }
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+            },
+            { error ->
+                error.printStackTrace()
+            }
+        )
+
+        requestQueue.add(jsonArrayRequest)
+    }
+
+
+    private fun navigateToFullProfilePicture() {
+
+        val intent = Intent(this, ProfilePictureActivity::class.java).apply {
+            putExtra("profilePictureUrl", picture)
+        }
+        startActivity(intent)
+    }
+
+    fun checkRecentStories(userId: String, storyRing: ImageView) {
+        val url = "${Constants.SERVER_URL}stories/user/$userId/hasRecentStory"
+
+        // Create a JsonObjectRequest to make the network call
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                // Assuming the response is a JSON object containing a boolean field 'hasRecentStory'
+                val hasRecentStory = response.getBoolean("hasRecentStory")
+                if (hasRecentStory) {
+                    // User has recent stories, make the ring visible
+                    storyRing.visibility = View.VISIBLE
+                } else {
+                    // No recent stories, keep the ring hidden
+                    storyRing.visibility = View.GONE
+                }
+            },
+            { error ->
+                // Handle error
+                error.printStackTrace()
+                // Hide ring on error as well
+                storyRing.visibility = View.GONE
+            }
+        )
+
+        // Add the request to the RequestQueue
+        Volley.newRequestQueue(storyRing.context).add(jsonObjectRequest)
     }
 }

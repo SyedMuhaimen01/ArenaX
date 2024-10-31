@@ -1,7 +1,7 @@
 package com.muhaimen.arenax.dataClasses
 
 enum class Gender(val displayName: String) {
-    MALE("Male"),
-    FEMALE("Female"),
+    MALE("MALE"),
+    FEMALE("FEMALE"),
     PreferNotToSay("Prefer not to say")
 }

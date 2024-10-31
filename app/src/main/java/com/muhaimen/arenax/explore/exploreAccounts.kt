@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.explore
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
@@ -17,7 +19,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.dataClasses.UserProfile
+import com.muhaimen.arenax.dataClasses.Gender
+import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONArray
 import org.json.JSONObject
@@ -27,7 +30,10 @@ class exploreAccounts : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: exploreAccountsAdapter
     private lateinit var auth: FirebaseAuth
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
+
+    @SuppressLint("MissingInflatedId")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,6 +46,13 @@ class exploreAccounts : Fragment() {
 
         // Fetch user profiles
         fetchUserProfiles()
+
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
+        swipeRefreshLayout.setColorSchemeResources(R.color.white)
+        swipeRefreshLayout.setOnRefreshListener {
+            fetchUserProfiles()
+        }
 
         return view
     }
@@ -68,20 +81,39 @@ class exploreAccounts : Fragment() {
         queue.add(jsonArrayRequest)
     }
 
-    private fun parseUserProfiles(jsonArray: JSONArray): List<UserProfile> {
-        val profiles = mutableListOf<UserProfile>()
+    private fun parseUserProfiles(jsonArray: JSONArray): List<UserData> {
+        val profiles = mutableListOf<UserData>()
 
         for (i in 0 until jsonArray.length()) {
             val jsonObject: JSONObject = jsonArray.getJSONObject(i)
-            val fullName = jsonObject.getString("fullName")
-            val gamerTag = jsonObject.getString("gamerTag")
-            val gamerRank = jsonObject.getString("gamerRank")
-            val profilePictureUrl = jsonObject.getString("profilePictureUrl")
 
-            val userProfile = UserProfile(fullName, gamerTag, gamerRank, profilePictureUrl)
-            profiles.add(userProfile)
+            // Parsing data as per the backend route response
+            val firebaseUid = jsonObject.optString("firebaseUid", "")
+            val fullName = jsonObject.optString("fullName", "")
+            val gamerTag = jsonObject.optString("gamerTag", "")
+            val profilePicture = jsonObject.optString("profilePictureUrl", null)
+            val gamerRank = jsonObject.optInt("gamerRank", 0) // Assuming rank is an integer
+
+            val userData = UserData(
+                userId = firebaseUid,             // Mapping firebaseUid to userId in UserData
+                fullname = fullName,
+                email = "",                       // Not available in the response
+                dOB = "",                         // Not available in the response
+                gamerTag = gamerTag,
+                profilePicture = profilePicture,
+                gender = Gender.PreferNotToSay,   // Assuming default as not available in response
+                bio = null,                       // Not available in the response
+                location = null,                  // Not available in the response
+                accountVerified = false,         // Not available in the response
+                rank = gamerRank
+            )
+
+            profiles.add(userData)
+            swipeRefreshLayout.isRefreshing = false
         }
 
         return profiles
     }
+
+
 }

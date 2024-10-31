@@ -11,7 +11,6 @@ import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.widget.AutoCompleteTextView
-import android.widget.Button
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.firebase.auth.FirebaseAuth
@@ -44,6 +42,7 @@ class MyGamesList : AppCompatActivity() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private val client = OkHttpClient()
     private var isGameAdded = false
+    private lateinit var userId:String
     private val sharedPreferences by lazy { getSharedPreferences("MyGamesPrefs", Context.MODE_PRIVATE) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +58,7 @@ class MyGamesList : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
         auth = FirebaseAuth.getInstance()
+        userId = auth.currentUser?.uid ?: ""
         gamesSearchBar = findViewById(R.id.searchbar)
         addGame = findViewById(R.id.addGame)
         backButton = findViewById(R.id.backButton)
@@ -78,7 +78,8 @@ class MyGamesList : AppCompatActivity() {
             startActivity(intent)
         }
 
-        myGamesListAdapter = MyGamesListAdapter(emptyList())
+
+        myGamesListAdapter = MyGamesListAdapter(emptyList(), userId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
@@ -143,7 +144,7 @@ class MyGamesList : AppCompatActivity() {
 
     private fun fetchUserGames() {
         val request = Request.Builder()
-            .url("${Constants.SERVER_URL}usergames/user/${auth.currentUser?.uid}/mygames")
+            .url("${Constants.SERVER_URL}usergames/user/${userId}/mygames")
             .build()
 
         client.newCall(request).enqueue(object : Callback {

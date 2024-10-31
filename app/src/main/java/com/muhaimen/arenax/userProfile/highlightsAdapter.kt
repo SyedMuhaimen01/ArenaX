@@ -38,6 +38,8 @@ class highlightsAdapter(private val storiesList: List<Story>) : RecyclerView.Ada
                     putExtra("MEDIA_URL", story.mediaUrl)
                     putExtra("Audio", story.trimmedAudioUrl)
                     putExtra("Texts", draggableJson)
+                    putExtra("Duration", story.duration)
+                    putExtra("UploadedAt", story.uploadedAt)
                 }
                 itemView.context.startActivity(intent)
             }

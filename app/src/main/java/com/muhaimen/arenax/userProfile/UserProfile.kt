@@ -38,7 +38,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.RequestQueue
-import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
@@ -59,7 +58,6 @@ import com.muhaimen.arenax.accountSettings.accountSettings
 import com.muhaimen.arenax.dataClasses.AnalyticsData
 import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
-import com.muhaimen.arenax.dataClasses.StoryWithTimeAgo
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.editProfile.editProfile
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
@@ -71,7 +69,11 @@ import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.screenTime.ScreenTimeService
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.uploadStory.uploadStory
+
+import com.muhaimen.arenax.uploadStory.viewStory
+
 import com.muhaimen.arenax.userFeed.UserFeed
+
 import com.muhaimen.arenax.utils.Constants
 import highlightsAdapter
 import okhttp3.Call
@@ -82,6 +84,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -120,6 +123,7 @@ class UserProfile : AppCompatActivity() {
     private val client = OkHttpClient()
     private lateinit var activity : String
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var userId:String
     private val sharedPreferences by lazy { getSharedPreferences("MyGamesPrefs", Context.MODE_PRIVATE) }
     private val sharedPreferences2 by lazy { getSharedPreferences("MyStoriesPrefs", Context.MODE_PRIVATE) }
     private val sharedPreferences3 by lazy { getSharedPreferences("MyPostsPrefs", Context.MODE_PRIVATE) }
@@ -140,13 +144,14 @@ class UserProfile : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.LogoBackground)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
         auth = FirebaseAuth.getInstance()
+        userId = auth.currentUser?.uid ?: ""
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(auth.currentUser?.uid ?: "")
         storageReference = FirebaseStorage.getInstance().reference.child("profileImages/${auth.currentUser?.uid}")
         requestQueue = Volley.newRequestQueue(this)
         activity="UserProfile"
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        myGamesListAdapter = MyGamesListAdapter(emptyList())
+        myGamesListAdapter = MyGamesListAdapter(emptyList(), userId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
@@ -200,16 +205,13 @@ class UserProfile : AppCompatActivity() {
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         // Set an empty adapter initially
-        myGamesListAdapter = MyGamesListAdapter(emptyList())
+        myGamesListAdapter = MyGamesListAdapter(emptyList(),userId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
 
         // Initialize the RecyclerView for highlights
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-
-        loadGamesFromPreferences()
-        fetchUserStories()
 
         rankTextView = findViewById(R.id.rankTextView)
 
@@ -219,6 +221,7 @@ class UserProfile : AppCompatActivity() {
             val intent = Intent(this, uploadStory::class.java)
             startActivity(intent)
         }
+
 
         homeButton = findViewById(R.id.home)
         homeButton.setOnClickListener {
@@ -467,7 +470,7 @@ class UserProfile : AppCompatActivity() {
                 try {
                     val rank = response.getInt("rank")
 
-                    if(rank===0)
+                    if(rank===1)
                     {
                         rankTextView.text = "Rank: Unranked"
                     }else{
@@ -510,8 +513,9 @@ class UserProfile : AppCompatActivity() {
 
 
     private fun fetchUserStories() {
-        val userId = auth.currentUser?.uid
+        val userId = auth.currentUser?.uid ?: return
         val url = "${Constants.SERVER_URL}stories/user/$userId/fetchStoryHighlights"
+
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
             url,
@@ -524,28 +528,43 @@ class UserProfile : AppCompatActivity() {
                         val storyId = storyJson.getInt("id")
                         val mediaUrl = storyJson.getString("media_url")
                         val duration = storyJson.getInt("duration")
-                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null.toString())
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
                         val draggableTexts = storyJson.optJSONArray("draggable_texts")
+                        val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
 
-                        val story = Story(storyId, mediaUrl, duration, trimmedAudioUrl, draggableTexts)
+                        // Convert createdAt string to Date
+                        val uploadedAt = parseDate(createdAt)
+
+                        // Create the Story object
+                        val story = Story(
+                            id = storyId,
+                            mediaUrl = mediaUrl,
+                            duration = duration,
+                            trimmedAudioUrl = trimmedAudioUrl,
+                            draggableTexts = draggableTexts,
+                            uploadedAt = uploadedAt
+                        )
+
                         storiesList.add(story)
                     }
+
                     saveStoriesDataToSharedPreference(storiesList)
                     updateStoriesUI(storiesList)
 
                 } catch (e: JSONException) {
                     e.printStackTrace()
-              //      Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
+                    // Optionally show a Toast message for error feedback
+                    // Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching stories: ${error.message}")
                 loadStoriesFromSharedPreferences()
-           //     Toast.makeText(this, "Error fetching stories", Toast.LENGTH_SHORT).show()
             }
         )
         requestQueue.add(jsonArrayRequest)
     }
+
 
     private fun updateStoriesUI(stories: List<Story>) {
         highlightsAdapter = highlightsAdapter(stories)
@@ -672,6 +691,7 @@ class UserProfile : AppCompatActivity() {
                     put("duration", story.duration)
                     put("trimmedAudioUrl", story.trimmedAudioUrl)
                     put("draggableTexts", story.draggableTexts)
+                    put("created_at", story.uploadedAt?.time ?: 0L) // Store as timestamp
                 })
             }
         }.toString()
@@ -689,18 +709,21 @@ class UserProfile : AppCompatActivity() {
             val jsonArray = JSONArray(storiesJson)
             for (i in 0 until jsonArray.length()) {
                 val storyJson = jsonArray.getJSONObject(i)
+                val uploadedAt = storyJson.getLong("created_at") // Get the timestamp
                 val story = Story(
                     storyJson.getInt("storyId"),
                     storyJson.getString("mediaUrl"),
                     storyJson.getInt("duration"),
-                    storyJson.optString("trimmedAudioUrl", null.toString()),
-                    storyJson.optJSONArray("draggableTexts")
+                    storyJson.optString("trimmedAudioUrl", null),
+                    storyJson.optJSONArray("draggableTexts"),
+                    Date(uploadedAt)
                 )
                 stories.add(story)
             }
             updateStoriesUI(stories)
         }
     }
+
 
     private fun savePostsDataToSharedPreference(posts: List<Post>) {
         val postsJsonArray = JSONArray().apply {
@@ -916,7 +939,7 @@ class UserProfile : AppCompatActivity() {
             null,
             { response ->
                 try {
-                    val storiesList = mutableListOf<StoryWithTimeAgo>()
+                    val storiesList = mutableListOf<Story>()
                     for (i in 0 until response.length()) {
                         val storyJson = response.getJSONObject(i)
                         val storyId = storyJson.getInt("id")
@@ -924,7 +947,10 @@ class UserProfile : AppCompatActivity() {
                         val duration = storyJson.getInt("duration")
                         val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
                         val draggableTexts = storyJson.optJSONArray("draggable_texts")
-                        val createdAt = storyJson.getString("created_at")  // Fetch created_at timestamp
+                        val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
+
+                        // Convert createdAt string to Date
+                        val uploadedAt = parseDate(createdAt)
 
                         // Create the Story object
                         val story = Story(
@@ -932,15 +958,11 @@ class UserProfile : AppCompatActivity() {
                             mediaUrl = mediaUrl,
                             duration = duration,
                             trimmedAudioUrl = trimmedAudioUrl,
-                            draggableTexts = draggableTexts
+                            draggableTexts = draggableTexts,
+                            uploadedAt = uploadedAt
                         )
 
-                        // Calculate "hours ago"
-                        val hoursAgo = calculateHoursAgo(createdAt)
-
-                        // Create StoryWithTimeAgo object
-                        val storyWithTimeAgo = StoryWithTimeAgo(story, hoursAgo)
-                        storiesList.add(storyWithTimeAgo)
+                        storiesList.add(story)
                     }
 
                     // Show or hide the story ring based on the presence of valid stories
@@ -949,7 +971,7 @@ class UserProfile : AppCompatActivity() {
                         findViewById<ImageView>(R.id.storyRing).visibility = View.VISIBLE
 
                         // Launch StoryViewActivity if there are stories
-                        val intent = Intent(this, StoryViewActivity::class.java).apply {
+                        val intent = Intent(this, viewStory::class.java).apply {
                             putParcelableArrayListExtra("storiesList", ArrayList(storiesList))
                             putExtra("currentIndex", 0)
                         }
@@ -957,23 +979,32 @@ class UserProfile : AppCompatActivity() {
                     } else {
                         // Hide the story ring if there are no stories
                         findViewById<ImageView>(R.id.storyRing).visibility = View.GONE
-
-                        // Handle case for no stories, e.g., navigate to a profile picture view
                         navigateToFullProfilePicture()
                     }
                 } catch (e: JSONException) {
                     e.printStackTrace()
-                    // Optionally handle error display to the user
                 }
             },
             { error ->
                 error.printStackTrace()
-                // Optionally handle error display to the user
             }
         )
 
         requestQueue.add(jsonArrayRequest)
     }
+
+
+    // Helper function to parse the date string
+    private fun parseDate(dateString: String): Date? {
+        return try {
+            val format = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault())
+            format.parse(dateString)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
 
     private fun calculateHoursAgo(createdAt: String): Long {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
@@ -991,7 +1022,6 @@ class UserProfile : AppCompatActivity() {
 
 
     private fun navigateToFullProfilePicture() {
-        val user = auth.currentUser
         val profilePictureUrl = sharedPreferences5.getString("profilePicture", null)
         val intent = Intent(this, ProfilePictureActivity::class.java).apply {
             putExtra("profilePictureUrl", profilePictureUrl)
