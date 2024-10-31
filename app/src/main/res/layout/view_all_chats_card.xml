@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/_5sdp"
     android:background="@color/backgroundColor"
     >
@@ -13,6 +13,7 @@
         android:background="@color/backgroundColor"
         tools:ignore="MissingConstraints">
         <ImageView
+            android:id="@+id/profilePicture"
             android:layout_width="@dimen/_40sdp"
             android:layout_height="@dimen/_40sdp"
             android:layout_marginStart="@dimen/_10sdp"
@@ -26,6 +27,7 @@
             android:orientation="vertical"
             android:layout_marginStart="@dimen/_5sdp">
             <TextView
+                android:id="@+id/fullname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="username"
@@ -35,10 +37,20 @@
 
 
             <TextView
+                android:id="@+id/msg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Latest text"
-                android:textSize="@dimen/_10sdp"/>
+                android:textSize="@dimen/_10sdp"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/newMsgIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="new message"
+                android:textSize="@dimen/_10sdp"
+                tools:ignore="HardcodedText" />
+
         </LinearLayout>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
