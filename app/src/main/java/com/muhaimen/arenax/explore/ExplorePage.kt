@@ -13,6 +13,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.uploadContent.UploadContent
+import com.muhaimen.arenax.userFeed.UserFeed
 import com.muhaimen.arenax.userProfile.UserProfile
 
 class ExplorePage : AppCompatActivity() {
@@ -62,7 +63,7 @@ class ExplorePage : AppCompatActivity() {
 
         homeButton= findViewById(R.id.home)
         homeButton.setOnClickListener {
-            val intent = Intent(this, ExplorePage::class.java)
+            val intent = Intent(this, UserFeed::class.java)
             startActivity(intent)
         }
         myGamesButton= findViewById(R.id.myGamesButton)

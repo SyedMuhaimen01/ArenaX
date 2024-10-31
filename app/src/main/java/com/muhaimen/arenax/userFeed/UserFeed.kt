@@ -1,16 +1,19 @@
 package com.muhaimen.arenax.userFeed
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.Threads.ViewAllChats
 
 class UserFeed : AppCompatActivity() {
     private lateinit var userFeedAdapter: UserFeedPostsAdapter
-
+    private lateinit var threadsButton: ImageButton
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_feed)
@@ -26,9 +29,16 @@ class UserFeed : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
 
+        threadsButton = findViewById(R.id.threadsButton)
+        threadsButton.setOnClickListener {
+            val intent = Intent(this, ViewAllChats::class.java)
+            startActivity(intent)
+        }
+
         // Initialize RecyclerView and Adapter
         val recyclerView: RecyclerView = findViewById(R.id.recyclerViewUserFeed)
         recyclerView.layoutManager = LinearLayoutManager(this)
+
 
         // Create dummy data
         val dummyPosts = createDummyPosts()
