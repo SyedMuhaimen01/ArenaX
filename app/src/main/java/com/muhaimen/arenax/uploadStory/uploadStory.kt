@@ -63,6 +63,7 @@ import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.util.UUID
+import kotlin.properties.Delegates
 
 
 class uploadStory : AppCompatActivity() {
@@ -377,7 +378,7 @@ class uploadStory : AppCompatActivity() {
             // Get the list of draggable texts
             val draggableTexts = getDraggableTextContent()
             val mediaUrl = mediaUri.toString()
-            val duration = fixedDuration
+            val duration =fixedDuration
 
             val storyJson = JSONObject().apply {
                 put("userId", userData.userId)

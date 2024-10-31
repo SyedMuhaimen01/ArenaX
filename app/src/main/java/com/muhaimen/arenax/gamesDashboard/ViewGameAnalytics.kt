@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.gamesDashboard
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -44,9 +46,11 @@ class ViewGameAnalytics : AppCompatActivity() {
     private lateinit var peakPlayTimeScatterChart: ScatterChart
     private lateinit var gameComparisonPieChart: PieChart
     private lateinit var auth: FirebaseAuth
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private val TAG = "ViewGameAnalytics"
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_game_analytics)
@@ -68,16 +72,24 @@ class ViewGameAnalytics : AppCompatActivity() {
         gameComparisonPieChart = findViewById(R.id.gameComparisonPieChart)
         backButton = findViewById(R.id.backButton)
 
-        auth = FirebaseAuth.getInstance()
-
         val intent = intent
-        val game = intent.getStringExtra("GAME_NAME")
+        val game = intent.getStringExtra("gameName")
         if (game != null) {
             gameName.text = game
             fetchUserGameStats(game)
         } else {
             gameName.text = "Unknown Game"
         }
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
+        swipeRefreshLayout.setColorSchemeResources(R.color.white)
+        swipeRefreshLayout.setOnRefreshListener {
+            if (game != null) {
+                fetchUserGameStats(game)
+            }
+        }
+
+
 
         backButton.setOnClickListener {
             finish()
@@ -86,7 +98,7 @@ class ViewGameAnalytics : AppCompatActivity() {
 
     private fun fetchUserGameStats(game: String) {
         val url = "${Constants.SERVER_URL}analytics/gameAnalytics"
-        val userId = auth.currentUser?.uid ?: return
+        val userId = intent.getStringExtra("userId")
 
         val requestBody = JSONObject().apply {
             put("gameName", game)
@@ -94,7 +106,6 @@ class ViewGameAnalytics : AppCompatActivity() {
         }
 
         val queue = Volley.newRequestQueue(this)
-
         val jsonObjectRequest = JsonObjectRequest(Request.Method.POST, url, requestBody,
             { response ->
                 Log.d(TAG, "Response received: $response")
@@ -105,6 +116,7 @@ class ViewGameAnalytics : AppCompatActivity() {
                 error.printStackTrace()
             })
 
+        swipeRefreshLayout.isRefreshing = false
         queue.add(jsonObjectRequest)
     }
 

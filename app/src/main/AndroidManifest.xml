@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -55,9 +56,7 @@
 
             android:name=".userProfile.ProfilePictureActivity"
             android:exported="false" />
-        <activity
-            android:name=".userProfile.StoryViewActivity"
-            android:exported="false" />
+
         <activity
             android:name=".userProfile.otherUserProfile"
             android:exported="false" />

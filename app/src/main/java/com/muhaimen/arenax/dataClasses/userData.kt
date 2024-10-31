@@ -13,7 +13,8 @@ data class UserData(
     var gender: Gender = Gender.PreferNotToSay,
     var bio: String? = null,
     var location: String? = null,
-    var accountVerified: Boolean = false
+    var accountVerified: Boolean = false,
+    var rank:Int? = null
 ) : Parcelable {
     // Constructor for Parcel (used for Parcelable)
     constructor(parcel: Parcel) : this(
@@ -26,7 +27,9 @@ data class UserData(
         parcel.readSerializable() as Gender, // gender
         parcel.readString(), // bio
         parcel.readString(), // location
-        parcel.readByte() != 0.toByte() // accountVerified
+        parcel.readByte() != 0.toByte(), // accountVerified
+        parcel.readInt() // rank
+
     )
 
     // Writing data to Parcel (used for Parcelable)
@@ -41,6 +44,7 @@ data class UserData(
         parcel.writeString(bio)
         parcel.writeString(location)
         parcel.writeByte(if (accountVerified) 1 else 0)
+        rank?.let { parcel.writeInt(it) }
     }
 
     // No special contents, just return 0

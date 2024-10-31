@@ -3,7 +3,6 @@ package com.muhaimen.arenax.gamesDashboard
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +17,7 @@ import com.jjoe64.graphview.series.LineGraphSeries
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.AnalyticsData
 
-class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>) : RecyclerView.Adapter<MyGamesListAdapter.AnalyticsViewHolder>() {
+class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>, private val userId: String) : RecyclerView.Adapter<MyGamesListAdapter.AnalyticsViewHolder>() {
 
     inner class AnalyticsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val gameIcon: ImageView = itemView.findViewById(R.id.game_icon)
@@ -43,7 +42,8 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>) : Recyc
 
             itemView.setOnClickListener {
                 val intent = Intent(itemView.context, ViewGameAnalytics::class.java).apply {
-                    putExtra("GAME_NAME", data.gameName)
+                    putExtra("userId", userId)
+                    putExtra("gameName", data.gameName)
                 }
                 itemView.context.startActivity(intent)
             }
@@ -110,7 +110,7 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>) : Recyc
         notifyDataSetChanged()
     }
 
-    fun formatUrl(url: String?): String {
+    private fun formatUrl(url: String?): String {
         return when {
             url.isNullOrEmpty() -> "" // Return empty string for null or empty input
             url.startsWith("http://") || url.startsWith("https://") -> url // Return the URL as is
