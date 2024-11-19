@@ -105,6 +105,7 @@
 
           <!-- SynerG Count -->
           <LinearLayout
+              android:id="@+id/followersLinearLayout"
               android:orientation="vertical"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
@@ -112,6 +113,7 @@
               android:layout_weight="1">
 
             <TextView
+                android:id="@+id/followersTextView"
                 android:text="0"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -121,7 +123,7 @@
                 tools:ignore="HardcodedText" />
 
             <TextView
-                android:text="SynerG"
+                android:text="Followers"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/textColor"/>
@@ -129,6 +131,7 @@
 
           <!-- Followers Count -->
           <LinearLayout
+              android:id="@+id/followingLinearLayout"
               android:orientation="vertical"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
@@ -136,6 +139,7 @@
               android:layout_weight="1">
 
             <TextView
+                android:id="@+id/followingTextView"
                 android:text="0"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -144,7 +148,7 @@
                 android:textColor="@color/textColor"/>
 
             <TextView
-                android:text="Followers"
+                android:text="Following"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/textColor"/>

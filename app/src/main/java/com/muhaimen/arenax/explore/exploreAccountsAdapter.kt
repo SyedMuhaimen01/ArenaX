@@ -8,14 +8,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.UserData
 
-data class UserProfile(
-    val fullName: String,
-    val gamerTag: String,
-    val gamerRank: String,
-    val profilePictureUrl: String
-)
-class exploreAccountsAdapter(private val profiles: List<UserProfile>) :
+class exploreAccountsAdapter(private val profiles: List<UserData>) :
     RecyclerView.Adapter<exploreAccountsAdapter.UserProfileViewHolder>() {
 
     inner class UserProfileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -24,14 +19,14 @@ class exploreAccountsAdapter(private val profiles: List<UserProfile>) :
         private val gamerTagTextView: TextView = itemView.findViewById(R.id.gamerTag)
         private val gamerRankTextView: TextView = itemView.findViewById(R.id.gamerRank)
 
-        fun bind(profile: UserProfile) {
-            fullNameTextView.text = profile.fullName
-            gamerTagTextView.text = profile.gamerTag
-            gamerRankTextView.text = profile.gamerRank
+        fun bind(userData: UserData) {
+            fullNameTextView.text = userData.fullname
+            gamerTagTextView.text = userData.gamerTag
+            gamerRankTextView.text = "Rank: "
 
             // Load profile picture with Glide
             Glide.with(itemView.context)
-                .load(profile.profilePictureUrl)
+                .load(userData.profilePicture)
                 .placeholder(R.drawable.game_icon_foreground) // Optional placeholder image
                 .error(R.drawable.game_icon_foreground)       // Error image
                 .circleCrop()                                  // To apply circle cropping

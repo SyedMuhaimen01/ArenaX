@@ -13,16 +13,14 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.R
@@ -48,7 +46,6 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var cameraActivityResultLauncher: ActivityResultLauncher<Intent>
 
-    // Modify pickMediaLauncher to accept both image and video MIME types
     private val pickMediaLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { sendMedia(it, if (it.toString().contains("video")) "video" else "image") }
     }
@@ -98,126 +95,113 @@ class ChatActivity : AppCompatActivity() {
         }
 
         senderId = FirebaseManager.getCurrentUserId().toString()
-        database = FirebaseManager.getDatabseInstance().getReference("chats")
+        database = FirebaseDatabase.getInstance().getReference("userData")
 
         chatAdapter = ChatsAdapter(chatMessages)
         recyclerViewMessages.adapter = chatAdapter
         recyclerViewMessages.layoutManager = LinearLayoutManager(this)
 
-        cameraActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                currentPhotoUri?.let { uri ->
-                    sendMedia(uri, if (uri.toString().contains("video")) "video" else "image")
-                }
+        loadMessages()
+
+        sendButton.setOnClickListener {
+            val messageText = messageEditText.text.toString().trim()
+            if (messageText.isNotEmpty()) {
+                sendMessage(messageText, ChatItem.ContentType.TEXT)
             }
         }
 
-        buttonTakePicture.setOnClickListener { openCamera() }
-        buttonOpenGallery.setOnClickListener { pickMediaLauncher.launch("*/*") } // This now accepts all media types
+        buttonTakePicture.setOnClickListener { capturePhoto() }
+        buttonOpenGallery.setOnClickListener { pickMediaLauncher.launch("image/*") }
 
-        sendButton.setOnClickListener { sendMessage() }
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        loadChatMessages()
+        setupCameraActivityResultLauncher()
     }
 
-    private fun openCamera() {
-        val options = arrayOf("Take Photo", "Record Video")
-        AlertDialog.Builder(this).apply {
-            setTitle("Select Media")
-            setItems(options) { _, which ->
-                when (which) {
-                    0 -> {
-                        currentPhotoUri = createImageUri()
-                        currentPhotoUri?.let { uri ->
-                            val imageIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
-                                putExtra(MediaStore.EXTRA_OUTPUT, uri)
-                            }
-                            cameraActivityResultLauncher.launch(imageIntent)
-                        }
-                    }
-                    1 -> {
-                        currentPhotoUri = createVideoUri()
-                        currentPhotoUri?.let { uri ->
-                            val videoIntent = Intent(MediaStore.ACTION_VIDEO_CAPTURE).apply {
-                                putExtra(MediaStore.EXTRA_OUTPUT, uri)
-                            }
-                            cameraActivityResultLauncher.launch(videoIntent)
-                        }
-                    }
-                }
-            }
-        }.show()
-    }
+    private fun loadMessages() {
+        val chatId = generateChatId(senderId, receiverId)
+        val chatRef = database.child(senderId).child("chats").child(chatId)
 
-    private fun createImageUri(): Uri {
-        val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.TITLE, "New Picture")
-            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-        }
-        return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues) ?: Uri.EMPTY
-    }
-
-    private fun createVideoUri(): Uri {
-        val contentValues = ContentValues().apply {
-            put(MediaStore.Video.Media.TITLE, "New Video")
-            put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
-        }
-        return contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues) ?: Uri.EMPTY
-    }
-
-    private fun sendMedia(uri: Uri, type: String) {
-        val mediaRef = storage.reference.child("chat_media/${System.currentTimeMillis()}.$type")
-        mediaRef.putFile(uri).addOnSuccessListener {
-            mediaRef.downloadUrl.addOnSuccessListener { downloadUrl ->
-                val chatItem = ChatItem(
-                    senderId = senderId,
-                    receiverId = receiverId,
-                    contentUri = downloadUrl.toString(),
-                    contentType = if (type == "image") ChatItem.ContentType.IMAGE else ChatItem.ContentType.VIDEO
-                )
-                database.push().setValue(chatItem).addOnSuccessListener { loadChatMessages() }
-                    .addOnFailureListener { e -> Toast.makeText(this, "Error sending media: ${e.message}", Toast.LENGTH_SHORT).show() }
-            }
-        }.addOnFailureListener { e -> Toast.makeText(this, "Error uploading media: ${e.message}", Toast.LENGTH_SHORT).show() }
-    }
-
-    private fun sendMessage() {
-        val messageText = messageEditText.text.toString().trim()
-        if (messageText.isNotEmpty()) {
-            val chatItem = ChatItem(senderId = senderId, receiverId = receiverId, message = messageText)
-            database.push().setValue(chatItem).addOnSuccessListener {
-                messageEditText.text.clear()
-                loadChatMessages()
-            }.addOnFailureListener { e -> Toast.makeText(this, "Error sending message: ${e.message}", Toast.LENGTH_SHORT).show() }
-        }
-    }
-
-    private fun loadChatMessages() {
-        database.addValueEventListener(object : ValueEventListener {
+        chatRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 chatMessages.clear()
-                for (data in snapshot.children) {
-                    val chatItem = data.getValue(ChatItem::class.java)
-                    chatItem?.let {
-                        if ((it.senderId == senderId && it.receiverId == receiverId) ||
-                            (it.senderId == receiverId && it.receiverId == senderId)) {
-                            chatMessages.add(it)
-                        }
-                    }
+                for (messageSnapshot in snapshot.children) {
+                    val chatItem = messageSnapshot.getValue(ChatItem::class.java)
+                    chatItem?.let { chatMessages.add(it) }
                 }
                 chatAdapter.notifyDataSetChanged()
                 recyclerViewMessages.scrollToPosition(chatMessages.size - 1)
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@ChatActivity, "Error loading messages: ${error.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ChatActivity, "Failed to load messages: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun sendMessage(content: String, contentType: ChatItem.ContentType, attachmentUrl: String? = null) {
+        val chatId = generateChatId(senderId, receiverId)
+        val messageId = database.child(senderId).child("chats").child(chatId).push().key ?: return
+        val timestamp = System.currentTimeMillis()
+
+        val chatItem = ChatItem(
+            chatId = messageId,
+            senderId = senderId,
+            receiverId = receiverId,
+            message = content,
+            time = timestamp,
+            contentType = contentType,
+            contentUri = attachmentUrl,
+            isRead = false
+        )
+
+        val senderChatRef = database.child(senderId).child("chats").child(chatId).child(messageId)
+        val receiverChatRef = database.child(receiverId).child("chats").child(chatId).child(messageId)
+
+        senderChatRef.setValue(chatItem).addOnSuccessListener {
+            receiverChatRef.setValue(chatItem)
+            messageEditText.text.clear()
+        }.addOnFailureListener {
+            Toast.makeText(this, "Failed to send message: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun sendMedia(uri: Uri, type: String) {
+        val chatId = generateChatId(senderId, receiverId)
+        val mediaRef = storage.reference.child("chat_media/${System.currentTimeMillis()}_${uri.lastPathSegment}")
+
+        mediaRef.putFile(uri).addOnSuccessListener {
+            mediaRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                sendMessage(downloadUri.toString(), if (type == "image") ChatItem.ContentType.IMAGE else ChatItem.ContentType.VIDEO, downloadUri.toString())
+            }
+        }.addOnFailureListener {
+            Toast.makeText(this, "Failed to upload media: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun generateChatId(senderId: String, receiverId: String): String {
+        return if (senderId < receiverId) "$senderId-$receiverId" else "$receiverId-$senderId"
+    }
+
+    private fun capturePhoto() {
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.TITLE, "New Picture")
+            put(MediaStore.Images.Media.DESCRIPTION, "From the Camera")
+        }
+        currentPhotoUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+            putExtra(MediaStore.EXTRA_OUTPUT, currentPhotoUri)
+        }
+        cameraActivityResultLauncher.launch(cameraIntent)
+    }
+
+    private fun setupCameraActivityResultLauncher() {
+        cameraActivityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                currentPhotoUri?.let { uri ->
+                    sendMedia(uri, "image")
+                }
+            } else {
+                Toast.makeText(this, "Camera operation canceled", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

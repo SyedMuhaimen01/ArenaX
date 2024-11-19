@@ -12,6 +12,9 @@ import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.ChatItem
 import com.muhaimen.arenax.utils.FirebaseManager
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ViewAllChatsAdapter(
     private var chatList: List<ChatItem>
@@ -21,7 +24,7 @@ class ViewAllChatsAdapter(
     inner class ChatViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val profileImage: ImageView = view.findViewById(R.id.profilePicture)
         val usernameTextView: TextView = view.findViewById(R.id.fullname)
-        val messageTextView: TextView = view.findViewById(R.id.msg)
+        val timeTextView: TextView = view.findViewById(R.id.time)
         val newMsgIndicatorTextView: TextView = view.findViewById(R.id.newMsgIndicator)
 
         init {
@@ -119,8 +122,9 @@ class ViewAllChatsAdapter(
             holder.profileImage.setImageResource(R.drawable.game_icon_foreground)
         }
 
-        // Set the latest message text
-        holder.messageTextView.text = chatItem.message
+        // Set the latest message time
+        val formattedDate = convertTimestampToDateWithAmPm(chatItem.time)
+        holder.timeTextView.text = formattedDate
 
         // Conditionally show or hide the new message indicator
         holder.newMsgIndicatorTextView.visibility = if (chatItem.time > chatItem.lastReadTime) {
@@ -138,5 +142,16 @@ class ViewAllChatsAdapter(
     fun updateChatList(newChatList: List<ChatItem>) {
         chatList = newChatList
         notifyDataSetChanged()
+    }
+
+    fun convertTimestampToDateWithAmPm(timestamp: Long): String {
+        // Create a Date object from the timestamp in milliseconds
+        val date = Date(timestamp)
+
+        // Define a custom date format: "HH:mm a" (24-hour format with AM/PM)
+        val dateFormat = SimpleDateFormat("HH:mm a", Locale.getDefault())
+
+        // Format the date to a readable string
+        return dateFormat.format(date)
     }
 }

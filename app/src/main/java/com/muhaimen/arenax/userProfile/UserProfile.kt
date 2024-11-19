@@ -23,6 +23,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -68,6 +69,7 @@ import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.screenTime.ScreenTimeService
+import com.muhaimen.arenax.synergy.synergy
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.uploadStory.uploadStory
 import com.muhaimen.arenax.userFeed.UserFeed
@@ -115,6 +117,8 @@ class UserProfile : AppCompatActivity() {
     private lateinit var settingsButton:Button
     private lateinit var leaderboardButton: ImageButton
     private lateinit var rankTextView: TextView
+    private lateinit var followersLinearLayout:LinearLayout
+    private lateinit var followingLinearLayout:LinearLayout
     private lateinit var requestQueue: RequestQueue
     private val client = OkHttpClient()
     private lateinit var activity : String
@@ -146,6 +150,8 @@ class UserProfile : AppCompatActivity() {
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         myGamesListAdapter = MyGamesListAdapter(emptyList())
         myGamesListRecyclerView.adapter = myGamesListAdapter
+        followersLinearLayout=findViewById(R.id.followersLinearLayout)
+        followingLinearLayout=findViewById(R.id.followingLinearLayout)
 
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -191,7 +197,15 @@ class UserProfile : AppCompatActivity() {
             startActivity(intent)
         }
 
+        followersLinearLayout.setOnClickListener {
+            val intent = Intent(this, synergy::class.java)
+            startActivity(intent)
+        }
 
+        followingLinearLayout.setOnClickListener {
+            val intent = Intent(this, synergy::class.java)
+            startActivity(intent)
+        }
         // Initialize the RecyclerView for analytics
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)

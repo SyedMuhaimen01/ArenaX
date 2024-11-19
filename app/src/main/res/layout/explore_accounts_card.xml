@@ -28,33 +28,33 @@ android:layout_height="wrap_content"
     android:orientation="vertical"
     tools:ignore="UselessLeaf">
 
-<TextView
-android:id="@+id/fullname"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:text="Full Name"
-android:textColor="@color/textColor"
-android:textSize="@dimen/_12sdp"
-android:textStyle="bold"
-tools:ignore="HardcodedText" />
+        <TextView
+        android:id="@+id/fullname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Full Name"
+        android:textColor="@color/textColor"
+        android:textSize="@dimen/_12sdp"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
 
-<TextView
-android:id="@+id/gamerTag"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:text="gamerTag"
-android:textColor="@color/textColor"
-android:textSize="@dimen/_10sdp"
-tools:ignore="HardcodedText" />
+        <TextView
+        android:id="@+id/gamerTag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="gamerTag"
+        android:textColor="@color/textColor"
+        android:textSize="@dimen/_10sdp"
+        tools:ignore="HardcodedText" />
 
-<TextView
-android:id="@+id/gamerRank"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:text="Rank: 00"
-android:textColor="@color/textColor"
-android:textSize="@dimen/_10sdp"
-tools:ignore="HardcodedText" />
+        <TextView
+        android:id="@+id/gamerRank"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Rank: 00"
+        android:textColor="@color/textColor"
+        android:textSize="@dimen/_10sdp"
+        tools:ignore="HardcodedText" />
+            </LinearLayout>
     </LinearLayout>
-    </LinearLayout>
-    </androidx.cardview.widget.CardView>
+</androidx.cardview.widget.CardView>

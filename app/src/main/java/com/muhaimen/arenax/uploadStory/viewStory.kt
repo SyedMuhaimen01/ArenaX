@@ -1,11 +1,8 @@
 package com.muhaimen.arenax.uploadStory
 
 import android.annotation.SuppressLint
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.graphics.Typeface
-import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
@@ -23,7 +20,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
-import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import com.muhaimen.arenax.R

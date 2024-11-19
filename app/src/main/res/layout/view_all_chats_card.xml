@@ -36,18 +36,19 @@
                 android:textSize="@dimen/_12sdp"/>
 
 
-            <TextView
-                android:id="@+id/msg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Latest text"
-                android:textSize="@dimen/_10sdp"
-                tools:ignore="HardcodedText" />
+
             <TextView
                 android:id="@+id/newMsgIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="new message"
+                android:textSize="@dimen/_10sdp"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="time"
                 android:textSize="@dimen/_10sdp"
                 tools:ignore="HardcodedText" />
 

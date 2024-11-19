@@ -18,7 +18,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
-import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.URL
 import java.util.concurrent.Executors
