@@ -36,6 +36,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
@@ -122,6 +123,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var requestQueue: RequestQueue
     private val client = OkHttpClient()
     private lateinit var activity : String
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private val sharedPreferences by lazy { getSharedPreferences("MyGamesPrefs", Context.MODE_PRIVATE) }
     private val sharedPreferences2 by lazy { getSharedPreferences("MyStoriesPrefs", Context.MODE_PRIVATE) }
     private val sharedPreferences3 by lazy { getSharedPreferences("MyPostsPrefs", Context.MODE_PRIVATE) }
@@ -179,14 +181,15 @@ class UserProfile : AppCompatActivity() {
             loadStoriesFromSharedPreferences()
             loadPostsFromSharedPreferences()
             loadRankFromPreferences()
+            loadGamesFromPreferences()
         } else {
             fetchUserDetailsFromFirebase()
-            loadGamesFromPreferences()
             fetchUserStories()
             fetchUserPosts()
             fetchUserRank()
+            fetchUserGames()
         }
-
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         profileImage = findViewById(R.id.profilePicture)
         bioTextView = findViewById(R.id.bioText)
         showMoreTextView = findViewById(R.id.showMore)
@@ -275,6 +278,16 @@ class UserProfile : AppCompatActivity() {
             onProfilePictureClick()
         }
 
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
+        swipeRefreshLayout.setColorSchemeResources(R.color.white)
+        swipeRefreshLayout.setOnRefreshListener {
+            fetchUserDetailsFromFirebase()
+            fetchUserStories()
+            fetchUserPosts()
+            fetchUserRank()
+            fetchUserGames()
+
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -331,13 +344,12 @@ class UserProfile : AppCompatActivity() {
 
     private fun updateEmptyGameList() {
         with(sharedPreferences.edit()) {
-            putString("gamesList", "[]") // Store empty list as a JSON string
+            putString("gamesList", "[]")
             apply()
         }
         runOnUiThread {
-            // Show empty view in the RecyclerView
             myGamesListAdapter.updateGamesList(emptyList())
-            Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
+            Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -401,18 +413,18 @@ class UserProfile : AppCompatActivity() {
                         Log.d("UserProfile", "Data loaded from Firebase: $userData")
                         findViewById<TextView>(R.id.userName).setText(userData.fullname)
                         findViewById<TextView>(R.id.gamerTag).setText(userData.gamerTag)
-                        findViewById<TextView>(R.id.bioText).setText(userData.bio) // New line to set bio
+                        findViewById<TextView>(R.id.bioText).setText(userData.bio)
                         val bio=userData.bio
-
+                        swipeRefreshLayout.isRefreshing = false
                         if (bio != null) {
-                            if (bio.length > 50) { // Adjust the character count as needed
+                            if (bio.length > 50) {
                                 showMoreTextView.visibility = View.VISIBLE
                             }
                         }
                         showMoreTextView.setOnClickListener {
                             bioTextView.maxLines = Int.MAX_VALUE
                             bioTextView.ellipsize = null
-                            showMoreTextView.visibility = View.GONE  // Hide "See More"
+                            showMoreTextView.visibility = View.GONE
                         }
 
                         userData.profilePicture?.let { url ->
@@ -428,7 +440,6 @@ class UserProfile : AppCompatActivity() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-              //      Toast.makeText(this@UserProfile, "Failed to load user details: ${error.message}", Toast.LENGTH_SHORT).show()
                     Log.e("EditUserProfile", "Database error: ${error.message}")
                     loadUserDataFromSharedPreferences()
                 }

@@ -20,6 +20,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -54,10 +57,10 @@ class editProfile : AppCompatActivity() {
     private lateinit var storageReference: StorageReference
     private lateinit var profileImage: ImageView
     private lateinit var editProfileImage: TextView
-    private lateinit var progressDialog: ProgressDialog
     private var imageUri: Uri? = null
     private lateinit var userId: String
     private lateinit var userData: UserData
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private val sharedPreferences5 by lazy { getSharedPreferences("UserInfoPrefs", Context.MODE_PRIVATE) }
 
@@ -80,6 +83,7 @@ class editProfile : AppCompatActivity() {
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(auth.currentUser?.uid ?: "")
         storageReference = FirebaseStorage.getInstance().reference.child("profileImages/${auth.currentUser?.uid}")
 
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         profileImage = findViewById(R.id.ProfilePicture)
         editProfileImage = findViewById(R.id.editProfilePictureText)
         backBUtton=findViewById(R.id.backButton)
@@ -102,6 +106,16 @@ class editProfile : AppCompatActivity() {
         editProfileButton.setOnClickListener {
             updateProfile()
 
+        }
+
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
+        swipeRefreshLayout.setColorSchemeResources(R.color.white)
+        swipeRefreshLayout.setOnRefreshListener {
+            if(sharedPreferences5.getString("userId", "") == "") {
+                fetchUserDetailsFromFirebase()
+            }else{
+                loadUserDataFromSharedPreferences()
+            }
         }
     }
 
@@ -138,6 +152,7 @@ class editProfile : AppCompatActivity() {
         Log.d("EditProfile", "Updating profile picture URL: $imageUrl")
         databaseReference.child("profilePicture").setValue(imageUrl)
             .addOnCompleteListener {
+                updateProfilePictureUrlOnBackend(userId, imageUrl)
                 Toast.makeText(this, "Profile picture updated successfully", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { e ->
@@ -168,6 +183,7 @@ class editProfile : AppCompatActivity() {
                                 bio = userData.bio,
                                 profilePicture = userData.profilePicture
                             )
+                            swipeRefreshLayout.isRefreshing = false
                             saveUserDataToSharedPreferences(userData)
                         } else {
                             Log.w("EditUserProfile", "No data found for user ID: $uid")
@@ -234,16 +250,31 @@ class editProfile : AppCompatActivity() {
             })
     }
 
+    private fun updateProfilePictureUrlOnBackend(userId: String, imageUrl: String) {
+        val url = "${Constants.SERVER_URL}api2/user/$userId/updateProfilePicture"
+
+        val jsonData = JSONObject().apply {
+            put("profilePictureUrl", imageUrl)
+        }
+
+        val jsonObjectRequest = JsonObjectRequest(
+            com.android.volley.Request.Method.POST, url, jsonData,
+            { _ -> Log.d("EditProfile", "Profile picture URL updated on backend")},
+            { error -> Log.e("EditProfile", "Failed to update profile picture URL on backend: ${error.message}")}
+        )
+
+        Volley.newRequestQueue(this).add(jsonObjectRequest)
+    }
+
     private fun saveUserDataToPostgreSQL(userData: UserData) {
         CoroutineScope(Dispatchers.IO).launch {
             val jsonData = JSONObject().apply {
-                put("userId", userData.userId) // Include the Firebase user ID
+                put("userId", userData.userId)
                 put("fullname", userData.fullname)
                 put("gamerTag", userData.gamerTag)
                 put("gender", userData.gender.displayName)
                 put("bio", userData.bio)
             }
-
 
             val url = "${Constants.SERVER_URL}api2/updateUser"
             val client = OkHttpClient()
@@ -309,6 +340,7 @@ class editProfile : AppCompatActivity() {
         bio: String?,
         profilePicture: String?
     ) {
+        swipeRefreshLayout.isRefreshing = false
         findViewById<EditText>(R.id.nameEditText).setText(fullname)
         findViewById<EditText>(R.id.gamertagEditText).setText(gamerTag)
         findViewById<EditText>(R.id.bioEditText).setText(bio)
@@ -324,6 +356,7 @@ class editProfile : AppCompatActivity() {
                 .circleCrop()
                 .into(profileImage)
         }
+
     }
 
     companion object {

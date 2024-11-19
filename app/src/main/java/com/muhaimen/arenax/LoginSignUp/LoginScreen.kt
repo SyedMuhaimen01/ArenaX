@@ -115,7 +115,6 @@ class LoginScreen : AppCompatActivity() {
             val userData = dataSnapshot.getValue(UserData::class.java)
             userData?.let { user ->
                 if (user.accountVerified) {
-                    sendUserDataToServer(user)
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 } else {
@@ -130,32 +129,7 @@ class LoginScreen : AppCompatActivity() {
         }
     }
 
-    private fun sendUserDataToServer(userData: UserData) {
-        val url = "${Constants.SERVER_URL}api/register"
 
-        val jsonObject = JSONObject().apply {
-            put("userId", userData.userId)
-            put("fullname", userData.fullname)
-            put("email", userData.email)
-            put("dOB", userData.dOB)
-            put("gamerTag", userData.gamerTag)
-            put("profilePicture", userData.profilePicture)
-            put("gender", userData.gender.toString())
-            put("accountVerified", userData.accountVerified)
-        }
-
-        val requestQueue = Volley.newRequestQueue(this)
-
-        val jsonObjectRequest = JsonObjectRequest(Request.Method.POST, url, jsonObject,
-            { response ->
-                Log.d(TAG, "User data successfully sent to server: $response")
-            },
-            { error ->
-                Log.e(TAG, "Failed to store data: ${error.message}")
-            }
-        )
-        requestQueue.add(jsonObjectRequest)
-    }
 
     private fun checkUsageStatsPermission(): Boolean {
         val appOpsManager = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager

@@ -13,6 +13,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
@@ -27,6 +28,8 @@ class overallLeaderboard : AppCompatActivity() {
     private lateinit var overallLeaderboardRecyclerView: RecyclerView
     private lateinit var overallLeaderboardAdapter: overallLeaderboardAdapter
     private lateinit var backButton: ImageButton
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
     private val sharedPreferences by lazy { getSharedPreferences("Leaderboard", Context.MODE_PRIVATE) }
 
     private val baseUrl = "${Constants.SERVER_URL}leaderboard/rankings"
@@ -53,6 +56,13 @@ class overallLeaderboard : AppCompatActivity() {
         overallLeaderboardRecyclerView.layoutManager = LinearLayoutManager(this)
 
         fetchRankings()
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
+        swipeRefreshLayout.setColorSchemeResources(R.color.white)
+        swipeRefreshLayout.setOnRefreshListener {
+            fetchRankings()
+
+        }
     }
 
     private fun fetchRankings() {
@@ -66,6 +76,7 @@ class overallLeaderboard : AppCompatActivity() {
                 val rankingsList = parseRankings(response)
                 overallLeaderboardAdapter = overallLeaderboardAdapter(rankingsList)
                 overallLeaderboardRecyclerView.adapter = overallLeaderboardAdapter
+                swipeRefreshLayout.isRefreshing = false
             },
             { error ->
              //   Toast.makeText(this, "Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
