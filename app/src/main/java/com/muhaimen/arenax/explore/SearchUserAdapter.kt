@@ -1,4 +1,4 @@
-package com.muhaimen.arenax.Threads
+package com.muhaimen.arenax.explore
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.UserData
 
 import com.muhaimen.arenax.utils.FirebaseManager

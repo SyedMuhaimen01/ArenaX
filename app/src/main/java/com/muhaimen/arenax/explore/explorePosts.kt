@@ -11,10 +11,10 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.userProfile.UserPost
 import com.muhaimen.arenax.userProfile.explorePostsAdapter
 
-class explorePosts : Fragment() {
+class explorePosts : Fragment() { // Use PascalCase for class name
 
     private lateinit var postsRecyclerView: RecyclerView
-    private lateinit var postsAdapter: explorePostsAdapter
+    private lateinit var postsAdapter: explorePostsAdapter // Correct adapter type
     private val dummyPostsList = generateDummyPosts()  // Generate dummy data here
 
     override fun onCreateView(
@@ -26,7 +26,7 @@ class explorePosts : Fragment() {
         // Initialize RecyclerView and set the adapter
         postsRecyclerView = view.findViewById(R.id.posts_recyclerview)
         postsRecyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
-        postsAdapter = explorePostsAdapter(dummyPostsList)
+        postsAdapter = explorePostsAdapter(dummyPostsList) // Adapter initialization
         postsRecyclerView.adapter = postsAdapter
 
         return view

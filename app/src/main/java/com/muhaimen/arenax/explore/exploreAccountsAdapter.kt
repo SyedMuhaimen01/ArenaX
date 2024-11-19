@@ -61,3 +61,4 @@ class exploreAccountsAdapter(private val profiles: List<UserData>) :
 
     override fun getItemCount(): Int = profiles.size
 }
+
