@@ -148,9 +148,6 @@ class exploreAccounts : Fragment() {
         for (i in 0 until jsonArray.length()) {
             val jsonObject: JSONObject = jsonArray.getJSONObject(i)
 
-
-            val userProfile = UserData(fullName, gamerTag, gamerRank, profilePictureUrl)
-            profiles.add(userProfile)
             // Parsing data as per the backend route response
             val firebaseUid = jsonObject.optString("firebaseUid", "")
             val fullName = jsonObject.optString("fullName", "")
@@ -174,12 +171,10 @@ class exploreAccounts : Fragment() {
 
             profiles.add(userData)
             swipeRefreshLayout.isRefreshing = false
-
         }
 
         return profiles
     }
-
 
     private fun searchUsers(query: String, adapter: SearchUserAdapter) {
         val usersList = mutableListOf<UserData>()
@@ -210,8 +205,5 @@ class exploreAccounts : Fragment() {
             }
         })
     }
-
-}
-
 
 }

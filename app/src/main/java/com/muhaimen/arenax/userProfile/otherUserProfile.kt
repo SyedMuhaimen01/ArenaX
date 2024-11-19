@@ -3,12 +3,10 @@ package com.muhaimen.arenax.userProfile
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
-
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -40,6 +38,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.AnalyticsData
 import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
@@ -52,6 +51,7 @@ import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.uploadStory.uploadStory
 import com.muhaimen.arenax.uploadStory.viewStory
 import com.muhaimen.arenax.utils.Constants
+import com.muhaimen.arenax.utils.FirebaseManager
 import highlightsAdapter
 import okhttp3.Call
 import okhttp3.Callback
@@ -59,10 +59,7 @@ import okhttp3.OkHttpClient
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
-import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 
 @Suppress("DEPRECATED_IDENTITY_EQUALS")
@@ -97,6 +94,7 @@ class otherUserProfile : AppCompatActivity() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var receivedUserId: String
     private lateinit var picture:String
+    private lateinit var currentUserId: String
     @SuppressLint("MissingInflatedId", "SetTextI18n", "CutPasteId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -164,10 +162,42 @@ class otherUserProfile : AppCompatActivity() {
             startActivity(intent)
         }
 
-        requestAllianceButton= findViewById(R.id.requestAllianceButton)
-        requestAllianceButton.setOnClickListener {
+        currentUserId= FirebaseManager.getCurrentUserId().toString()
+        // Assume currentUserId and receivedUserId are already defined.
+        val requestAllianceButton = findViewById<Button>(R.id.requestAllianceButton)
 
+// Check if the current user is following the received user.
+        val isFollowing = checkIfFollowing( currentUserId, receivedUserId)  // Implement this function to check following status
+
+// Set initial button state based on the following status
+        if (isFollowing) {
+            requestAllianceButton.setBackgroundColor(resources.getColor(R.color.secondaryColor))
+            requestAllianceButton.text = "Following"
+            requestAllianceButton.setTextColor(resources.getColor(R.color.textColor))
+        } else {
+            requestAllianceButton.setBackgroundColor(resources.getColor(R.color.secondaryColor))
+            requestAllianceButton.text = "Request Alliance"
+            requestAllianceButton.setTextColor(resources.getColor(R.color.textColor))
         }
+
+        requestAllianceButton.setOnClickListener {
+            // Toggle button text and state based on current text
+            if (requestAllianceButton.text == "Request Alliance") {
+                // Handle sending request (change to "Request Sent")
+                requestAllianceButton.setBackgroundColor(resources.getColor(R.color.secondaryColor))
+                requestAllianceButton.text = "Request Sent"
+                requestAllianceButton.setTextColor(resources.getColor(R.color.textColor))
+                // Optionally, send request to the server or update the database here
+            } else if (requestAllianceButton.text == "Request Sent") {
+                // Handle canceling request or changing to "Request Alliance"
+                requestAllianceButton.setBackgroundColor(resources.getColor(R.color.secondaryColor))
+                requestAllianceButton.text = "Request Alliance"
+                requestAllianceButton.setTextColor(resources.getColor(R.color.textColor))
+                // Optionally, update the database to cancel the request
+            }
+        }
+
+
         addPost= findViewById(R.id.addPostButton)
         addPost.setOnClickListener {
             val intent = Intent(this, UploadContent::class.java)
@@ -182,7 +212,8 @@ class otherUserProfile : AppCompatActivity() {
 
         messageButton=findViewById(R.id.messageButton)
         messageButton.setOnClickListener {
-
+            Log.d("UserProfile", "Message button clicked")
+            fetchUserDataAndStartChat(receivedUserId)
         }
         myGamesButton= findViewById(R.id.myGamesButton)
         myGamesButton.setOnClickListener {
@@ -218,6 +249,13 @@ class otherUserProfile : AppCompatActivity() {
         }
 
 
+    }
+    // Implement the following check logic (example, needs actual data source)
+    private fun checkIfFollowing(currentUserId: String, receivedUserId: String): Boolean {
+        // Query your database to check if currentUserId follows receivedUserId
+        // This can be done by checking the `following` list in your user data
+        // Return true if following, false otherwise
+        return false // Replace this with the actual logic
     }
 
 
@@ -610,4 +648,64 @@ class otherUserProfile : AppCompatActivity() {
         // Add the request to the RequestQueue
         Volley.newRequestQueue(storyRing.context).add(jsonObjectRequest)
     }
+
+    private fun fetchUserDataAndStartChat(receiverId: String) {
+        // Log the receiverId to see what data is being passed
+        Log.d("ChatActivity", "fetchUserDataAndStartChat called with receiverId: $receiverId")
+
+        val database = FirebaseManager.getDatabseInstance()
+        val userRef = database.getReference("userData").child(receiverId)
+
+        // Try to fetch the user data from Firebase
+        userRef.get().addOnSuccessListener { dataSnapshot ->
+            if (dataSnapshot.exists()) {
+                // Fetch only the necessary user data
+                val profileImageUrl = dataSnapshot.child("profilePicture").value?.toString() ?: ""
+                val fullname = dataSnapshot.child("fullname").value?.toString() ?: "Unknown User"
+                val gamerTag = dataSnapshot.child("gamerTag").value?.toString() ?: "Unknown GamerTag"
+                val gamerRank = dataSnapshot.child("gamerRank").value?.toString() ?: "00" // Adjust logic to fetch gamerRank if needed
+
+                // Log the fetched data for debugging
+                Log.d("ChatActivity", "Data retrieved for $receiverId: Fullname = $fullname, GamerTag = $gamerTag, ProfilePicture = $profileImageUrl, GamerRank = $gamerRank")
+
+                // Create intent and pass user data
+                val intent = Intent(this, ChatActivity::class.java).apply {
+                    putExtra("userId", receiverId)
+                    putExtra("fullname", fullname)
+                    putExtra("gamerTag", gamerTag)
+                    putExtra("profilePicture", profileImageUrl)
+                    putExtra("gamerRank", gamerRank)
+                }
+                // Start the ChatActivity with the data
+                startActivity(intent)
+            } else {
+                // If data doesn't exist in Firebase, log the failure
+                Log.d("ChatActivity", "No data found for receiverId: $receiverId. Defaulting to Unknown User data.")
+
+                // Handle failure to retrieve data and start the chat with default values
+                val intent = Intent(this, ChatActivity::class.java).apply {
+                    putExtra("userId", receiverId)
+                    putExtra("fullname", "Unknown User")
+                    putExtra("gamerTag", "Unknown GamerTag")
+                    putExtra("profilePicture", "null") // or a placeholder image URL
+                    putExtra("gamerRank", "00") // Default value
+                }
+                startActivity(intent)
+            }
+        }.addOnFailureListener { exception ->
+            // Log failure with exception message
+            Log.e("ChatActivity", "Error retrieving user data for $receiverId: ${exception.message}")
+
+            // In case of failure, handle by passing default values
+            val intent = Intent(this, ChatActivity::class.java).apply {
+                putExtra("userId", receiverId)
+                putExtra("fullname", "Unknown User")
+                putExtra("gamerTag", "Unknown GamerTag")
+                putExtra("profilePicture", "null") // or a placeholder image URL
+                putExtra("gamerRank", "00") // Default value
+            }
+            startActivity(intent)
+        }
+    }
+
 }

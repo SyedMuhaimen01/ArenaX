@@ -67,6 +67,7 @@ import com.muhaimen.arenax.explore.ExplorePage
 
 import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
+import com.muhaimen.arenax.notifications.Notifications
 import com.muhaimen.arenax.screenTime.ScreenTimeService
 import com.muhaimen.arenax.synergy.synergy
 import com.muhaimen.arenax.uploadContent.UploadContent
@@ -123,6 +124,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var rankTextView: TextView
     private lateinit var followersLinearLayout:LinearLayout
     private lateinit var followingLinearLayout:LinearLayout
+    private lateinit var notificationsButton: ImageButton
     private lateinit var requestQueue: RequestQueue
     private val client = OkHttpClient()
     private lateinit var activity : String
@@ -207,6 +209,12 @@ class UserProfile : AppCompatActivity() {
 
         followersLinearLayout.setOnClickListener {
             val intent = Intent(this, synergy::class.java)
+            startActivity(intent)
+        }
+
+        notificationsButton = findViewById(R.id.notificationsButton)
+        notificationsButton.setOnClickListener {
+            val intent = Intent(this, Notifications::class.java)
             startActivity(intent)
         }
 
