@@ -8,13 +8,14 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.MotionEvent
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -24,6 +25,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.DraggableText
+import com.muhaimen.arenax.dataClasses.Story
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,105 +33,249 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import org.json.JSONArray
 import java.io.IOException
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlin.properties.Delegates
 
 class viewStory : AppCompatActivity() {
-
-    // Declare views
-    private lateinit var backButton: ImageButton
     private lateinit var storyImageView: ImageView
-    private var mediaPlayer: MediaPlayer? = null // Change to nullable MediaPlayer
-    private lateinit var draggableTextContainer: FrameLayout // Container for draggable text views
-    private val handler = Handler() // Create a Handler to schedule delayed tasks
+    private var mediaPlayer: MediaPlayer? = null
+    private lateinit var draggableTextContainer: FrameLayout
+    private val handler = Handler()
     private lateinit var textureView: TextureView
     private val client = OkHttpClient()
-    @SuppressLint("MissingInflatedId")
+    private lateinit var progressBar: ProgressBar
+    private lateinit var timeAgoTextView: TextView
+
+    private var currentIndex = 0
+    private lateinit var storiesList: List<Story>
+
+    private var mediaUrl: String? = null
+    private var audioUrl: String? = null
+    private var textsJson: String? = null
+    private var duration: Int = 0
+    private var uploadedAt: String? = null
+
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_story)
 
-        // Initialize views after setContentView
-        backButton = findViewById(R.id.backButton)
         storyImageView = findViewById(R.id.ImageView)
         textureView = findViewById(R.id.VideoView)
-        // Create a FrameLayout programmatically for draggable text views
         draggableTextContainer = FrameLayout(this).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
-
-        // Add the FrameLayout to the main layout (assuming you have a parent layout in your XML)
-        val mainLayout = findViewById<ViewGroup>(R.id.main) // Replace with your parent layout ID
+        val mainLayout = findViewById<ViewGroup>(R.id.main)
         mainLayout.addView(draggableTextContainer)
 
-        // Apply window insets for immersive UI
+        // Handling window insets
         ViewCompat.setOnApplyWindowInsetsListener(mainLayout) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
         window.statusBarColor = resources.getColor(R.color.primaryColor)
-        // Set the back button action to close the activity
-        backButton.setOnClickListener {
-            onBackPressed() // Call onBackPressed for better navigation handling
+
+        progressBar = findViewById(R.id.progressBar)
+        timeAgoTextView = findViewById(R.id.timeAgoTextView)
+
+        // Fetch data from intent extras
+        mediaUrl = intent.getStringExtra("MEDIA_URL")
+        audioUrl = intent.getStringExtra("Audio")
+        textsJson = intent.getStringExtra("Texts")
+        duration = intent.getIntExtra("Duration", 0)
+        uploadedAt = intent.getStringExtra("UploadedAt")
+
+        // Check if individual story data is received
+        if (!mediaUrl.isNullOrEmpty()) {
+            // Display single story data
+            displaySingleStory()
+        } else {
+            // Handle list of stories
+            storiesList = intent.getParcelableArrayListExtra("storiesList") ?: emptyList()
+            currentIndex = intent.getIntExtra("currentIndex", 0)
+
+
+            if (storiesList.isNotEmpty()) {
+                displayStory()
+            }
         }
 
-        // Get media and audio URLs from intent
-        val mediaUrl = intent.getStringExtra("MEDIA_URL")
-        Log.d("ViewStory", "Received media URL: $mediaUrl")
-        val audioUrl = intent.getStringExtra("Audio")
-        Log.d("ViewStory", "Received audio URL: $audioUrl")
-        val texts = intent.getStringExtra("Texts")
-
-        mediaUrl?.let {
-            loadMedia(it) // Load media content
-        } ?: Log.d("ViewStory", "Media content is null.")
-
-        // Use raw JSON to display draggable texts
-        texts?.let { displayDraggableTexts(it) }
-
-        // Check if audioUrl is not null before playing
-        audioUrl?.let {
-            playTrimmedAudio(it) // Call the function to play the trimmed audio
+        // Handle next/previous story navigation
+        textureView.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_UP -> {
+                    if (event.x > resources.displayMetrics.widthPixels / 2) {
+                        nextStory()
+                    } else {
+                        previousStory()
+                    }
+                    true
+                }
+                else -> false
+            }
         }
-
-        // Schedule to finish the activity after 15 seconds
-        handler.postDelayed({
-            onBackPressed() // Navigate back after 15 seconds
-        }, 15000) // 15000 milliseconds = 15 seconds
     }
+
+    private fun displaySingleStory() {
+        // Use a specific date format, adjust to match your incoming format
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+
+        val uploadedAtDate: Date? = try {
+            uploadedAt?.let { dateFormat.parse(it) }
+        } catch (e: ParseException) {
+            Log.e("DateParsing", "Error parsing uploadedAt date: ${e.message}")
+            null // Handle parsing error
+        }
+
+        val singleStory = Story(
+            id = 0, // Unique ID if needed
+            mediaUrl = mediaUrl ?: "",
+            duration = duration,
+            trimmedAudioUrl = audioUrl,
+            draggableTexts = textsJson?.let { convertToJSONArray(it) },
+            uploadedAt = uploadedAtDate
+        )
+
+        // Set the "time ago" text
+        timeAgoTextView.text = calculateTimeAgo(singleStory.uploadedAt)
+
+        // Load media
+        loadMedia(singleStory.mediaUrl)
+
+        // Play audio if available
+        singleStory.trimmedAudioUrl?.let {
+            playTrimmedAudio(it)
+        }
+
+        // Display draggable texts if available
+        singleStory.draggableTexts?.let { displayDraggableTexts(it.toString()) }
+
+        // Set progress bar
+        progressBar.max = 1
+        progressBar.progress = 1 // Progress is 1-based
+
+        // Navigate to the next story after duration
+        handler.postDelayed({ finish() }, singleStory.duration.toLong())
+    }
+
+    private fun convertToJSONArray(json: String): JSONArray? {
+        return try {
+            JSONArray(json)
+        } catch (e: JSONException) {
+            Log.e("JSON", "Error converting string to JSONArray: ${e.message}")
+            null
+        }
+    }
+
+
+
+
+    private fun displayStory() {
+        val currentStory = storiesList[currentIndex]
+
+        // Set the "time ago" text
+        timeAgoTextView.text = calculateTimeAgo(currentStory.uploadedAt)
+
+        // Load media
+        loadMedia(currentStory.mediaUrl)
+
+        // Display draggable texts
+        displayDraggableTexts(currentStory.draggableTexts.toString())
+
+        // Load audio if available
+        currentStory.trimmedAudioUrl?.let { audioUrl ->
+            playTrimmedAudio(audioUrl)
+        }
+
+        // Set progress bar
+        progressBar.max = storiesList.size
+        progressBar.progress = currentIndex + 1 // Progress is 1-based
+
+        // Navigate to the next story after duration
+        handler.postDelayed({ nextStory() }, currentStory.duration.toLong())
+    }
+
+
+    private fun calculateTimeAgo(uploadedAt: Date?): String {
+        if (uploadedAt == null) return "Unknown time"
+
+        val now = System.currentTimeMillis()
+        val diffInMillis = now - uploadedAt.time
+        val secondsAgo = diffInMillis / 1000
+        val minutesAgo = secondsAgo / 60
+        val hoursAgo = minutesAgo / 60
+        val daysAgo = hoursAgo / 24
+        val weeksAgo = daysAgo / 7
+
+        return when {
+            secondsAgo < 60 -> "Just now"
+            minutesAgo < 60 -> "$minutesAgo minutes ago"
+            hoursAgo < 24 -> "$hoursAgo hours ago"
+            daysAgo < 7 -> "$daysAgo days ago"
+            weeksAgo < 52 -> "$weeksAgo weeks ago"
+            else -> SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(uploadedAt)
+        }
+    }
+
 
     private fun loadMedia(mediaUrl: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            val mediaType = getMediaType(mediaUrl)
+            try {
+                val mediaType = getMediaType(mediaUrl)
 
-            // Switch back to the main thread to update UI
-            withContext(Dispatchers.Main) {
-                if (mediaType != null) {
+                withContext(Dispatchers.Main) {
                     when {
-                        mediaType.startsWith("image/") -> {
+                        mediaType != null && mediaType.startsWith("image/") -> {
                             storyImageView.visibility = View.VISIBLE
                             textureView.visibility = View.GONE
                             setImage(mediaUrl)
                         }
-                        mediaType.startsWith("video/mp4") -> {
+                        mediaType != null && mediaType.startsWith("video/mp4") -> {
                             storyImageView.visibility = View.GONE
                             textureView.visibility = View.VISIBLE
                             playVideo(mediaUrl)
                         }
                         else -> {
                             Log.e("ViewPost", "Unsupported media type: $mediaType")
+                            // Optionally show an error message to the user
                         }
                     }
-                } else {
-                    Log.e("ViewPost", "Failed to retrieve media type.")
                 }
+            } catch (e: Exception) {
+                Log.e("ViewPost", "Error loading media: ${e.message}")
             }
         }
     }
+
+
+    private fun nextStory() {
+        if (currentIndex < storiesList.size - 1) {
+            currentIndex++
+            displayStory()
+        } else {
+            finish()
+        }
+    }
+
+
+    private fun previousStory() {
+        if (currentIndex > 0) {
+            currentIndex--
+            displayStory()
+        }
+    }
+
     private fun playVideo(videoPath: String) {
         val uri = Uri.parse(videoPath)
         Log.d("ViewPost", "Attempting to play video from path: $videoPath")
@@ -148,7 +294,6 @@ class viewStory : AppCompatActivity() {
                         Log.d("ViewPost", "Video playback started.")
                     }
 
-                    // Add buffering listeners
                     setOnInfoListener { mp, what, extra ->
                         when (what) {
                             MediaPlayer.MEDIA_INFO_BUFFERING_START -> {
@@ -195,7 +340,6 @@ class viewStory : AppCompatActivity() {
 
         return try {
             val response: Response = client.newCall(request).execute()
-            // Handle response and return media type
             response.header("Content-Type").also {
                 Log.d("ViewPost", "Media type retrieved: $it")
             }
@@ -221,16 +365,14 @@ class viewStory : AppCompatActivity() {
     }
 
     private fun displayDraggableTexts(json: String) {
-        Log.d("DraggableTextsJson", "Received JSON string: $json") // Log the JSON string
+        Log.d("DraggableTextsJson", "Received JSON string: $json")
 
         try {
             val jsonObject = JSONObject(json)
             val valuesArray = jsonObject.getJSONArray("values")
 
-            // Log the received draggable texts
             Log.d("DraggableTexts", "Received draggable texts count: ${valuesArray.length()}")
 
-            // Create and position TextView for each draggable text
             for (i in 0 until valuesArray.length()) {
                 val valueObject = valuesArray.getJSONObject(i)
                 val nameValuePairs = valueObject.getJSONObject("nameValuePairs")
@@ -238,17 +380,13 @@ class viewStory : AppCompatActivity() {
                 val content = nameValuePairs.getString("content")
                 val x = nameValuePairs.getDouble("x").toFloat()
                 val y = nameValuePairs.getDouble("y").toFloat()
-                // Directly assign the integer values as colors
                 val backgroundColor = nameValuePairs.getInt("backgroundColor")
                 val textColor = nameValuePairs.getInt("textColor")
 
                 Log.d("DraggableText", "Content: $content, X: $x, Y: $y, BG: $backgroundColor, Text: $textColor")
-                // Create an instance of DraggableText
                 val draggableText = DraggableText(content, x, y, backgroundColor, textColor)
 
-                // Create the draggable text view with the specified content, position, and colors
                 val textView = createDraggableTextView(draggableText)
-                textView.textSize = 20f // Set text size
                 draggableTextContainer.addView(textView)
             }
         } catch (e: JSONException) {
@@ -260,41 +398,35 @@ class viewStory : AppCompatActivity() {
 
     private fun createDraggableTextView(draggableText: DraggableText): TextView {
         return TextView(this).apply {
-            text = draggableText.content // Set the text content
-            setTextSize(20f) // Set the text size
+            text = draggableText.content
+            textSize = 20f
             layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
             )
             this.x = draggableText.x
             this.y = draggableText.y
-
-            // Set the background color and text color using the DraggableText methods
             setBackgroundColor(draggableText.getBackgroundColor())
             setTextColor(draggableText.getTextColor())
-
-            // Make sure the TextView is visible
-            visibility = TextView.VISIBLE
+            visibility = View.VISIBLE
             typeface = Typeface.create(typeface, Typeface.BOLD)
         }
     }
 
     private fun playTrimmedAudio(outputPath: String) {
         try {
-            // Initialize MediaPlayer
             mediaPlayer = MediaPlayer().apply {
                 setDataSource(outputPath)
-                prepareAsync() // Prepare the player asynchronously
+                prepareAsync()
 
                 setOnPreparedListener {
-                    isLooping = true // Set looping
-                    start() // Start playing when prepared
+                    isLooping = true
+                    start()
                     Log.d("MediaPlayer", "Playing trimmed audio in loop.")
                 }
 
                 setOnCompletionListener {
                     Log.d("MediaPlayer", "Trimmed audio playback completed. It will restart.")
-                    // No need to release here, as it will loop indefinitely
                 }
             }
         } catch (e: IOException) {
@@ -306,33 +438,30 @@ class viewStory : AppCompatActivity() {
         super.onPause()
         mediaPlayer?.let {
             if (it.isPlaying) {
-                it.pause() // Pause the audio playback
+                it.pause()
             }
         }
         Log.d("MediaPlayer", "Audio playback paused.")
     }
 
-    // Properly release the MediaPlayer when the activity is destroyed
     override fun onDestroy() {
         super.onDestroy()
-        releaseMediaPlayer() // Release media player resources
-        handler.removeCallbacksAndMessages(null) // Remove any pending callbacks
+        releaseMediaPlayer()
+        handler.removeCallbacksAndMessages(null)
     }
 
-    // Handle back button press and release the MediaPlayer
     override fun onBackPressed() {
-        releaseMediaPlayer() // Release media player resources
-        super.onBackPressed() // Call super to finish the activity
+        releaseMediaPlayer()
+        super.onBackPressed()
     }
 
-    // Release MediaPlayer resources to avoid memory leaks
     private fun releaseMediaPlayer() {
         mediaPlayer?.let {
             if (it.isPlaying) {
-                it.stop() // Stop the playback
+                it.stop()
             }
-            it.release() // Release the resources
-            mediaPlayer = null // Set to null after release
+            it.release()
+            mediaPlayer = null
             Log.d("MediaPlayer", "MediaPlayer released.")
         }
     }

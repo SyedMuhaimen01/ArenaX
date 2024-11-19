@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.userProfile
 
+import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -17,13 +18,11 @@ class ProfilePictureActivity : AppCompatActivity() {
 
         // Get the URL from the intent and load the image
         val profilePictureUrl = intent.getStringExtra("profilePictureUrl")
-        if (!profilePictureUrl.isNullOrEmpty()) {
-            Glide.with(this)
-                .load(profilePictureUrl)
-                .into(fullProfileImageView)
-        } else {
-            // Handle case where the URL is empty
-            fullProfileImageView.setImageResource(R.drawable.circle)
-        }
+        val uri= Uri.parse(profilePictureUrl)
+
+        Glide.with(this)
+            .load(uri)
+            .into(fullProfileImageView)
+
     }
 }
