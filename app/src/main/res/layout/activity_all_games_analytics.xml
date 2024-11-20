@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/swipeRefreshLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".gamesDashboard.allGamesAnalytics">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@color/primaryColor"
+                android:paddingLeft="@dimen/_10sdp"
+                android:paddingTop="@dimen/_10sdp"
+                android:paddingBottom="@dimen/_10sdp">
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:src="@mipmap/back_white2_icon"
+                    android:contentDescription="Back Button"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/_5sdp"
+                    android:text="Game Analytics"
+                    android:textStyle="bold"
+                    android:textColor="@color/backgroundColor"
+                    android:textSize="@dimen/_16sdp"/>
+            </LinearLayout>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total Play Time (hrs)"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:textColor="@color/textColor"
+                        android:paddingLeft="@dimen/_15sdp"></TextView>
+                    <!-- Line Chart for Screen Time -->
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/screenTimeLineChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_150sdp"
+                        android:layout_marginLeft="@dimen/_15sdp"
+                        android:layout_marginRight="@dimen/_15sdp"
+                        android:background="@android:color/white"/>
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Avg Session Length (hrs)"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:textColor="@color/textColor"
+                        android:paddingLeft="@dimen/_15sdp"></TextView>
+                    <!-- Line Chart for Screen Time -->
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/averageSessionLengthChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_150sdp"
+                        android:layout_marginLeft="@dimen/_15sdp"
+                        android:layout_marginRight="@dimen/_15sdp"
+                        android:background="@android:color/white"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Session Frequency per day"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:textColor="@color/textColor"
+                        android:paddingLeft="@dimen/_15sdp"></TextView>
+                    <!-- Line Chart for Screen Time -->
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/sessionFrequencyBarChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_150sdp"
+                        android:layout_marginLeft="@dimen/_15sdp"
+                        android:layout_marginRight="@dimen/_15sdp"
+                        android:background="@android:color/white"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Peak Playtime"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:textColor="@color/textColor"
+                        android:paddingLeft="@dimen/_15sdp"></TextView>
+
+                    <com.github.mikephil.charting.charts.ScatterChart
+                        android:id="@+id/peakPlayTimeChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_200sdp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Game Comparison"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:textColor="@color/textColor"
+                        android:paddingLeft="@dimen/_15sdp"></TextView>
+                    <!-- Line Chart for Screen Time -->
+                    <com.github.mikephil.charting.charts.PieChart
+                        android:id="@+id/gameComparisonPieChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_150sdp"
+                        android:layout_marginLeft="@dimen/_15sdp"
+                        android:layout_marginRight="@dimen/_15sdp"
+                        android:background="@android:color/white"/>
+
+                </LinearLayout>
+            </ScrollView>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -61,6 +61,11 @@ class ViewGameAnalytics : AppCompatActivity() {
             insets
         }
 
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
+        swipeRefreshLayout.setColorSchemeResources(R.color.white)
+
+
         // Initialize views
         gameName = findViewById(R.id.game_name)
         totalHours = findViewById(R.id.total_hours)
@@ -80,19 +85,15 @@ class ViewGameAnalytics : AppCompatActivity() {
         } else {
             gameName.text = "Unknown Game"
         }
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
-        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
-        swipeRefreshLayout.setColorSchemeResources(R.color.white)
+
+        backButton.setOnClickListener {
+            finish()
+        }
+
         swipeRefreshLayout.setOnRefreshListener {
             if (game != null) {
                 fetchUserGameStats(game)
             }
-        }
-
-
-
-        backButton.setOnClickListener {
-            finish()
         }
     }
 
