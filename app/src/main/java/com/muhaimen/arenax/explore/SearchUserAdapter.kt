@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.userProfile.otherUserProfile
 
 import com.muhaimen.arenax.utils.FirebaseManager
 
@@ -43,12 +44,8 @@ class SearchUserAdapter(
                 if (position != RecyclerView.NO_POSITION) {
                     val user = userList[position]
                     // Start the ViewGameAnalytics activity
-                    val intent = Intent(itemView.context, ChatActivity::class.java).apply {
+                    val intent = Intent(itemView.context, otherUserProfile::class.java).apply {
                         putExtra("userId", user.userId)
-                        putExtra("fullname", user.fullname)
-                        putExtra("gamerTag", user.gamerTag)
-                        putExtra("profilePicture", user.profilePicture)
-                        putExtra("gamerRank", "00")
                     }
                     itemView.context.startActivity(intent)
                 }

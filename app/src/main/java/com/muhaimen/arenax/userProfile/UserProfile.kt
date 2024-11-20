@@ -124,7 +124,6 @@ class UserProfile : AppCompatActivity() {
     private lateinit var rankTextView: TextView
     private lateinit var followersLinearLayout:LinearLayout
     private lateinit var followingLinearLayout:LinearLayout
-    private lateinit var notificationsButton: ImageButton
     private lateinit var requestQueue: RequestQueue
     private val client = OkHttpClient()
     private lateinit var activity : String
@@ -212,11 +211,7 @@ class UserProfile : AppCompatActivity() {
             startActivity(intent)
         }
 
-        notificationsButton = findViewById(R.id.notificationsButton)
-        notificationsButton.setOnClickListener {
-            val intent = Intent(this, Notifications::class.java)
-            startActivity(intent)
-        }
+
 
         followingLinearLayout.setOnClickListener {
             val intent = Intent(this, synergy::class.java)
