@@ -10,10 +10,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ViewAllChats
+import com.muhaimen.arenax.notifications.Notifications
 
 class UserFeed : AppCompatActivity() {
     private lateinit var userFeedAdapter: UserFeedPostsAdapter
     private lateinit var threadsButton: ImageButton
+    private lateinit var notificationsButton: ImageButton
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_feed)
@@ -35,6 +37,11 @@ class UserFeed : AppCompatActivity() {
             startActivity(intent)
         }
 
+        notificationsButton = findViewById(R.id.notificationsButton)
+        notificationsButton.setOnClickListener {
+            val intent = Intent(this, Notifications::class.java)
+            startActivity(intent)
+        }
         // Initialize RecyclerView and Adapter
         val recyclerView: RecyclerView = findViewById(R.id.recyclerViewUserFeed)
         recyclerView.layoutManager = LinearLayoutManager(this)

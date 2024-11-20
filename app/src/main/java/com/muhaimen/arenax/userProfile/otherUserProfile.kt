@@ -18,6 +18,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -53,6 +54,10 @@ import com.muhaimen.arenax.uploadStory.viewStory
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import highlightsAdapter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -95,7 +100,7 @@ class otherUserProfile : AppCompatActivity() {
     private lateinit var receivedUserId: String
     private lateinit var picture:String
     private lateinit var currentUserId: String
-    @SuppressLint("MissingInflatedId", "SetTextI18n", "CutPasteId")
+    @SuppressLint("MissingInflatedId", "SetTextI18n", "CutPasteId", "SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -166,37 +171,18 @@ class otherUserProfile : AppCompatActivity() {
         // Assume currentUserId and receivedUserId are already defined.
         val requestAllianceButton = findViewById<Button>(R.id.requestAllianceButton)
 
-// Check if the current user is following the received user.
-        val isFollowing = checkIfFollowing( currentUserId, receivedUserId)  // Implement this function to check following status
+        if (currentUserId != null && receivedUserId != null) {
+            // Check alliance status on activity load
+            lifecycleScope.launch(Dispatchers.Main) {
+                val allianceStatus = checkIfAlliance(currentUserId, receivedUserId)
+                updateButtonState(requestAllianceButton, allianceStatus)
+            }
 
-// Set initial button state based on the following status
-        if (isFollowing) {
-            requestAllianceButton.setBackgroundColor(resources.getColor(R.color.secondaryColor))
-            requestAllianceButton.text = "Following"
-            requestAllianceButton.setTextColor(resources.getColor(R.color.textColor))
-        } else {
-            requestAllianceButton.setBackgroundColor(resources.getColor(R.color.secondaryColor))
-            requestAllianceButton.text = "Request Alliance"
-            requestAllianceButton.setTextColor(resources.getColor(R.color.textColor))
-        }
-
-        requestAllianceButton.setOnClickListener {
-            // Toggle button text and state based on current text
-            if (requestAllianceButton.text == "Request Alliance") {
-                // Handle sending request (change to "Request Sent")
-                requestAllianceButton.setBackgroundColor(resources.getColor(R.color.secondaryColor))
-                requestAllianceButton.text = "Request Sent"
-                requestAllianceButton.setTextColor(resources.getColor(R.color.textColor))
-                // Optionally, send request to the server or update the database here
-            } else if (requestAllianceButton.text == "Request Sent") {
-                // Handle canceling request or changing to "Request Alliance"
-                requestAllianceButton.setBackgroundColor(resources.getColor(R.color.secondaryColor))
-                requestAllianceButton.text = "Request Alliance"
-                requestAllianceButton.setTextColor(resources.getColor(R.color.textColor))
-                // Optionally, update the database to cancel the request
+            // Set up button click listener
+            requestAllianceButton.setOnClickListener {
+                handleButtonClick(requestAllianceButton, currentUserId, receivedUserId)
             }
         }
-
 
         addPost= findViewById(R.id.addPostButton)
         addPost.setOnClickListener {
@@ -250,13 +236,131 @@ class otherUserProfile : AppCompatActivity() {
 
 
     }
-    // Implement the following check logic (example, needs actual data source)
-    private fun checkIfFollowing(currentUserId: String, receivedUserId: String): Boolean {
-        // Query your database to check if currentUserId follows receivedUserId
-        // This can be done by checking the `following` list in your user data
-        // Return true if following, false otherwise
-        return false // Replace this with the actual logic
+
+
+    private fun updateButtonState(button: Button, allianceStatus: String) {
+        when (allianceStatus) {
+            "accepted" -> {
+                button.setBackgroundColor(resources.getColor(R.color.secondaryColor))
+                button.text = "Alliance Established"
+                button.setTextColor(resources.getColor(R.color.textColor))
+                button.isEnabled = false // Disable button for established alliance
+            }
+            "pending" -> {
+                button.setBackgroundColor(resources.getColor(R.color.hinttextColor))
+                button.text = "Request Pending"
+                button.setTextColor(resources.getColor(R.color.textColor))
+                button.isEnabled = true // Disable button for pending alliance
+            }
+            "false" -> {
+                button.setBackgroundColor(resources.getColor(R.color.primaryColor))
+                button.text = "Request Alliance"
+                button.setTextColor(resources.getColor(R.color.textColor))
+                button.isEnabled = true // Enable button for new alliance request
+            }
+        }
     }
+
+    // Handles button click logic
+    @SuppressLint("RestrictedApi")
+    private fun handleButtonClick(button: Button, currentUserId: String, receiverId: String) {
+        val database = FirebaseDatabase.getInstance()
+        val userRef = database.getReference("userData")
+
+        when (button.text) {
+            "Request Alliance" -> {
+                // Update button UI to reflect the pending status
+                button.setBackgroundColor(resources.getColor(R.color.hinttextColor))
+                button.text = "Request Pending"
+                button.setTextColor(resources.getColor(R.color.textColor))
+                button.isEnabled = true
+
+                // Create the alliance request object
+                val allianceRequest = mapOf(
+                    "status" to "pending",
+                    "receiverId" to receiverId
+                )
+
+                val followerRequest = mapOf(
+                    "status" to "pending",
+                    "followerId" to currentUserId
+                )
+
+                // Update current user's following node
+                val currentUserFollowingRef = userRef.child(currentUserId).child("synerG").child("following").child(receiverId)
+                // Update receiver's followers node
+                val receiverFollowersRef = userRef.child(receiverId).child("synerG").child("followers").child(currentUserId)
+
+                // Perform both updates simultaneously
+                val updates = mapOf(
+                    currentUserFollowingRef.path.toString() to allianceRequest,
+                    receiverFollowersRef.path.toString() to followerRequest
+                )
+
+                database.reference.updateChildren(updates)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("AllianceRequest", "Alliance request sent to $receiverId and added to both nodes")
+                        } else {
+                            Log.e("AllianceRequest", "Failed to send request: ${task.exception?.message}")
+                        }
+                    }
+            }
+            "Request Pending" -> {
+                // Update button UI to reflect the request being canceled
+                button.setBackgroundColor(resources.getColor(R.color.primaryColor))
+                button.text = "Request Alliance"
+                button.setTextColor(resources.getColor(R.color.textColor))
+                button.isEnabled = true
+
+                // Remove entries from both following and followers nodes
+                val currentUserFollowingRef = userRef.child(currentUserId).child("synerG").child("following").child(receiverId)
+                val receiverFollowersRef = userRef.child(receiverId).child("synerG").child("followers").child(currentUserId)
+
+                // Perform both deletions simultaneously
+                val deletions = mapOf(
+                    currentUserFollowingRef.path.toString() to null,
+                    receiverFollowersRef.path.toString() to null
+                )
+
+                database.reference.updateChildren(deletions)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("AllianceRequest", "Alliance request canceled for $receiverId and removed from both nodes")
+                        } else {
+                            Log.e("AllianceRequest", "Failed to cancel request: ${task.exception?.message}")
+                        }
+                    }
+            }
+        }
+    }
+
+
+    // Checks the alliance status
+    suspend fun checkIfAlliance(currentUserId: String, receivedUserId: String): String {
+        val database = FirebaseDatabase.getInstance()
+        val userRef = database.getReference("userData")
+
+        return try {
+            val dataSnapshot = userRef.child(currentUserId)
+                .child("synerG")
+                .child("alliance")
+                .child(receivedUserId)
+                .get()
+                .await()
+
+            if (dataSnapshot.exists()) {
+                val status = dataSnapshot.child("status").value?.toString() ?: "false"
+                status // Return "accepted", "pending", or unexpected values directly
+            } else {
+                "false" // No alliance exists
+            }
+        } catch (e: Exception) {
+            Log.e("AllianceCheck", "Failed to check alliance: ${e.message}")
+            "false"
+        }
+    }
+
 
 
     private fun fetchUserGames() {

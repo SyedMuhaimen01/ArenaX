@@ -270,7 +270,7 @@
 
                     <Button
                         android:id="@+id/requestAllianceButton"
-                        android:text="Request Alliance"
+
                         android:layout_width="@dimen/_15sdp"
                         android:layout_height="@dimen/_20sdp"
                         android:textAlignment="center"
