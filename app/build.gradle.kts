@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.muhaimen.arenax"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.muhaimen.arenax"
@@ -28,10 +28,12 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -67,9 +69,8 @@ dependencies {
     kapt(libs.glideCompiler)
     implementation(libs.kotlin)
     implementation(libs.okhttp)
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(libs.jsoup)
-    implementation ("com.arthenica:mobile-ffmpeg-full-gpl:4.4.LTS")
+    implementation("com.arthenica:mobile-ffmpeg-full-gpl:4.4.LTS")
     implementation(libs.androidx.swiperefreshlayout)
-
 }
