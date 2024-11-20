@@ -326,7 +326,7 @@ class UserProfile : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 runOnUiThread {
-                    Toast.makeText(this@UserProfile, "Failed to fetch games", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this@UserProfile, "Failed to fetch games", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -341,7 +341,7 @@ class UserProfile : AppCompatActivity() {
                     }
                 } else {
                     runOnUiThread {
-                        Toast.makeText(this@UserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@UserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -355,7 +355,7 @@ class UserProfile : AppCompatActivity() {
         }
         runOnUiThread {
             myGamesListAdapter.updateGamesList(emptyList())
-            Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show()
         }
     }
 
