@@ -71,6 +71,7 @@ import java.util.Date
 class otherUserProfile : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
+    private val database = FirebaseDatabase.getInstance()
     private lateinit var storageReference: StorageReference
     private lateinit var myGamesListRecyclerView: RecyclerView
     private lateinit var myGamesListAdapter: MyGamesListAdapter
@@ -85,6 +86,8 @@ class otherUserProfile : AppCompatActivity() {
     private lateinit var bioTextView: TextView
     private lateinit var showMoreTextView: TextView
     private lateinit var requestAllianceButton: Button
+    private lateinit var followingTextView: TextView
+    private lateinit var followersTextView: TextView
     private lateinit var myGamesButton: ImageButton
     private lateinit var addPost: ImageButton
     private lateinit var uploadStoryButton: ImageButton
@@ -136,6 +139,15 @@ class otherUserProfile : AppCompatActivity() {
         fetchUserRank()
         fetchUserGames()
 
+        followersTextView = findViewById(R.id.followersTextView)
+        followingTextView = findViewById(R.id.followingTextView)
+
+        if (receivedUserId != null) {
+            fetchAndSetCounts(receivedUserId)
+        } else {
+            Log.e("ProfileActivity", "Current user ID is null.")
+        }
+
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         profileImage = findViewById(R.id.profilePicture)
         bioTextView = findViewById(R.id.bioText)
@@ -169,7 +181,7 @@ class otherUserProfile : AppCompatActivity() {
 
         currentUserId= FirebaseManager.getCurrentUserId().toString()
         // Assume currentUserId and receivedUserId are already defined.
-        val requestAllianceButton = findViewById<Button>(R.id.requestAllianceButton)
+        requestAllianceButton = findViewById(R.id.requestAllianceButton)
 
         if (currentUserId != null && receivedUserId != null) {
             // Check alliance status on activity load
@@ -811,5 +823,36 @@ class otherUserProfile : AppCompatActivity() {
             startActivity(intent)
         }
     }
+    private fun fetchAndSetCounts(userId: String) {
+        val followersRef = database.getReference("userData/$userId/synerG/followers")
+        val followingRef = database.getReference("userData/$userId/synerG/following")
 
+        // Fetch and count followers with status "accepted"
+        followersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val acceptedFollowersCount = snapshot.children.count {
+                    it.child("status").value?.toString() == "accepted"
+                }
+                followersTextView.text = acceptedFollowersCount.toString()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ProfileActivity", "Error fetching followers: ${error.message}")
+            }
+        })
+
+        // Fetch and count following with status "accepted"
+        followingRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val acceptedFollowingCount = snapshot.children.count {
+                    it.child("status").value?.toString() == "accepted"
+                }
+                followingTextView.text = acceptedFollowingCount.toString()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ProfileActivity", "Error fetching following: ${error.message}")
+            }
+        })
+    }
 }

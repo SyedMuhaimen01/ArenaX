@@ -96,7 +96,7 @@ class uploadStory : AppCompatActivity() {
     private var isPlaying = false
     private var startTime: Int = 0
     private var endTime: Int = 0
-    val fixedDuration=15000 //15 seconds
+    val fixedDuration=15 //15 seconds
     private var mediaUri: Uri? = null
     private var trimmedAudioUrl:String?=null
     private lateinit var draggableContainers: MutableList<FrameLayout>
@@ -181,6 +181,7 @@ class uploadStory : AppCompatActivity() {
 
 
 
+
 // Listener for the Start SeekBar
         startSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
@@ -218,7 +219,6 @@ class uploadStory : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
-
 
         playPauseButton.setOnClickListener {
             if (isPlaying) {

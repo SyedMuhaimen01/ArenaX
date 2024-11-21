@@ -79,7 +79,7 @@ class ExplorePage : AppCompatActivity() {
         }
 
         profileButton= findViewById(R.id.profileButton)
-        addPost.setOnClickListener {
+        profileButton.setOnClickListener {
             val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
         }

@@ -10,12 +10,12 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.ChatItem
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.utils.FirebaseManager
+import com.muhaimen.arenax.explore.SearchUserAdapter
 
 class ViewAllChats : AppCompatActivity() {
 
@@ -30,28 +30,14 @@ class ViewAllChats : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_all_chats)
 
-        // Chat RecyclerView setup
-        chatRecyclerView = findViewById(R.id.viewChatsRecyclerView)
-        chatAdapter = ViewAllChatsAdapter(emptyList())
-        chatRecyclerView.layoutManager = LinearLayoutManager(this)
-        chatRecyclerView.adapter = chatAdapter
-        Log.d("ViewAllChats", "Initialized chatRecyclerView with adapter")
-
-        // Stories RecyclerView setup
-
-        // User search setup
-        searchUserRecyclerView = findViewById(R.id.searchUserRecyclerView)
-        val searchUserAdapter = SearchUserAdapter(emptyList())
-        searchUserRecyclerView.layoutManager = LinearLayoutManager(this)
-        searchUserRecyclerView.adapter = searchUserAdapter
-        chatRecyclerView.visibility = View.VISIBLE
+        // Initialize RecyclerViews and adapters
+        setupChatRecyclerView()
+        setupSearchUserRecyclerView()
 
         searchEditText = findViewById(R.id.searchbar)
         searchEditText.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                chatRecyclerView.visibility = View.GONE
-                searchUserRecyclerView.visibility = View.VISIBLE
-                Log.d("ViewAllChats", "Switched to search mode")
+                toggleRecyclerViewVisibility(showSearch = true)
             }
         }
 
@@ -61,28 +47,42 @@ class ViewAllChats : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val searchText = s.toString().trim()
                 if (searchText.isNotEmpty()) {
-                    searchUsers(searchText, searchUserAdapter)
+                    searchUsers(searchText, searchUserRecyclerView.adapter as SearchUserAdapter)
                 } else {
-                    searchUserAdapter.updateUserList(emptyList())
+                    (searchUserRecyclerView.adapter as SearchUserAdapter).updateUserList(emptyList())
                 }
             }
         })
 
         onBackPressedDispatcher.addCallback(this) {
             if (searchUserRecyclerView.visibility == View.VISIBLE) {
-                searchUserRecyclerView.visibility = View.GONE
-                chatRecyclerView.visibility = View.VISIBLE
+                toggleRecyclerViewVisibility(showSearch = false)
                 searchEditText.text.clear()
             } else {
                 finish()
             }
         }
 
-        if (currentUserId != null) {
-            fetchUserChats(currentUserId)
-        } else {
-            Log.e("ViewAllChats", "Current user ID is null.")
-        }
+        currentUserId?.let { fetchUserChats(it) } ?: Log.e("ViewAllChats", "Current user ID is null.")
+    }
+
+    private fun setupChatRecyclerView() {
+        chatRecyclerView = findViewById(R.id.viewChatsRecyclerView)
+        chatAdapter = ViewAllChatsAdapter(emptyList())
+        chatRecyclerView.layoutManager = LinearLayoutManager(this)
+        chatRecyclerView.adapter = chatAdapter
+    }
+
+    private fun setupSearchUserRecyclerView() {
+        searchUserRecyclerView = findViewById(R.id.searchUserRecyclerView)
+        val searchUserAdapter = SearchUserAdapter(emptyList())
+        searchUserRecyclerView.layoutManager = LinearLayoutManager(this)
+        searchUserRecyclerView.adapter = searchUserAdapter
+    }
+
+    private fun toggleRecyclerViewVisibility(showSearch: Boolean) {
+        chatRecyclerView.visibility = if (showSearch) View.GONE else View.VISIBLE
+        searchUserRecyclerView.visibility = if (showSearch) View.VISIBLE else View.GONE
     }
 
     private fun fetchUserChats(userId: String) {
@@ -90,52 +90,38 @@ class ViewAllChats : AppCompatActivity() {
         val uniqueChatPairs = mutableSetOf<Pair<String, String>>()
         val chatItems = mutableListOf<ChatItem>()
 
-        // Log the start of the fetch operation
         Log.d("ViewAllChats", "Fetching chats for user: $userId")
 
-        // Fetch all child nodes under the user's chats node
-        chatsRef.get().addOnSuccessListener { userChatsSnapshot ->
-            Log.d("ViewAllChats", "Fetched all chat pairs for user: ${userChatsSnapshot.childrenCount}")
+        chatsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                snapshot.children.forEach { chatPairSnapshot ->
+                    val otherUserId = chatPairSnapshot.key?.split("-")?.find { it != userId } ?: return@forEach
+                    val latestChatSnapshot = chatPairSnapshot.children.maxByOrNull {
+                        it.child("timestamp").getValue(Long::class.java) ?: 0L
+                    }
 
-            userChatsSnapshot.children.forEach { chatPairSnapshot ->
-                // For each chat pair node (currentUser-otherUser)
-                val otherUserId = chatPairSnapshot.key?.split("-")?.find { it != userId } ?: return@forEach
+                    latestChatSnapshot?.let {
+                        val chatId = it.key ?: return@forEach
+                        val senderId = it.child("senderId").value?.toString().orEmpty()
+                        val receiverId = it.child("receiverId").value?.toString().orEmpty()
+                        val lastMessage = it.child("lastMessage").value?.toString().orEmpty()
+                        val timestamp = it.child("timestamp").getValue(Long::class.java) ?: 0L
 
-                // Fetch the latest chat item from this chat pair
-                val latestChatSnapshot = chatPairSnapshot.children.maxByOrNull { it.child("timestamp").getValue(Long::class.java) ?: 0L }
-
-                // If there's a valid latest chat, process it
-                if (latestChatSnapshot != null) {
-                    val chatId = latestChatSnapshot.key ?: return@forEach
-                    val senderId = latestChatSnapshot.child("senderId").value?.toString() ?: ""
-                    val receiverId = latestChatSnapshot.child("receiverId").value?.toString() ?: ""
-                    val lastMessage = latestChatSnapshot.child("lastMessage").value?.toString() ?: ""
-                    val timestamp = latestChatSnapshot.child("time").value as Long
-
-                    // Log the details of the latest chat item fetched
-                    Log.d("ViewAllChats", "Latest chat fetched: chatId=$chatId, senderId=$senderId, receiverId=$receiverId, lastMessage=$lastMessage, timestamp=$timestamp")
-
-                    // Ensure that the chat pair is unique
-                    val chatPair = getOrderedPair(senderId, receiverId)
-                    if (uniqueChatPairs.add(chatPair)) {
-                        val chatItem = ChatItem(chatId, senderId, receiverId, lastMessage, timestamp)
-                        chatItems.add(chatItem)
-                        Log.d("ViewAllChats", "Added unique chat: $chatItem")
+                        val chatPair = getOrderedPair(senderId, receiverId)
+                        if (uniqueChatPairs.add(chatPair)) {
+                            chatItems.add(ChatItem(chatId, senderId, receiverId, lastMessage, timestamp))
+                        }
                     }
                 }
+
+                chatAdapter.updateChatList(chatItems.sortedByDescending { it.time })
             }
 
-            // Log the final chat list before updating the adapter
-            Log.d("ViewAllChats", "All chats fetched, updating RecyclerView with ${chatItems.size} items")
-            chatAdapter.updateChatList(chatItems.sortedByDescending { it.time })
-
-        }.addOnFailureListener {
-            Log.e("ViewAllChats", "Failed to fetch chats: ${it.message}")
-        }
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ViewAllChats", "Failed to fetch chats: ${error.message}")
+            }
+        })
     }
-
-
-
 
     private fun getOrderedPair(id1: String, id2: String): Pair<String, String> {
         return if (id1 < id2) Pair(id1, id2) else Pair(id2, id1)
@@ -143,18 +129,29 @@ class ViewAllChats : AppCompatActivity() {
 
     private fun searchUsers(query: String, adapter: SearchUserAdapter) {
         val usersRef = database.getReference("userData")
-        usersRef.orderByChild("fullname").startAt(query).endAt(query + "\uf8ff").get().addOnSuccessListener { dataSnapshot ->
-            val usersList = mutableListOf<UserData>()
-            dataSnapshot.children.forEach { snapshot ->
-                val user = snapshot.getValue(UserData::class.java)
-                if (user != null && user.userId != currentUserId) {
-                    usersList.add(user)
+        val searchQuery = query.lowercase() // Case-insensitive search
+        val usersList = mutableListOf<UserData>()
+
+        usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                usersList.clear()
+                snapshot.children.forEach { userSnapshot ->
+                    val user = userSnapshot.getValue(UserData::class.java)
+                    if (user != null && user.userId != currentUserId) {
+                        val fullname = user.fullname?.lowercase().orEmpty()
+                        val gamerTag = user.gamerTag?.lowercase().orEmpty()
+
+                        if (fullname.contains(searchQuery) || gamerTag.contains(searchQuery)) {
+                            usersList.add(user)
+                        }
+                    }
                 }
+                adapter.updateUserList(usersList)
             }
-            adapter.updateUserList(usersList)
-            Log.d("ViewAllChats", "Found ${usersList.size} users matching query: $query")
-        }.addOnFailureListener {
-            Log.e("ViewAllChats", "Failed to search users: ${it.message}")
-        }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ViewAllChats", "Search error: ${error.message}")
+            }
+        })
     }
 }
