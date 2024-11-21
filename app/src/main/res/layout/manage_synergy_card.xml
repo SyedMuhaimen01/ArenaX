@@ -53,7 +53,7 @@
             android:layout_marginTop="@dimen/_20sdp">
 
             <Button
-                android:id="@+id/cancelButton"
+                android:id="@+id/acceptButton"
                 android:layout_width="@dimen/_80sdp"
                 android:layout_height="@dimen/_30sdp"
                 android:textAlignment="center"
@@ -67,7 +67,7 @@
                 tools:ignore="ButtonStyle,HardcodedText" />
 
             <Button
-                android:id="@+id/rescheduleButton"
+                android:id="@+id/rejectButton"
                 android:layout_width="@dimen/_80sdp"
                 android:layout_height="@dimen/_30sdp"
                 android:textSize="@dimen/_12sdp"

@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.gamesDashboard
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -22,7 +23,9 @@ import android.widget.AutoCompleteTextView
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.firebase.auth.FirebaseAuth
+import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.uploadContent.UploadContent
+import com.muhaimen.arenax.userFeed.UserFeed
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.Constants
 import okhttp3.*
@@ -37,6 +40,8 @@ class MyGamesList : AppCompatActivity() {
     private lateinit var postButton:ImageButton
     private lateinit var profileButton:ImageButton
     private lateinit var addGame: ImageButton
+    private lateinit var exploreButton: ImageButton
+    private lateinit var homeButton: ImageButton
     lateinit var backButton: ImageButton
     private lateinit var auth: FirebaseAuth
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
@@ -45,6 +50,7 @@ class MyGamesList : AppCompatActivity() {
     private lateinit var userId:String
     private val sharedPreferences by lazy { getSharedPreferences("MyGamesPrefs", Context.MODE_PRIVATE) }
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -69,6 +75,17 @@ class MyGamesList : AppCompatActivity() {
         postButton = findViewById(R.id.addPostButton)
         postButton.setOnClickListener {
             val intent = Intent(this, UploadContent::class.java)
+            startActivity(intent)
+        }
+
+        homeButton = findViewById(R.id.homeButton)
+        homeButton.setOnClickListener {
+            val intent = Intent(this, UserFeed::class.java)
+            startActivity(intent)
+        }
+        exploreButton = findViewById(R.id.exploreButton)
+        exploreButton.setOnClickListener {
+            val intent = Intent(this, ExplorePage::class.java)
             startActivity(intent)
         }
 

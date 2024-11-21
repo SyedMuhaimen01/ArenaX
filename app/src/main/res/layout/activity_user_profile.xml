@@ -106,7 +106,7 @@
                 android:textColor="@color/textColor"/>
           </LinearLayout>
 
-          <!-- SynerG Count -->
+          <!-- Followers Count -->
           <LinearLayout
               android:id="@+id/followersLinearLayout"
               android:orientation="vertical"
@@ -132,7 +132,7 @@
                 android:textColor="@color/textColor"/>
           </LinearLayout>
 
-          <!-- Followers Count -->
+          <!-- Following Count -->
           <LinearLayout
               android:id="@+id/followingLinearLayout"
               android:orientation="vertical"

@@ -11,7 +11,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.explore.ExplorePageViewPagerAdapter
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userFeed.UserFeed
@@ -42,7 +41,7 @@ class synergy : AppCompatActivity() {
         viewPager = findViewById(R.id.viewPager)
         viewPager.isUserInputEnabled = true
         // Set up ViewPager2 with an adapter (replace with your adapter)
-        viewPager.adapter = ExplorePageViewPagerAdapter(this)
+        viewPager.adapter = SynerGViewPagerAdapter(this)
 
         // Attach TabLayout with ViewPager2 using TabLayoutMediator
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->

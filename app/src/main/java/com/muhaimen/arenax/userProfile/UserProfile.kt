@@ -99,6 +99,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
+    private val database = FirebaseDatabase.getInstance()
     private lateinit var storageReference: StorageReference
     private lateinit var myGamesListRecyclerView: RecyclerView
     private lateinit var myGamesListAdapter: MyGamesListAdapter
@@ -124,6 +125,8 @@ class UserProfile : AppCompatActivity() {
     private lateinit var rankTextView: TextView
     private lateinit var followersLinearLayout:LinearLayout
     private lateinit var followingLinearLayout:LinearLayout
+    private lateinit var followingTextView: TextView
+    private lateinit var followersTextView: TextView
     private lateinit var requestQueue: RequestQueue
     private val client = OkHttpClient()
     private lateinit var activity : String
@@ -211,6 +214,13 @@ class UserProfile : AppCompatActivity() {
             startActivity(intent)
         }
 
+        followersTextView=findViewById(R.id.followersTextView)
+        followingTextView=findViewById(R.id.followingTextView)
+        if (auth.currentUser != null) {
+            fetchAndSetCounts(auth.currentUser?.uid ?: "")
+        } else {
+            Log.e("ProfileActivity", "Current user ID is null.")
+        }
 
 
         followingLinearLayout.setOnClickListener {
@@ -1075,6 +1085,39 @@ class UserProfile : AppCompatActivity() {
 
         // Add the request to the RequestQueue
         Volley.newRequestQueue(storyRing.context).add(jsonObjectRequest)
+    }
+
+    private fun fetchAndSetCounts(userId: String) {
+        val followersRef = database.getReference("userData/$userId/synerG/followers")
+        val followingRef = database.getReference("userData/$userId/synerG/following")
+
+        // Fetch and count followers with status "accepted"
+        followersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val acceptedFollowersCount = snapshot.children.count {
+                    it.child("status").value?.toString() == "accepted"
+                }
+                followersTextView.text = acceptedFollowersCount.toString()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ProfileActivity", "Error fetching followers: ${error.message}")
+            }
+        })
+
+        // Fetch and count following with status "accepted"
+        followingRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val acceptedFollowingCount = snapshot.children.count {
+                    it.child("status").value?.toString() == "accepted"
+                }
+                followingTextView.text = acceptedFollowingCount.toString()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ProfileActivity", "Error fetching following: ${error.message}")
+            }
+        })
     }
 }
 

@@ -10,12 +10,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ViewAllChats
+import com.muhaimen.arenax.explore.ExplorePage
+import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.notifications.Notifications
+import com.muhaimen.arenax.uploadContent.UploadContent
+import com.muhaimen.arenax.userProfile.UserProfile
 
 class UserFeed : AppCompatActivity() {
     private lateinit var userFeedAdapter: UserFeedPostsAdapter
     private lateinit var threadsButton: ImageButton
     private lateinit var notificationsButton: ImageButton
+    private lateinit var homeButton: ImageButton
+    private lateinit var myGamesButton: ImageButton
+    private lateinit var addPost: ImageButton
+    private lateinit var profileButton: ImageButton
+    private lateinit var exploreButton: ImageButton
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_feed)
@@ -26,7 +35,7 @@ class UserFeed : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        setupBottomNavigation()
         // Set status bar and navigation bar color
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
@@ -102,5 +111,37 @@ class UserFeed : AppCompatActivity() {
             )
             // Add more DummyPost instances as needed
         )
+    }
+
+    private fun setupBottomNavigation() {
+
+        homeButton= findViewById(R.id.home)
+        homeButton.setOnClickListener {
+            val intent = Intent(this, UserFeed::class.java)
+            startActivity(intent)
+        }
+        myGamesButton= findViewById(R.id.myGamesButton)
+        myGamesButton.setOnClickListener {
+            val intent = Intent(this, MyGamesList::class.java)
+            startActivity(intent)
+        }
+
+        addPost= findViewById(R.id.addPostButton)
+        addPost.setOnClickListener {
+            val intent = Intent(this, UploadContent::class.java)
+            startActivity(intent)
+        }
+
+        profileButton= findViewById(R.id.profileButton)
+        profileButton.setOnClickListener {
+            val intent = Intent(this, UserProfile::class.java)
+            startActivity(intent)
+        }
+
+        exploreButton= findViewById(R.id.exploreButton)
+        exploreButton.setOnClickListener {
+            val intent = Intent(this, ExplorePage::class.java)
+            startActivity(intent)
+        }
     }
 }
