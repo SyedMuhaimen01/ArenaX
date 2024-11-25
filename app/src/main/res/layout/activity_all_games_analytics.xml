@@ -58,7 +58,7 @@
                         android:textSize="@dimen/_12sdp"
                         android:layout_marginTop="@dimen/_10sdp"
                         android:textColor="@color/textColor"
-                        android:paddingLeft="@dimen/_15sdp"></TextView>
+                        android:paddingLeft="@dimen/_15sdp" />
                     <!-- Line Chart for Screen Time -->
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/screenTimeLineChart"

@@ -20,10 +20,10 @@ import com.muhaimen.arenax.dataClasses.AnalyticsData
 class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>, private val userId: String) : RecyclerView.Adapter<MyGamesListAdapter.AnalyticsViewHolder>() {
 
     inner class AnalyticsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val gameIcon: ImageView = itemView.findViewById(R.id.game_icon)
-        val gameName: TextView = itemView.findViewById(R.id.game_name)
+        private val gameIcon: ImageView = itemView.findViewById(R.id.game_icon)
+        private val gameName: TextView = itemView.findViewById(R.id.game_name)
         val totalHours: TextView = itemView.findViewById(R.id.total_hours)
-        val graphView: GraphView = itemView.findViewById(R.id.line_chart)
+        private val graphView: GraphView = itemView.findViewById(R.id.line_chart)
 
         @SuppressLint("SetTextI18n")
         fun bind(data: AnalyticsData) {
@@ -31,6 +31,8 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>, private
             totalHours.text = "Total Hours: ${data.totalHours}"
 
             val formattedIcon = formatUrl(data.iconResId)
+
+
 
             Glide.with(itemView.context)
                 .load(formattedIcon)
