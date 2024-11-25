@@ -30,6 +30,7 @@ media3ExoplayerWorkmanager = "1.4.1"
 workRuntimeKtxVersion = "2.9.1"
 playServicesLocation = "21.3.0"
 swiperefreshlayout = "1.1.0"
+playServicesFido = "20.0.1"
 
 [libraries]
 graphview = "com.jjoe64:graphview:4.2.2"
@@ -64,6 +65,7 @@ jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtxVersion" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+play-services-fido = { group = "com.google.android.gms", name = "play-services-fido", version.ref = "playServicesFido" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -46,7 +46,6 @@ class ViewGameAnalytics : AppCompatActivity() {
     private lateinit var peakPlayTimeScatterChart: ScatterChart
     private lateinit var gameComparisonPieChart: PieChart
     private lateinit var auth: FirebaseAuth
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private val TAG = "ViewGameAnalytics"
 
@@ -60,10 +59,6 @@ class ViewGameAnalytics : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
-        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
-        swipeRefreshLayout.setColorSchemeResources(R.color.white)
 
 
         // Initialize views
@@ -90,11 +85,6 @@ class ViewGameAnalytics : AppCompatActivity() {
             finish()
         }
 
-        swipeRefreshLayout.setOnRefreshListener {
-            if (game != null) {
-                fetchUserGameStats(game)
-            }
-        }
     }
 
     private fun fetchUserGameStats(game: String) {
@@ -117,7 +107,6 @@ class ViewGameAnalytics : AppCompatActivity() {
                 error.printStackTrace()
             })
 
-        swipeRefreshLayout.isRefreshing = false
         queue.add(jsonObjectRequest)
     }
 
