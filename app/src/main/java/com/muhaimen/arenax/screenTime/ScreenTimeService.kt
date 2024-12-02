@@ -11,23 +11,16 @@ import android.content.Intent
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
-import android.telecom.Call
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
 import com.android.volley.Request
 import com.android.volley.RequestQueue
-import com.android.volley.Response
+
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.utils.Constants
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.*
 import okhttp3.Callback
@@ -219,9 +212,7 @@ class ScreenTimeService : Service() {
             @SuppressLint("RestrictedApi")
             override fun onFailure(call: okhttp3.Call, e: IOException) {
                 e.printStackTrace()
-                runOnUiThread {
-                    // Handle failure
-                }
+
             }
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 if (response.isSuccessful) {

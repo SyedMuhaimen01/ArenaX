@@ -1,14 +1,9 @@
 package com.muhaimen.arenax.uploadContent
 
 import android.annotation.SuppressLint
-import android.graphics.SurfaceTexture
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
-import android.view.Surface
-import android.view.TextureView
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -20,6 +15,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.ui.PlayerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,8 +35,8 @@ class ViewPost : AppCompatActivity() {
     private lateinit var likeCount: TextView // TextView for likes
     private lateinit var commentCount: TextView // TextView for comments
     private lateinit var shareCount: TextView // TextView for shares
-    private lateinit var textureView: TextureView // TextureView for playing video
-    private var mediaPlayer: MediaPlayer? = null
+    private lateinit var playerView: PlayerView // ExoPlayer view for video
+    private var exoPlayer: ExoPlayer? = null
 
     private val client = OkHttpClient() // Initialize OkHttpClient
     private var isExpanded: Boolean = false // Flag to track caption expansion
@@ -56,6 +54,7 @@ class ViewPost : AppCompatActivity() {
         }
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
+
         // Initialize views
         backButton = findViewById(R.id.backButton)
         imageView = findViewById(R.id.ImageView) // Initialize ImageView
@@ -64,7 +63,7 @@ class ViewPost : AppCompatActivity() {
         likeCount = findViewById(R.id.likeCount) // Initialize likes TextView
         commentCount = findViewById(R.id.commentCount) // Initialize comments TextView
         shareCount = findViewById(R.id.shareCount) // Initialize shares TextView
-        textureView = findViewById(R.id.VideoView) // Initialize TextureView
+        playerView = findViewById(R.id.videoPlayerView) // Initialize ExoPlayer view
 
         // Set the back button click listener
         backButton.setOnClickListener {
@@ -127,12 +126,12 @@ class ViewPost : AppCompatActivity() {
                     when {
                         mediaType.startsWith("image/") -> {
                             imageView.visibility = View.VISIBLE
-                            textureView.visibility = View.GONE
+                            playerView.visibility = View.GONE
                             setImage(mediaUrl)
                         }
                         mediaType.startsWith("video/mp4") -> {
                             imageView.visibility = View.GONE
-                            textureView.visibility = View.VISIBLE
+                            playerView.visibility = View.VISIBLE
                             playVideo(mediaUrl)
                         }
                         else -> {
@@ -190,97 +189,38 @@ class ViewPost : AppCompatActivity() {
     }
 
     private fun playVideo(videoPath: String) {
-        val uri = Uri.parse(videoPath)
-        Log.d("ViewPost", "Attempting to play video from path: $videoPath")
-
-        // Set up the TextureView surface
-        textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-            override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-                mediaPlayer = MediaPlayer().apply {
-                    setDataSource(videoPath)
-                    setSurface(Surface(surface))
-                    prepareAsync() // Prepare in the background
-
-                    setOnPreparedListener {
-                        isLooping = true // Loop the video
-                        start() // Start playing the video
-                        Log.d("ViewPost", "Video playback started.")
-                    }
-
-                    // Add buffering listeners
-                    setOnInfoListener { mp, what, extra ->
-                        when (what) {
-                            MediaPlayer.MEDIA_INFO_BUFFERING_START -> {
-                                Log.d("ViewPost", "Buffering started")
-                                // Show buffering indicator (if any)
-                            }
-                            MediaPlayer.MEDIA_INFO_BUFFERING_END -> {
-                                Log.d("ViewPost", "Buffering ended")
-                                // Hide buffering indicator (if any)
-                            }
-                        }
-                        true
-                    }
-
-                    setOnCompletionListener {
-                        Log.d("ViewPost", "Video playback completed.")
-                        seekTo(0) // Reset the video to the start
-                        start() // Optionally, restart the video
-                    }
-
-                    setOnErrorListener { mp, what, extra ->
-                        Log.e("ViewPost", "Error occurred while playing video. What: $what, Extra: $extra")
-                        true // Returning true indicates that we've handled the error
-                    }
-                }
-            }
-
-            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
-            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-                mediaPlayer?.release()
-                mediaPlayer = null
-                return true
-            }
-
-            override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
+        val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
+        exoPlayer = ExoPlayer.Builder(this).build().apply {
+            setMediaItem(mediaItem)
+            prepare()
+            playWhenReady = true // Start playback immediately
+            playerView.player = this
         }
+
+        Log.d("ViewPost", "Attempting to play video from path: $videoPath")
     }
 
-
     private fun playTrimmedAudio(outputPath: String) {
-        val uri = Uri.parse(outputPath)
-        mediaPlayer = MediaPlayer()
-
-        mediaPlayer?.apply {
-            try {
-                setDataSource(applicationContext, uri)
-                prepare()
-                start()
-                Log.d("ViewPost", "Playing trimmed audio from: $outputPath")
-
-                setOnCompletionListener {
-                    Log.d("ViewPost", "Trimmed audio playback completed.")
-                }
-
-                setOnErrorListener { mp, what, extra ->
-                    Log.e("ViewPost", "Error occurred while playing trimmed audio. What: $what, Extra: $extra")
-                    true
-                }
-
-            } catch (e: IOException) {
-                Log.e("ViewPost", "Error setting data source for audio: ${e.message}")
-            }
+        // You can also use ExoPlayer to play audio, here’s an example for that:
+        val audioUri = Uri.parse(outputPath)
+        val audioMediaItem = MediaItem.fromUri(audioUri)
+        exoPlayer = ExoPlayer.Builder(this).build().apply {
+            setMediaItem(audioMediaItem)
+            prepare()
+            playWhenReady = true
         }
+
+        Log.d("ViewPost", "Playing trimmed audio from: $outputPath")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer?.release()
-        mediaPlayer = null
-    }
-    override fun onBackPressed() {
-        mediaPlayer?.release()
-        super.onBackPressed() // Call super to finish the activity
+        exoPlayer?.release()
+        exoPlayer = null
     }
 
+    override fun onBackPressed() {
+        exoPlayer?.release()
+        super.onBackPressed() // Call super to finish the activity
+    }
 }

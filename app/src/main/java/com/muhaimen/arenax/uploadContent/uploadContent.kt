@@ -124,6 +124,8 @@ class UploadContent : AppCompatActivity() {
                 previewImageView.visibility = View.GONE
                 captionEditText.visibility = View.GONE
                 uploadToolbar.visibility = View.GONE
+                trimTrackLayout.visibility=View.VISIBLE
+                tracksRecyclerView.visibility=View.VISIBLE
             } else {
                 searchLinearLayout.visibility = View.GONE
                 previewImageView.visibility = View.VISIBLE

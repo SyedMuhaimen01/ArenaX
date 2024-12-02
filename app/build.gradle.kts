@@ -83,4 +83,6 @@ dependencies {
     implementation(libs.jsoup)
     implementation("com.arthenica:mobile-ffmpeg-full-gpl:4.4.LTS")
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.exoplayer )
+    implementation(libs.media3exoplayer)
 }

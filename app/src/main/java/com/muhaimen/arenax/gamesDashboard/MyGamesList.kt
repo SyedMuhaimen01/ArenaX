@@ -20,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.widget.AutoCompleteTextView
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.firebase.auth.FirebaseAuth
@@ -37,11 +39,11 @@ class MyGamesList : AppCompatActivity() {
     private lateinit var myGamesListAdapter: MyGamesListAdapter
     private lateinit var gamesSearchBar: AutoCompleteTextView
     private lateinit var myGamesList: List<AnalyticsData>
-    private lateinit var postButton:ImageButton
-    private lateinit var profileButton:ImageButton
-    private lateinit var addGame: ImageButton
-    private lateinit var exploreButton: ImageButton
-    private lateinit var homeButton: ImageButton
+    private lateinit var postButton:ImageView
+    private lateinit var profileButton:ImageView
+    private lateinit var addGame: ImageView
+    private lateinit var exploreButton: ImageView
+    private lateinit var homeButton: LinearLayout
     lateinit var backButton: ImageButton
     private lateinit var auth: FirebaseAuth
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
@@ -78,7 +80,7 @@ class MyGamesList : AppCompatActivity() {
             startActivity(intent)
         }
 
-        homeButton = findViewById(R.id.homeButton)
+        homeButton = findViewById(R.id.home)
         homeButton.setOnClickListener {
             val intent = Intent(this, UserFeed::class.java)
             startActivity(intent)

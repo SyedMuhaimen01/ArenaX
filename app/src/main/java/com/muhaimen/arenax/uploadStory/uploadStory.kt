@@ -42,7 +42,12 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.AuthFailureError
+import com.android.volley.NetworkError
+import com.android.volley.NoConnectionError
 import com.android.volley.Request
+import com.android.volley.ServerError
+import com.android.volley.TimeoutError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -60,6 +65,7 @@ import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
 import org.json.JSONObject
+import org.jsoup.parser.ParseError
 import java.io.File
 import java.io.IOException
 import java.util.UUID
@@ -658,22 +664,22 @@ class uploadStory : AppCompatActivity() {
         return textContents // Return the list of texts with positions
     }
 
-
     private fun fetchTracks(userId: String) {
         // Example API endpoint to fetch tracks
         val url =
-            "https://api.jamendo.com/v3.0/tracks/?client_id=${userId}&format=json&limit=200" // Replace with your API URL
+            "https://api.jamendo.com/v3.0/tracks/?client_id=${userId}&format=json&limit=200"
 
         // Create a StringRequest to fetch tracks
         val requestQueue = Volley.newRequestQueue(this)
         val stringRequest = StringRequest(Request.Method.GET, url,
+
             { response ->
                 // Log the raw response for debugging
                 Log.d("uploadStory", "API Response: $response")
 
                 try {
                     val jsonObject = JSONObject(response)
-                    val jsonArray = jsonObject.getJSONArray("results") // Changed to "results"
+                    val jsonArray = jsonObject.getJSONArray("results") // Adjusted to "results"
                     val trackList = mutableListOf<Track>()
 
                     for (i in 0 until jsonArray.length()) {
@@ -691,7 +697,7 @@ class uploadStory : AppCompatActivity() {
                             downloadUrl = trackJson.getString("audiodownload") // Added download URL
                         )
                         trackList.add(track)
-                        TrackList=trackList
+                        TrackList = trackList
                     }
 
                     // Update the adapter with the new track list
@@ -701,13 +707,33 @@ class uploadStory : AppCompatActivity() {
                 }
             },
             { error ->
-                Log.e("uploadStory", "Error fetching tracks: ${error.message}")
+                // Log detailed error information
+                val errorMessage = when (error) {
+                    is TimeoutError -> "Request timeout"
+                    is NoConnectionError -> "No internet connection"
+                    is AuthFailureError -> "Authentication failure: ${error.message}"
+                    is ServerError -> {
+                        val response = error.networkResponse
+                        if (response != null) {
+                            val statusCode = response.statusCode
+                            val responseBody = String(response.data, Charsets.UTF_8)
+                            "Server error (HTTP $statusCode): $responseBody"
+                        } else {
+                            "Server error with no response data"
+                        }
+                    }
+                    is NetworkError -> "Network error: ${error.message}"
+                    is ParseError -> "Response parsing error: ${error.message}"
+                    else -> "Unknown error: ${error.message}"
+                }
+                Log.e("uploadStory", errorMessage)
             }
         )
 
         // Add the request to the RequestQueue
         requestQueue.add(stringRequest)
     }
+
     @SuppressLint("DefaultLocale")
     fun trimAudio(track: Track) {
         Log.d("TrimAudio", "trimAudio function called.")

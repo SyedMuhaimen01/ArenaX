@@ -56,8 +56,8 @@
             android:contentDescription="Media Preview"
             android:layout_marginTop="@dimen/_2sdp"
             android:visibility="gone"/>
-        <android.view.TextureView
-            android:id="@+id/VideoView"
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/videoPlayerView"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_510sdp"
             android:layout_weight="1"

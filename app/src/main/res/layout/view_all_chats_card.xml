@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/_5sdp"
+    android:layout_marginTop="5dp"
     android:background="@color/backgroundColor"
     >
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:orientation="horizontal"
         android:background="@color/backgroundColor"
         tools:ignore="MissingConstraints">
@@ -25,15 +25,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
+            android:gravity="center_vertical"
             android:layout_marginStart="@dimen/_5sdp">
             <TextView
                 android:id="@+id/fullname"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="username"
                 android:textStyle="bold"
                 android:textColor="@color/textColor"
-                android:textSize="@dimen/_12sdp"/>
+                android:textSize="@dimen/_15sdp"/>
 
 
 
@@ -49,6 +50,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="time"
+                android:layout_marginEnd="10dp"
+                android:layout_gravity="right"
                 android:textSize="@dimen/_10sdp"
                 tools:ignore="HardcodedText" />
 
