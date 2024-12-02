@@ -37,8 +37,13 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.android.volley.AuthFailureError
+import com.android.volley.NetworkError
+import com.android.volley.NoConnectionError
 import com.android.volley.Request
 import com.android.volley.RequestQueue
+import com.android.volley.ServerError
+import com.android.volley.TimeoutError
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
@@ -85,6 +90,7 @@ import okhttp3.OkHttpClient
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import org.jsoup.parser.ParseError
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -967,19 +973,28 @@ class UserProfile : AppCompatActivity() {
             { response ->
                 try {
                     val storiesList = mutableListOf<Story>()
+
                     for (i in 0 until response.length()) {
                         val storyJson = response.getJSONObject(i)
-                        val storyId = storyJson.getInt("id")
-                        val mediaUrl = storyJson.getString("media_url")
-                        val duration = storyJson.getInt("duration")
+
+                        // Safely parse fields with error handling
+                        val storyId = storyJson.optInt("id", -1)
+                        val mediaUrl = storyJson.optString("media_url", null)
+                        val duration = storyJson.optInt("duration", 0)
                         val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
                         val draggableTexts = storyJson.optJSONArray("draggable_texts")
-                        val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
+                        val createdAt = storyJson.optString("created_at", null)
+
+                        // Ensure mandatory fields are valid
+                        if (storyId == -1 || mediaUrl.isNullOrEmpty() || createdAt.isNullOrEmpty()) {
+                            Log.e("fetchUserStory", "Invalid story data: $storyJson")
+                            continue
+                        }
 
                         // Convert createdAt string to Date
-                        val uploadedAt = parseDate(createdAt)
+                        val uploadedAt = parseDate(createdAt) ?: continue
 
-                        // Create the Story object
+                        // Create and add Story object
                         val story = Story(
                             id = storyId,
                             mediaUrl = mediaUrl,
@@ -988,37 +1003,50 @@ class UserProfile : AppCompatActivity() {
                             draggableTexts = draggableTexts,
                             uploadedAt = uploadedAt
                         )
-
                         storiesList.add(story)
                     }
 
-                    // Show or hide the story ring based on the presence of valid stories
+                    // Handle story presence
+                    val storyRing = findViewById<ImageView>(R.id.storyRing)
                     if (storiesList.isNotEmpty()) {
-                        // Show the story ring
-                        findViewById<ImageView>(R.id.storyRing).visibility = View.VISIBLE
+                        storyRing.visibility = View.VISIBLE
 
-                        // Launch StoryViewActivity if there are stories
+                        // Launch StoryViewActivity if stories are available
                         val intent = Intent(this, viewStory::class.java).apply {
                             putParcelableArrayListExtra("storiesList", ArrayList(storiesList))
                             putExtra("currentIndex", 0)
                         }
                         startActivity(intent)
                     } else {
-                        // Hide the story ring if there are no stories
-                        findViewById<ImageView>(R.id.storyRing).visibility = View.GONE
+                        // Hide the story ring and navigate to the profile picture
+                        storyRing.visibility = View.GONE
                         navigateToFullProfilePicture()
                     }
                 } catch (e: JSONException) {
-                    e.printStackTrace()
+                    Log.e("fetchUserStory", "JSON parsing error: ${e.message}")
+                } catch (e: Exception) {
+                    Log.e("fetchUserStory", "Unexpected error: ${e.message}")
                 }
             },
             { error ->
-                error.printStackTrace()
+                val errorMessage = when (error) {
+                    is TimeoutError -> "Request timed out"
+                    is NoConnectionError -> "No internet connection"
+                    is AuthFailureError -> "Authentication error: ${error.message}"
+                    is ServerError -> "Server error: ${String(error.networkResponse?.data ?: ByteArray(0))}"
+                    is NetworkError -> "Network error: ${error.message}"
+                    is ParseError -> "Response parse error: ${error.message}"
+                    else -> "Unknown error: ${error.message}"
+                }
+                Log.e("fetchUserStory", errorMessage)
+                Toast.makeText(this, "Failed to fetch stories: $errorMessage", Toast.LENGTH_SHORT).show()
             }
         )
 
+        // Add the request to the request queue
         requestQueue.add(jsonArrayRequest)
     }
+
 
 
     // Helper function to parse the date string
