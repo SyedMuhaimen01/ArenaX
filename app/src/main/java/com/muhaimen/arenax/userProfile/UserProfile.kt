@@ -106,7 +106,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var highlightsRecyclerView: RecyclerView
     private lateinit var highlightsAdapter: highlightsAdapter
-    private lateinit var exploreButton:ImageButton
+    private lateinit var exploreButton:ImageView
     private lateinit var postsCount:TextView
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: PostsAdapter
@@ -114,14 +114,14 @@ class UserProfile : AppCompatActivity() {
     private lateinit var bioTextView: TextView
     private lateinit var showMoreTextView: TextView
     private lateinit var editProfileButton: Button
-    private lateinit var myGamesButton: ImageButton
-    private lateinit var addPost: ImageButton
-    private lateinit var uploadStoryButton: ImageButton
-    private lateinit var homeButton: ImageButton
+    private lateinit var myGamesButton: ImageView
+    private lateinit var addPost: ImageView
+    private lateinit var uploadStoryButton: ImageView
+    private lateinit var homeButton: LinearLayout
     private lateinit var storyRing: ImageView
     private lateinit var userData: UserData
     private lateinit var settingsButton:Button
-    private lateinit var leaderboardButton: ImageButton
+    private lateinit var leaderboardButton: ImageView
     private lateinit var rankTextView: TextView
     private lateinit var followersLinearLayout:LinearLayout
     private lateinit var followingLinearLayout:LinearLayout
@@ -229,7 +229,7 @@ class UserProfile : AppCompatActivity() {
         }
         // Initialize the RecyclerView for analytics
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
-        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         // Set an empty adapter initially
         myGamesListAdapter = MyGamesListAdapter(emptyList(),userId)

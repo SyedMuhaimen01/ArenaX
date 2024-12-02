@@ -14,6 +14,7 @@ data class UserData(
     var bio: String? = null,
     var location: String? = null,
     var accountVerified: Boolean = false,
+    var playerId: String? = null,
     var rank:Int? = null
 ) : Parcelable {
     // Constructor for Parcel (used for Parcelable)
@@ -28,6 +29,7 @@ data class UserData(
         parcel.readString(), // bio
         parcel.readString(), // location
         parcel.readByte() != 0.toByte(), // accountVerified
+        parcel.readString(), // playerId
         parcel.readInt() // rank
 
     )

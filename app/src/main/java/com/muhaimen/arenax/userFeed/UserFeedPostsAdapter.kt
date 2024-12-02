@@ -10,17 +10,18 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 
-// DummyPost class
 data class DummyPost(
     val profilePictureUrl: String,
     val userName: String,
     val contentType: String,
-    val contentText: String? = null,
-    val contentImageUrl: String? = null
+    val contentText: String? = null, // for text post
+    val contentImageUrl: String? = null, // for image post
+    val contentVideoUrl: String? = null, // for video post
+    val comments: MutableList<String> = mutableListOf() // list of comments
 )
 
 class UserFeedPostsAdapter(
-    private val dummyPosts: List<DummyPost>, // Use DummyPost directly
+    private val dummyPosts: List<DummyPost>,
     private val onLikeClick: (DummyPost) -> Unit,
     private val onCommentClick: (DummyPost) -> Unit,
     private val onShareClick: (DummyPost) -> Unit
@@ -42,43 +43,44 @@ class UserFeedPostsAdapter(
     inner class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val imgProfilePicture: ImageView = itemView.findViewById(R.id.ProfilePicture)
         private val tvUserName: TextView = itemView.findViewById(R.id.tvUserName)
-        private val imgContent: ImageView = itemView.findViewById(R.id.imgContent)
         private val tvContentText: TextView = itemView.findViewById(R.id.tvContentText)
+        private val tvCommentsCount: TextView = itemView.findViewById(R.id.commentCount)
         private val btnLike: ImageButton = itemView.findViewById(R.id.likeButton)
         private val btnComment: ImageButton = itemView.findViewById(R.id.commentButton)
         private val btnShare: ImageButton = itemView.findViewById(R.id.shareButton)
+        private val recyclerViewComments: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
 
         fun bind(post: DummyPost) {
-            // Bind the user's profile picture using Glide
             Glide.with(itemView.context)
                 .load(post.profilePictureUrl)
                 .placeholder(R.drawable.game_icon_foreground)
-                .circleCrop() // Optional, if you want the profile picture to be circular
+                .circleCrop()
                 .into(imgProfilePicture)
 
-            // Bind the user's name
             tvUserName.text = post.userName
+            tvContentText.text = post.contentText
+            tvCommentsCount.text = post.comments.size.toString()
 
-            // Determine if the content is text or an image and set visibility accordingly
-            if (post.contentType == "text") {
-                tvContentText.text = post.contentText
-                tvContentText.visibility = View.VISIBLE
-                imgContent.visibility = View.GONE
-            } else if (post.contentType == "image") {
-                // Load the content image with Glide
-                Glide.with(itemView.context)
-                    .load(post.contentImageUrl)
-                    .placeholder(R.drawable.game_icon_foreground)
-                    .centerCrop() // Optional, for better cropping of the content image
-                    .into(imgContent)
-                tvContentText.visibility = View.GONE
-                imgContent.visibility = View.VISIBLE
+            // Handle comment section by passing comments to the CommentsAdapter
+            val commentAdapter = CommentsAdapter(post.comments) { newComment ->
+                // Handle new comment posted, or notify the parent to update the data
+                onCommentClick(post)
+            }
+            recyclerViewComments.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(itemView.context)
+            recyclerViewComments.adapter = commentAdapter
+
+            // Handle Like, Comment, Share button clicks
+            btnLike.setOnClickListener {
+                onLikeClick(post)
             }
 
-            // Handle click events for like, comment, and share
-            btnLike.setOnClickListener { onLikeClick(post) }
-            btnComment.setOnClickListener { onCommentClick(post) }
-            btnShare.setOnClickListener { onShareClick(post) }
+            btnComment.setOnClickListener {
+                onCommentClick(post)
+            }
+
+            btnShare.setOnClickListener {
+                onShareClick(post)
+            }
         }
     }
 }

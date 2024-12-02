@@ -2,21 +2,27 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/analytics_card_view"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_width="@dimen/_140sdp"
+    android:layout_height="@dimen/_105sdp"
     android:layout_margin="@dimen/_6sdp"
-    app:cardBackgroundColor="@android:color/white"
+    app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="@dimen/_6sdp"
     app:cardElevation="@dimen/_2sdp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
+        android:background="@color/white"
         android:padding="@dimen/_4sdp">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_42sdp"
+            android:orientation="horizontal"
+
+            android:background="@color/white">
         <!-- Game Icon -->
         <ImageView
             android:id="@+id/game_icon"
@@ -56,7 +62,7 @@
                     android:textSize="@dimen/_10ssp"
                     android:textColor="@color/textColor" />
             </LinearLayout>
-
+        </LinearLayout>
 
 
         </LinearLayout>
@@ -64,7 +70,7 @@
         <!-- GraphView -->
         <com.jjoe64.graphview.GraphView
             android:id="@+id/line_chart"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="@dimen/_50sdp"
             android:layout_marginStart="@dimen/_4sdp"
             android:layout_weight="1"
