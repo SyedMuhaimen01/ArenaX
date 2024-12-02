@@ -41,12 +41,18 @@ import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userFeed.UserFeed
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.Constants
-import okhttp3.*
-import org.json.JSONException
-import org.json.JSONObject
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import java.util.*
+
+
 import java.io.IOException
 
-
+import okhttp3.Request
+import okhttp3.Response
+import org.json.JSONException
+import org.json.JSONObject
 
 class MyGamesList : AppCompatActivity() {
     private lateinit var myGamesListRecyclerView: RecyclerView
@@ -85,6 +91,10 @@ class MyGamesList : AppCompatActivity() {
         gamesSearchBar = findViewById(R.id.searchbar)
         addGame = findViewById(R.id.addGame)
         backButton = findViewById(R.id.backButton)
+
+
+        fetchUserGameStats()
+
         playtimeBarChart = findViewById(R.id.totalPlaytimeBarChart)
         myGamesListRecyclerView = findViewById(R.id.myGamesListRecyclerView)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -325,6 +335,7 @@ class MyGamesList : AppCompatActivity() {
         queue.add(jsonObjectRequest)
     }
 
+
     private fun playtimeBarChart(sessionFrequencyPerDay: MutableList<Float>, gameNames: List<String>) {
         // Create BarEntries for each game with its playtime
         val entries = sessionFrequencyPerDay.mapIndexed { index, frequency -> BarEntry(index.toFloat(), frequency.toFloat()) }
@@ -371,9 +382,11 @@ class MyGamesList : AppCompatActivity() {
     }
 
 
+
     private fun fetchUserGameStats() {
         val userId = auth.currentUser?.uid ?: return // Ensure user is authenticated
         val url = "${Constants.SERVER_URL}analytics/user/$userId/hoursPerGame" // URL with userId in the path
+
 
         val client = OkHttpClient.Builder().build()
 
@@ -386,7 +399,8 @@ class MyGamesList : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("GameAnalytics", "Error fetching game stats: ${e.message}")
                 e.printStackTrace()
-                runOnUiThread { } // Ensure UI updates are done on the main thread
+                runOnUiThread {  } // Ensure UI updates are done on the main thread
+
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -404,7 +418,8 @@ class MyGamesList : AppCompatActivity() {
                     } catch (e: Exception) {
                         Log.e("GameAnalytics", "Error parsing response: ${e.message}")
                         e.printStackTrace()
-                        runOnUiThread { }
+                        runOnUiThread {  }
+
                     }
                 }
             }
@@ -413,6 +428,7 @@ class MyGamesList : AppCompatActivity() {
 
     private fun parseAndPopulateCharts(response: JSONObject) {
         try {
+
             // Get the game statistics from the response
             val gameStats = response.getJSONArray("gameAnalytics")
 
@@ -428,6 +444,7 @@ class MyGamesList : AppCompatActivity() {
                 playtimeList.add(playtime)
                 gameNamesList.add(gameName)
             }
+
 
             // Now call the playtimeBarChart method with the correct data
             playtimeBarChart(playtimeList, gameNamesList)

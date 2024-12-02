@@ -1,5 +1,4 @@
-package com.muhaimen.arenax.gamesDashboard
-
+package com.muhaimen.arenax.userProfile
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
@@ -16,8 +15,9 @@ import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.AnalyticsData
+import com.muhaimen.arenax.gamesDashboard.ViewGameAnalytics
 
-class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>, private val userId: String) : RecyclerView.Adapter<MyGamesListAdapter.AnalyticsViewHolder>() {
+class gamesDashboardAdapter(private var analyticsList: List<AnalyticsData>, private val userId: String) : RecyclerView.Adapter<gamesDashboardAdapter.AnalyticsViewHolder>() {
 
     inner class AnalyticsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val gameIcon: ImageView = itemView.findViewById(R.id.game_icon)
@@ -93,7 +93,7 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>, private
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnalyticsViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.mygames_list_card, parent, false)
+            .inflate(R.layout.analytics_card, parent, false)
         return AnalyticsViewHolder(view)
     }
 
