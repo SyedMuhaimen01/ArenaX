@@ -188,6 +188,7 @@ class MyGamesList : AppCompatActivity() {
         }
     }
 
+
     private fun fetchUserGames() {
         val request = Request.Builder()
             .url("${Constants.SERVER_URL}usergames/user/${userId}/mygames")
