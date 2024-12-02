@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -106,13 +107,15 @@ class exploreAccounts : Fragment() {
         // Initialize database reference
         database = FirebaseDatabase.getInstance().getReference("userData")
         // Fetch user profiles
-        fetchUserProfiles()
+        fetchExploreUsers()
+        //fetchUserProfiles()
 
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
         swipeRefreshLayout.setColorSchemeResources(R.color.white)
         swipeRefreshLayout.setOnRefreshListener {
-            fetchUserProfiles()
+            //fetchUserProfiles()
+            fetchExploreUsers()
         }
 
         return view
@@ -123,7 +126,7 @@ class exploreAccounts : Fragment() {
         auth = FirebaseAuth.getInstance()
 
         val userId = auth.currentUser?.uid
-        val url = "${Constants.SERVER_URL}api/user/$userId/usersList"
+        val url = "${Constants.SERVER_URL}exploreAccounts/user/$userId/usersList"
 
         val queue = Volley.newRequestQueue(requireContext())
         val jsonArrayRequest = JsonArrayRequest(
@@ -204,6 +207,71 @@ class exploreAccounts : Fragment() {
                 Toast.makeText(context, "Error searching users: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun fetchExploreUsers() {
+        // Replace with your backend URL and userId
+        auth = FirebaseAuth.getInstance()
+        val firebaseUid = auth.currentUser?.uid
+        val url = "${Constants.SERVER_URL}exploreAccounts/user/${firebaseUid}/fetchAccounts"
+
+        val queue = Volley.newRequestQueue(requireContext())
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET, url, null,
+            { response ->
+                try {
+                    // Log the raw response for debugging
+                    Log.d("API Response", "Received response: $response")
+
+                    // Parse the response as a JSONArray
+                    val profiles = parseExploreProfiles(response)
+                    // Set up the adapter with fetched data
+                    adapter = exploreAccountsAdapter(profiles)
+                    recyclerView.adapter = adapter
+                } catch (e: Exception) {
+                    Log.e("JSON Parsing Error", "Error parsing response: ${e.message}")
+                }
+            },
+            { error ->
+                Log.e("Volley Error", "Error fetching user profiles: ${error.message}")
+            }
+        )
+
+        queue.add(jsonArrayRequest)
+    }
+
+    private fun parseExploreProfiles(jsonArray: JSONArray): List<UserData> {
+        val profiles = mutableListOf<UserData>()
+
+        for (i in 0 until jsonArray.length()) {
+            val jsonObject: JSONObject = jsonArray.getJSONObject(i)
+
+            // Parsing data as per the backend response
+            val firebaseUid = jsonObject.optString("firebaseUid", "")
+            val fullName = jsonObject.optString("fullName", "")
+            val gamerTag = jsonObject.optString("gamerTag", "")
+            val profilePicture = jsonObject.optString("profilePictureUrl", null)
+            val gamerRank = jsonObject.optString("gamerRank", "0") // Default value for rank
+            val similarity = jsonObject.optDouble("similarity", 0.0)
+
+            val userData = UserData(
+                userId = firebaseUid,             // Mapping firebaseUid to userId in UserData
+                fullname = fullName,
+                email = "",                       // Not available in the response
+                dOB = "",                         // Not available in the response
+                gamerTag = gamerTag,
+                profilePicture = profilePicture,
+                gender = Gender.PreferNotToSay,   // Assuming default as not available in response
+                bio = null,                       // Not available in the response
+                location = null,                  // Not available in the response
+                accountVerified = false,          // Not available in the response
+                rank = gamerRank.toInt(),
+            )
+
+            profiles.add(userData)
+        }
+
+        return profiles
     }
 
 }

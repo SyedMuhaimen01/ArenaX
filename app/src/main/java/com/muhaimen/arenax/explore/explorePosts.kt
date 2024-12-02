@@ -1,21 +1,29 @@
 package com.muhaimen.arenax.explore
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.userProfile.UserPost
 import com.muhaimen.arenax.userProfile.explorePostsAdapter
+import com.muhaimen.arenax.utils.Constants
+import kotlinx.coroutines.*
+import okhttp3.*
+import org.json.JSONArray
+import org.json.JSONObject
 
-class explorePosts : Fragment() { // Use PascalCase for class name
+class explorePosts : Fragment() {
 
     private lateinit var postsRecyclerView: RecyclerView
-    private lateinit var postsAdapter: explorePostsAdapter // Correct adapter type
-    private val dummyPostsList = generateDummyPosts()  // Generate dummy data here
+    private lateinit var postsAdapter: explorePostsAdapter
+    private val postsList = mutableListOf<UserPost>()
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -23,85 +31,66 @@ class explorePosts : Fragment() { // Use PascalCase for class name
     ): View? {
         val view = inflater.inflate(R.layout.fragment_explore_posts, container, false)
 
+        auth = FirebaseAuth.getInstance()
         // Initialize RecyclerView and set the adapter
         postsRecyclerView = view.findViewById(R.id.posts_recyclerview)
         postsRecyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
-        postsAdapter = explorePostsAdapter(dummyPostsList) // Adapter initialization
+        postsAdapter = explorePostsAdapter(postsList) // Adapter initialization
         postsRecyclerView.adapter = postsAdapter
+
+        // Fetch posts from the backend
+        fetchPosts()
 
         return view
     }
 
-    // Function to generate dummy data for UserPost
-    private fun generateDummyPosts(): List<UserPost> {
-        return listOf(
-            UserPost(
-                username = "gamer123",
-                profilePictureUrl = "https://example.com/profile1.jpg",
-                postContent = "https://example.com/post1.jpg",
-                caption = "Just had an amazing game!",
-                likes = 150,
-                comments = 20,
-                shares = 5,
-                trimmedAudioUrl = "https://example.com/audio1.mp3",
-                createdAt = "2024-10-28"
-            ),
-            UserPost(
-                username = "player456",
-                profilePictureUrl = "https://example.com/profile2.jpg",
-                postContent = "https://example.com/post2.jpg",
-                caption = "New high score!",
-                likes = 200,
-                comments = 45,
-                shares = 12,
-                trimmedAudioUrl = "https://example.com/audio2.mp3",
-                createdAt = "2024-10-28"
-            ),
-            UserPost(
-                username = "proGamer",
-                profilePictureUrl = "https://example.com/profile3.jpg",
-                postContent = "https://example.com/post3.jpg",
-                caption = "Victory!",
-                likes = 320,
-                comments = 67,
-                shares = 20,
-                trimmedAudioUrl = "https://example.com/audio3.mp3",
-                createdAt = "2024-10-27"
-            ),
-            UserPost(
-                username = "speedster",
-                profilePictureUrl = "https://example.com/profile4.jpg",
-                postContent = "https://example.com/post4.jpg",
-                caption = "Reached top speed!",
-                likes = 180,
-                comments = 30,
-                shares = 10,
-                trimmedAudioUrl = "https://example.com/audio4.mp3",
-                createdAt = "2024-10-26"
-            ),
-            UserPost(
-                username = "aceSniper",
-                profilePictureUrl = "https://example.com/profile5.jpg",
-                postContent = "https://example.com/post5.jpg",
-                caption = "Sniped the final boss!",
-                likes = 275,
-                comments = 50,
-                shares = 8,
-                trimmedAudioUrl = "https://example.com/audio5.mp3",
-                createdAt = "2024-10-25"
-            ),
-            UserPost(
-                username = "ninjaWarrior",
-                profilePictureUrl = "https://example.com/profile6.jpg",
-                postContent = "https://example.com/post6.jpg",
-                caption = "Stealth mode activated!",
-                likes = 240,
-                comments = 40,
-                shares = 15,
-                trimmedAudioUrl = "https://example.com/audio6.mp3",
-                createdAt = "2024-10-24"
-            )
-        )
-    }
+    private fun fetchPosts() {
+        val userId = auth.currentUser?.uid ?: return
+        val url = "${Constants.SERVER_URL}explorePosts/user/$userId/fetchPosts" // Replace with your backend API endpoint
 
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(url)
+            .build()
+
+        // Run the network request on a background thread
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val response = client.newCall(request).execute()
+                if (response.isSuccessful) {
+                    // Parse the response
+                    val responseData = response.body?.string()
+                    if (!responseData.isNullOrEmpty()) {
+                        val jsonArray = JSONArray(responseData)
+                        val posts = mutableListOf<UserPost>()
+
+                        for (i in 0 until jsonArray.length()) {
+                            val postObject = jsonArray.getJSONObject(i)
+                            val post = UserPost(
+                                username = "someUsername", // You can get the username from a separate request or data source
+                                profilePictureUrl = "https://example.com/profile.jpg", // You can get the profile picture from the backend or another source
+                                postContent = postObject.getString("post_content"),
+                                caption = postObject.getString("caption"),
+                                likes = postObject.getInt("likes"),
+                                comments = postObject.getInt("post_comments"),
+                                shares = postObject.getInt("shares"),
+                                trimmedAudioUrl = postObject.getString("trimmed_audio_url"),
+                                createdAt = postObject.getString("created_at")
+                            )
+                            posts.add(post)
+                        }
+
+                        // Update the UI on the main thread
+                        withContext(Dispatchers.Main) {
+                            postsList.clear()
+                            postsList.addAll(posts)
+                            postsAdapter.notifyDataSetChanged()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("explorePosts", "Error fetching posts", e)
+            }
+        }
+    }
 }

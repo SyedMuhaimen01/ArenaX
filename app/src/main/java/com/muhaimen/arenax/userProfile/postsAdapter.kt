@@ -20,18 +20,20 @@ class PostsAdapter(private val postsList: List<Post>) : RecyclerView.Adapter<Pos
         fun bind(post: Post) {
 
             itemView.setOnClickListener {
-
                 val intent = Intent(itemView.context, ViewPost::class.java).apply {
                     putExtra("MEDIA", post.postContent)
                     putExtra("Caption", post.caption)
                     putExtra("Likes", post.likes)
                     putExtra("Comments", post.comments)
                     putExtra("Shares", post.shares)
-                    putExtra("trimAudio", post.trimmedAudioUrl)
-                    putExtra("createdAt", post.createdAt)
+                    putExtra("TrimAudio", post.trimmedAudioUrl)
+                    putExtra("CreatedAt", post.createdAt)
+                    putExtra("City", post.city)
+                    putExtra("Country", post.country)
                 }
                 itemView.context.startActivity(intent) // Start the activity
             }
+
             // Check if the media exists before loading
             val uri = Uri.parse(post.postContent)
             Glide.with(itemView.context)
