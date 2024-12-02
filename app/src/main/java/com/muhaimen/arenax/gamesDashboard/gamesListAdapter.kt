@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.muhaimen.arenax.dataClasses.AppInfo
 import com.muhaimen.arenax.utils.Constants
@@ -50,6 +51,7 @@ class gamesListAdapter(
 
             addButton.setOnClickListener {
                 addGame(game, userId, itemView.context, activityContext)
+                GenerateUserInterests(activityContext)
                 addButton.isEnabled = false
             }
         }
@@ -105,6 +107,28 @@ class gamesListAdapter(
         queue.add(jsonObjectRequest)
     }
 
+    fun GenerateUserInterests(context: Context) {
+        // URL for the API endpoint (replace with actual URL)
+        val url = "${Constants.SERVER_URL}userIntertests/user/$userId/generateInterests"
+
+        // Create a StringRequest to call the API
+        val stringRequest = StringRequest(
+            Request.Method.POST, url,
+            { response ->
+                // Handle the response
+                Log.d("VolleyResponse", "Response: $response")
+                // You can handle the response here
+            },
+            { error ->
+                // Handle error
+                Log.e("VolleyError", "Error: ${error.message}")
+            }
+        )
+
+        // Add the request to the Volley request queue
+        val requestQueue = Volley.newRequestQueue(context)
+        requestQueue.add(stringRequest)
+    }
 
     fun formatUrl(url: String?): String {
         return when {

@@ -14,10 +14,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
-import com.muhaimen.arenax.R
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.ui.PlayerView
+import com.muhaimen.arenax.R
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,8 +39,8 @@ class ViewPost : AppCompatActivity() {
     private lateinit var playerView: PlayerView // ExoPlayer view for video
     private var exoPlayer: ExoPlayer? = null
 
-    private val client = OkHttpClient() // Initialize OkHttpClient
-    private var isExpanded: Boolean = false // Flag to track caption expansion
+    private val client = OkHttpClient()
+    private var isExpanded: Boolean = false
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,8 +55,7 @@ class ViewPost : AppCompatActivity() {
         }
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
-
-        // Initialize views
+        playerView = findViewById(R.id.videoPlayerView) // Initialize ExoPlayer view
         backButton = findViewById(R.id.backButton)
         imageView = findViewById(R.id.ImageView) // Initialize ImageView
         postCaption = findViewById(R.id.postCaption) // Initialize caption TextView
@@ -63,14 +63,14 @@ class ViewPost : AppCompatActivity() {
         likeCount = findViewById(R.id.likeCount) // Initialize likes TextView
         commentCount = findViewById(R.id.commentCount) // Initialize comments TextView
         shareCount = findViewById(R.id.shareCount) // Initialize shares TextView
-        playerView = findViewById(R.id.videoPlayerView) // Initialize ExoPlayer view
 
-        // Set the back button click listener
+
+        // Set back button listener
         backButton.setOnClickListener {
             onBackPressed()
         }
 
-        // Retrieve data from intent
+        // Retrieve post data from intent
         val mediaContent = intent.getStringExtra("MEDIA")
         val caption = intent.getStringExtra("Caption")
         val likes = intent.getIntExtra("Likes", 0)
@@ -78,8 +78,10 @@ class ViewPost : AppCompatActivity() {
         val shares = intent.getIntExtra("Shares", 0)
         val trimmedAudioUrl = intent.getStringExtra("trimAudio")
         val createdAt = intent.getStringExtra("createdAt")
+        val city = intent.getStringExtra("city")
+        val country = intent.getStringExtra("country")
 
-        Log.d("ViewPost", "Media: $mediaContent, Caption: $caption, Likes: $likes, Comments: $comments, Shares: $shares, Trimmed Audio: $trimmedAudioUrl, Created At: $createdAt")
+        // Set text data to UI components
 
         // Set the retrieved data to views
         likeCount.text = likes.toString() // Set likes count
