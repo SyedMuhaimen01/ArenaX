@@ -45,103 +45,88 @@
     <!-- Bottom Navigation -->
     <LinearLayout
         android:id="@+id/bottomNav"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
         android:orientation="horizontal"
+
+        android:gravity="center"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:background="@drawable/navigation_bar_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/backgroundColor"
         >
 
+
+
+
         <!-- Home Button -->
-        <ImageButton
+
+        <LinearLayout
             android:id="@+id/home"
-            android:src="@drawable/home_icon_foreground"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
-            android:layout_marginStart="8dp"
-            android:backgroundTint="@color/secondaryColor"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:layout_weight="1"/>
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:background="@drawable/selected_navigation_bar_bg"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_navigation_home"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Home"
+                android:textColor="#539DF3"
+                android:textSize="15sp"
+                android:layout_marginLeft="5dp"
+                />
+
+        </LinearLayout>
 
         <!-- MyGames Button -->
-        <ImageButton
-            android:id="@+id/myGamesButton"
-            android:src="@drawable/game_icon_foreground"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
-            android:layout_marginStart="8dp"
-            android:backgroundTint="@color/secondaryColor"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:layout_weight="1" />
 
         <!-- Synergy Button -->
-        <ImageButton
+        <ImageView
             android:id="@+id/exploreButton"
-            android:src="@drawable/search_black_icon_foreground"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
-            android:layout_marginStart="8dp"
-            android:backgroundTint="@color/secondaryColor"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:layout_weight="1" />
-        <!-- Add Post Button -->
-        <ImageButton
-            android:id="@+id/addPostButton"
-            android:src="@drawable/post_icon_foreground"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
-            android:layout_marginStart="8dp"
-            android:backgroundTint="@color/secondaryColor"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:layout_weight="1" />
-        <!-- TalentXchange Button -->
-        <ImageButton
-            android:id="@+id/talentXchangeButton"
-            android:src="@mipmap/talent_exchange_icon_foreground"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
-            android:layout_marginStart="8dp"
-            android:backgroundTint="@color/secondaryColor"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:layout_weight="1" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_navigation_search"
+            android:layout_marginLeft="25dp"/>
 
-        <!-- Battleground Button -->
-        <ImageButton
-            android:id="@+id/battlegroundButton"
-            android:src="@mipmap/battlegrounds_icon_foreground"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
-            android:layout_marginStart="8dp"
-            android:backgroundTint="@color/secondaryColor"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:layout_weight="1" />
+
+
+
+        <!-- Add Post Button -->
+
+        <ImageView
+            android:id="@+id/addPostButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:background="@drawable/ic_navigation_add" />
+
+
+        <!-- TalentXchange Button -->
+        <ImageView
+            android:id="@+id/talentXchangeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:background="@drawable/ic_navigation_talent" />
 
 
         <!-- Add Profile Button -->
-        <ImageButton
+
+        <ImageView
             android:id="@+id/profileButton"
-            android:src="@drawable/profile_icon_foreground"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
-            android:layout_marginStart="8dp"
-            android:backgroundTint="@color/secondaryColor"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:layout_weight="1" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_navigation_profile"
+            android:layout_marginLeft="40dp"/>
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

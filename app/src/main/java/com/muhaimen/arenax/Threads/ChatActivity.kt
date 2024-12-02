@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -16,6 +17,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.toolbox.JsonObjectRequest
 import com.bumptech.glide.Glide
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -25,7 +27,12 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.ChatItem
+import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
+import org.json.JSONObject
+import com.android.volley.RequestQueue
+import com.android.volley.Request
+import com.android.volley.toolbox.Volley
 
 class ChatActivity : AppCompatActivity() {
     private lateinit var recyclerViewMessages: RecyclerView
@@ -34,7 +41,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var messageEditText: EditText
     private lateinit var sendButton: ImageButton
     private lateinit var backButton: ImageButton
-
+    private lateinit var queue: RequestQueue
     private lateinit var imageViewProfilePicture: ImageView
     private lateinit var textViewGamerTag: TextView
 
@@ -65,6 +72,7 @@ class ChatActivity : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
 
+        queue = Volley.newRequestQueue(this)
         recyclerViewMessages = findViewById(R.id.chatsRecyclerView)
         buttonTakePicture = findViewById(R.id.cameraButton)
         buttonOpenGallery = findViewById(R.id.addButton)
@@ -162,6 +170,8 @@ class ChatActivity : AppCompatActivity() {
         }.addOnFailureListener {
             Toast.makeText(this, "Failed to send message: ${it.message}", Toast.LENGTH_SHORT).show()
         }
+
+        sendNotificationToBackend(senderId, receiverId)
     }
 
     private fun sendMedia(uri: Uri, type: String) {
@@ -204,4 +214,36 @@ class ChatActivity : AppCompatActivity() {
             }
         }
     }
+    private fun sendNotificationToBackend(senderId: String, receiverId: String) {
+        // Create JSON object with the necessary data
+        val jsonObject = JSONObject().apply {
+            put("sender_id", senderId)
+            put("receiver_id", receiverId)
+            put("message", "New Message")
+        }
+
+        // Prepare the request
+        val request = JsonObjectRequest(
+            Request.Method.POST,
+            "${Constants.SERVER_URL}notify-new-message",  // Replace with your actual endpoint
+            jsonObject,
+            { response ->
+                // Successfully sent notification to backend
+                Log.d("ChatActivity", "Successfully sent notification to backend: $response")
+                // Optionally show a success notification or toast
+                Toast.makeText(this@ChatActivity, "Notification sent", Toast.LENGTH_SHORT).show()
+            },
+            { error ->
+                // Error while sending notification
+                Log.e("ChatActivity", "Error sending notification to backend: ${error.message}")
+
+
+            }
+        )
+
+        // Add the request to the queue (assuming you're using Volley)
+        queue.add(request)
+    }
+
+
 }

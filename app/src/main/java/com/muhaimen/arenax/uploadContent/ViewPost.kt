@@ -1,14 +1,9 @@
 package com.muhaimen.arenax.uploadContent
 
 import android.annotation.SuppressLint
-import android.graphics.SurfaceTexture
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
-import android.view.Surface
-import android.view.TextureView
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -20,6 +15,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.ui.PlayerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,13 +30,13 @@ import java.io.IOException
 class ViewPost : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var imageView: ImageView
-    private lateinit var postCaption: TextView
-    private lateinit var seeMoreButton: Button
-    private lateinit var likeCount: TextView
-    private lateinit var commentCount: TextView
-    private lateinit var shareCount: TextView
-    private lateinit var textureView: TextureView
-    private var mediaPlayer: MediaPlayer? = null
+    private lateinit var postCaption: TextView // TextView for caption
+    private lateinit var seeMoreButton: Button // Button to toggle full caption
+    private lateinit var likeCount: TextView // TextView for likes
+    private lateinit var commentCount: TextView // TextView for comments
+    private lateinit var shareCount: TextView // TextView for shares
+    private lateinit var playerView: PlayerView // ExoPlayer view for video
+    private var exoPlayer: ExoPlayer? = null
 
     private val client = OkHttpClient()
     private var isExpanded: Boolean = false
@@ -59,13 +57,13 @@ class ViewPost : AppCompatActivity() {
 
         // Initialize views
         backButton = findViewById(R.id.backButton)
-        imageView = findViewById(R.id.ImageView)
-        postCaption = findViewById(R.id.postCaption)
-        seeMoreButton = findViewById(R.id.seeMoreButton)
-        likeCount = findViewById(R.id.likeCount)
-        commentCount = findViewById(R.id.commentCount)
-        shareCount = findViewById(R.id.shareCount)
-        textureView = findViewById(R.id.VideoView)
+        imageView = findViewById(R.id.ImageView) // Initialize ImageView
+        postCaption = findViewById(R.id.postCaption) // Initialize caption TextView
+        seeMoreButton = findViewById(R.id.seeMoreButton) // Initialize See More Button
+        likeCount = findViewById(R.id.likeCount) // Initialize likes TextView
+        commentCount = findViewById(R.id.commentCount) // Initialize comments TextView
+        shareCount = findViewById(R.id.shareCount) // Initialize shares TextView
+        playerView = findViewById(R.id.videoPlayerView) // Initialize ExoPlayer view
 
         // Set back button listener
         backButton.setOnClickListener {
@@ -82,55 +80,58 @@ class ViewPost : AppCompatActivity() {
         val createdAt = intent.getStringExtra("createdAt")
 
         // Set text data to UI components
-        likeCount.text = likes.toString()
-        commentCount.text = comments.toString()
-        shareCount.text = shares.toString()
 
-        // Handle caption
+        // Set the retrieved data to views
+        likeCount.text = likes.toString() // Set likes count
+        commentCount.text = comments.toString() // Set comments count
+        shareCount.text = shares.toString() // Set shares count
+
+        // Handle caption display
         if (caption.isNullOrEmpty() || caption == "null") {
-            postCaption.visibility = View.GONE
-            seeMoreButton.visibility = View.GONE
+            postCaption.visibility = View.GONE // Hide if null or empty
+            seeMoreButton.visibility = View.GONE // Hide the button if there's no caption
+            Log.d("ViewPost", "Caption is null or empty, hiding caption view.")
         } else {
             postCaption.text = if (caption.length > 50) {
-                caption.take(50) + "..."
+                caption.take(50) + "..." // Display only the first 50 characters with ellipsis
             } else {
-                caption
+                caption // Display the whole caption if it's within the limit
             }
-            seeMoreButton.visibility = if (caption.length > 50) View.VISIBLE else View.GONE
+            seeMoreButton.visibility = if (caption.length > 50) View.VISIBLE else View.GONE // Show See More button if necessary
+            Log.d("ViewPost", "Caption set to: ${postCaption.text}")
         }
 
-        // Set See More button listener
+        // Set up See More button listener
         seeMoreButton.setOnClickListener {
-            toggleCaption()
+            toggleCaption() // Toggle caption visibility
         }
 
-        // Load media (image, video, or audio)
         mediaContent?.let {
-            loadMedia(it)
-        }
+            loadMedia(it) // Load media content
+        } ?: Log.d("ViewPost", "Media content is null.")
 
-        // Play trimmed audio if available
+        // Play the trimmed audio if available
         trimmedAudioUrl?.let {
-            playTrimmedAudio(it)
-        }
+            playTrimmedAudio(it) // Play trimmed audio
+        } ?: Log.d("ViewPost", "Trimmed audio URL is null.")
     }
 
     private fun loadMedia(mediaUrl: String) {
         CoroutineScope(Dispatchers.IO).launch {
             val mediaType = getMediaType(mediaUrl)
 
-            // Update UI on the main thread
+            // Switch back to the main thread to update UI
             withContext(Dispatchers.Main) {
                 if (mediaType != null) {
                     when {
                         mediaType.startsWith("image/") -> {
                             imageView.visibility = View.VISIBLE
-                            textureView.visibility = View.GONE
+                            playerView.visibility = View.GONE
                             setImage(mediaUrl)
                         }
                         mediaType.startsWith("video/mp4") -> {
                             imageView.visibility = View.GONE
-                            textureView.visibility = View.VISIBLE
+                            playerView.visibility = View.VISIBLE
                             playVideo(mediaUrl)
                         }
                         else -> {
@@ -147,11 +148,12 @@ class ViewPost : AppCompatActivity() {
     private suspend fun getMediaType(mediaUrl: String): String? {
         val request = Request.Builder()
             .url(mediaUrl)
-            .head() // Use HEAD request to fetch only headers
+            .head() // Use HEAD to get the headers only
             .build()
 
         return try {
             val response: Response = client.newCall(request).execute()
+            // Handle response and return media type
             response.header("Content-Type").also {
                 Log.d("ViewPost", "Media type retrieved: $it")
             }
@@ -166,81 +168,59 @@ class ViewPost : AppCompatActivity() {
             val uri = Uri.parse(imageUrl)
             Glide.with(this)
                 .load(uri)
-                .thumbnail(0.1f) // Thumbnail loading
-                .error(R.mipmap.appicon2) // Default error image
+                .thumbnail(0.1f) // Show a thumbnail while loading
+                .error(R.mipmap.appicon2) // Show a default error image if loading fails
                 .into(imageView)
+            Log.d("ViewPost", "Attempting to load image from URL: $imageUrl")
+
         } catch (e: Exception) {
-            Log.e("ViewPost", "Exception loading image: ${e.message}")
+            Log.e("ViewPost", "Exception while loading image: ${e.message}")
         }
     }
 
     private fun toggleCaption() {
-        isExpanded = !isExpanded
+        isExpanded = !isExpanded // Toggle the expanded state
         postCaption.text = if (isExpanded) {
-            intent.getStringExtra("Caption") // Show full caption
+            intent.getStringExtra("Caption") // Display full caption
         } else {
-            intent.getStringExtra("Caption")?.take(50) + "..." // Truncate after 50 characters
+            intent.getStringExtra("Caption")?.take(50) + "..." // Limit to 50 characters again
         }
-        seeMoreButton.text = if (isExpanded) "See Less" else "See More"
+        seeMoreButton.text = if (isExpanded) "See Less" else "See More" // Change button text
     }
 
     private fun playVideo(videoPath: String) {
-        val uri = Uri.parse(videoPath)
-        textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-            override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-                mediaPlayer = MediaPlayer().apply {
-                    setDataSource(videoPath)
-                    setSurface(Surface(surface))
-                    prepareAsync()
-                    setOnPreparedListener {
-                        isLooping = true
-                        start()
-                    }
-                    setOnCompletionListener {
-                        seekTo(0)
-                        start()
-                    }
-                    setOnErrorListener { _, what, extra ->
-                        Log.e("ViewPost", "Error: What=$what, Extra=$extra")
-                        true
-                    }
-                }
-            }
-
-            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
-            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-                mediaPlayer?.release()
-                mediaPlayer = null
-                return true
-            }
-
-            override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
+        val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
+        exoPlayer = ExoPlayer.Builder(this).build().apply {
+            setMediaItem(mediaItem)
+            prepare()
+            playWhenReady = true // Start playback immediately
+            playerView.player = this
         }
+
+        Log.d("ViewPost", "Attempting to play video from path: $videoPath")
     }
 
     private fun playTrimmedAudio(outputPath: String) {
-        val uri = Uri.parse(outputPath)
-        mediaPlayer = MediaPlayer()
-
-        mediaPlayer?.apply {
-            try {
-                setDataSource(applicationContext, uri)
-                prepare()
-                start()
-            } catch (e: IOException) {
-                Log.e("ViewPost", "Error playing audio: ${e.message}")
-            }
+        // You can also use ExoPlayer to play audio, here’s an example for that:
+        val audioUri = Uri.parse(outputPath)
+        val audioMediaItem = MediaItem.fromUri(audioUri)
+        exoPlayer = ExoPlayer.Builder(this).build().apply {
+            setMediaItem(audioMediaItem)
+            prepare()
+            playWhenReady = true
         }
+
+        Log.d("ViewPost", "Playing trimmed audio from: $outputPath")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer?.release()
-        mediaPlayer = null
+        exoPlayer?.release()
+        exoPlayer = null
     }
 
     override fun onBackPressed() {
-        mediaPlayer?.release()
-        super.onBackPressed()
+        exoPlayer?.release()
+        super.onBackPressed() // Call super to finish the activity
     }
 }

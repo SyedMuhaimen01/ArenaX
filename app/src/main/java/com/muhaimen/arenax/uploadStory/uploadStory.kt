@@ -5,6 +5,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -13,6 +14,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -42,7 +44,15 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.AuthFailureError
+import com.android.volley.DefaultRetryPolicy
+import com.android.volley.NetworkError
+import com.android.volley.NoConnectionError
 import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.ServerError
+import com.android.volley.TimeoutError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -60,6 +70,7 @@ import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
 import org.json.JSONObject
+import org.jsoup.parser.ParseError
 import java.io.File
 import java.io.IOException
 import java.util.UUID
@@ -140,7 +151,12 @@ class uploadStory : AppCompatActivity() {
         tracksRecyclerView.layoutManager = LinearLayoutManager(this)
         adapter = TracksAdapter(this,emptyList()) { track -> trimAudio(track) }
         tracksRecyclerView.adapter = adapter
-        fetchTracks("83961508")
+
+        if (isNetworkAvailable()) {
+            fetchTracks()
+        } else {
+            Log.e("uploadStory", "No internet connection")
+        }
         searchLinearLayout = findViewById(R.id.searchLinearLayout)
         draggableContainers = mutableListOf()
         musicButton.setOnClickListener {
@@ -658,22 +674,27 @@ class uploadStory : AppCompatActivity() {
         return textContents // Return the list of texts with positions
     }
 
+    private fun fetchTracks() {
+        // Check if network is available
+        if (!isNetworkAvailable()) {
+            Log.e("uploadStory", "No internet connection")
+            return
+        }
 
-    private fun fetchTracks(userId: String) {
         // Example API endpoint to fetch tracks
-        val url =
-            "https://api.jamendo.com/v3.0/tracks/?client_id=${userId}&format=json&limit=200" // Replace with your API URL
+        val url = "${Constants.SERVER_URL}fetchSongs/data"
 
         // Create a StringRequest to fetch tracks
-        val requestQueue = Volley.newRequestQueue(this)
-        val stringRequest = StringRequest(Request.Method.GET, url,
-            { response ->
+        val requestQueue: RequestQueue = Volley.newRequestQueue(this)
+
+        val stringRequest = object : StringRequest(Request.Method.GET, url,
+            Response.Listener { response ->
                 // Log the raw response for debugging
                 Log.d("uploadStory", "API Response: $response")
 
                 try {
                     val jsonObject = JSONObject(response)
-                    val jsonArray = jsonObject.getJSONArray("results") // Changed to "results"
+                    val jsonArray = jsonObject.getJSONArray("results") // Adjusted to "results"
                     val trackList = mutableListOf<Track>()
 
                     for (i in 0 until jsonArray.length()) {
@@ -691,7 +712,6 @@ class uploadStory : AppCompatActivity() {
                             downloadUrl = trackJson.getString("audiodownload") // Added download URL
                         )
                         trackList.add(track)
-                        TrackList=trackList
                     }
 
                     // Update the adapter with the new track list
@@ -700,14 +720,44 @@ class uploadStory : AppCompatActivity() {
                     Log.e("uploadStory", "Error parsing tracks: ${e.message}")
                 }
             },
-            { error ->
-                Log.e("uploadStory", "Error fetching tracks: ${error.message}")
+            Response.ErrorListener { error ->
+                // Log detailed error information
+                val errorMessage = when (error) {
+                    is TimeoutError -> "Tracks retrieval request timeout"
+                    is com.android.volley.NoConnectionError -> "No internet connection"
+                    is com.android.volley.AuthFailureError -> "Authentication failure: ${error.message}"
+                    is com.android.volley.ServerError -> {
+                        val response = error.networkResponse
+                        if (response != null) {
+                            val statusCode = response.statusCode
+                            val responseBody = String(response.data, Charsets.UTF_8)
+                            "Server error (HTTP $statusCode): $responseBody"
+                        } else {
+                            "Server error with no response data"
+                        }
+                    }
+                    is com.android.volley.NetworkError -> "Network error: ${error.message}"
+                    is com.android.volley.ParseError -> "Response parsing error: ${error.message}"
+                    else -> "Unknown error: ${error.message}"
+                }
+                Log.e("uploadStory", errorMessage)
             }
-        )
+        ) {
+            override fun getRetryPolicy(): DefaultRetryPolicy {
+                // Increase timeout to 10 seconds (default is 2500ms)
+                return DefaultRetryPolicy(
+                    10000, // Timeout in milliseconds
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+                )
+            }
+        }
 
         // Add the request to the RequestQueue
         requestQueue.add(stringRequest)
     }
+
+
     @SuppressLint("DefaultLocale")
     fun trimAudio(track: Track) {
         Log.d("TrimAudio", "trimAudio function called.")
@@ -871,5 +921,11 @@ class uploadStory : AppCompatActivity() {
             mediaPlayer = null // Set to null after release
             Log.d("MediaPlayer", "MediaPlayer released.")
         }
+    }
+
+    fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
     }
 }

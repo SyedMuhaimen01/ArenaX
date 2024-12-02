@@ -3,6 +3,8 @@ package com.muhaimen.arenax.explore
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -19,10 +21,9 @@ import com.muhaimen.arenax.userProfile.UserProfile
 class ExplorePage : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
-    private lateinit var myGamesButton: ImageButton
-    private lateinit var addPost: ImageButton
-    private lateinit var homeButton: ImageButton
-    private lateinit var profileButton: ImageButton
+    private lateinit var addPost: ImageView
+    private lateinit var homeButton: LinearLayout
+    private lateinit var profileButton: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,11 +67,7 @@ class ExplorePage : AppCompatActivity() {
             val intent = Intent(this, UserFeed::class.java)
             startActivity(intent)
         }
-        myGamesButton= findViewById(R.id.myGamesButton)
-        myGamesButton.setOnClickListener {
-            val intent = Intent(this, MyGamesList::class.java)
-            startActivity(intent)
-        }
+
 
         addPost= findViewById(R.id.addPostButton)
         addPost.setOnClickListener {

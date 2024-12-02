@@ -115,7 +115,7 @@ class UploadContent : AppCompatActivity() {
         tracksRecyclerView.layoutManager = LinearLayoutManager(this)
         adapter = TracksAdapter(this,emptyList()) { track -> trimAudio(track) }
         tracksRecyclerView.adapter = adapter
-        fetchTracks("83961508")
+        fetchTracks()
         searchLinearLayout = findViewById(R.id.searchLinearLayout)
 
         musicButton.setOnClickListener {
@@ -125,6 +125,7 @@ class UploadContent : AppCompatActivity() {
                 previewImageView.visibility = View.GONE
                 captionEditText.visibility = View.GONE
                 uploadToolbar.visibility = View.GONE
+                tracksRecyclerView.visibility=View.VISIBLE
             } else {
                 searchLinearLayout.visibility = View.GONE
                 previewImageView.visibility = View.VISIBLE
@@ -406,10 +407,10 @@ class UploadContent : AppCompatActivity() {
         const val CAMERA_PERMISSION_REQUEST_CODE = 101
     }
 
-    private fun fetchTracks(userId: String) {
+    private fun fetchTracks() {
         // Example API endpoint to fetch tracks
         val url =
-            "https://api.jamendo.com/v3.0/tracks/?client_id=${userId}&format=json&limit=200" // Replace with your API URL
+            "${Constants.SERVER_URL}fetchSongs/data"
 
         // Create a StringRequest to fetch tracks
         val requestQueue = Volley.newRequestQueue(this)

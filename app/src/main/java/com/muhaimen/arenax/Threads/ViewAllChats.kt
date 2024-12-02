@@ -15,7 +15,6 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.ChatItem
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.utils.FirebaseManager
-import com.muhaimen.arenax.explore.SearchUserAdapter
 
 class ViewAllChats : AppCompatActivity() {
 
