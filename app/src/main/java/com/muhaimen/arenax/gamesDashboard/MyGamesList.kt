@@ -1,7 +1,6 @@
 package com.muhaimen.arenax.gamesDashboard
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.ContentValues.TAG
 import android.content.Context
@@ -25,13 +24,10 @@ import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.bumptech.glide.Glide
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
@@ -39,7 +35,6 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.firebase.auth.FirebaseAuth
-import com.muhaimen.arenax.dataClasses.GameAnalytics
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.gamesDashboard.ViewGameAnalytics.DateValueFormatter
 import com.muhaimen.arenax.uploadContent.UploadContent
@@ -47,6 +42,7 @@ import com.muhaimen.arenax.userFeed.UserFeed
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.Constants
 import okhttp3.*
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
@@ -89,7 +85,7 @@ class MyGamesList : AppCompatActivity() {
         gamesSearchBar = findViewById(R.id.searchbar)
         addGame = findViewById(R.id.addGame)
         backButton = findViewById(R.id.backButton)
-
+        playtimeBarChart = findViewById(R.id.totalPlaytimeBarChart)
         myGamesListRecyclerView = findViewById(R.id.myGamesListRecyclerView)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -117,6 +113,7 @@ class MyGamesList : AppCompatActivity() {
         }
 
 
+
         myGamesListAdapter = MyGamesListAdapter(emptyList(), userId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
@@ -128,6 +125,7 @@ class MyGamesList : AppCompatActivity() {
             swipeRefreshLayout.isRefreshing = false
         }
 
+        fetchUserGameStats()
         loadGamesFromPreferences()
 
         backButton.setOnClickListener {
@@ -326,8 +324,9 @@ class MyGamesList : AppCompatActivity() {
 
         queue.add(jsonObjectRequest)
     }
-    // Session Frequency Bar Chart
-    private fun playtimeBarChart(sessionFrequencyPerDay: List<Int>, dates: List<String>) {
+
+    private fun playtimeBarChart(sessionFrequencyPerDay: MutableList<Float>, gameNames: List<String>) {
+        // Create BarEntries for each game with its playtime
         val entries = sessionFrequencyPerDay.mapIndexed { index, frequency -> BarEntry(index.toFloat(), frequency.toFloat()) }
 
         val barDataSet = BarDataSet(entries, "Total Playtime Hrs Distribution").apply {
@@ -336,46 +335,109 @@ class MyGamesList : AppCompatActivity() {
         }
 
         playtimeBarChart.apply {
+            // Set the bar data for the chart
             data = BarData(barDataSet)
             xAxis.apply {
-                valueFormatter = DateValueFormatter(dates)
+                // Set game names on the X-axis
+                valueFormatter = object : ValueFormatter() {
+                    override fun getFormattedValue(value: Float): String {
+                        val index = value.toInt()
+                        return if (index in gameNames.indices) gameNames[index] else ""
+                    }
+                }
                 granularity = 1f
                 position = XAxis.XAxisPosition.BOTTOM
                 labelRotationAngle = -45f
-                textSize = 12f
-                setDrawGridLines(false)
+                textSize = 12f // Set text size for X-axis labels
+                setDrawGridLines(false) // Disable grid lines for X-axis
             }
-            axisLeft.isEnabled = false
+            axisLeft.isEnabled = false // Disable left Y-axis
             axisRight.apply {
+                // Set the Y-axis formatter
                 valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float) = "${value.toInt()}h"
+                    override fun getFormattedValue(value: Float): String {
+                        return "${value.toInt()}h" // Format Y-axis to show hours
+                    }
                 }
-                textSize = 12f
-                granularity = 1f
-                setDrawGridLines(false)
+                textSize = 12f // Set text size for Y-axis labels
+                granularity = 1f // Set the Y-axis granularity
+                setDrawGridLines(false) // Disable grid lines for Y-axis
             }
-            description.isEnabled = false
-            legend.isEnabled = false
-            setExtraOffsets(15f, 15f, 15f, 15f)
-            invalidate()
+            description.isEnabled = false // Disable chart description
+            legend.isEnabled = false // Disable chart legend
+            setExtraOffsets(15f, 15f, 15f, 15f) // Add extra padding around the chart
+            invalidate()  // Redraw the chart
         }
     }
 
 
-    // Function to fetch game analytics for the user
     private fun fetchUserGameStats() {
         val userId = auth.currentUser?.uid ?: return // Ensure user is authenticated
-        val url = "${Constants.SERVER_URL}gameAnalytics/user/$userId/gameStats" // Modify URL to include userId in the path
+        val url = "${Constants.SERVER_URL}analytics/user/$userId/hoursPerGame" // URL with userId in the path
 
+        val client = OkHttpClient.Builder().build()
 
+        val request = Request.Builder()
+            .url(url)
+            .get() // HTTP GET request
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("GameAnalytics", "Error fetching game stats: ${e.message}")
+                e.printStackTrace()
+                runOnUiThread { } // Ensure UI updates are done on the main thread
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (!response.isSuccessful) {
+                    Log.e("GameAnalytics", "Unsuccessful response: ${response.code}")
+                    runOnUiThread { }
+                    return
+                }
+
+                response.body?.let { responseBody ->
+                    try {
+                        val jsonResponse = JSONObject(responseBody.string())
+                        Log.d("GameAnalytics", "Successfully fetched game stats: $jsonResponse")
+                        runOnUiThread { parseAndPopulateCharts(jsonResponse) } // Update UI on the main thread
+                    } catch (e: Exception) {
+                        Log.e("GameAnalytics", "Error parsing response: ${e.message}")
+                        e.printStackTrace()
+                        runOnUiThread { }
+                    }
+                }
+            }
+        })
     }
 
+    private fun parseAndPopulateCharts(response: JSONObject) {
+        try {
+            // Get the game statistics from the response
+            val gameStats = response.getJSONArray("gameAnalytics")
 
-    // Function to display the fetched game analytics (just a placeholder for your UI logic)
-    fun displayGameAnalytics(gameAnalyticsList: List<GameAnalytics>) {
-        // You can update your UI here, for example, display it in a RecyclerView
-        gameAnalyticsList.forEach {
-            println("Game: ${it.gameName}, Package: ${it.packageName}, Total Playtime: ${it.totalPlaytime}")
+            // Prepare lists for playtime and game names
+            val playtimeList = mutableListOf<Float>()
+            val gameNamesList = mutableListOf<String>()
+
+            for (i in 0 until gameStats.length()) {
+                val game = gameStats.getJSONObject(i)
+                val playtime = game.getString("totalPlaytime").toFloatOrNull() ?: 0f  // Convert to Float
+                val gameName = game.getString("gameName") // Game name
+
+                playtimeList.add(playtime)
+                gameNamesList.add(gameName)
+            }
+
+            // Now call the playtimeBarChart method with the correct data
+            playtimeBarChart(playtimeList, gameNamesList)
+
+        } catch (e: JSONException) {
+            Log.e("GameAnalytics", "Error parsing game stats JSON: ${e.message}")
+            e.printStackTrace()
         }
     }
+
+
+
 }
