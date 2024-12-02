@@ -367,27 +367,7 @@ class MyGamesList : AppCompatActivity() {
         val userId = auth.currentUser?.uid ?: return // Ensure user is authenticated
         val url = "${Constants.SERVER_URL}gameAnalytics/user/$userId/gameStats" // Modify URL to include userId in the path
 
-        val request = JsonObjectRequest(
-            Request.Method.GET,
-            url,
-            null, // No body for GET requests
-            { response ->
-                Log.d("GameAnalytics", "Successfully fetched game stats: $response")
-                try {
-                    parseAndPopulateCharts(response) // Parse and populate charts with received data
-                } catch (e: Exception) {
-                    Log.e("GameAnalytics", "Error parsing response: ${e.message}")
-                    e.printStackTrace()
-                }
-            },
-            { error ->
-                Log.e("GameAnalytics", "Error fetching game stats: ${error.message}")
-                error.printStackTrace()
-                handleError() // Handle error (e.g., notify user or retry)
-            }
-        )
 
-        queue.add(request) // Add the request to the queue
     }
 
 
