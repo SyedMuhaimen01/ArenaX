@@ -37,6 +37,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.arthenica.mobileffmpeg.FFmpeg
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Track
@@ -53,6 +54,7 @@ import java.util.*
 
 class UploadContent : AppCompatActivity() {
 
+    private lateinit var auth: FirebaseAuth
     private lateinit var previewImageView: ImageView
     private lateinit var captionEditText: EditText
     private lateinit var galleryButton: TextView
@@ -62,7 +64,6 @@ class UploadContent : AppCompatActivity() {
     private lateinit var userData: UserData
     private var mediaUri: Uri? = null
     private val firebaseStorage = FirebaseStorage.getInstance()
-    private val auth = FirebaseManager.getAuthInstance()
     private lateinit var playPauseButton: Button
     private lateinit var trimButton: Button
     private lateinit var cancelButton: Button
@@ -106,7 +107,7 @@ class UploadContent : AppCompatActivity() {
         endSeekBar = findViewById(R.id.endSeekBar)
         trimTrackLayout = findViewById(R.id.trimTrackLayout)
         uploadToolbar = findViewById(R.id.uploadToolbar)
-
+        auth = FirebaseAuth.getInstance()
         trimTrackLayout.visibility = View.GONE
         // Setup RecyclerView
         setupAutoComplete()
@@ -360,10 +361,13 @@ class UploadContent : AppCompatActivity() {
         }
     }
 
-    // Function to send post details to the backend server
     private fun savePostDetailsToServer(userId: String, mediaUrl: String, caption: String) {
-        userData= UserData(userId = userId)
-        val (city, country) = loadLocationFromSharedPreferences()
+        userData = UserData(userId = userId)
+
+        // Load location details (city, country, latitude, longitude)
+        val (city, country, coordinates) = loadLocationFromSharedPreferences()
+        val latitude = coordinates?.first ?: 0.0 // Default to 0.0 if coordinates are null
+        val longitude = coordinates?.second ?: 0.0 // Default to 0.0 if coordinates are null
 
         val requestQueue = Volley.newRequestQueue(this)
 
@@ -372,8 +376,10 @@ class UploadContent : AppCompatActivity() {
             put("content", mediaUrl)
             put("caption", caption)
             put("sponsored", false)
-            //put("city", city)
-            //put("country", country)
+            put("city", city) // City from shared preferences
+            put("country", country) // Country from shared preferences
+            put("latitude", latitude) // Latitude from shared preferences
+            put("longitude", longitude) // Longitude from shared preferences
             put("created_at", System.currentTimeMillis())
             put("trimmed_audio_url", trimmedAudioUrl)
         }
@@ -388,13 +394,13 @@ class UploadContent : AppCompatActivity() {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
             },
             { error ->
-              //  Toast.makeText(this, "Error uploading post: ${error.message}", Toast.LENGTH_SHORT)
-                //    .show()
+                // Handle error if needed
             }
         )
 
         requestQueue.add(postRequest)
     }
+
 
     companion object {
         const val CAMERA_PERMISSION_REQUEST_CODE = 101
@@ -606,9 +612,15 @@ class UploadContent : AppCompatActivity() {
         }
     }
 
-    private fun loadLocationFromSharedPreferences(): Pair<String?, String?> {
+    private fun loadLocationFromSharedPreferences(): Triple<String?, String?, Pair<Double, Double>?> {
         val city = sharedPreferences6.getString("city", null)
         val country = sharedPreferences6.getString("country", null)
-        return Pair(city, country)
+
+        // Retrieve latitude and longitude as Floats, and then convert them back to Doubles
+        val latitude = sharedPreferences6.getFloat("latitude", 0f).toDouble()
+        val longitude = sharedPreferences6.getFloat("longitude", 0f).toDouble()
+
+        // Return the data in a Triple: City, Country, and the Pair of latitude and longitude
+        return Triple(city, country, Pair(latitude, longitude))
     }
 }

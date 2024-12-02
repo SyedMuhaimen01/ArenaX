@@ -1,13 +1,17 @@
 package com.muhaimen.arenax.userFeed
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ViewAllChats
 import com.muhaimen.arenax.explore.ExplorePage
@@ -15,6 +19,7 @@ import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.notifications.Notifications
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userProfile.UserProfile
+import com.muhaimen.arenax.utils.Constants
 
 class UserFeed : AppCompatActivity() {
     private lateinit var userFeedAdapter: UserFeedPostsAdapter
@@ -25,6 +30,8 @@ class UserFeed : AppCompatActivity() {
     private lateinit var addPost: ImageButton
     private lateinit var profileButton: ImageButton
     private lateinit var exploreButton: ImageButton
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_feed)
@@ -144,4 +151,6 @@ class UserFeed : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
+
 }

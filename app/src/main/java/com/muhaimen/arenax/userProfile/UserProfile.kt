@@ -39,9 +39,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.RequestQueue
+import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -55,6 +57,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.Threads.ChatService
 import com.muhaimen.arenax.accountSettings.accountSettings
 import com.muhaimen.arenax.dataClasses.AnalyticsData
 import com.muhaimen.arenax.dataClasses.Post
@@ -138,6 +141,8 @@ class UserProfile : AppCompatActivity() {
     private val sharedPreferences4 by lazy { getSharedPreferences("MyRankPrefs", Context.MODE_PRIVATE) }
     private val sharedPreferences5 by lazy { getSharedPreferences("UserDataPrefs", Context.MODE_PRIVATE) }
     private val sharedPreferences6 by lazy { getSharedPreferences("UserLocationPrefs", Context.MODE_PRIVATE) }
+    private val sharedPreferences7 by lazy {getSharedPreferences("userInterests", Context.MODE_PRIVATE)}
+
     @SuppressLint("MissingInflatedId", "SetTextI18n", "CutPasteId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -197,6 +202,11 @@ class UserProfile : AppCompatActivity() {
             fetchUserPosts()
             fetchUserRank()
             fetchUserGames()
+            //if(!getInterestsGenerated(userId))
+           // {
+                GenerateUserInterests()
+               // setInterestsGenerated(userId,true)
+           // }
         }
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         profileImage = findViewById(R.id.profilePicture)
@@ -222,6 +232,10 @@ class UserProfile : AppCompatActivity() {
             Log.e("ProfileActivity", "Current user ID is null.")
         }
 
+
+
+        val intent2 = Intent(this, ChatService::class.java)
+        startService(intent2)
 
         followingLinearLayout.setOnClickListener {
             val intent = Intent(this, synergy::class.java)
@@ -608,41 +622,68 @@ class UserProfile : AppCompatActivity() {
             null,
             { response ->
                 try {
+                    // Create a list to hold the user's posts
                     val postsList = mutableListOf<Post>()
+
                     for (i in 0 until response.length()) {
                         val postJson = response.getJSONObject(i)
 
+                        // Parse fields from the JSON response
                         val postId = postJson.getInt("post_id")
-                        val postContent = postJson.optString("post_content", null.toString())
-                        val caption = postJson.optString("caption", null.toString())
+                        val postContent = postJson.optString("post_content", null)
+                        val caption = postJson.optString("caption", null)
                         val sponsored = postJson.getBoolean("sponsored")
                         val likes = postJson.getInt("likes")
                         val comments = postJson.getInt("post_comments")
                         val shares = postJson.getInt("shares")
                         val clicks = postJson.getInt("clicks")
-                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null.toString())
+                        val city = postJson.optString("city", null)
+                        val country = postJson.optString("country", null)
+                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null)
                         val createdAt = postJson.getString("created_at")
-                        val post = Post(postId, postContent, caption, sponsored, likes, comments, shares, clicks, trimmedAudioUrl, createdAt)
+
+                        // Create a Post object
+                        val post = Post(
+                            postId = postId,
+                            postContent = postContent,
+                            caption = caption,
+                            sponsored = sponsored,
+                            likes = likes,
+                            comments = comments,
+                            shares = shares,
+                            clicks = clicks,
+                            city = city,
+                            country = country,
+                            trimmedAudioUrl = trimmedAudioUrl,
+                            createdAt = createdAt
+                        )
+
+                        // Add the post to the list
                         postsList.add(post)
                     }
-                    savePostsDataToSharedPreference(postsList)
-                    updatePostsUI(postsList)
 
+                    // Save posts to shared preferences for offline use
+                    savePostsDataToSharedPreference(postsList)
+
+                    // Update the UI with the fetched posts
+                    updatePostsUI(postsList)
                 } catch (e: JSONException) {
                     e.printStackTrace()
-                //    Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "Error parsing response: ${e.message}")
+                    // Optionally, notify the user about the error
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching posts: ${error.message}")
+                // Load cached posts if the request fails
                 loadPostsFromSharedPreferences()
-            //    Toast.makeText(this, "Error fetching posts", Toast.LENGTH_SHORT).show()
             }
         )
 
         // Add the request to the RequestQueue
         requestQueue.add(jsonArrayRequest)
     }
+
 
 
     // Function to update the UI with the fetched posts
@@ -757,14 +798,16 @@ class UserProfile : AppCompatActivity() {
             posts.forEach { post ->
                 put(JSONObject().apply {
                     put("post_id", post.postId)
-                    put("post_content", post.postContent)
-                    put("caption", post.caption)
+                    put("post_content", post.postContent ?: JSONObject.NULL)  // Handle null content
+                    put("caption", post.caption ?: JSONObject.NULL)          // Handle null caption
                     put("sponsored", post.sponsored)
                     put("likes", post.likes)
                     put("post_comments", post.comments)
                     put("shares", post.shares)
                     put("clicks", post.clicks)
-                    put("trimmed_audio_url", post.trimmedAudioUrl)
+                    put("city", post.city ?: JSONObject.NULL)                // Handle null city
+                    put("country", post.country ?: JSONObject.NULL)          // Handle null country
+                    put("trimmed_audio_url", post.trimmedAudioUrl ?: JSONObject.NULL) // Handle null audio URL
                     put("created_at", post.createdAt)
                 })
             }
@@ -776,19 +819,30 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
-    private fun saveLocationToSharedPreferences(city: String, country: String) {
+
+    private fun saveLocationToSharedPreferences(city: String, country: String, latitude: Double, longitude: Double) {
         with(sharedPreferences6.edit()) {
             putString("city", city)
             putString("country", country)
+            putFloat("latitude", latitude.toFloat())   // Store latitude as Float
+            putFloat("longitude", longitude.toFloat()) // Store longitude as Float
             apply()
         }
     }
 
-    private fun loadLocationFromSharedPreferences(): Pair<String?, String?> {
+
+    private fun loadLocationFromSharedPreferences(): Triple<String?, String?, Pair<Double, Double>?> {
         val city = sharedPreferences6.getString("city", null)
         val country = sharedPreferences6.getString("country", null)
-        return Pair(city, country)
+
+        // Retrieve latitude and longitude as Floats, and then convert them back to Doubles
+        val latitude = sharedPreferences6.getFloat("latitude", 0f).toDouble()
+        val longitude = sharedPreferences6.getFloat("longitude", 0f).toDouble()
+
+        // Return the data in a Triple: City, Country, and the Pair of latitude and longitude
+        return Triple(city, country, Pair(latitude, longitude))
     }
+
 
     private fun loadPostsFromSharedPreferences() {
         val postsJson = sharedPreferences3.getString("postsList", null)
@@ -798,22 +852,25 @@ class UserProfile : AppCompatActivity() {
             for (i in 0 until jsonArray.length()) {
                 val postJson = jsonArray.getJSONObject(i)
                 val post = Post(
-                    postJson.getInt("post_id"),
-                    postJson.optString("post_content", null.toString()),
-                    postJson.optString("caption", null.toString()),
-                    postJson.getBoolean("sponsored"),
-                    postJson.getInt("likes"),
-                    postJson.getInt("post_comments"),
-                    postJson.getInt("shares"),
-                    postJson.getInt("clicks"),
-                    postJson.optString("trimmed_audio_url", null.toString()),
-                    postJson.getString("created_at")
+                    postId = postJson.getInt("post_id"),
+                    postContent = if (postJson.isNull("post_content")) null else postJson.getString("post_content"),
+                    caption = if (postJson.isNull("caption")) null else postJson.getString("caption"),
+                    sponsored = postJson.getBoolean("sponsored"),
+                    likes = postJson.getInt("likes"),
+                    comments = postJson.getInt("post_comments"),
+                    shares = postJson.getInt("shares"),
+                    clicks = postJson.getInt("clicks"),
+                    city = if (postJson.isNull("city")) null else postJson.getString("city"),
+                    country = if (postJson.isNull("country")) null else postJson.getString("country"),
+                    trimmedAudioUrl = if (postJson.isNull("trimmed_audio_url")) null else postJson.getString("trimmed_audio_url"),
+                    createdAt = postJson.getString("created_at")
                 )
                 posts.add(post)
             }
             updatePostsUI(posts)
         }
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -903,8 +960,10 @@ class UserProfile : AppCompatActivity() {
                     val country = addresses[0].countryName
                     val (previousCity, previousCountry) = loadLocationFromSharedPreferences()
 
+                    // Check if the city or country has changed
                     if (city != previousCity || country != previousCountry) {
-                        updateUserLocation(city, country)
+                        // Now also send the latitude and longitude to updateUserLocation function
+                        updateUserLocation(city, country, latitude, longitude)
                     }
                 }
             }
@@ -912,6 +971,7 @@ class UserProfile : AppCompatActivity() {
             Log.e(TAG, "Error getting city and country: ${e.message}")
         }
     }
+
 
     // Handle the result of the permission request
     override fun onRequestPermissionsResult(
@@ -929,11 +989,16 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
-    private fun updateUserLocation(city: String?, country: String?) {
-        val url="${Constants.SERVER_URL}userLocation/user/${auth.currentUser?.uid}/updateLocation"
+    private fun updateUserLocation(city: String?, country: String?, latitude: Double?, longitude: Double?) {
+
+        val url="${Constants.SERVER_URL}updateLocation/user/$userId/userLocation"
+
+        // Create the request body with city, country, latitude, and longitude
         val requestBody = JSONObject().apply {
             put("city", city)
             put("country", country)
+            put("latitude", latitude)
+            put("longitude", longitude)
         }
 
         val jsonObjectRequest = JsonObjectRequest(
@@ -941,7 +1006,8 @@ class UserProfile : AppCompatActivity() {
             url,
             requestBody,
             { _ ->
-                saveLocationToSharedPreferences(city ?: "", country ?: "")
+                // Save the updated location (city, country, latitude, longitude) to SharedPreferences
+                saveLocationToSharedPreferences(city ?: "", country ?: "", latitude ?: 0.0, longitude ?: 0.0)
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error updating user location: ${error.message}")
@@ -950,6 +1016,7 @@ class UserProfile : AppCompatActivity() {
 
         requestQueue.add(jsonObjectRequest)
     }
+
 
 
     private fun onProfilePictureClick() {
@@ -1118,6 +1185,38 @@ class UserProfile : AppCompatActivity() {
                 Log.e("ProfileActivity", "Error fetching following: ${error.message}")
             }
         })
+    }
+
+    fun GenerateUserInterests() {
+        // URL for the API endpoint (replace with actual URL)
+        val url = "${Constants.SERVER_URL}userIntertests/user/$userId/generateInterests"
+
+        // Create a StringRequest to call the API
+        val stringRequest = StringRequest(
+            Request.Method.POST, url,
+            { response ->
+                // Handle the response
+                Log.d("VolleyResponse", "Response: $response")
+                // You can handle the response here
+            },
+            { error ->
+                // Handle error
+                Log.e("VolleyError", "Error: ${error.message}")
+            }
+        )
+
+
+        requestQueue.add(stringRequest)
+    }
+
+    fun setInterestsGenerated( userId: String, value: Boolean) {
+        val editor = sharedPreferences7.edit()
+        editor.putBoolean("interestsGenerated_$userId", value)
+        editor.apply()  // Commit the change asynchronously
+    }
+
+    fun getInterestsGenerated( userId: String): Boolean {
+        return sharedPreferences7.getBoolean("interestsGenerated_$userId", false)
     }
 }
 

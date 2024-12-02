@@ -90,7 +90,6 @@ class otherUserProfile : AppCompatActivity() {
     private lateinit var followersTextView: TextView
     private lateinit var myGamesButton: ImageButton
     private lateinit var addPost: ImageButton
-    private lateinit var uploadStoryButton: ImageButton
     private lateinit var storyRing: ImageView
     private lateinit var userData: UserData
     private lateinit var messageButton: Button
@@ -142,11 +141,7 @@ class otherUserProfile : AppCompatActivity() {
         followersTextView = findViewById(R.id.followersTextView)
         followingTextView = findViewById(R.id.followingTextView)
 
-        if (receivedUserId != null) {
-            fetchAndSetCounts(receivedUserId)
-        } else {
-            Log.e("ProfileActivity", "Current user ID is null.")
-        }
+        fetchAndSetCounts(receivedUserId)
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         profileImage = findViewById(R.id.profilePicture)
@@ -171,13 +166,6 @@ class otherUserProfile : AppCompatActivity() {
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rankTextView = findViewById(R.id.rankTextView)
-
-
-        uploadStoryButton = findViewById(R.id.uploadStoryButton)
-        uploadStoryButton.setOnClickListener {
-            val intent = Intent(this, uploadStory::class.java)
-            startActivity(intent)
-        }
 
         currentUserId= FirebaseManager.getCurrentUserId().toString()
         // Assume currentUserId and receivedUserId are already defined.
@@ -613,16 +601,32 @@ class otherUserProfile : AppCompatActivity() {
                         val postJson = response.getJSONObject(i)
 
                         val postId = postJson.getInt("post_id")
-                        val postContent = postJson.optString("post_content", null.toString())
-                        val caption = postJson.optString("caption", null.toString())
+                        val postContent = if (postJson.isNull("post_content")) null else postJson.getString("post_content")
+                        val caption = if (postJson.isNull("caption")) null else postJson.getString("caption")
                         val sponsored = postJson.getBoolean("sponsored")
                         val likes = postJson.getInt("likes")
                         val comments = postJson.getInt("post_comments")
                         val shares = postJson.getInt("shares")
                         val clicks = postJson.getInt("clicks")
-                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null.toString())
+                        val city = if (postJson.isNull("city")) null else postJson.getString("city")
+                        val country = if (postJson.isNull("country")) null else postJson.getString("country")
+                        val trimmedAudioUrl = if (postJson.isNull("trimmed_audio_url")) null else postJson.getString("trimmed_audio_url")
                         val createdAt = postJson.getString("created_at")
-                        val post = Post(postId, postContent, caption, sponsored, likes, comments, shares, clicks, trimmedAudioUrl, createdAt)
+
+                        val post = Post(
+                            postId = postId,
+                            postContent = postContent,
+                            caption = caption,
+                            sponsored = sponsored,
+                            likes = likes,
+                            comments = comments,
+                            shares = shares,
+                            clicks = clicks,
+                            city = city,
+                            country = country,
+                            trimmedAudioUrl = trimmedAudioUrl,
+                            createdAt = createdAt
+                        )
                         postsList.add(post)
                     }
                     updatePostsUI(postsList)
@@ -637,6 +641,7 @@ class otherUserProfile : AppCompatActivity() {
         )
         requestQueue.add(jsonArrayRequest)
     }
+
 
 
     // Function to update the UI with the fetched posts

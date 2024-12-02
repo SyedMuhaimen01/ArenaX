@@ -62,17 +62,6 @@
 
                     </FrameLayout>
 
-                    <ImageButton
-                        android:id="@+id/uploadStoryButton"
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
-                        android:importantForAccessibility="no"
-                        android:src="@drawable/add_white_icon_foreground"
-                        android:backgroundTint="@color/LogoBackground"
-                        android:background="@drawable/circle"
-                        android:scaleType="fitXY"
-                        android:layout_marginStart="-45dp"
-                        android:layout_marginTop="@dimen/_18sdp" />
 
                     <LinearLayout
                         android:layout_width="0dp"

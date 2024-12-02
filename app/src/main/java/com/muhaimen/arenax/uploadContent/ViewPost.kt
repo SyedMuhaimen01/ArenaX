@@ -32,16 +32,16 @@ import java.io.IOException
 class ViewPost : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var imageView: ImageView
-    private lateinit var postCaption: TextView // TextView for caption
-    private lateinit var seeMoreButton: Button // Button to toggle full caption
-    private lateinit var likeCount: TextView // TextView for likes
-    private lateinit var commentCount: TextView // TextView for comments
-    private lateinit var shareCount: TextView // TextView for shares
-    private lateinit var textureView: TextureView // TextureView for playing video
+    private lateinit var postCaption: TextView
+    private lateinit var seeMoreButton: Button
+    private lateinit var likeCount: TextView
+    private lateinit var commentCount: TextView
+    private lateinit var shareCount: TextView
+    private lateinit var textureView: TextureView
     private var mediaPlayer: MediaPlayer? = null
 
-    private val client = OkHttpClient() // Initialize OkHttpClient
-    private var isExpanded: Boolean = false // Flag to track caption expansion
+    private val client = OkHttpClient()
+    private var isExpanded: Boolean = false
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,22 +56,23 @@ class ViewPost : AppCompatActivity() {
         }
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
+
         // Initialize views
         backButton = findViewById(R.id.backButton)
-        imageView = findViewById(R.id.ImageView) // Initialize ImageView
-        postCaption = findViewById(R.id.postCaption) // Initialize caption TextView
-        seeMoreButton = findViewById(R.id.seeMoreButton) // Initialize See More Button
-        likeCount = findViewById(R.id.likeCount) // Initialize likes TextView
-        commentCount = findViewById(R.id.commentCount) // Initialize comments TextView
-        shareCount = findViewById(R.id.shareCount) // Initialize shares TextView
-        textureView = findViewById(R.id.VideoView) // Initialize TextureView
+        imageView = findViewById(R.id.ImageView)
+        postCaption = findViewById(R.id.postCaption)
+        seeMoreButton = findViewById(R.id.seeMoreButton)
+        likeCount = findViewById(R.id.likeCount)
+        commentCount = findViewById(R.id.commentCount)
+        shareCount = findViewById(R.id.shareCount)
+        textureView = findViewById(R.id.VideoView)
 
-        // Set the back button click listener
+        // Set back button listener
         backButton.setOnClickListener {
             onBackPressed()
         }
 
-        // Retrieve data from intent
+        // Retrieve post data from intent
         val mediaContent = intent.getStringExtra("MEDIA")
         val caption = intent.getStringExtra("Caption")
         val likes = intent.getIntExtra("Likes", 0)
@@ -80,48 +81,45 @@ class ViewPost : AppCompatActivity() {
         val trimmedAudioUrl = intent.getStringExtra("trimAudio")
         val createdAt = intent.getStringExtra("createdAt")
 
-        Log.d("ViewPost", "Media: $mediaContent, Caption: $caption, Likes: $likes, Comments: $comments, Shares: $shares, Trimmed Audio: $trimmedAudioUrl, Created At: $createdAt")
+        // Set text data to UI components
+        likeCount.text = likes.toString()
+        commentCount.text = comments.toString()
+        shareCount.text = shares.toString()
 
-        // Set the retrieved data to views
-        likeCount.text = likes.toString() // Set likes count
-        commentCount.text = comments.toString() // Set comments count
-        shareCount.text = shares.toString() // Set shares count
-
-        // Handle caption display
+        // Handle caption
         if (caption.isNullOrEmpty() || caption == "null") {
-            postCaption.visibility = View.GONE // Hide if null or empty
-            seeMoreButton.visibility = View.GONE // Hide the button if there's no caption
-            Log.d("ViewPost", "Caption is null or empty, hiding caption view.")
+            postCaption.visibility = View.GONE
+            seeMoreButton.visibility = View.GONE
         } else {
             postCaption.text = if (caption.length > 50) {
-                caption.take(50) + "..." // Display only the first 50 characters with ellipsis
+                caption.take(50) + "..."
             } else {
-                caption // Display the whole caption if it's within the limit
+                caption
             }
-            seeMoreButton.visibility = if (caption.length > 50) View.VISIBLE else View.GONE // Show See More button if necessary
-            Log.d("ViewPost", "Caption set to: ${postCaption.text}")
+            seeMoreButton.visibility = if (caption.length > 50) View.VISIBLE else View.GONE
         }
 
-        // Set up See More button listener
+        // Set See More button listener
         seeMoreButton.setOnClickListener {
-            toggleCaption() // Toggle caption visibility
+            toggleCaption()
         }
 
+        // Load media (image, video, or audio)
         mediaContent?.let {
-            loadMedia(it) // Load media content
-        } ?: Log.d("ViewPost", "Media content is null.")
+            loadMedia(it)
+        }
 
-        // Play the trimmed audio if available
+        // Play trimmed audio if available
         trimmedAudioUrl?.let {
-            playTrimmedAudio(it) // Play trimmed audio
-        } ?: Log.d("ViewPost", "Trimmed audio URL is null.")
+            playTrimmedAudio(it)
+        }
     }
 
     private fun loadMedia(mediaUrl: String) {
         CoroutineScope(Dispatchers.IO).launch {
             val mediaType = getMediaType(mediaUrl)
 
-            // Switch back to the main thread to update UI
+            // Update UI on the main thread
             withContext(Dispatchers.Main) {
                 if (mediaType != null) {
                     when {
@@ -149,12 +147,11 @@ class ViewPost : AppCompatActivity() {
     private suspend fun getMediaType(mediaUrl: String): String? {
         val request = Request.Builder()
             .url(mediaUrl)
-            .head() // Use HEAD to get the headers only
+            .head() // Use HEAD request to fetch only headers
             .build()
 
         return try {
             val response: Response = client.newCall(request).execute()
-            // Handle response and return media type
             response.header("Content-Type").also {
                 Log.d("ViewPost", "Media type retrieved: $it")
             }
@@ -169,68 +166,43 @@ class ViewPost : AppCompatActivity() {
             val uri = Uri.parse(imageUrl)
             Glide.with(this)
                 .load(uri)
-                .thumbnail(0.1f) // Show a thumbnail while loading
-                .error(R.mipmap.appicon2) // Show a default error image if loading fails
+                .thumbnail(0.1f) // Thumbnail loading
+                .error(R.mipmap.appicon2) // Default error image
                 .into(imageView)
-            Log.d("ViewPost", "Attempting to load image from URL: $imageUrl")
-
         } catch (e: Exception) {
-            Log.e("ViewPost", "Exception while loading image: ${e.message}")
+            Log.e("ViewPost", "Exception loading image: ${e.message}")
         }
     }
 
     private fun toggleCaption() {
-        isExpanded = !isExpanded // Toggle the expanded state
+        isExpanded = !isExpanded
         postCaption.text = if (isExpanded) {
-            intent.getStringExtra("Caption") // Display full caption
+            intent.getStringExtra("Caption") // Show full caption
         } else {
-            intent.getStringExtra("Caption")?.take(50) + "..." // Limit to 50 characters again
+            intent.getStringExtra("Caption")?.take(50) + "..." // Truncate after 50 characters
         }
-        seeMoreButton.text = if (isExpanded) "See Less" else "See More" // Change button text
+        seeMoreButton.text = if (isExpanded) "See Less" else "See More"
     }
 
     private fun playVideo(videoPath: String) {
         val uri = Uri.parse(videoPath)
-        Log.d("ViewPost", "Attempting to play video from path: $videoPath")
-
-        // Set up the TextureView surface
         textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
                 mediaPlayer = MediaPlayer().apply {
                     setDataSource(videoPath)
                     setSurface(Surface(surface))
-                    prepareAsync() // Prepare in the background
-
+                    prepareAsync()
                     setOnPreparedListener {
-                        isLooping = true // Loop the video
-                        start() // Start playing the video
-                        Log.d("ViewPost", "Video playback started.")
+                        isLooping = true
+                        start()
                     }
-
-                    // Add buffering listeners
-                    setOnInfoListener { mp, what, extra ->
-                        when (what) {
-                            MediaPlayer.MEDIA_INFO_BUFFERING_START -> {
-                                Log.d("ViewPost", "Buffering started")
-                                // Show buffering indicator (if any)
-                            }
-                            MediaPlayer.MEDIA_INFO_BUFFERING_END -> {
-                                Log.d("ViewPost", "Buffering ended")
-                                // Hide buffering indicator (if any)
-                            }
-                        }
-                        true
-                    }
-
                     setOnCompletionListener {
-                        Log.d("ViewPost", "Video playback completed.")
-                        seekTo(0) // Reset the video to the start
-                        start() // Optionally, restart the video
+                        seekTo(0)
+                        start()
                     }
-
-                    setOnErrorListener { mp, what, extra ->
-                        Log.e("ViewPost", "Error occurred while playing video. What: $what, Extra: $extra")
-                        true // Returning true indicates that we've handled the error
+                    setOnErrorListener { _, what, extra ->
+                        Log.e("ViewPost", "Error: What=$what, Extra=$extra")
+                        true
                     }
                 }
             }
@@ -246,7 +218,6 @@ class ViewPost : AppCompatActivity() {
         }
     }
 
-
     private fun playTrimmedAudio(outputPath: String) {
         val uri = Uri.parse(outputPath)
         mediaPlayer = MediaPlayer()
@@ -256,19 +227,8 @@ class ViewPost : AppCompatActivity() {
                 setDataSource(applicationContext, uri)
                 prepare()
                 start()
-                Log.d("ViewPost", "Playing trimmed audio from: $outputPath")
-
-                setOnCompletionListener {
-                    Log.d("ViewPost", "Trimmed audio playback completed.")
-                }
-
-                setOnErrorListener { mp, what, extra ->
-                    Log.e("ViewPost", "Error occurred while playing trimmed audio. What: $what, Extra: $extra")
-                    true
-                }
-
             } catch (e: IOException) {
-                Log.e("ViewPost", "Error setting data source for audio: ${e.message}")
+                Log.e("ViewPost", "Error playing audio: ${e.message}")
             }
         }
     }
@@ -278,9 +238,9 @@ class ViewPost : AppCompatActivity() {
         mediaPlayer?.release()
         mediaPlayer = null
     }
+
     override fun onBackPressed() {
         mediaPlayer?.release()
-        super.onBackPressed() // Call super to finish the activity
+        super.onBackPressed()
     }
-
 }
