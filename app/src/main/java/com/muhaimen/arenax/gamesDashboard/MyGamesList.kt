@@ -46,11 +46,17 @@ import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userFeed.UserFeed
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.Constants
-import okhttp3.*
-import org.json.JSONObject
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import java.util.*
+
 import java.io.IOException
 
-
+import okhttp3.Request
+import okhttp3.Response
+import org.json.JSONException
+import org.json.JSONObject
 
 class MyGamesList : AppCompatActivity() {
     private lateinit var myGamesListRecyclerView: RecyclerView
@@ -89,6 +95,8 @@ class MyGamesList : AppCompatActivity() {
         gamesSearchBar = findViewById(R.id.searchbar)
         addGame = findViewById(R.id.addGame)
         backButton = findViewById(R.id.backButton)
+
+        fetchUserGameStats()
 
         myGamesListRecyclerView = findViewById(R.id.myGamesListRecyclerView)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -327,8 +335,8 @@ class MyGamesList : AppCompatActivity() {
         queue.add(jsonObjectRequest)
     }
     // Session Frequency Bar Chart
-    private fun playtimeBarChart(sessionFrequencyPerDay: List<Int>, dates: List<String>) {
-        val entries = sessionFrequencyPerDay.mapIndexed { index, frequency -> BarEntry(index.toFloat(), frequency.toFloat()) }
+    private fun playtimeBarChart(playtimeHrs: List<Int>, dates: List<String>) {
+        val entries = playtimeHrs.mapIndexed { index, frequency -> BarEntry(index.toFloat(), frequency.toFloat()) }
 
         val barDataSet = BarDataSet(entries, "Total Playtime Hrs Distribution").apply {
             color = Color.parseColor("#339966")  // Muted green
@@ -361,35 +369,71 @@ class MyGamesList : AppCompatActivity() {
         }
     }
 
-
-    // Function to fetch game analytics for the user
     private fun fetchUserGameStats() {
         val userId = auth.currentUser?.uid ?: return // Ensure user is authenticated
-        val url = "${Constants.SERVER_URL}gameAnalytics/user/$userId/gameStats" // Modify URL to include userId in the path
+        val url = "${Constants.SERVER_URL}gameAnalytics/user/$userId/gameStats" // URL with userId in the path
 
-        val request = JsonObjectRequest(
-            Request.Method.GET,
-            url,
-            null, // No body for GET requests
-            { response ->
-                Log.d("GameAnalytics", "Successfully fetched game stats: $response")
-                try {
-                    parseAndPopulateCharts(response) // Parse and populate charts with received data
-                } catch (e: Exception) {
-                    Log.e("GameAnalytics", "Error parsing response: ${e.message}")
-                    e.printStackTrace()
-                }
-            },
-            { error ->
-                Log.e("GameAnalytics", "Error fetching game stats: ${error.message}")
-                error.printStackTrace()
-                handleError() // Handle error (e.g., notify user or retry)
+        val client = OkHttpClient.Builder().build()
+
+        val request = Request.Builder()
+            .url(url)
+            .get() // HTTP GET request
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("GameAnalytics", "Error fetching game stats: ${e.message}")
+                e.printStackTrace()
+                runOnUiThread {  } // Ensure UI updates are done on the main thread
             }
-        )
 
-        queue.add(request) // Add the request to the queue
+            override fun onResponse(call: Call, response: Response) {
+                if (!response.isSuccessful) {
+                    Log.e("GameAnalytics", "Unsuccessful response: ${response.code}")
+                    runOnUiThread { }
+                    return
+                }
+
+                response.body?.let { responseBody ->
+                    try {
+                        val jsonResponse = JSONObject(responseBody.string())
+                        Log.d("GameAnalytics", "Successfully fetched game stats: $jsonResponse")
+                        runOnUiThread { parseAndPopulateCharts(jsonResponse) } // Update UI on the main thread
+                    } catch (e: Exception) {
+                        Log.e("GameAnalytics", "Error parsing response: ${e.message}")
+                        e.printStackTrace()
+                        runOnUiThread {  }
+                    }
+                }
+            }
+        })
     }
 
+    private fun parseAndPopulateCharts(response: JSONObject) {
+        try {
+            val gameStats = response.getJSONArray("gameStats")
+
+            // Parse game stats into playtime and dates for chart
+            val playtimeList = mutableListOf<Int>()
+            val datesList = mutableListOf<String>()
+
+            for (i in 0 until gameStats.length()) {
+                val game = gameStats.getJSONObject(i)
+                val playtime = game.getString("totalPlaytime").toIntOrNull() ?: 0 // Convert to Int, default to 0 if parsing fails
+                val date = game.getString("date") // Assuming the API provides a "date" field
+
+                playtimeList.add(playtime)
+                datesList.add(date)
+            }
+
+            // Display the data in the bar chart
+            playtimeBarChart(playtimeList, datesList)
+
+        } catch (e: JSONException) {
+            Log.e("GameAnalytics", "Error parsing game stats JSON: ${e.message}")
+            e.printStackTrace()
+        }
+    }
 
     // Function to display the fetched game analytics (just a placeholder for your UI logic)
     fun displayGameAnalytics(gameAnalyticsList: List<GameAnalytics>) {

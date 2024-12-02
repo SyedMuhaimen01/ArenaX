@@ -108,7 +108,7 @@ class UserProfile : AppCompatActivity() {
     private val database = FirebaseDatabase.getInstance()
     private lateinit var storageReference: StorageReference
     private lateinit var myGamesListRecyclerView: RecyclerView
-    private lateinit var myGamesListAdapter: MyGamesListAdapter
+    private lateinit var myGamesListAdapter: gamesDashboardAdapter
     private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var highlightsRecyclerView: RecyclerView
     private lateinit var highlightsAdapter: highlightsAdapter
@@ -165,7 +165,7 @@ class UserProfile : AppCompatActivity() {
         activity="UserProfile"
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        myGamesListAdapter = MyGamesListAdapter(emptyList(), userId)
+        myGamesListAdapter = gamesDashboardAdapter(emptyList(), userId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
         followersLinearLayout=findViewById(R.id.followersLinearLayout)
         followingLinearLayout=findViewById(R.id.followingLinearLayout)
@@ -238,7 +238,7 @@ class UserProfile : AppCompatActivity() {
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         // Set an empty adapter initially
-        myGamesListAdapter = MyGamesListAdapter(emptyList(),userId)
+        myGamesListAdapter = gamesDashboardAdapter(emptyList(),userId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
 
