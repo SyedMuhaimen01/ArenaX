@@ -14,10 +14,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
-import com.muhaimen.arenax.R
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.ui.PlayerView
+import com.muhaimen.arenax.R
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,8 +55,7 @@ class ViewPost : AppCompatActivity() {
         }
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
-
-        // Initialize views
+        playerView = findViewById(R.id.videoPlayerView) // Initialize ExoPlayer view
         backButton = findViewById(R.id.backButton)
         imageView = findViewById(R.id.ImageView) // Initialize ImageView
         postCaption = findViewById(R.id.postCaption) // Initialize caption TextView
@@ -63,7 +63,7 @@ class ViewPost : AppCompatActivity() {
         likeCount = findViewById(R.id.likeCount) // Initialize likes TextView
         commentCount = findViewById(R.id.commentCount) // Initialize comments TextView
         shareCount = findViewById(R.id.shareCount) // Initialize shares TextView
-        playerView = findViewById(R.id.videoPlayerView) // Initialize ExoPlayer view
+
 
         // Set back button listener
         backButton.setOnClickListener {
@@ -78,6 +78,8 @@ class ViewPost : AppCompatActivity() {
         val shares = intent.getIntExtra("Shares", 0)
         val trimmedAudioUrl = intent.getStringExtra("trimAudio")
         val createdAt = intent.getStringExtra("createdAt")
+        val city = intent.getStringExtra("city")
+        val country = intent.getStringExtra("country")
 
         // Set text data to UI components
 

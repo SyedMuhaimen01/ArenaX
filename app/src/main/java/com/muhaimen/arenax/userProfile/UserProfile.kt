@@ -37,8 +37,13 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.android.volley.AuthFailureError
+import com.android.volley.NetworkError
+import com.android.volley.NoConnectionError
 import com.android.volley.Request
 import com.android.volley.RequestQueue
+import com.android.volley.ServerError
+import com.android.volley.TimeoutError
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
@@ -202,11 +207,11 @@ class UserProfile : AppCompatActivity() {
             fetchUserPosts()
             fetchUserRank()
             fetchUserGames()
-            //if(!getInterestsGenerated(userId))
-           // {
+            if(!getInterestsGenerated(userId))
+            {
                 GenerateUserInterests()
-               // setInterestsGenerated(userId,true)
-           // }
+                setInterestsGenerated(userId,true)
+            }
         }
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         profileImage = findViewById(R.id.profilePicture)
