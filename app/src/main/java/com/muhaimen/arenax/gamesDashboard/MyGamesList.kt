@@ -345,7 +345,7 @@ class MyGamesList : AppCompatActivity() {
 
         val barDataSet = BarDataSet(entries, "Total Playtime Hrs Distribution").apply {
             color = Color.parseColor("#339966")  // Muted green
-            valueTextSize = 12f
+            valueTextSize = 8f
         }
 
         playtimeBarChart.apply {
@@ -361,8 +361,8 @@ class MyGamesList : AppCompatActivity() {
                 }
                 granularity = 1f
                 position = XAxis.XAxisPosition.BOTTOM
-                labelRotationAngle = -45f
-                textSize = 12f // Set text size for X-axis labels
+                labelRotationAngle = -90f
+                textSize = 8f // Set text size for X-axis labels
                 setDrawGridLines(false) // Disable grid lines for X-axis
             }
             axisLeft.isEnabled = false // Disable left Y-axis
@@ -373,7 +373,7 @@ class MyGamesList : AppCompatActivity() {
                         return "${value.toInt()}h" // Format Y-axis to show hours
                     }
                 }
-                textSize = 12f // Set text size for Y-axis labels
+                textSize = 8f // Set text size for Y-axis labels
                 granularity = 1f // Set the Y-axis granularity
                 setDrawGridLines(false) // Disable grid lines for Y-axis
             }

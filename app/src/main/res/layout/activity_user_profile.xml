@@ -344,11 +344,11 @@
 
             <ImageView
                 android:id="@+id/myGamesButton"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/_10sdp"
+                android:layout_width="20dp"
+                android:layout_height="7dp"
+                android:layout_gravity="center"
                 android:layout_weight="0.2"
-                android:src="@drawable/ic_navigation_add"
-                android:layout_gravity="center" />
+                android:src="@drawable/ic_navigation_add" />
           </LinearLayout>
 
 
@@ -393,7 +393,10 @@
             android:id="@+id/postsBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
+            android:paddingTop="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="50dp"
             android:orientation="vertical">
           <TextView
               android:text="Posts"
@@ -442,21 +445,23 @@
           android:layout_width="100dp"
           android:layout_height="40dp"
           android:gravity="center"
-          android:background="@drawable/selected_navigation_bar_bg"
+          android:background="@color/primaryColor"
           android:orientation="horizontal">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/white"
             android:background="@drawable/ic_navigation_home"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Home"
-            android:textColor="#539DF3"
+            android:textColor="@color/white"
             android:textSize="15sp"
             android:layout_marginLeft="5dp"
+
             />
 
       </LinearLayout>

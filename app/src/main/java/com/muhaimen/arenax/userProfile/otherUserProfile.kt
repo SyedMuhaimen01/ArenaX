@@ -74,11 +74,11 @@ class otherUserProfile : AppCompatActivity() {
     private val database = FirebaseDatabase.getInstance()
     private lateinit var storageReference: StorageReference
     private lateinit var myGamesListRecyclerView: RecyclerView
-    private lateinit var myGamesListAdapter: MyGamesListAdapter
+    private lateinit var myGamesListAdapter: gamesDashboardAdapter
     private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var highlightsRecyclerView: RecyclerView
     private lateinit var highlightsAdapter: highlightsAdapter
-    private lateinit var exploreButton: ImageButton
+    private lateinit var exploreButton: ImageView
     private lateinit var postsCount: TextView
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: PostsAdapter
@@ -88,14 +88,14 @@ class otherUserProfile : AppCompatActivity() {
     private lateinit var requestAllianceButton: Button
     private lateinit var followingTextView: TextView
     private lateinit var followersTextView: TextView
-    private lateinit var myGamesButton: ImageButton
-    private lateinit var addPost: ImageButton
+    private lateinit var addPost: ImageView
     private lateinit var storyRing: ImageView
     private lateinit var userData: UserData
     private lateinit var messageButton: Button
-    private lateinit var leaderboardButton: ImageButton
+    private lateinit var leaderboardButton: ImageView
     private lateinit var rankTextView: TextView
     private lateinit var requestQueue: RequestQueue
+    private lateinit var myGamesButton: ImageView
     private val client = OkHttpClient()
     private lateinit var activity : String
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
@@ -122,8 +122,8 @@ class otherUserProfile : AppCompatActivity() {
         requestQueue = Volley.newRequestQueue(this)
         activity="otherUserProfile"
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
-        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        myGamesListAdapter = MyGamesListAdapter(emptyList(), receivedUserId)
+        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        myGamesListAdapter = gamesDashboardAdapter(emptyList(), receivedUserId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
@@ -154,12 +154,17 @@ class otherUserProfile : AppCompatActivity() {
             startActivity(intent)
         }
 
+        myGamesButton= findViewById(R.id.myGamesButton)
+        myGamesButton.setOnClickListener {
+            val intent = Intent(this, MyGamesList::class.java)
+            startActivity(intent)
+        }
         // Initialize the RecyclerView for analytics
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         // Set an empty adapter initially
-        myGamesListAdapter = MyGamesListAdapter(emptyList(), receivedUserId)
+        myGamesListAdapter = gamesDashboardAdapter(emptyList(), receivedUserId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
         // Initialize the RecyclerView for highlights
@@ -201,12 +206,6 @@ class otherUserProfile : AppCompatActivity() {
             Log.d("UserProfile", "Message button clicked")
             fetchUserDataAndStartChat(receivedUserId)
         }
-        myGamesButton= findViewById(R.id.myGamesButton)
-        myGamesButton.setOnClickListener {
-            val intent = Intent(this, MyGamesList::class.java)
-            startActivity(intent)
-        }
-
         storyRing = findViewById(R.id.storyRing)
         checkRecentStories(receivedUserId, storyRing)
 

@@ -141,19 +141,21 @@
             android:layout_width="100dp"
             android:layout_height="40dp"
             android:gravity="center"
+            android:backgroundTint="@color/primaryColor"
             android:background="@drawable/selected_navigation_bar_bg"
             android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
                 android:background="@drawable/ic_navigation_home"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Home"
-                android:textColor="#539DF3"
+                android:textColor="@color/white"
                 android:textSize="15sp"
                 android:layout_marginLeft="5dp"
                 />

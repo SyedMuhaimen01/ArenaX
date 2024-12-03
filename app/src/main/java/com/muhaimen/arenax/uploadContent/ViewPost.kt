@@ -29,7 +29,6 @@ import okhttp3.Response
 import java.io.IOException
 
 class ViewPost : AppCompatActivity() {
-    private lateinit var backButton: ImageButton
     private lateinit var imageView: ImageView
     private lateinit var postCaption: TextView // TextView for caption
     private lateinit var seeMoreButton: Button // Button to toggle full caption
@@ -56,7 +55,7 @@ class ViewPost : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
         playerView = findViewById(R.id.videoPlayerView) // Initialize ExoPlayer view
-        backButton = findViewById(R.id.backButton)
+
         imageView = findViewById(R.id.ImageView) // Initialize ImageView
         postCaption = findViewById(R.id.postCaption) // Initialize caption TextView
         seeMoreButton = findViewById(R.id.seeMoreButton) // Initialize See More Button
@@ -65,10 +64,7 @@ class ViewPost : AppCompatActivity() {
         shareCount = findViewById(R.id.shareCount) // Initialize shares TextView
 
 
-        // Set back button listener
-        backButton.setOnClickListener {
-            onBackPressed()
-        }
+
 
         // Retrieve post data from intent
         val mediaContent = intent.getStringExtra("MEDIA")

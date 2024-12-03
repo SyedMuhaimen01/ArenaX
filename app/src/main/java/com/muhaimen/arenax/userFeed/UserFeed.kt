@@ -1,36 +1,38 @@
 package com.muhaimen.arenax.userFeed
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ViewAllChats
-import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.notifications.Notifications
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userProfile.UserProfile
+import com.muhaimen.arenax.explore.ExplorePage
 
 class UserFeed : AppCompatActivity() {
     private lateinit var userFeedAdapter: UserFeedPostsAdapter
-    private lateinit var commentsAdapter: CommentsAdapter // Add the comments adapter
+    private lateinit var commentsAdapter: CommentsAdapter
     private lateinit var threadsButton: ImageButton
     private lateinit var notificationsButton: ImageButton
     private lateinit var homeButton: LinearLayout
     private lateinit var addPost: ImageView
     private lateinit var profileButton: ImageView
     private lateinit var exploreButton: ImageView
+
+    // Store the selected post to manage comments section
+    private var selectedPost: DummyPost? = null
+
+    // Track visibility of comments section
+    private var isCommentsVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,9 +63,10 @@ class UserFeed : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Initialize RecyclerView and Adapter
+        // Initialize RecyclerView for user feed
         val recyclerView: RecyclerView = findViewById(R.id.recyclerViewUserFeed)
         recyclerView.layoutManager = LinearLayoutManager(this)
+
 
         // Create dummy data
         val dummyPosts = createDummyPosts()
@@ -72,8 +75,8 @@ class UserFeed : AppCompatActivity() {
         userFeedAdapter = UserFeedPostsAdapter(
             dummyPosts,
             onLikeClick = { post -> onLikePost(post) },
-            onCommentClick = { post -> onCommentPost(post) },
-            onShareClick = { post -> onSharePost(post) }
+            onShareClick = { post -> onSharePost(post) },
+            onCommentClick = { post -> onCommentPost(post) }
         )
 
         // Set the adapter to the RecyclerView
@@ -82,63 +85,49 @@ class UserFeed : AppCompatActivity() {
 
     // Handle like action
     private fun onLikePost(post: DummyPost) {
-        // Implement the action when a post is liked
         println("${post.userName}'s post liked")
-    }
-
-    // Handle comment action
-    @SuppressLint("ResourceType")
-    private fun onCommentPost(post: DummyPost) {
-        val commentInputLayout: ConstraintLayout = findViewById(R.layout.userfeed_comments_card) // Your comment card layout
-        val editTextComment: EditText = commentInputLayout.findViewById(R.id.editTextComment)
-        val buttonPostComment: Button = commentInputLayout.findViewById(R.id.buttonPostComment)
-
-        // Show the comment input layout and button
-        editTextComment.visibility = View.VISIBLE
-        buttonPostComment.visibility = View.VISIBLE
-
-        // Set a listener for the "Post" button
-        buttonPostComment.setOnClickListener {
-            val newComment = editTextComment.text.toString()
-            if (newComment.isNotEmpty()) {
-                post.comments.add(newComment) // Add the comment to the post's comments
-                userFeedAdapter.notifyDataSetChanged() // Update the adapter to reflect the new comment
-                editTextComment.text.clear() // Clear the input field
-                // Hide the comment input layout again
-                editTextComment.visibility = View.GONE
-                buttonPostComment.visibility = View.GONE
-            }
-        }
     }
 
     // Handle share action
     private fun onSharePost(post: DummyPost) {
-        // Implement the action when a post is shared
         println("Share ${post.userName}'s post")
+    }
+
+    // Handle comment action and toggle the visibility of the comments section
+    private fun onCommentPost(post: DummyPost) {
+        // Save the selected post to manage its comments section
+        selectedPost = post
+
+        // Initialize the CommentsAdapter for this post's comments
+        val recyclerViewComments: RecyclerView = findViewById(R.id.commentsRecyclerView)
+
     }
 
     // Create dummy posts with comments
     private fun createDummyPosts(): List<DummyPost> {
         return listOf(
             DummyPost(
-                profilePictureUrl = "R.drawable.game_icon_foreground",
+                postContent = "https://firebasestorage.googleapis.com/v0/b/arenax-e1289.appspot.com/o/uploads%2F22a17c9e-7182-440a-b396-dc3fa3c93738?alt=media&token=d04ed26c-cc16-4afd-bad4-28934dac8a4e",
                 userName = "User1",
-                contentType = "text",
                 contentText = "This is a dummy text post.",
-                comments = mutableListOf("Nice post!", "Great game!", "I agree!","well said","I love this game!")
+                location = "location",
+                profilePictureUrl ="R.drawable.game_icon_foreground ",
+                comments = mutableListOf("Nice post!", "Great game!", "I agree!", "Well said", "I love this game!", "Great game!", "I agree!", "Well said", "I love this game!")
             ),
             DummyPost(
-                profilePictureUrl = "R.drawable.game_icon_foreground",
+                postContent = "https://firebasestorage.googleapis.com/v0/b/arenax-e1289.appspot.com/o/uploads%2F22a17c9e-7182-440a-b396-dc3fa3c93738?alt=media&token=d04ed26c-cc16-4afd-bad4-28934dac8a4e",
                 userName = "User2",
-                contentType = "image",
-                contentImageUrl = "R.drawable.game_icon_foreground",
+                location = "location",
+                contentText = "This is a dummy text post.",
+                profilePictureUrl ="R.drawable.game_icon_foreground ",
                 comments = mutableListOf("Looks amazing!", "Love this game!")
             ),
             DummyPost(
-                profilePictureUrl = "R.drawable.game_icon_foreground",
+                postContent = "https://firebasestorage.googleapis.com/v0/b/arenax-e1289.appspot.com/o/uploads%2F2041a0ec-5302-4511-9d42-8acf841686ae?alt=media&token=371d4abe-6a24-4d08-aa88-476f8ab90cac",
                 userName = "User3",
-                contentType = "video",
-                contentVideoUrl = "https://firebasestorage.googleapis.com/v0/b/arenax-e1289.appspot.com/o/uploads%2F3c5af154-c52f-4fd9-a96f-1e3f4007869f?alt=media&token=3f42ce07-aa96-491b-a53d-b82454bb3946",
+                location = "location",
+                contentText = "This is a dummy text post.",
+                profilePictureUrl ="R.drawable.game_icon_foreground ",
                 comments = mutableListOf("Awesome gameplay!", "This is epic!")
             )
         )
@@ -151,7 +140,6 @@ class UserFeed : AppCompatActivity() {
             val intent = Intent(this, UserFeed::class.java)
             startActivity(intent)
         }
-
 
         addPost = findViewById(R.id.addPostButton)
         addPost.setOnClickListener {
