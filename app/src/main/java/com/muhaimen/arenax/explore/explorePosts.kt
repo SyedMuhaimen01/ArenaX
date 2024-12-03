@@ -16,7 +16,6 @@ import com.muhaimen.arenax.utils.Constants
 import kotlinx.coroutines.*
 import okhttp3.*
 import org.json.JSONArray
-import org.json.JSONObject
 
 class explorePosts : Fragment() {
 

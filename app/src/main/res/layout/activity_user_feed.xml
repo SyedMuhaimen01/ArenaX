@@ -68,10 +68,30 @@
             android:layout_gravity="center"
             tools:ignore="ContentDescription" />
     </LinearLayout>
+    <!-- Highlights -->
+    <LinearLayout
+        android:id="@+id/highlightsBox"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_85sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:padding="10dp"
+        android:orientation="vertical"
+        >
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/highlights_recyclerview"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewUserFeed"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false"
+        android:paddingBottom="@dimen/_50sdp"
         android:backgroundTint="@color/backgroundColor">
 
     </androidx.recyclerview.widget.RecyclerView>

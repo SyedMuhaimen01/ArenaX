@@ -24,10 +24,13 @@ import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
@@ -35,6 +38,7 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.firebase.auth.FirebaseAuth
+import com.muhaimen.arenax.dataClasses.GameAnalytics
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.gamesDashboard.ViewGameAnalytics.DateValueFormatter
 import com.muhaimen.arenax.uploadContent.UploadContent
@@ -45,7 +49,6 @@ import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import java.util.*
-
 
 import java.io.IOException
 
@@ -121,7 +124,6 @@ class MyGamesList : AppCompatActivity() {
             val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
         }
-
 
 
         myGamesListAdapter = MyGamesListAdapter(emptyList(), userId)
@@ -343,7 +345,7 @@ class MyGamesList : AppCompatActivity() {
 
         val barDataSet = BarDataSet(entries, "Total Playtime Hrs Distribution").apply {
             color = Color.parseColor("#339966")  // Muted green
-            valueTextSize = 12f
+            valueTextSize = 8f
         }
 
         playtimeBarChart.apply {
@@ -359,8 +361,8 @@ class MyGamesList : AppCompatActivity() {
                 }
                 granularity = 1f
                 position = XAxis.XAxisPosition.BOTTOM
-                labelRotationAngle = -45f
-                textSize = 12f // Set text size for X-axis labels
+                labelRotationAngle = -90f
+                textSize = 8f // Set text size for X-axis labels
                 setDrawGridLines(false) // Disable grid lines for X-axis
             }
             axisLeft.isEnabled = false // Disable left Y-axis
@@ -371,7 +373,7 @@ class MyGamesList : AppCompatActivity() {
                         return "${value.toInt()}h" // Format Y-axis to show hours
                     }
                 }
-                textSize = 12f // Set text size for Y-axis labels
+                textSize = 8f // Set text size for Y-axis labels
                 granularity = 1f // Set the Y-axis granularity
                 setDrawGridLines(false) // Disable grid lines for Y-axis
             }
@@ -381,8 +383,6 @@ class MyGamesList : AppCompatActivity() {
             invalidate()  // Redraw the chart
         }
     }
-
-
 
     private fun fetchUserGameStats() {
         val userId = auth.currentUser?.uid ?: return // Ensure user is authenticated
