@@ -59,6 +59,8 @@ class viewStory : AppCompatActivity() {
     private var textsJson: String? = null
     private var duration: Int = 0
     private var uploadedAt: String? = null
+    private var userName: String? = null
+    private var userProfilePicture: String? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,11 +92,14 @@ class viewStory : AppCompatActivity() {
         timeAgoTextView = findViewById(R.id.timeAgoTextView)
 
         // Fetch data from intent extras
-        mediaUrl = intent.getStringExtra("MEDIA_URL")
-        audioUrl = intent.getStringExtra("Audio")
-        textsJson = intent.getStringExtra("Texts")
-        duration = intent.getIntExtra("Duration", 0)
-        uploadedAt = intent.getStringExtra("UploadedAt")
+        mediaUrl = intent.getStringExtra("MEDIA_URL") ?: ""  // Default to empty string if null
+        audioUrl = intent.getStringExtra("Audio") ?: ""  // Default to empty string if null
+        textsJson = intent.getStringExtra("Texts") ?: ""  // Default to empty string if null
+        duration = intent.getIntExtra("Duration", 0)  // Default to 0 if not present
+        uploadedAt = intent.getStringExtra("UploadedAt") ?: ""  // Default to empty string if null
+        userName = intent.getStringExtra("UserName") ?: ""  // Default to empty string if null
+        userProfilePicture = intent.getStringExtra("UserProfilePicture") ?: ""  // Default to empty string if null
+
 
         // Check if individual story data is received
         if (!mediaUrl.isNullOrEmpty()) {
@@ -104,7 +109,6 @@ class viewStory : AppCompatActivity() {
             // Handle list of stories
             storiesList = intent.getParcelableArrayListExtra("storiesList") ?: emptyList()
             currentIndex = intent.getIntExtra("currentIndex", 0)
-
 
             if (storiesList.isNotEmpty()) {
                 displayStory()
@@ -128,30 +132,41 @@ class viewStory : AppCompatActivity() {
     }
 
     private fun displaySingleStory() {
-        // Use a specific date format, adjust to match your incoming format
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
-
-        val uploadedAtDate: Date? = try {
-            uploadedAt?.let { dateFormat.parse(it) }
-        } catch (e: ParseException) {
-            Log.e("DateParsing", "Error parsing uploadedAt date: ${e.message}")
-            null // Handle parsing error
+        // Convert uploadedAt to Date object if it's a String timestamp (optional, based on how the data is passed)
+        val uploadedAtDate = uploadedAt?.let {
+            try {
+                Date(it.toLong())
+            } catch (e: Exception) {
+                null // Return null if parsing fails
+            }
         }
 
+        // Create a single Story object with the passed-in data
         val singleStory = Story(
             id = 0, // Unique ID if needed
             mediaUrl = mediaUrl ?: "",
             duration = duration,
             trimmedAudioUrl = audioUrl,
-            draggableTexts = textsJson?.let { convertToJSONArray(it) },
-            uploadedAt = uploadedAtDate
+            draggableTexts = textsJson?.let {
+                try {
+                    // Try converting the string to JSONArray, return null if it fails
+                    JSONArray(it)
+                } catch (e: Exception) {
+                    null // Return null if the conversion fails
+                }
+            },
+            uploadedAt = uploadedAtDate, // Use the uploadedAtDate to pass as Date object
+            userName = userName ?: "", // Default to an empty string if userName is null
+            userProfilePicture = userProfilePicture ?: "" // Default to an empty string if userProfilePicture is null
         )
 
-        // Set the "time ago" text
-        timeAgoTextView.text = calculateTimeAgo(singleStory.uploadedAt)
+        // Set the "time ago" text using the `timeAgo` property from Story
+        timeAgoTextView.text = singleStory.timeAgo
 
-        // Load media
-        loadMedia(singleStory.mediaUrl)
+        // Load media if mediaUrl is not null or empty
+        if (singleStory.mediaUrl.isNotEmpty()) {
+            loadMedia(singleStory.mediaUrl)
+        }
 
         // Play audio if available
         singleStory.trimmedAudioUrl?.let {
@@ -159,24 +174,41 @@ class viewStory : AppCompatActivity() {
         }
 
         // Display draggable texts if available
-        singleStory.draggableTexts?.let { displayDraggableTexts(it.toString()) }
-
-        // Set progress bar
-        progressBar.max = 1
-        progressBar.progress = 1 // Progress is 1-based
-
-        // Navigate to the next story after duration
-        handler.postDelayed({ finish() }, singleStory.duration.toLong())
-    }
-
-    private fun convertToJSONArray(json: String): JSONArray? {
-        return try {
-            JSONArray(json)
-        } catch (e: JSONException) {
-            Log.e("JSON", "Error converting string to JSONArray: ${e.message}")
-            null
+        singleStory.draggableTexts?.let {
+            displayDraggableTexts(it.toString()) // Assuming it needs to be a String
         }
+
+        // Set progress bar (to simulate progress over the story's duration)
+        progressBar.max = 100  // Assuming the max value is 100% for the progress
+        progressBar.progress = 0  // Start at 0%
+
+        // Update progress bar based on duration
+        val progressInterval = 1000L // 1 second interval for progress update
+        val totalDuration = singleStory.duration.toLong()
+
+        val progressRunnable = object : Runnable {
+            var progress = 0
+
+            override fun run() {
+                if (progress < 100) {
+                    progress += (100 * progressInterval / totalDuration).toInt()
+                    progressBar.progress = progress
+                    handler.postDelayed(this, progressInterval)
+                } else {
+                    progressBar.progress = 100
+                }
+            }
+        }
+
+        // Start updating progress
+        handler.post(progressRunnable)
+
+        // Navigate to the next story after the duration
+        handler.postDelayed({ finish() }, totalDuration)
     }
+
+
+
 
 
 

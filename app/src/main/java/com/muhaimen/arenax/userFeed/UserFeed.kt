@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.userFeed
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.JsonArrayRequest
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -22,6 +25,7 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ViewAllChats
 import com.muhaimen.arenax.dataClasses.Comment
 import com.muhaimen.arenax.dataClasses.Post
+import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.notifications.Notifications
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userProfile.UserProfile
@@ -37,6 +41,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.Date
 
 class UserFeed : AppCompatActivity() {
     private lateinit var userFeedAdapter: UserFeedPostsAdapter
@@ -126,7 +131,7 @@ class UserFeed : AppCompatActivity() {
 
                     if (followingUids.isNotEmpty()) {
                         // Prepare the request to fetch posts
-                        val url = "${Constants.SERVER_URL}explorePosts/user/$userId/fetchFeed"
+                        val url = "${Constants.SERVER_URL}explorePosts/user/$userId/fetchFeedPosts"
                         val client = OkHttpClient()
 
                         val requestBody = JSONObject().apply {
@@ -218,6 +223,109 @@ class UserFeed : AppCompatActivity() {
     }
 
 
+    private fun fetchFollowedUsersStories(onStoriesFetched: (List<Story>) -> Unit) {
+        val userId = auth.currentUser?.uid ?: return
+        val followingRef = database.child("userData").child(userId).child("synerG").child("following")
+
+        followingRef.orderByChild("status").equalTo("accepted").get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    val followingUids = snapshot.children.mapNotNull { it.key }
+
+                    if (followingUids.isNotEmpty()) {
+                        // Prepare the request to fetch stories of followed users
+                        val url = "${Constants.SERVER_URL}stories/user/$userId/fetchFeedStories"
+                        val client = OkHttpClient()
+
+                        val requestBody = JSONObject().apply {
+                            put("followingIds", JSONArray(followingUids))
+                        }.toString().toRequestBody("application/json".toMediaType())
+
+                        val request = Request.Builder()
+                            .url(url)
+                            .post(requestBody)
+                            .build()
+
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            try {
+                                val response = client.newCall(request).execute()
+                                if (response.isSuccessful) {
+                                    val responseData = response.body?.string()
+                                    if (!responseData.isNullOrEmpty()) {
+                                        val stories = parseStoriesFromResponse(responseData)
+                                        withContext(Dispatchers.Main) {
+                                            onStoriesFetched(stories)
+                                        }
+                                    } else {
+                                        Log.e("fetchFollowedUsersStories", "Empty response from server")
+                                    }
+                                } else {
+                                    Log.e("fetchFollowedUsersStories", "Server error: ${response.code}")
+                                }
+                            } catch (e: Exception) {
+                                Log.e("fetchFollowedUsersStories", "Error fetching stories", e)
+                            }
+                        }
+                    } else {
+                        Log.d("fetchFollowedUsersStories", "No following users found")
+                    }
+                } else {
+                    Log.d("fetchFollowedUsersStories", "No data exists for following users")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("fetchFollowedUsersStories", "Error fetching following list: ${exception.message}")
+            }
+    }
+
+    // Helper function to parse stories
+    private fun parseStoriesFromResponse(responseData: String): List<Story> {
+        val stories = mutableListOf<Story>()
+        val jsonArray = JSONArray(responseData)
+
+        for (i in 0 until jsonArray.length()) {
+            val storyObject = jsonArray.getJSONObject(i)
+
+            val storyId = storyObject.optInt("id", 0)
+            val mediaUrl = storyObject.optString("media_url", null)
+            val duration = storyObject.optInt("duration", 0)
+            val trimmedAudioUrl = storyObject.optString("trimmed_audio_url", null)
+            val draggableTexts = storyObject.optJSONArray("draggable_texts")
+            val createdAt = storyObject.optString("created_at", "")
+
+            val userName = storyObject.optString("user_name", "Unknown")
+            val userProfilePicture = storyObject.optString("user_profile_picture", null)
+
+            val uploadedAt = parseDate(createdAt) ?: continue
+
+            val story = Story(
+                id = storyId,
+                mediaUrl = mediaUrl,
+                duration = duration,
+                trimmedAudioUrl = trimmedAudioUrl,
+                draggableTexts = draggableTexts,
+                uploadedAt = uploadedAt,
+                userName = userName,
+                userProfilePicture = userProfilePicture
+            )
+
+            stories.add(story)
+        }
+
+        return stories
+    }
+
+
+
+    private fun parseDate(dateString: String): Date? {
+        return try {
+            val format = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault())
+            format.parse(dateString)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 
     // Handle like action
     private fun onLikePost(post: Post) {

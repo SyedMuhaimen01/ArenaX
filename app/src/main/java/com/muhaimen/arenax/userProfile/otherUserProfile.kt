@@ -528,7 +528,7 @@ class otherUserProfile : AppCompatActivity() {
     }
 
     private fun fetchUserStories() {
-        val url = "${Constants.SERVER_URL}stories/user/$receivedUserId/fetchStoryHighlights"
+        val url = "${Constants.SERVER_URL}stories/user/${receivedUserId}/fetchStoryHighlights"
 
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
@@ -545,6 +545,8 @@ class otherUserProfile : AppCompatActivity() {
                         val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
                         val draggableTexts = storyJson.optJSONArray("draggable_texts")
                         val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
+                        val userName = storyJson.getString("full_name") // Fetch user's name
+                        val userProfilePicture = storyJson.getString("profile_picture_url") // Fetch user's profile picture URL
 
                         // Convert createdAt string to Date
                         val uploadedAt = parseDate(createdAt)
@@ -556,26 +558,28 @@ class otherUserProfile : AppCompatActivity() {
                             duration = duration,
                             trimmedAudioUrl = trimmedAudioUrl,
                             draggableTexts = draggableTexts,
-                            uploadedAt = uploadedAt
+                            uploadedAt = uploadedAt,
+                            userName = userName,
+                            userProfilePicture = userProfilePicture
                         )
 
                         storiesList.add(story)
                     }
+
                     updateStoriesUI(storiesList)
 
                 } catch (e: JSONException) {
                     e.printStackTrace()
-
+                    // Optionally show a Toast message for error feedback
+                    // Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching stories: ${error.message}")
-
             }
         )
         requestQueue.add(jsonArrayRequest)
     }
-
 
     // Helper function to parse the date string
     private fun parseDate(dateString: String): Date? {
@@ -726,12 +730,15 @@ class otherUserProfile : AppCompatActivity() {
                     val storiesList = mutableListOf<Story>()
                     for (i in 0 until response.length()) {
                         val storyJson = response.getJSONObject(i)
+
                         val storyId = storyJson.getInt("id")
                         val mediaUrl = storyJson.getString("media_url")
                         val duration = storyJson.getInt("duration")
                         val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
                         val draggableTexts = storyJson.optJSONArray("draggable_texts")
                         val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
+                        val userName = storyJson.getString("full_name") // Fetch the user name
+                        val userProfilePicture = storyJson.getString("profile_picture_url") // Fetch the user's profile picture URL
 
                         // Convert createdAt string to Date
                         val uploadedAt = parseDate(createdAt)
@@ -743,7 +750,9 @@ class otherUserProfile : AppCompatActivity() {
                             duration = duration,
                             trimmedAudioUrl = trimmedAudioUrl,
                             draggableTexts = draggableTexts,
-                            uploadedAt = uploadedAt
+                            uploadedAt = uploadedAt,
+                            userName = userName, // Add user name
+                            userProfilePicture = userProfilePicture // Add user profile picture URL
                         )
 
                         storiesList.add(story)
@@ -777,6 +786,7 @@ class otherUserProfile : AppCompatActivity() {
 
         requestQueue.add(jsonArrayRequest)
     }
+
 
 
     private fun navigateToFullProfilePicture() {

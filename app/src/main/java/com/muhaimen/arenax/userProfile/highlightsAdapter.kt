@@ -1,8 +1,6 @@
 import android.annotation.SuppressLint
-import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +21,7 @@ class highlightsAdapter(private val storiesList: List<Story>) : RecyclerView.Ada
 
         @SuppressLint("SetTextI18n")
         fun bind(story: Story) {
-            storyTitle.text = "Story Title"
+            storyTitle.text = story.userName // Display user's name as story title
             val uri = Uri.parse(story.mediaUrl)
             Glide.with(itemView.context)
                 .load(uri)
@@ -39,7 +37,9 @@ class highlightsAdapter(private val storiesList: List<Story>) : RecyclerView.Ada
                     putExtra("Audio", story.trimmedAudioUrl)
                     putExtra("Texts", draggableJson)
                     putExtra("Duration", story.duration)
-                    putExtra("UploadedAt", story.uploadedAt)
+                    putExtra("UploadedAt", story.uploadedAt?.time) // Send as timestamp
+                    putExtra("UserName", story.userName)
+                    putExtra("UserProfilePicture", story.userProfilePicture)
                 }
                 itemView.context.startActivity(intent)
             }
