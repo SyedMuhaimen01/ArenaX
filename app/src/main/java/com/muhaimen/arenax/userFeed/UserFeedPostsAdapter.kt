@@ -15,6 +15,8 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.ui.PlayerView
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.Comment
+import com.muhaimen.arenax.dataClasses.Post
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,19 +25,11 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 
-data class DummyPost(
-    val profilePictureUrl: String,
-    val postContent: String,  // media type (e.g., "image/" or "video/mp4")
-    val userName: String,
-    val location:String,
-    val contentText: String? = null, // for text post
-    val comments: MutableList<String> = mutableListOf() // list of comments
-)
 class UserFeedPostsAdapter(
-    private val dummyPosts: List<DummyPost>,
-    private val onLikeClick: (DummyPost) -> Unit,
-    private val onCommentClick: (DummyPost) -> Unit,
-    private val onShareClick: (DummyPost) -> Unit
+    private val posts: List<Post>,
+    private val onLikeClick: (Post) -> Unit,
+    private val onCommentClick: (Post) -> Unit,
+    private val onShareClick: (Post) -> Unit
 ) : RecyclerView.Adapter<UserFeedPostsAdapter.PostViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -45,11 +39,11 @@ class UserFeedPostsAdapter(
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val post = dummyPosts[position]
+        val post = posts[position]
         holder.bind(post)
     }
 
-    override fun getItemCount(): Int = dummyPosts.size
+    override fun getItemCount(): Int = posts.size
 
     inner class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val imageView: ImageView = itemView.findViewById(R.id.ImageView)
@@ -57,7 +51,8 @@ class UserFeedPostsAdapter(
         private val profilePicture: ImageView = itemView.findViewById(R.id.ProfilePicture)
         private val tvUserName: TextView = itemView.findViewById(R.id.usernameTextView)
         private val locationTextView: TextView = itemView.findViewById(R.id.locationTextView)
-        private val tvContentText: TextView = itemView.findViewById(R.id.postCaption)
+        private val tvCaption: TextView = itemView.findViewById(R.id.postCaption)
+        private val tvLikes: TextView = itemView.findViewById(R.id.likeCount)
         private val tvCommentsCount: TextView = itemView.findViewById(R.id.commentCount)
         private val btnLike: ImageButton = itemView.findViewById(R.id.likeButton)
         private val btnShare: ImageButton = itemView.findViewById(R.id.shareButton)
@@ -66,26 +61,29 @@ class UserFeedPostsAdapter(
         private val client = OkHttpClient()
         private var exoPlayer: ExoPlayer? = null
 
-        fun bind(post: DummyPost) {
+        fun bind(post: Post) {
             // Load profile picture using Glide
             Glide.with(itemView.context)
-                .load(post.profilePictureUrl)
+                .load(post.userProfilePictureUrl)
                 .placeholder(R.drawable.game_icon_foreground)
                 .circleCrop()
                 .into(profilePicture)
 
-            // Set username and content text
-            tvUserName.text = post.userName
-            tvContentText.text = post.contentText
-            locationTextView.text = post.location
-            tvCommentsCount.text = post.comments.size.toString()
+            // Set username, caption, location, likes, and comments count
+            tvUserName.text = post.userFullName
+            tvCaption.text = post.caption ?: ""
+            locationTextView.text = "${post.city ?: ""}, ${post.country ?: ""}".trimEnd { it == ',' || it.isWhitespace() }
+            tvLikes.text = post.likes.toString()
+            tvCommentsCount.text = post.comments.toString()
 
-            // Set up the comments RecyclerView using the CommentsAdapter
-            val commentAdapter = CommentsAdapter(post.comments)
+            // Set up the comments RecyclerView
+            val comments = post.commentsData ?: emptyList()
+            val commentAdapter = commentsAdapter(comments)
             recyclerViewComments.layoutManager = LinearLayoutManager(itemView.context)
             recyclerViewComments.adapter = commentAdapter
             recyclerViewComments.isNestedScrollingEnabled = false
-            // Handle Like and Share button clicks
+
+            // Handle button clicks
             btnLike.setOnClickListener { onLikeClick(post) }
             btnShare.setOnClickListener { onShareClick(post) }
 
@@ -99,29 +97,27 @@ class UserFeedPostsAdapter(
             loadMedia(post.postContent)
         }
 
-        private fun loadMedia(mediaUrl: String) {
+        private fun loadMedia(mediaUrl: String?) {
+            if (mediaUrl.isNullOrEmpty()) return
+
             CoroutineScope(Dispatchers.IO).launch {
                 val mediaType = getMediaType(mediaUrl)
 
                 withContext(Dispatchers.Main) {
-                    if (mediaType != null) {
-                        when {
-                            mediaType.startsWith("image/") -> {
-                                imageView.visibility = View.VISIBLE
-                                playerView.visibility = View.GONE
-                                setImage(mediaUrl)
-                            }
-                            mediaType.startsWith("video/mp4") -> {
-                                imageView.visibility = View.GONE
-                                playerView.visibility = View.VISIBLE
-                                playVideo(mediaUrl)
-                            }
-                            else -> {
-                                Log.e("ViewPost", "Unsupported media type: $mediaType")
-                            }
+                    when {
+                        mediaType?.startsWith("image/") == true -> {
+                            imageView.visibility = View.VISIBLE
+                            playerView.visibility = View.GONE
+                            setImage(mediaUrl)
                         }
-                    } else {
-                        Log.e("ViewPost", "Failed to retrieve media type.")
+                        mediaType?.startsWith("video/mp4") == true -> {
+                            imageView.visibility = View.GONE
+                            playerView.visibility = View.VISIBLE
+                            playVideo(mediaUrl)
+                        }
+                        else -> {
+                            Log.e("ViewPost", "Unsupported media type: $mediaType")
+                        }
                     }
                 }
             }
@@ -130,7 +126,7 @@ class UserFeedPostsAdapter(
         private suspend fun getMediaType(mediaUrl: String): String? {
             val request = Request.Builder()
                 .url(mediaUrl)
-                .head() // Use HEAD to get the headers only
+                .head() // Use HEAD to get headers only
                 .build()
 
             return try {
@@ -145,44 +141,30 @@ class UserFeedPostsAdapter(
         }
 
         private fun setImage(imageUrl: String) {
-            try {
-                val uri = Uri.parse(imageUrl)
-                Glide.with(itemView.context)
-                    .load(uri)
-                    .thumbnail(0.1f) // Show a thumbnail while loading
-                    .error(R.mipmap.appicon2) // Show a default error image if loading fails
-                    .into(imageView)
-            } catch (e: Exception) {
-                Log.e("Post Adapter", "Exception while loading image: ${e.message}")
-            }
+            Glide.with(itemView.context)
+                .load(Uri.parse(imageUrl))
+                .thumbnail(0.1f)
+                .error(R.mipmap.appicon2)
+                .into(imageView)
         }
 
         private fun playVideo(videoPath: String) {
-            try {
-                val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
-                exoPlayer = ExoPlayer.Builder(itemView.context).build().apply {
-                    setMediaItem(mediaItem)
-                    prepare()
-                    playWhenReady = true // Start playback immediately
-                    playerView.player = this
-                }
-
-                Log.d("ViewPost", "Attempting to play video from path: $videoPath")
-            } catch (e: Exception) {
-                Log.e("Post Adapter", "Exception while setting up video: ${e.message}")
+            val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
+            exoPlayer = ExoPlayer.Builder(itemView.context).build().apply {
+                setMediaItem(mediaItem)
+                prepare()
+                playWhenReady = true
+                playerView.player = this
             }
         }
 
-        // Release ExoPlayer when the view is destroyed
         fun releasePlayer() {
             exoPlayer?.release()
         }
     }
 
-    // Call releasePlayer in the Activity/Fragment when the view is destroyed
     override fun onViewRecycled(holder: PostViewHolder) {
         super.onViewRecycled(holder)
         holder.releasePlayer()
     }
 }
-

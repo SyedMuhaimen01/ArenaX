@@ -16,7 +16,19 @@ import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
 class manageFollowingList : Fragment() {
 
@@ -60,26 +72,28 @@ class manageFollowingList : Fragment() {
     }
 
     private fun fetchFollowing() {
-        // Get the reference for the following node
         val followingRef = database.child("userData").child(currentUserId).child("synerG").child("following")
-
-        // Query for the users the current user is following
         followingRef.orderByChild("status").equalTo("accepted").get().addOnSuccessListener { snapshot ->
-            // Log the snapshot response to see what is returned
-            Log.d("ManageFollowing", "fetchFollowing success: ${snapshot.value}")
 
-            // Check if the snapshot has data
             if (snapshot.exists()) {
-                // Loop through the following ids and fetch their details
+                // List to store the following users' Firebase UIDs
+                val followingUids = mutableListOf<String>()
+
+                // Loop through the following ids and add to the list
                 for (followedSnapshot in snapshot.children) {
                     val followedId = followedSnapshot.key
-
                     if (followedId != null) {
-                        // Log each followed ID being processed
-                        Log.d("ManageFollowing", "Fetching data for followed ID: $followedId")
-                        // Get followed user details using their ID
-                        fetchFollowedUserData(followedId)
+                        followingUids.add(followedId)
+                    } else {
+                        Log.d("ManageFollowing", "Followed ID is null for a record")
                     }
+                }
+
+                if (followingUids.isNotEmpty()) {
+                    // Send the list of following IDs to the backend server to fetch detailed user data
+                    fetchFollowingDataFromBackend(followingUids)
+                } else {
+                    Toast.makeText(requireContext(), "You are not following anyone", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 Toast.makeText(requireContext(), "You are not following anyone", Toast.LENGTH_SHORT).show()
@@ -87,45 +101,104 @@ class manageFollowingList : Fragment() {
         }.addOnFailureListener { exception ->
             // Log the error message for debugging
             Log.e("ManageFollowing", "Error fetching following list: ${exception.message}")
-            Toast.makeText(requireContext(), "Error: ${exception.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun fetchFollowedUserData(followedId: String) {
-        // Fetch the followed user's data from the database
-        val followedRef = database.child("userData").child(followedId)
-        followedRef.get().addOnSuccessListener { snapshot ->
-            // Log the response to see the data retrieved for each followed user
-            Log.d("ManageFollowing", "fetchFollowedUserData success for $followedId: ${snapshot.value}")
 
-            if (snapshot.exists()) {
-                val fullName = snapshot.child("fullname").value.toString()
-                val gamerTag = snapshot.child("gamerTag").value.toString()
-                val gamerRank = snapshot.child("gamerRank").value.toString()
-                val profilePicture = snapshot.child("profilePicture").value.toString()
+    // Function to fetch detailed following data from the backend
+    // Function to fetch detailed following data from the backend
+    private fun fetchFollowingDataFromBackend(followingUids: List<String>) {
+        // Log the list of following UIDs being sent to the backend
+        Log.d("ManageFollowing", "Sending following UIDs to backend: $followingUids")
 
-                // Create a UserData object and add it to the followingList
-                val followedUser = UserData(
-                    profilePicture = profilePicture,
-                    fullname = fullName,
-                    gamerTag = gamerTag,
-                    rank = gamerRank.toIntOrNull() ?: 0 // Ensure rank is properly parsed
-                )
+        val url = "${Constants.SERVER_URL}exploreAccounts/fetchFollowingData"
+        val jsonBody = JSONObject().apply {
+            put("followingUids", JSONArray(followingUids))
+        }
 
-                // Store the followed user's ID for later removal
-                followedUser.userId = followedId // Assuming you have this field in UserData
+        val requestBody = jsonBody.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
-                followingList.add(followedUser)
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
 
-                // Notify the adapter that the data has changed
-                followingAdapter.notifyDataSetChanged()
+        val client = OkHttpClient()
+
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                Log.d("ManageFollowing", "Sending request to backend URL: $url")
+                val response = client.newCall(request).execute()
+
+                if (response.isSuccessful) {
+                    // Handle response (e.g., update UI with the following data)
+                    val responseData = response.body?.string()
+                    Log.d("ManageFollowing", "Received following data: $responseData")
+
+                    // Parse the JSON response to extract following data
+                    if (!responseData.isNullOrEmpty()) {
+                        try {
+                            val jsonArray = JSONArray(responseData)
+                            val followingList = mutableListOf<UserData>()
+
+                            for (i in 0 until jsonArray.length()) {
+                                val followedJson = jsonArray.getJSONObject(i)
+
+                                val firebaseUid = followedJson.getString("firebaseUid")
+                                val fullName = followedJson.getString("fullName")
+                                val gamerTag = followedJson.getString("gamerTag")
+                                val gamerRank = followedJson.getInt("gamerRank") // Rank could be 0 for unranked users
+                                val profilePictureUrl = followedJson.getString("profilePictureUrl")
+
+                                // Handle unranked users (rank = 0)
+                                val rankDisplay = when {
+                                    gamerRank == 0 -> {
+                                        "Unranked"  // Display a custom message for unranked users
+                                    }
+                                    else -> {
+                                        "$gamerRank"  // Display the actual rank
+                                    }
+                                }
+
+                                // Create UserData object for each followed user
+                                val followedUser = UserData(
+                                    userId = firebaseUid,
+                                    fullname = fullName,
+                                    gamerTag = gamerTag,
+                                    rank = rankDisplay,  // Store the rank display string
+                                    profilePicture = profilePictureUrl
+                                )
+
+                                // Add to the list
+                                followingList.add(followedUser)
+                            }
+
+                            // Log the size of the list before updating the UI
+                            Log.d("ManageFollowing", "Number of following users fetched: ${followingList.size}")
+
+                            // Update the adapter or UI with the list
+                            withContext(Dispatchers.Main) {
+                                // Assuming followingAdapter is accessible and initialized
+                                followingAdapter.updateProfiles(followingList)
+                            }
+
+                        } catch (e: JSONException) {
+                            Log.e("ManageFollowing", "Error parsing following data: ${e.message}")
+                        }
+                    } else {
+                        Log.d("ManageFollowing", "Received empty or null data from the backend.")
+                    }
+                } else {
+                    Log.e("ManageFollowing", "Error sending data to backend: ${response.message}")
+                }
+            } catch (e: Exception) {
+                Log.e("ManageFollowing", "Error sending data to backend: ${e.message}")
             }
-        }.addOnFailureListener { exception ->
-            // Log the error message for debugging
-            Log.e("ManageFollowing", "Error fetching followed user data for $followedId: ${exception.message}")
-            Toast.makeText(requireContext(), "Error: ${exception.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
+
+
 
     private fun showRemoveFollowingDialog(followedUser: UserData) {
         // Show an AlertDialog to confirm the removal of the followed user

@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -169,7 +168,7 @@ class exploreAccounts : Fragment() {
                 bio = null,                       // Not available in the response
                 location = null,                  // Not available in the response
                 accountVerified = false,         // Not available in the response
-                rank = gamerRank
+                rank = gamerRank.toString()
             )
 
             profiles.add(userData)
@@ -251,7 +250,7 @@ class exploreAccounts : Fragment() {
             val fullName = jsonObject.optString("fullName", "")
             val gamerTag = jsonObject.optString("gamerTag", "")
             val profilePicture = jsonObject.optString("profilePictureUrl", null)
-            val gamerRank = jsonObject.optString("gamerRank", "0") // Default value for rank
+            val gamerRank = jsonObject.optString("gamerRank", "Unranked") // Default value for rank
             val similarity = jsonObject.optDouble("similarity", 0.0)
 
             val userData = UserData(
@@ -265,7 +264,7 @@ class exploreAccounts : Fragment() {
                 bio = null,                       // Not available in the response
                 location = null,                  // Not available in the response
                 accountVerified = false,          // Not available in the response
-                rank = gamerRank.toInt(),
+                rank = gamerRank,
             )
 
             profiles.add(userData)

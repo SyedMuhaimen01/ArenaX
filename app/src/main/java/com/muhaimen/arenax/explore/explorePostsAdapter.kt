@@ -9,25 +9,20 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.uploadContent.ViewPost
 
-data class UserPost(
-    val username: String,
-    val profilePictureUrl: String,
-    val postContent: String,
-    val caption: String,
-    val likes: Int,
-    val comments: Int,
-    val shares: Int,
-    val trimmedAudioUrl: String?,
-    val createdAt: String
-)
-
-class explorePostsAdapter(private val postsList: List<UserPost>) : RecyclerView.Adapter<explorePostsAdapter.PostViewHolder>() {
+class explorePostsAdapter(private val postsList: List<Post>) : RecyclerView.Adapter<explorePostsAdapter.PostViewHolder>() {
 
     inner class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val postImage: ImageView = itemView.findViewById(R.id.image)
-        fun bind(post: UserPost) {
+        //private val usernameTextView: TextView = itemView.findViewById(R.id.username)
+        //private val captionTextView: TextView = itemView.findViewById(R.id.caption)
+        //private val likesTextView: TextView = itemView.findViewById(R.id.likes)
+        //private val commentsTextView: TextView = itemView.findViewById(R.id.comments)
+        //private val sharesTextView: TextView = itemView.findViewById(R.id.shares)
+
+        fun bind(post: Post) {
             // Bind the post image
             val uri = Uri.parse(post.postContent)
             Glide.with(itemView.context)
@@ -35,6 +30,13 @@ class explorePostsAdapter(private val postsList: List<UserPost>) : RecyclerView.
                 .thumbnail(0.1f)
                 .error(R.mipmap.appicon2)
                 .into(postImage)
+
+            // Set the username and caption
+            //usernameTextView.text = post.userFullName
+            //captionTextView.text = post.caption ?: "No Caption Provided"
+            //likesTextView.text = "${post.likes} Likes"
+            //commentsTextView.text = "${post.comments} Comments"
+            //sharesTextView.text = "${post.shares} Shares"
 
             // Set the click listener for navigating to ViewPost activity
             itemView.setOnClickListener {
@@ -44,12 +46,12 @@ class explorePostsAdapter(private val postsList: List<UserPost>) : RecyclerView.
                     putExtra("Likes", post.likes)
                     putExtra("Comments", post.comments)
                     putExtra("Shares", post.shares)
-                    putExtra("trimAudio", post.trimmedAudioUrl)
-                    putExtra("createdAt", post.createdAt)
-                    putExtra("Username", post.username)
-                    putExtra("ProfilePicture", post.profilePictureUrl)
+                    putExtra("TrimAudio", post.trimmedAudioUrl)
+                    putExtra("CreatedAt", post.createdAt)
+                    putExtra("City", post.city)
+                    putExtra("Country", post.country)
                 }
-                itemView.context.startActivity(intent)
+                itemView.context.startActivity(intent) // Start the activity
             }
         }
     }

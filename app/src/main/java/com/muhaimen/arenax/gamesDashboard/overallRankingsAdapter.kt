@@ -3,7 +3,6 @@ package com.muhaimen.arenax.overallLeaderboardAdapter
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,10 +13,10 @@ import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.RankingData
 
-class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerView.Adapter<overallLeaderboardAdapter.overallLeaderboardViewHolder>() {
+class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerView.Adapter<overallLeaderboardAdapter.OverallLeaderboardViewHolder>() {
 
     // ViewHolder class
-    inner class overallLeaderboardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class OverallLeaderboardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val profilePicture: ImageView = itemView.findViewById(R.id.profilePicture)
         val name: TextView = itemView.findViewById(R.id.nameTextView)
         val totalHours: TextView = itemView.findViewById(R.id.totalHours)
@@ -30,10 +29,7 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
             name.text = data.name
             totalHours.text = "Total Hours: ${data.totalHrs}"
 
-
-
             val uri = Uri.parse(data.profilePicture)
-
 
             Glide.with(itemView.context)
                 .load(uri)
@@ -42,20 +38,28 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
                 .circleCrop()
                 .into(profilePicture)
 
-            rank.text = data.rank.toString()
+            // Handle the rank text, checking for "Unranked"
+            if (data.rank == "Unranked") {
+                rank.text = data.rank
+                rank.setTextColor(Color.GRAY) // You can customize this color
+            } else {
+                rank.text = data.rank.toString()
+                rank.setTextColor(Color.BLACK) // Default color for ranked players
+            }
+
             gamerTag.text = data.gamerTag
         }
     }
 
     // Create new views
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): overallLeaderboardViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OverallLeaderboardViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.rankings_card, parent, false)
-        return overallLeaderboardViewHolder(view)
+        return OverallLeaderboardViewHolder(view)
     }
 
     // Replace the contents of a view
-    override fun onBindViewHolder(holder: overallLeaderboardViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: OverallLeaderboardViewHolder, position: Int) {
         val rankingsData = rankingsList[position]
         holder.bind(rankingsData)
 
@@ -84,7 +88,6 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
             }
         }
     }
-
 
     // Return the size of the dataset
     override fun getItemCount(): Int {

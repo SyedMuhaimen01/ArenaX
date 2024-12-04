@@ -8,11 +8,8 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -44,14 +41,10 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.AuthFailureError
 import com.android.volley.DefaultRetryPolicy
-import com.android.volley.NetworkError
-import com.android.volley.NoConnectionError
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
-import com.android.volley.ServerError
 import com.android.volley.TimeoutError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
@@ -70,11 +63,9 @@ import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
 import org.json.JSONObject
-import org.jsoup.parser.ParseError
 import java.io.File
 import java.io.IOException
 import java.util.UUID
-import kotlin.properties.Delegates
 
 
 class uploadStory : AppCompatActivity() {

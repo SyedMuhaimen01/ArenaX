@@ -24,13 +24,10 @@ import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.widget.AutoCompleteTextView
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.bumptech.glide.Glide
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
@@ -38,7 +35,6 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.firebase.auth.FirebaseAuth
-import com.muhaimen.arenax.dataClasses.GameAnalytics
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.gamesDashboard.ViewGameAnalytics.DateValueFormatter
 import com.muhaimen.arenax.uploadContent.UploadContent
@@ -50,6 +46,7 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import java.util.*
 
+
 import java.io.IOException
 
 import okhttp3.Request
@@ -57,7 +54,7 @@ import okhttp3.Response
 import org.json.JSONException
 import org.json.JSONObject
 
-class MyGamesList : AppCompatActivity() {
+class otherUserGames : AppCompatActivity() {
     private lateinit var myGamesListRecyclerView: RecyclerView
     private lateinit var myGamesListAdapter: MyGamesListAdapter
     private lateinit var gamesSearchBar: AutoCompleteTextView
@@ -80,7 +77,7 @@ class MyGamesList : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_my_games_list)
+        setContentView(R.layout.activity_other_user_games)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -124,6 +121,7 @@ class MyGamesList : AppCompatActivity() {
             val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
         }
+
 
 
         myGamesListAdapter = MyGamesListAdapter(emptyList(), userId)
@@ -261,7 +259,7 @@ class MyGamesList : AppCompatActivity() {
         }
         runOnUiThread {
             myGamesListAdapter.updateGamesList(emptyList())
-         //   Toast.makeText(this@MyGamesList, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
+            //   Toast.makeText(this@MyGamesList, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
         }
     }
 
@@ -337,7 +335,7 @@ class MyGamesList : AppCompatActivity() {
 
         val barDataSet = BarDataSet(entries, "Total Playtime Hrs Distribution").apply {
             color = Color.parseColor("#339966")  // Muted green
-            valueTextSize = 8f
+            valueTextSize = 12f
         }
 
         playtimeBarChart.apply {
@@ -353,8 +351,8 @@ class MyGamesList : AppCompatActivity() {
                 }
                 granularity = 1f
                 position = XAxis.XAxisPosition.BOTTOM
-                labelRotationAngle = -90f
-                textSize = 8f // Set text size for X-axis labels
+                labelRotationAngle = -45f
+                textSize = 12f // Set text size for X-axis labels
                 setDrawGridLines(false) // Disable grid lines for X-axis
             }
             axisLeft.isEnabled = false // Disable left Y-axis
@@ -365,7 +363,7 @@ class MyGamesList : AppCompatActivity() {
                         return "${value.toInt()}h" // Format Y-axis to show hours
                     }
                 }
-                textSize = 8f // Set text size for Y-axis labels
+                textSize = 12f // Set text size for Y-axis labels
                 granularity = 1f // Set the Y-axis granularity
                 setDrawGridLines(false) // Disable grid lines for Y-axis
             }
@@ -375,6 +373,8 @@ class MyGamesList : AppCompatActivity() {
             invalidate()  // Redraw the chart
         }
     }
+
+
 
     private fun fetchUserGameStats() {
         val userId = auth.currentUser?.uid ?: return // Ensure user is authenticated

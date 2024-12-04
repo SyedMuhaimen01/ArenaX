@@ -2,11 +2,9 @@ package com.muhaimen.arenax.gamesDashboard
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -70,7 +68,7 @@ class overallLeaderboard : AppCompatActivity() {
 
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
-            baseUrl,
+            baseUrl, // Ensure this URL matches your backend endpoint
             null,
             { response ->
                 val rankingsList = parseRankings(response)
@@ -79,12 +77,15 @@ class overallLeaderboard : AppCompatActivity() {
                 swipeRefreshLayout.isRefreshing = false
             },
             { error ->
-             //   Toast.makeText(this, "Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
+                Log.e("Error", "Error fetching rankings: ${error.message}")
+                swipeRefreshLayout.isRefreshing = false
+                loadRankingsFromPreferences()
             }
         )
 
         requestQueue.add(jsonArrayRequest)
     }
+
 
     private fun parseRankings(response: JSONArray): List<RankingData> {
         val rankingsList = mutableListOf<RankingData>()
@@ -97,20 +98,22 @@ class overallLeaderboard : AppCompatActivity() {
             val rank = jsonObject.getInt("rank")
             val gamerTag = jsonObject.getString("gamertag")
 
+            // Add a check to handle unranked users explicitly if necessary
             val rankingData = RankingData(
                 name = name,
                 totalHrs = totalHrs,
                 profilePicture = profilePictureUrl,
-                rank = rank,
+                rank = if (rank == 0) "Unranked" else rank.toString(), // Set 'Unranked' for rank 0
                 gamerTag = gamerTag
             )
             rankingsList.add(rankingData)
-
         }
+
         saveRankingsToPreferences(rankingsList)
         Log.e("Rankings", rankingsList.toString())
         return rankingsList
     }
+
 
     private fun saveRankingsToPreferences(rankings: List<RankingData>) {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
@@ -133,7 +136,7 @@ class overallLeaderboard : AppCompatActivity() {
     }
 
     private fun loadRankingsFromPreferences(): List<RankingData> {
-
+        val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val jsonString = sharedPreferences.getString("rankingsList", null)
 
         return if (jsonString != null) {
@@ -145,7 +148,7 @@ class overallLeaderboard : AppCompatActivity() {
                 val name = jsonObject.getString("name")
                 val gamerTag = jsonObject.getString("gamerTag")
                 val profilePicture = jsonObject.getString("profilePicture")
-                val rank = jsonObject.getInt("rank")
+                val rank = jsonObject.getString("rank") // Rank is stored as a string, can be "Unranked" or an integer
                 val totalHrs = jsonObject.getInt("totalHours")
 
                 rankingsList.add(RankingData(name, gamerTag, profilePicture, rank, totalHrs))
@@ -156,6 +159,7 @@ class overallLeaderboard : AppCompatActivity() {
             emptyList()
         }
     }
+
 
     override fun onResume() {
         super.onResume()

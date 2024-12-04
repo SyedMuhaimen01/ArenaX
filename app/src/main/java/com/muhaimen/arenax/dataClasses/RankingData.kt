@@ -4,5 +4,5 @@ data class RankingData(
     val name: String,
     val gamerTag: String,
     val profilePicture: String,
-    val rank: Int,
+    val rank: String,
     val totalHrs:Int)

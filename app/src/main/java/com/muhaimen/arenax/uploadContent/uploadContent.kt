@@ -46,7 +46,6 @@ import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.utils.Constants
 
 import com.muhaimen.arenax.userProfile.UserProfile
-import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException

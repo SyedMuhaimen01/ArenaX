@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_margin="@dimen/_2sdp"
     android:background="@drawable/view_comment_bg"
     android:backgroundTint="@color/white">
@@ -11,38 +12,65 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/white"
-        android:paddingStart="@dimen/_10sdp"
-        android:paddingEnd="@dimen/_10sdp"
-        android:paddingTop="@dimen/_5sdp"
-        android:paddingBottom="@dimen/_5sdp"
+        android:padding="@dimen/_10sdp"
         android:gravity="center_vertical">
 
+        <!-- Profile Picture -->
         <ImageView
             android:id="@+id/commentProfilePicture"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:background="@drawable/circle"
-            android:layout_marginStart="@dimen/_10sdp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="@dimen/_4sdp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="@dimen/_10sdp"
             android:scaleType="centerCrop"
-            android:src="@mipmap/applogo"
-            tools:ignore="ContentDescription" />
+            android:background="@drawable/circle"
+            tools:src="@mipmap/applogo" />
 
-        <!-- Comment Input Field -->
-        <TextView
-            android:id="@+id/commentTextView"
+        <!-- Text Content Container -->
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Write a comment..."
-            android:paddingStart="@dimen/_10sdp"
-            android:paddingEnd="@dimen/_10sdp"
-            android:textColor="@color/textColor"
-            android:textSize="@dimen/_14ssp"
-          />
+            android:orientation="vertical"
+            android:paddingStart="@dimen/_10sdp">
 
+            <!-- Commenter's Name and Timestamp -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
 
+                <TextView
+                    android:id="@+id/commenterNameTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="John Doe"
+                    android:textSize="@dimen/_14ssp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    tools:text="Commenter Name" />
+
+                <TextView
+                    android:id="@+id/commentTimestampTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2h ago"
+                    android:textSize="@dimen/_12ssp"
+                    android:textColor="@color/accentColor"
+                    tools:text="2h ago" />
+            </LinearLayout>
+
+            <!-- Comment Text -->
+            <TextView
+                android:id="@+id/commentTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:text="This is a comment text."
+                android:textSize="@dimen/_14ssp"
+                android:textColor="@color/textColor"
+                tools:text="Comment text goes here..." />
+
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
