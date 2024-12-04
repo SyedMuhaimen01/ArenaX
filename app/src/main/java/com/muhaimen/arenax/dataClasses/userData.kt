@@ -15,7 +15,7 @@ data class UserData(
     var location: String? = null,
     var accountVerified: Boolean = false,
     var playerId: String? = null,
-    var rank:Int? = null
+    var rank: String? = null
 ) : Parcelable {
     // Constructor for Parcel (used for Parcelable)
     constructor(parcel: Parcel) : this(
@@ -30,7 +30,7 @@ data class UserData(
         parcel.readString(), // location
         parcel.readByte() != 0.toByte(), // accountVerified
         parcel.readString(), // playerId
-        parcel.readInt() // rank
+        parcel.readString() // rank
 
     )
 
@@ -46,7 +46,7 @@ data class UserData(
         parcel.writeString(bio)
         parcel.writeString(location)
         parcel.writeByte(if (accountVerified) 1 else 0)
-        rank?.let { parcel.writeInt(it) }
+        rank?.let { parcel.writeString(it) }
     }
 
     // No special contents, just return 0

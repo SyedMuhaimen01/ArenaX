@@ -41,6 +41,7 @@ import com.google.firebase.storage.StorageReference
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.AnalyticsData
+import com.muhaimen.arenax.dataClasses.Comment
 import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.dataClasses.UserData
@@ -49,13 +50,11 @@ import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.uploadContent.UploadContent
-import com.muhaimen.arenax.uploadStory.uploadStory
 import com.muhaimen.arenax.uploadStory.viewStory
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import highlightsAdapter
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import okhttp3.Call
@@ -485,20 +484,28 @@ class otherUserProfile : AppCompatActivity() {
             null,
             { response ->
                 try {
-                    val rank = response.getInt("rank")
+                    val rank = response.getString("rank") // Get rank as a String
 
-                    if(rank===1)
-                    {
+                    // Check if the rank is 'unranked' or a number
+                    if (rank == "unranked") {
                         rankTextView.text = "Rank: Unranked"
-                    }else{
-                        rankTextView.text = "Rank: $rank"
+                    } else {
+                        val rankInt = rank.toIntOrNull() // Safely convert to Int if it is a valid number
+                        if (rankInt != null) {
+                            rankTextView.text = "Rank: $rankInt"
+                        } else {
+                            rankTextView.text = "Rank: Unranked" // Fallback in case of invalid rank format
+                        }
                     }
                 } catch (e: JSONException) {
-                    addUserToRankingsIfNeeded(receivedUserId)
+                    if (receivedUserId != null) {
+                        addUserToRankingsIfNeeded(receivedUserId)
+                    }
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching rank: ${error.message}")
+                // Toast.makeText(this, "Error fetching rank", Toast.LENGTH_SHORT).show()
             }
         )
         requestQueue.add(jsonObjectRequest)
@@ -589,33 +596,66 @@ class otherUserProfile : AppCompatActivity() {
 
     private fun fetchUserPosts() {
         val url = "${Constants.SERVER_URL}uploads/user/$receivedUserId/getUserPosts"
+
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
             url,
             null,
             { response ->
                 try {
+                    // Create a list to hold the user's posts
                     val postsList = mutableListOf<Post>()
+
                     for (i in 0 until response.length()) {
                         val postJson = response.getJSONObject(i)
 
+                        // Parse fields from the JSON response with safe defaults
                         val postId = postJson.getInt("post_id")
-                        val postContent = if (postJson.isNull("post_content")) null else postJson.getString("post_content")
-                        val caption = if (postJson.isNull("caption")) null else postJson.getString("caption")
+                        val postContent = postJson.optString("post_content", null)
+                        val caption = postJson.optString("caption", null) // Safe string parsing
                         val sponsored = postJson.getBoolean("sponsored")
                         val likes = postJson.getInt("likes")
                         val comments = postJson.getInt("post_comments")
                         val shares = postJson.getInt("shares")
                         val clicks = postJson.getInt("clicks")
-                        val city = if (postJson.isNull("city")) null else postJson.getString("city")
-                        val country = if (postJson.isNull("country")) null else postJson.getString("country")
-                        val trimmedAudioUrl = if (postJson.isNull("trimmed_audio_url")) null else postJson.getString("trimmed_audio_url")
+                        val city = postJson.optString("city", null)
+                        val country = postJson.optString("country", null)
+                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null)
                         val createdAt = postJson.getString("created_at")
 
+                        // Parse the user details safely
+                        val userFullName = postJson.optString("full_name", null) // Ensure it uses the correct field name
+                        val userProfilePictureUrl = postJson.optString("profile_picture_url", null)
+
+                        // Parse the comments data
+                        val commentsDataJson = postJson.optJSONArray("comments")
+                        val commentsList = mutableListOf<Comment>()
+                        if (commentsDataJson != null) {
+                            for (j in 0 until commentsDataJson.length()) {
+                                val commentJson = commentsDataJson.getJSONObject(j)
+
+                                val commentId = commentJson.getInt("comment_id")
+                                val commentText = commentJson.optString("comment", "No comment provided") // Safe text parsing
+                                val commentCreatedAt = commentJson.getString("created_at")
+                                val commenterName = commentJson.optString("commenter_name", "Unknown commenter")
+                                val commenterProfilePictureUrl = commentJson.optString("commenter_profile_pic", null)
+
+                                val comment = Comment(
+                                    commentId = commentId,
+                                    commentText = commentText,
+                                    createdAt = commentCreatedAt,
+                                    commenterName = commenterName,
+                                    commenterProfilePictureUrl = commenterProfilePictureUrl
+                                )
+                                commentsList.add(comment)
+                            }
+                        }
+
+                        // Create a Post object
                         val post = Post(
                             postId = postId,
                             postContent = postContent,
-                            caption = caption,
+                            caption = caption ?: "No caption provided", // Default caption if null
                             sponsored = sponsored,
                             likes = likes,
                             comments = comments,
@@ -624,24 +664,32 @@ class otherUserProfile : AppCompatActivity() {
                             city = city,
                             country = country,
                             trimmedAudioUrl = trimmedAudioUrl,
-                            createdAt = createdAt
+                            createdAt = createdAt,
+                            userFullName = userFullName ?: "Unknown user", // Default name if null
+                            userProfilePictureUrl = userProfilePictureUrl ?: "path/to/default/profile/picture.jpg", // Default profile picture if null
+                            commentsData = if (commentsList.isNotEmpty()) commentsList else null // Null if no comments
                         )
+
+                        // Add the post to the list
                         postsList.add(post)
                     }
-                    updatePostsUI(postsList)
 
+                    // Update the UI with the fetched posts
+                    updatePostsUI(postsList)
                 } catch (e: JSONException) {
                     e.printStackTrace()
+                    Log.e(TAG, "Error parsing response: ${e.message}")
+                    // Optionally, notify the user about the error
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching posts: ${error.message}")
             }
         )
+
+        // Add the request to the RequestQueue
         requestQueue.add(jsonArrayRequest)
     }
-
-
 
     // Function to update the UI with the fetched posts
     private fun updatePostsUI(posts: List<Post>) {
@@ -717,6 +765,7 @@ class otherUserProfile : AppCompatActivity() {
                         findViewById<ImageView>(R.id.storyRing).visibility = View.GONE
                         navigateToFullProfilePicture()
                     }
+
                 } catch (e: JSONException) {
                     e.printStackTrace()
                 }

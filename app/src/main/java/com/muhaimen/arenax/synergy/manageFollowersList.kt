@@ -16,7 +16,19 @@ import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
 class manageFollowersList : Fragment() {
 
@@ -70,17 +82,21 @@ class manageFollowersList : Fragment() {
 
             // Check if the snapshot has data
             if (snapshot.exists()) {
-                // Loop through the follower ids and fetch their details
+                // List to store the followers' Firebase UIDs
+                val followerUids = mutableListOf<String>()
+
+                // Loop through the follower ids and add to the list
                 for (followerSnapshot in snapshot.children) {
                     val followerId = followerSnapshot.key
-
                     if (followerId != null) {
                         // Log each follower ID being processed
-                        Log.d("ManageFollowers", "Fetching data for follower ID: $followerId")
-                        // Get follower details using their ID
-                        fetchFollowerData(followerId)
+                        Log.d("ManageFollowers", "Adding follower ID: $followerId")
+                        followerUids.add(followerId)
                     }
                 }
+
+                // Send the list of follower IDs to the backend server
+                fetchFollowersDataFromBackend(followerUids)
             } else {
                 Toast.makeText(requireContext(), "No accepted followers found", Toast.LENGTH_SHORT).show()
             }
@@ -91,41 +107,88 @@ class manageFollowersList : Fragment() {
         }
     }
 
-    private fun fetchFollowerData(followerId: String) {
-        // Fetch the follower's data from the database
-        val followerRef = database.child("userData").child(followerId)
-        followerRef.get().addOnSuccessListener { snapshot ->
-            // Log the response to see the data retrieved for each follower
-            Log.d("ManageFollowers", "fetchFollowerData success for $followerId: ${snapshot.value}")
+    private fun fetchFollowersDataFromBackend(followerUids: List<String>) {
+        val url = "${Constants.SERVER_URL}exploreAccounts/fetchFollowersData"
+        val jsonBody = JSONObject().apply {
+            put("followerUids", JSONArray(followerUids))
+        }
 
-            if (snapshot.exists()) {
-                val fullName = snapshot.child("fullname").value.toString()
-                val gamerTag = snapshot.child("gamerTag").value.toString()
-                val gamerRank = snapshot.child("gamerRank").value.toString()
-                val profilePicture = snapshot.child("profilePicture").value.toString()
+        val requestBody = jsonBody.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
-                // Create a UserData object and add it to the followersList
-                val follower = UserData(
-                    profilePicture = profilePicture,
-                    fullname = fullName,
-                    gamerTag = gamerTag,
-                    rank = gamerRank.toIntOrNull() ?: 0 // Ensure rank is properly parsed
-                )
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
 
-                // Store the follower's ID for later removal
-                follower.userId = followerId // Assuming you have this field in UserData
+        val client = OkHttpClient()
 
-                followersList.add(follower)
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val response = client.newCall(request).execute()
+                if (response.isSuccessful) {
+                    // Handle response (e.g., update UI with the follower data)
+                    val responseData = response.body?.string()
+                    Log.d("ManageFollowers", "Received follower data: $responseData")
 
-                // Notify the adapter that the data has changed
-                followersAdapter.notifyDataSetChanged()
+                    // Parse the JSON response to extract follower data
+                    if (!responseData.isNullOrEmpty()) {
+                        try {
+                            val jsonArray = JSONArray(responseData)
+                            val followersList = mutableListOf<UserData>()
+
+                            for (i in 0 until jsonArray.length()) {
+                                val followerJson = jsonArray.getJSONObject(i)
+
+                                val firebaseUid = followerJson.getString("firebaseUid")
+                                val fullName = followerJson.getString("fullName")
+                                val gamerTag = followerJson.getString("gamerTag")
+                                val gamerRank = followerJson.getInt("gamerRank") // Rank could be 0 for unranked users
+                                val profilePictureUrl = followerJson.getString("profilePictureUrl")
+
+                                // Handle unranked users (rank = 0)
+                                val rankDisplay = when {
+                                    gamerRank == 0 -> {
+                                        "Unranked"  // Display a custom message for unranked users
+                                    }
+                                    else -> {
+                                        "$gamerRank"  // Display the actual rank
+                                    }
+                                }
+
+                                // Create UserData object for each follower
+                                val follower = UserData(
+                                    userId = firebaseUid,
+                                    fullname = fullName,
+                                    gamerTag = gamerTag,
+                                    rank = rankDisplay,  // Store the rank display string
+                                    profilePicture = profilePictureUrl
+                                )
+
+                                // Add to the list
+                                followersList.add(follower)
+                            }
+
+                            // Update the adapter or UI with the list
+                            withContext(Dispatchers.Main) {
+                                // Assuming followersAdapter is accessible and initialized
+                                followersAdapter.updateProfiles(followersList)
+                            }
+
+                        } catch (e: JSONException) {
+                            Log.e("ManageFollowers", "Error parsing follower data: ${e.message}")
+                        }
+                    }
+                } else {
+                    Log.e("ManageFollowers", "Error sending data to backend: ${response.message}")
+                }
+            } catch (e: Exception) {
+                Log.e("ManageFollowers", "Error sending data to backend: ${e.message}")
             }
-        }.addOnFailureListener { exception ->
-            // Log the error message for debugging
-            Log.e("ManageFollowers", "Error fetching follower data for $followerId: ${exception.message}")
-            Toast.makeText(requireContext(), "Error: ${exception.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
+
+
 
     private fun showRemoveFollowerDialog(follower: UserData) {
         // Show an AlertDialog to confirm the removal of the follower

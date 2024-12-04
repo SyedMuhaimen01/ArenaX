@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.synergy
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,12 +12,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.userProfile.otherUserProfile
 
 class FollowingAdapter(
-    private val profiles: List<UserData>,
+    private var profiles: List<UserData>,  // Make profiles mutable
     private val onMessageClick: (UserData) -> Unit,
-    private val onRemoveClick: (UserData) -> Unit) :
-    RecyclerView.Adapter<FollowingAdapter.UserDataViewHolder>() {
+    private val onRemoveClick: (UserData) -> Unit
+) : RecyclerView.Adapter<FollowingAdapter.UserDataViewHolder>() {
 
     inner class UserDataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val profilePicture: ImageView = itemView.findViewById(R.id.profilePicture)
@@ -29,8 +31,11 @@ class FollowingAdapter(
         fun bind(profile: UserData) {
             fullNameTextView.text = profile.fullname
             gamerTagTextView.text = profile.gamerTag
-            if(profile.rank == 0) gamerRankTextView.text = "Rank: Unranked"
-            else gamerRankTextView.text = "Rank: ${profile.rank}"
+            if (profile.rank == "Unranked") {
+                gamerRankTextView.text = "Rank: Unranked"
+            } else {
+                gamerRankTextView.text = "Rank: ${profile.rank}"
+            }
 
             // Load profile picture with Glide
             Glide.with(itemView.context)
@@ -39,6 +44,13 @@ class FollowingAdapter(
                 .error(R.drawable.game_icon_foreground)
                 .circleCrop()
                 .into(profilePicture)
+
+            itemView.setOnClickListener {
+                val context = itemView.context
+                val intent = Intent(context, otherUserProfile::class.java)
+                intent.putExtra("userId", profile.userId) // Pass the firebaseUid
+                context.startActivity(intent)
+            }
         }
     }
 
@@ -62,5 +74,10 @@ class FollowingAdapter(
     }
 
     override fun getItemCount(): Int = profiles.size
-}
 
+    // Method to update the list of profiles dynamically
+    fun updateProfiles(newProfiles: List<UserData>) {
+        this.profiles = newProfiles
+        notifyDataSetChanged()  // Notify the adapter to update the view
+    }
+}

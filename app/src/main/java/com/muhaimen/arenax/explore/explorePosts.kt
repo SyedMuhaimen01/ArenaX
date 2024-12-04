@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.userProfile.UserPost
+import com.muhaimen.arenax.dataClasses.Comment
+import com.muhaimen.arenax.dataClasses.Post
+
 import com.muhaimen.arenax.userProfile.explorePostsAdapter
 import com.muhaimen.arenax.utils.Constants
 import kotlinx.coroutines.*
@@ -21,7 +23,7 @@ class explorePosts : Fragment() {
 
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: explorePostsAdapter
-    private val postsList = mutableListOf<UserPost>()
+    private val postsList = mutableListOf<Post>()
     private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
@@ -61,20 +63,45 @@ class explorePosts : Fragment() {
                     val responseData = response.body?.string()
                     if (!responseData.isNullOrEmpty()) {
                         val jsonArray = JSONArray(responseData)
-                        val posts = mutableListOf<UserPost>()
+                        val posts = mutableListOf<Post>()
 
                         for (i in 0 until jsonArray.length()) {
                             val postObject = jsonArray.getJSONObject(i)
-                            val post = UserPost(
-                                username = "someUsername", // You can get the username from a separate request or data source
-                                profilePictureUrl = "https://example.com/profile.jpg", // You can get the profile picture from the backend or another source
-                                postContent = postObject.getString("post_content"),
-                                caption = postObject.getString("caption"),
-                                likes = postObject.getInt("likes"),
-                                comments = postObject.getInt("post_comments"),
-                                shares = postObject.getInt("shares"),
-                                trimmedAudioUrl = postObject.getString("trimmed_audio_url"),
-                                createdAt = postObject.getString("created_at")
+
+                            // Parse comments
+                            val commentsData = mutableListOf<Comment>()
+                            val commentsArray = postObject.optJSONArray("comments")
+                            commentsArray?.let {
+                                for (j in 0 until it.length()) {
+                                    val commentObject = it.getJSONObject(j)
+                                    val comment = Comment(
+                                        commentId = commentObject.optInt("comment_id", 0),  // Use optInt to safely get an integer, defaulting to 0
+                                        commentText = commentObject.optString("comment", ""),  // Default to empty string if null
+                                        createdAt = commentObject.optString("created_at", ""),
+                                        commenterName = commentObject.optString("commenter_name", "Unknown"),  // Default name if missing
+                                        commenterProfilePictureUrl = commentObject.optString("commenter_profile_pic", null)
+                                    )
+                                    commentsData.add(comment)
+                                }
+                            }
+
+                            // Create the Post object
+                            val post = Post(
+                                postId = postObject.optInt("post_id", 0),  // Default to 0 if null
+                                postContent = postObject.optString("post_content", null),
+                                caption = postObject.optString("caption", null),
+                                sponsored = postObject.optBoolean("sponsored", false),  // Default to false if not provided
+                                likes = postObject.optInt("likes", 0),  // Default to 0 if null
+                                comments = postObject.optInt("post_comments", 0),  // Default to 0 if null
+                                shares = postObject.optInt("shares", 0),  // Default to 0 if null
+                                clicks = postObject.optInt("clicks", 0),  // Default to 0 if null
+                                city = postObject.optString("city", null),
+                                country = postObject.optString("country", null),
+                                trimmedAudioUrl = postObject.optString("trimmed_audio_url", null),  // This can be null, so no issue
+                                createdAt = postObject.optString("created_at", ""),
+                                userFullName = postObject.optString("full_name", "Unknown User"),  // Default to "Unknown User" if null
+                                userProfilePictureUrl = postObject.optString("profile_picture_url", null),
+                                commentsData = commentsData
                             )
                             posts.add(post)
                         }
@@ -92,4 +119,6 @@ class explorePosts : Fragment() {
             }
         }
     }
+
+
 }

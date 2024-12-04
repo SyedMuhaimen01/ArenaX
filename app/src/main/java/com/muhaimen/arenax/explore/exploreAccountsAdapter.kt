@@ -28,7 +28,7 @@ class exploreAccountsAdapter(private val profiles: List<UserData>) :
         fun bind(profile: UserData) {
             fullNameTextView.text = profile.fullname
             gamerTagTextView.text = profile.gamerTag
-            if(profile.rank == 0) gamerRankTextView.text = "Rank: Unranked"
+            if(profile.rank =="Unranked") gamerRankTextView.text = "Rank: Unranked"
             else gamerRankTextView.text = "Rank: ${profile.rank}"
 
             // Load profile picture with Glide

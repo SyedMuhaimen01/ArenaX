@@ -21,7 +21,6 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -64,6 +63,7 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ChatService
 import com.muhaimen.arenax.accountSettings.accountSettings
 import com.muhaimen.arenax.dataClasses.AnalyticsData
+import com.muhaimen.arenax.dataClasses.Comment
 import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.dataClasses.UserData
@@ -72,9 +72,7 @@ import com.muhaimen.arenax.gamesDashboard.MyGamesList
 
 import com.muhaimen.arenax.explore.ExplorePage
 
-import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
-import com.muhaimen.arenax.notifications.Notifications
 import com.muhaimen.arenax.screenTime.ScreenTimeService
 import com.muhaimen.arenax.synergy.synergy
 import com.muhaimen.arenax.uploadContent.UploadContent
@@ -514,14 +512,20 @@ class UserProfile : AppCompatActivity() {
             null,
             { response ->
                 try {
-                    val rank = response.getInt("rank")
+                    val rank = response.getString("rank") // Get rank as a String
 
-                    if(rank===1)
-                    {
+                    // Check if the rank is 'unranked' or a number
+                    if (rank == "unranked") {
                         rankTextView.text = "Rank: Unranked"
-                    }else{
-                        rankTextView.text = "Rank: $rank"
+                    } else {
+                        val rankInt = rank.toIntOrNull() // Safely convert to Int if it is a valid number
+                        if (rankInt != null) {
+                            rankTextView.text = "Rank: $rankInt"
+                        } else {
+                            rankTextView.text = "Rank: Unranked" // Fallback in case of invalid rank format
+                        }
                     }
+
                     saveRankToPreferences(rank)
 
                 } catch (e: JSONException) {
@@ -532,12 +536,13 @@ class UserProfile : AppCompatActivity() {
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching rank: ${error.message}")
-          //      Toast.makeText(this, "Error fetching rank", Toast.LENGTH_SHORT).show()
+                // Toast.makeText(this, "Error fetching rank", Toast.LENGTH_SHORT).show()
                 loadRankFromPreferences()
             }
         )
         requestQueue.add(jsonObjectRequest)
     }
+
 
     private fun addUserToRankingsIfNeeded(userId: String) {
         val addRankUrl = "${Constants.SERVER_URL}leaderboard/user/$userId/add"
@@ -633,10 +638,10 @@ class UserProfile : AppCompatActivity() {
                     for (i in 0 until response.length()) {
                         val postJson = response.getJSONObject(i)
 
-                        // Parse fields from the JSON response
+                        // Parse fields from the JSON response with safe defaults
                         val postId = postJson.getInt("post_id")
                         val postContent = postJson.optString("post_content", null)
-                        val caption = postJson.optString("caption", null)
+                        val caption = postJson.optString("caption", null) // Safe string parsing
                         val sponsored = postJson.getBoolean("sponsored")
                         val likes = postJson.getInt("likes")
                         val comments = postJson.getInt("post_comments")
@@ -647,11 +652,39 @@ class UserProfile : AppCompatActivity() {
                         val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null)
                         val createdAt = postJson.getString("created_at")
 
+                        // Parse the user details safely
+                        val userFullName = postJson.optString("full_name", null) // Ensure it uses the correct field name
+                        val userProfilePictureUrl = postJson.optString("profile_picture_url", null)
+
+                        // Parse the comments data
+                        val commentsDataJson = postJson.optJSONArray("comments")
+                        val commentsList = mutableListOf<Comment>()
+                        if (commentsDataJson != null) {
+                            for (j in 0 until commentsDataJson.length()) {
+                                val commentJson = commentsDataJson.getJSONObject(j)
+
+                                val commentId = commentJson.getInt("comment_id")
+                                val commentText = commentJson.optString("comment", "No comment provided") // Safe text parsing
+                                val commentCreatedAt = commentJson.getString("created_at")
+                                val commenterName = commentJson.optString("commenter_name", "Unknown commenter")
+                                val commenterProfilePictureUrl = commentJson.optString("commenter_profile_pic", null)
+
+                                val comment = Comment(
+                                    commentId = commentId,
+                                    commentText = commentText,
+                                    createdAt = commentCreatedAt,
+                                    commenterName = commenterName,
+                                    commenterProfilePictureUrl = commenterProfilePictureUrl
+                                )
+                                commentsList.add(comment)
+                            }
+                        }
+
                         // Create a Post object
                         val post = Post(
                             postId = postId,
                             postContent = postContent,
-                            caption = caption,
+                            caption = caption ?: "No caption provided", // Default caption if null
                             sponsored = sponsored,
                             likes = likes,
                             comments = comments,
@@ -660,7 +693,10 @@ class UserProfile : AppCompatActivity() {
                             city = city,
                             country = country,
                             trimmedAudioUrl = trimmedAudioUrl,
-                            createdAt = createdAt
+                            createdAt = createdAt,
+                            userFullName = userFullName ?: "Unknown user", // Default name if null
+                            userProfilePictureUrl = userProfilePictureUrl ?: "path/to/default/profile/picture.jpg", // Default profile picture if null
+                            commentsData = if (commentsList.isNotEmpty()) commentsList else null // Null if no comments
                         )
 
                         // Add the post to the list
@@ -682,13 +718,15 @@ class UserProfile : AppCompatActivity() {
                 Log.e(TAG, "Error fetching posts: ${error.message}")
                 // Load cached posts if the request fails
                 loadPostsFromSharedPreferences()
-            //    Toast.makeText(this, "Error fetching posts", Toast.LENGTH_SHORT).show()
             }
         )
 
         // Add the request to the RequestQueue
         requestQueue.add(jsonArrayRequest)
     }
+
+
+
 
 
 
@@ -700,20 +738,25 @@ class UserProfile : AppCompatActivity() {
         postsCount.setText(postsAdapter.itemCount.toString())// Set the adapter to RecyclerView
     }
 
-    private fun saveRankToPreferences(rank: Int) {
+    private fun saveRankToPreferences(rank: String) {
         with(sharedPreferences4.edit()) {
-            putInt("userRank", rank)
+            putString("userRank", rank)  // Store rank as a String
             apply()
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun loadRankFromPreferences() {
-        val rank = sharedPreferences4.getInt("userRank", -1)
-        if (rank != -1) {
-            rankTextView.text = "Rank: $rank"
+    fun loadRankFromPreferences() {
+        val sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val rank = sharedPreferences.getInt("rank_key", -1) // Assuming rank is stored as an integer
+        if (rank == -1) {
+            // Handle case where rank is not set (use "Unranked" or similar logic)
+            rankTextView.text = "Unranked"
+        } else {
+            // Handle the case where rank is a valid integer
+            rankTextView.text = rank.toString()
         }
     }
+
 
     private fun loadUserDataFromSharedPreferences() {
         val userId = sharedPreferences5.getString("userId", "")
@@ -815,15 +858,33 @@ class UserProfile : AppCompatActivity() {
                     put("country", post.country ?: JSONObject.NULL)          // Handle null country
                     put("trimmed_audio_url", post.trimmedAudioUrl ?: JSONObject.NULL) // Handle null audio URL
                     put("created_at", post.createdAt)
+
+                    // Add user info
+                    put("userFullName", post.userFullName ?: JSONObject.NULL) // Handle null user full name
+                    put("userProfilePictureUrl", post.userProfilePictureUrl ?: JSONObject.NULL) // Handle null profile picture
+
+                    // Add comments data
+                    val commentsJsonArray = JSONArray()
+                    post.commentsData?.forEach { comment ->
+                        commentsJsonArray.put(JSONObject().apply {
+                            put("comment_id", comment.commentId)
+                            put("comment_text", comment.commentText)
+                            put("created_at", comment.createdAt)
+                            put("commenter_name", comment.commenterName)
+                            put("commenter_profile_picture_url", comment.commenterProfilePictureUrl ?: JSONObject.NULL)
+                        })
+                    }
+                    put("commentsData", commentsJsonArray)
                 })
             }
         }.toString()
 
         with(sharedPreferences3.edit()) {
-            putString("postsList", postsJsonArray)
+            putString("postsList", postsJsonArray.toString())
             apply()
         }
     }
+
 
 
     private fun saveLocationToSharedPreferences(city: String, country: String, latitude: Double, longitude: Double) {
@@ -855,27 +916,55 @@ class UserProfile : AppCompatActivity() {
         if (postsJson != null) {
             val posts = mutableListOf<Post>()
             val jsonArray = JSONArray(postsJson)
+
             for (i in 0 until jsonArray.length()) {
                 val postJson = jsonArray.getJSONObject(i)
-                val post = Post(
-                    postId = postJson.getInt("post_id"),
-                    postContent = if (postJson.isNull("post_content")) null else postJson.getString("post_content"),
-                    caption = if (postJson.isNull("caption")) null else postJson.getString("caption"),
-                    sponsored = postJson.getBoolean("sponsored"),
-                    likes = postJson.getInt("likes"),
-                    comments = postJson.getInt("post_comments"),
-                    shares = postJson.getInt("shares"),
-                    clicks = postJson.getInt("clicks"),
-                    city = if (postJson.isNull("city")) null else postJson.getString("city"),
-                    country = if (postJson.isNull("country")) null else postJson.getString("country"),
-                    trimmedAudioUrl = if (postJson.isNull("trimmed_audio_url")) null else postJson.getString("trimmed_audio_url"),
-                    createdAt = postJson.getString("created_at")
-                )
-                posts.add(post)
+
+                // Parse post details
+                val post = (if (postJson.isNull("userFullName")) null else postJson.getString("userFullName"))?.let {
+                    Post(
+                        postId = postJson.getInt("post_id"),
+                        postContent = if (postJson.isNull("post_content")) null else postJson.getString("post_content"),
+                        caption = if (postJson.isNull("caption")) null else postJson.getString("caption"),
+                        sponsored = postJson.getBoolean("sponsored"),
+                        likes = postJson.getInt("likes"),
+                        comments = postJson.getInt("post_comments"),
+                        shares = postJson.getInt("shares"),
+                        clicks = postJson.getInt("clicks"),
+                        city = if (postJson.isNull("city")) null else postJson.getString("city"),
+                        country = if (postJson.isNull("country")) null else postJson.getString("country"),
+                        trimmedAudioUrl = if (postJson.isNull("trimmed_audio_url")) null else postJson.getString("trimmed_audio_url"),
+                        createdAt = postJson.getString("created_at"),
+
+                        // Parse user information
+                        userFullName = it,
+                        userProfilePictureUrl = if (postJson.isNull("userProfilePictureUrl")) null else postJson.getString("userProfilePictureUrl"),
+
+                        // Parse comments data
+                        commentsData = mutableListOf<Comment>().apply {
+                            val commentsJsonArray = postJson.getJSONArray("commentsData")
+                            for (j in 0 until commentsJsonArray.length()) {
+                                val commentJson = commentsJsonArray.getJSONObject(j)
+                                val comment = Comment(
+                                    commentId = commentJson.getInt("comment_id"),
+                                    commentText = commentJson.getString("comment_text"),
+                                    createdAt = commentJson.getString("created_at"),
+                                    commenterName = commentJson.getString("commenter_name"),
+                                    commenterProfilePictureUrl = if (commentJson.isNull("commenter_profile_picture_url")) null else commentJson.getString("commenter_profile_picture_url")
+                                )
+                                add(comment)
+                            }
+                        }
+                    )
+                }
+                if (post != null) {
+                    posts.add(post)
+                }
             }
             updatePostsUI(posts)
         }
     }
+
 
     override fun onResume() {
         super.onResume()

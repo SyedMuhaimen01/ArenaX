@@ -1,7 +1,6 @@
 package com.muhaimen.arenax.editProfile
 
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -32,7 +31,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import com.muhaimen.arenax.LoginSignUp.ForgotPassword
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Gender
 import com.muhaimen.arenax.dataClasses.UserData
