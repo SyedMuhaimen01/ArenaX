@@ -12,8 +12,11 @@ data class Story(
     val duration: Int,
     val trimmedAudioUrl: String?,
     val draggableTexts: JSONArray?, // Kept as JSONArray
-    val uploadedAt: Date? // Keep as Date to match the TIMESTAMP type
+    val uploadedAt: Date?, // Keep as Date to match the TIMESTAMP type
+    val userName: String, // New field for user's name
+    val userProfilePicture: String // New field for user's profile picture URL
 ) : Parcelable {
+
     val timeAgo: String
         get() {
             if (uploadedAt == null) return "Unknown time"
@@ -32,7 +35,9 @@ data class Story(
         parcel.readInt(),
         parcel.readString(),
         parcel.readString()?.let { JSONArray(it) }, // Read JSONArray from String
-        if (parcel.readLong() == -1L) null else Date(parcel.readLong()) // Handle null Date
+        if (parcel.readLong() == -1L) null else Date(parcel.readLong()), // Handle null Date
+        parcel.readString() ?: "", // Read userName
+        parcel.readString() ?: ""  // Read userProfilePicture
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -42,6 +47,8 @@ data class Story(
         parcel.writeString(trimmedAudioUrl)
         parcel.writeString(draggableTexts?.toString()) // Convert JSONArray to String
         parcel.writeLong(uploadedAt?.time ?: -1) // Write the timestamp; -1 indicates null
+        parcel.writeString(userName) // Write userName
+        parcel.writeString(userProfilePicture) // Write userProfilePicture
     }
 
     override fun describeContents(): Int = 0

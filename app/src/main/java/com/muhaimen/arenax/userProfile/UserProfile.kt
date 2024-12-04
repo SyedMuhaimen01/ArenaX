@@ -582,6 +582,8 @@ class UserProfile : AppCompatActivity() {
                         val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
                         val draggableTexts = storyJson.optJSONArray("draggable_texts")
                         val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
+                        val userName = storyJson.getString("full_name") // Fetch user's name
+                        val userProfilePicture = storyJson.getString("profile_picture_url") // Fetch user's profile picture URL
 
                         // Convert createdAt string to Date
                         val uploadedAt = parseDate(createdAt)
@@ -593,7 +595,9 @@ class UserProfile : AppCompatActivity() {
                             duration = duration,
                             trimmedAudioUrl = trimmedAudioUrl,
                             draggableTexts = draggableTexts,
-                            uploadedAt = uploadedAt
+                            uploadedAt = uploadedAt,
+                            userName = userName,
+                            userProfilePicture = userProfilePicture
                         )
 
                         storiesList.add(story)
@@ -615,6 +619,8 @@ class UserProfile : AppCompatActivity() {
         )
         requestQueue.add(jsonArrayRequest)
     }
+
+
 
 
     private fun updateStoriesUI(stories: List<Story>) {
@@ -803,12 +809,14 @@ class UserProfile : AppCompatActivity() {
         val storiesJsonArray = JSONArray().apply {
             stories.forEach { story ->
                 put(JSONObject().apply {
-                    put("storyId", story.id)
-                    put("mediaUrl", story.mediaUrl)
+                    put("id", story.id)
+                    put("media_url", story.mediaUrl)
                     put("duration", story.duration)
-                    put("trimmedAudioUrl", story.trimmedAudioUrl)
-                    put("draggableTexts", story.draggableTexts)
+                    put("trimmed_audio_url", story.trimmedAudioUrl)
+                    put("draggable_texts", story.draggableTexts)
                     put("created_at", story.uploadedAt?.time ?: 0L) // Store as timestamp
+                    put("full_name", story.userName) // Store user name
+                    put("profile_picture_url", story.userProfilePicture) // Store user profile picture URL
                 })
             }
         }.toString()
@@ -828,18 +836,21 @@ class UserProfile : AppCompatActivity() {
                 val storyJson = jsonArray.getJSONObject(i)
                 val uploadedAt = storyJson.getLong("created_at") // Get the timestamp
                 val story = Story(
-                    storyJson.getInt("storyId"),
-                    storyJson.getString("mediaUrl"),
+                    storyJson.getInt("id"),
+                    storyJson.getString("media_url"),
                     storyJson.getInt("duration"),
-                    storyJson.optString("trimmedAudioUrl", null),
-                    storyJson.optJSONArray("draggableTexts"),
-                    Date(uploadedAt)
+                    storyJson.optString("trimmed_audio_url", null),
+                    storyJson.optJSONArray("draggable_texts"),
+                    Date(uploadedAt),
+                    storyJson.getString("full_name"), // Get user name
+                    storyJson.getString("profile_picture_url") // Get user profile picture URL
                 )
                 stories.add(story)
             }
             updateStoriesUI(stories)
         }
     }
+
 
 
     private fun savePostsDataToSharedPreference(posts: List<Post>) {
@@ -1140,6 +1151,10 @@ class UserProfile : AppCompatActivity() {
                         val draggableTexts = storyJson.optJSONArray("draggable_texts")
                         val createdAt = storyJson.optString("created_at", null)
 
+                        // Fetch the new fields: user name and profile picture
+                        val userName = storyJson.optString("full_name", "")
+                        val userProfilePicture = storyJson.optString("profile_picture_url", "")
+
                         // Ensure mandatory fields are valid
                         if (storyId == -1 || mediaUrl.isNullOrEmpty() || createdAt.isNullOrEmpty()) {
                             Log.e("fetchUserStory", "Invalid story data: $storyJson")
@@ -1156,7 +1171,9 @@ class UserProfile : AppCompatActivity() {
                             duration = duration,
                             trimmedAudioUrl = trimmedAudioUrl,
                             draggableTexts = draggableTexts,
-                            uploadedAt = uploadedAt
+                            uploadedAt = uploadedAt,
+                            userName = userName, // Add user name
+                            userProfilePicture = userProfilePicture // Add user profile picture URL
                         )
 
                         storiesList.add(story)
@@ -1202,6 +1219,7 @@ class UserProfile : AppCompatActivity() {
         // Add the request to the request queue
         requestQueue.add(jsonArrayRequest)
     }
+
 
 
 
