@@ -3,6 +3,7 @@ package com.muhaimen.arenax.synergy
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -19,10 +20,10 @@ import com.muhaimen.arenax.userProfile.UserProfile
 class synergy : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
-    private lateinit var myGamesButton: ImageButton
-    private lateinit var addPost: ImageButton
-    private lateinit var homeButton: ImageButton
-    private lateinit var profileButton: ImageButton
+    private lateinit var addPost: ImageView
+    private lateinit var homeButton: ImageView
+    private lateinit var profileButton: ImageView
+    private lateinit var exploreButton: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,8 +64,8 @@ class synergy : AppCompatActivity() {
             val intent = Intent(this, UserFeed::class.java)
             startActivity(intent)
         }
-        myGamesButton= findViewById(R.id.myGamesButton)
-        myGamesButton.setOnClickListener {
+       exploreButton= findViewById(R.id.exploreButton)
+        exploreButton.setOnClickListener {
             val intent = Intent(this, MyGamesList::class.java)
             startActivity(intent)
         }

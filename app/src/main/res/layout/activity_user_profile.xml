@@ -473,8 +473,8 @@
           android:id="@+id/exploreButton"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:background="@drawable/ic_navigation_search"
-          android:layout_marginLeft="25dp"/>
+          android:layout_marginLeft="25dp"
+          android:background="@drawable/ic_navigation_search" />
 
 
 
