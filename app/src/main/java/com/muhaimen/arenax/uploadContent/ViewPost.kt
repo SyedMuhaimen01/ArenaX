@@ -172,9 +172,6 @@ class ViewPost : AppCompatActivity() {
         }
 
 
-
-
-
         // Retrieve the Post object from Intent
         post = intent.getParcelableExtra("POST")!!
         post?.let {
@@ -248,8 +245,8 @@ class ViewPost : AppCompatActivity() {
             put("comments", post.comments)  // Updated comment count
             put("shares", post.shares)
             put("clicks", post.clicks)
-            put("city", post.city) // City from shared preferences
-            put("country", post.country) // Country from shared preferences
+            put("city", post.city)
+            put("country", post.country)
             put("created_at", post.createdAt)
             put("trimmed_audio_url", post.trimmedAudioUrl)
 
@@ -271,7 +268,7 @@ class ViewPost : AppCompatActivity() {
         // Create a POST request
         val postRequest = JsonObjectRequest(
             com.android.volley.Request.Method.POST,
-            "${Constants.SERVER_URL}uploads/uploadPost",
+            "${Constants.SERVER_URL}uploads/uploadComments",
             jsonRequest,
             { response ->
                 // Handle the response from the server (success)
