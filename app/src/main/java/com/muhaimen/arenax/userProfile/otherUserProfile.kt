@@ -23,8 +23,13 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.android.volley.AuthFailureError
+import com.android.volley.NetworkError
+import com.android.volley.NoConnectionError
 import com.android.volley.Request
 import com.android.volley.RequestQueue
+import com.android.volley.ServerError
+import com.android.volley.TimeoutError
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
@@ -60,10 +65,15 @@ import kotlinx.coroutines.tasks.await
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.ArrayList
 import java.util.Date
+import java.util.Locale
 
 
 @Suppress("DEPRECATED_IDENTITY_EQUALS")
@@ -535,7 +545,8 @@ class otherUserProfile : AppCompatActivity() {
     }
 
     private fun fetchUserStories() {
-        val url = "${Constants.SERVER_URL}stories/user/${receivedUserId}/fetchStoryHighlights"
+        val userId = auth.currentUser?.uid ?: return
+        val url = "${Constants.SERVER_URL}stories/user/$userId/fetchStoryHighlights"
 
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
@@ -546,17 +557,38 @@ class otherUserProfile : AppCompatActivity() {
                     val storiesList = mutableListOf<Story>()
                     for (i in 0 until response.length()) {
                         val storyJson = response.getJSONObject(i)
-                        val storyId = storyJson.getInt("id")
-                        val mediaUrl = storyJson.getString("media_url")
-                        val duration = storyJson.getInt("duration")
+
+                        // Safely parse fields with error handling
+                        val storyId = storyJson.optString("story_id", "") // Updated to match the backend response
+                        val mediaUrl = storyJson.optString("media_url", "")
+                        val duration = storyJson.optInt("duration", 0)
                         val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
-                        val draggableTexts = storyJson.optJSONArray("draggable_texts")
-                        val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
-                        val userName = storyJson.getString("full_name") // Fetch user's name
-                        val userProfilePicture = storyJson.getString("profile_picture_url") // Fetch user's profile picture URL
+
+                        // Handle draggable_texts as a JSON string
+                        val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]") // Handle as string
+                        val draggableTexts = try {
+                            JSONArray(draggableTextsJsonString) // Convert string to JSONArray
+                        } catch (e: JSONException) {
+                            Log.e("fetchUserStories", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
+                            JSONArray() // Return an empty JSONArray in case of error
+                        }
+
+                        val createdAt = storyJson.optString("created_at", null)
+                        val city = storyJson.optString("city", null)
+                        val country = storyJson.optString("country", null)
+                        val latitude = storyJson.optDouble("latitude", 0.0)
+                        val longitude = storyJson.optDouble("longitude", 0.0)
+                        val userName = storyJson.optString("full_name", "")
+                        val userProfilePicture = storyJson.optString("profile_picture_url", "")
+
+                        // Ensure mandatory fields are valid
+                        if (storyId.isEmpty() || mediaUrl.isEmpty() || createdAt.isNullOrEmpty()) {
+                            Log.e("fetchUserStories", "Invalid story data: $storyJson")
+                            continue
+                        }
 
                         // Convert createdAt string to Date
-                        val uploadedAt = parseDate(createdAt)
+                        val uploadedAt = parseDate(createdAt) ?: continue
 
                         // Create the Story object
                         val story = Story(
@@ -567,36 +599,28 @@ class otherUserProfile : AppCompatActivity() {
                             draggableTexts = draggableTexts,
                             uploadedAt = uploadedAt,
                             userName = userName,
-                            userProfilePicture = userProfilePicture
+                            userProfilePicture = userProfilePicture,
+                            city = city,
+                            country = country,
+                            latitude = latitude,
+                            longitude = longitude
                         )
 
                         storiesList.add(story)
                     }
-
+                    Log.e("Fetecd","Soties:${storiesList}")
                     updateStoriesUI(storiesList)
-
                 } catch (e: JSONException) {
                     e.printStackTrace()
-                    // Optionally show a Toast message for error feedback
-                    // Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching stories: ${error.message}")
+
             }
         )
-        requestQueue.add(jsonArrayRequest)
-    }
 
-    // Helper function to parse the date string
-    private fun parseDate(dateString: String): Date? {
-        return try {
-            val format = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault())
-            format.parse(dateString)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+        requestQueue.add(jsonArrayRequest)
     }
 
 
@@ -735,20 +759,41 @@ class otherUserProfile : AppCompatActivity() {
             { response ->
                 try {
                     val storiesList = mutableListOf<Story>()
+
                     for (i in 0 until response.length()) {
                         val storyJson = response.getJSONObject(i)
 
-                        val storyId = storyJson.getInt("id")
-                        val mediaUrl = storyJson.getString("media_url")
-                        val duration = storyJson.getInt("duration")
+                        // Safely parse fields with error handling
+                        val storyId = storyJson.optString("story_id", "")
+                        val mediaUrl = storyJson.optString("media_url", "")
+                        val duration = storyJson.optInt("duration", 0)
                         val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
-                        val draggableTexts = storyJson.optJSONArray("draggable_texts")
-                        val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
-                        val userName = storyJson.getString("full_name") // Fetch the user name
-                        val userProfilePicture = storyJson.getString("profile_picture_url") // Fetch the user's profile picture URL
+
+                        // Handle draggable_texts as a JSON string
+                        val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]") // Handle as string
+                        val draggableTexts = try {
+                            JSONArray(draggableTextsJsonString) // Convert string to JSONArray
+                        } catch (e: JSONException) {
+                            Log.e("fetchUserStory", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
+                            JSONArray() // Return an empty JSONArray in case of error
+                        }
+
+                        val createdAt = storyJson.optString("created_at", null)
+                        val city = storyJson.optString("city", null)
+                        val country = storyJson.optString("country", null)
+                        val latitude = storyJson.optDouble("latitude", 0.0)
+                        val longitude = storyJson.optDouble("longitude", 0.0)
+                        val userName = storyJson.optString("full_name", "")
+                        val userProfilePicture = storyJson.optString("profile_picture_url", "")
+
+                        // Ensure mandatory fields are valid
+                        if (storyId.isEmpty() || mediaUrl.isEmpty() || createdAt.isNullOrEmpty()) {
+                            Log.e("fetchUserStory", "Invalid story data: $storyJson")
+                            continue
+                        }
 
                         // Convert createdAt string to Date
-                        val uploadedAt = parseDate(createdAt)
+                        val uploadedAt = parseDate(createdAt) ?: continue
 
                         // Create the Story object
                         val story = Story(
@@ -758,40 +803,67 @@ class otherUserProfile : AppCompatActivity() {
                             trimmedAudioUrl = trimmedAudioUrl,
                             draggableTexts = draggableTexts,
                             uploadedAt = uploadedAt,
-                            userName = userName, // Add user name
-                            userProfilePicture = userProfilePicture // Add user profile picture URL
+                            userName = userName,
+                            userProfilePicture = userProfilePicture,
+                            city = city,
+                            country = country,
+                            latitude = latitude,
+                            longitude = longitude
                         )
 
                         storiesList.add(story)
                     }
 
-                    // Show or hide the story ring based on the presence of valid stories
+                    // Handle story presence
+                    val storyRing = findViewById<ImageView>(R.id.storyRing)
                     if (storiesList.isNotEmpty()) {
-                        // Show the story ring
-                        findViewById<ImageView>(R.id.storyRing).visibility = View.VISIBLE
+                        storyRing.visibility = View.VISIBLE
 
-                        // Launch StoryViewActivity if there are stories
+                        // Launch StoryViewActivity if stories are available
                         val intent = Intent(this, viewStory::class.java).apply {
                             putParcelableArrayListExtra("storiesList", ArrayList(storiesList))
                             putExtra("currentIndex", 0)
                         }
                         startActivity(intent)
                     } else {
-                        // Hide the story ring if there are no stories
-                        findViewById<ImageView>(R.id.storyRing).visibility = View.GONE
+                        // Hide the story ring and navigate to the profile picture
+                        storyRing.visibility = View.GONE
                         navigateToFullProfilePicture()
                     }
-
                 } catch (e: JSONException) {
-                    e.printStackTrace()
+                    Log.e("fetchUserStory", "JSON parsing error: ${e.message}")
+                } catch (e: Exception) {
+                    Log.e("fetchUserStory", "Unexpected error: ${e.message}")
                 }
             },
             { error ->
-                error.printStackTrace()
+                val errorMessage = when (error) {
+                    is TimeoutError -> "Request timed out"
+                    is NoConnectionError -> "No internet connection"
+                    is AuthFailureError -> "Authentication error: ${error.message}"
+                    is ServerError -> "Server error: ${String(error.networkResponse?.data ?: ByteArray(0))}"
+                    is NetworkError -> "Network error: ${error.message}"
+                    else -> "Response parse error: ${error.message}"
+                }
+                Log.e("fetchUserStory", errorMessage)
+                Toast.makeText(this, "Failed to fetch stories: $errorMessage", Toast.LENGTH_SHORT).show()
             }
         )
 
+        // Add the request to the request queue
         requestQueue.add(jsonArrayRequest)
+    }
+
+    // Helper function to parse the date string
+    fun parseDate(dateString: String): Date? {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        dateFormat.isLenient = false
+        return try {
+            dateFormat.parse(dateString)
+        } catch (e: ParseException) {
+            e.printStackTrace()
+            null
+        }
     }
 
 
