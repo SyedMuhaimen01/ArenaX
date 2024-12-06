@@ -1,11 +1,13 @@
 package com.muhaimen.arenax.userProfile
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
@@ -21,15 +23,7 @@ class PostsAdapter(private val postsList: List<Post>) : RecyclerView.Adapter<Pos
 
             itemView.setOnClickListener {
                 val intent = Intent(itemView.context, ViewPost::class.java).apply {
-                    putExtra("MEDIA", post.postContent)
-                    putExtra("Caption", post.caption)
-                    putExtra("Likes", post.likes)
-                    putExtra("Comments", post.comments)
-                    putExtra("Shares", post.shares)
-                    putExtra("TrimAudio", post.trimmedAudioUrl)
-                    putExtra("CreatedAt", post.createdAt)
-                    putExtra("City", post.city)
-                    putExtra("Country", post.country)
+                    putExtra("POST", post)
                 }
                 itemView.context.startActivity(intent) // Start the activity
             }
@@ -59,3 +53,5 @@ class PostsAdapter(private val postsList: List<Post>) : RecyclerView.Adapter<Pos
         return postsList.size
     }
 }
+
+

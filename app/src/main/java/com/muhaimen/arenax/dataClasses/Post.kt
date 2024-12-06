@@ -1,5 +1,7 @@
 package com.muhaimen.arenax.dataClasses
 
+import android.os.Parcel
+import android.os.Parcelable
 
 data class Post(
     val postId: Int,                       // Unique ID of the post
@@ -17,7 +19,57 @@ data class Post(
     val userFullName: String,              // Full name of the user who posted
     val userProfilePictureUrl: String?,    // Profile picture URL of the user
     val commentsData: List<Comment>?       // List of comments associated with the post (can be null or empty)
-)
+) : Parcelable {
+
+    constructor(parcel: Parcel) : this(
+        parcel.readInt(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readByte() != 0.toByte(),
+        parcel.readInt(),
+        parcel.readInt(),
+        parcel.readInt(),
+        parcel.readInt(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString() ?: "",
+        parcel.readString().toString(),
+        parcel.readString(),
+        parcel.createTypedArrayList(Comment.CREATOR)
+
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(postId)
+        parcel.writeString(postContent)
+        parcel.writeString(caption)
+        parcel.writeByte(if (sponsored) 1 else 0)
+        parcel.writeInt(likes)
+        parcel.writeInt(comments)
+        parcel.writeInt(shares)
+        parcel.writeInt(clicks)
+        parcel.writeString(city)
+        parcel.writeString(country)
+        parcel.writeString(trimmedAudioUrl)
+        parcel.writeString(createdAt)
+        parcel.writeString(userFullName)
+        parcel.writeString(userProfilePictureUrl)
+        parcel.writeTypedList(commentsData)
+    }
+
+    override fun describeContents(): Int = 0
+
+    companion object CREATOR : Parcelable.Creator<Post> {
+        override fun createFromParcel(parcel: Parcel): Post {
+            return Post(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Post?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
 
 data class Comment(
     val commentId: Int,                    // Unique ID for the comment
@@ -25,4 +77,35 @@ data class Comment(
     val createdAt: String,                 // Timestamp when the comment was created
     val commenterName: String,             // Name of the user who commented
     val commenterProfilePictureUrl: String? // Profile picture URL of the commenter (can be null)
-)
+) : Parcelable {
+
+    constructor(parcel: Parcel) : this(
+        commentId = parcel.readInt(),
+        commentText = parcel.readString() ?: "",
+        createdAt = parcel.readString() ?: "",
+        commenterName = parcel.readString() ?: "",
+        commenterProfilePictureUrl = parcel.readString()
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(commentId)
+        parcel.writeString(commentText)
+        parcel.writeString(createdAt)
+        parcel.writeString(commenterName)
+        parcel.writeString(commenterProfilePictureUrl)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Comment> {
+        override fun createFromParcel(parcel: Parcel): Comment {
+            return Comment(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Comment?> {
+            return arrayOfNulls(size)
+        }
+    }
+}

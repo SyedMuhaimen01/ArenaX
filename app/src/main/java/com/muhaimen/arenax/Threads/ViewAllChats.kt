@@ -1,11 +1,15 @@
 package com.muhaimen.arenax.Threads
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,6 +18,10 @@ import com.google.firebase.database.*
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.ChatItem
 import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.explore.ExplorePage
+import com.muhaimen.arenax.uploadContent.UploadContent
+import com.muhaimen.arenax.userFeed.UserFeed
+import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.FirebaseManager
 
 class ViewAllChats : AppCompatActivity() {
@@ -22,9 +30,14 @@ class ViewAllChats : AppCompatActivity() {
     private lateinit var searchEditText: EditText
     private lateinit var chatRecyclerView: RecyclerView
     private lateinit var searchUserRecyclerView: RecyclerView
+    private lateinit var homeButton:LinearLayout
+    private lateinit var exploreButton:ImageView
+    private lateinit var profileButton:ImageView
+    private lateinit var postButton:ImageView
     private val database = FirebaseDatabase.getInstance()
     private val currentUserId = FirebaseManager.getCurrentUserId()
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_all_chats)
@@ -32,7 +45,10 @@ class ViewAllChats : AppCompatActivity() {
         // Initialize RecyclerViews and adapters
         setupChatRecyclerView()
         setupSearchUserRecyclerView()
-
+        profileButton=findViewById(R.id.profileButton)
+        homeButton=findViewById(R.id.home)
+        exploreButton=findViewById(R.id.exploreButton)
+        postButton=findViewById(R.id.addPostButton)
         searchEditText = findViewById(R.id.searchbar)
         searchEditText.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
@@ -40,6 +56,25 @@ class ViewAllChats : AppCompatActivity() {
             }
         }
 
+        homeButton.setOnClickListener {
+            val intent = Intent(this, UserFeed::class.java)
+            startActivity(intent)
+        }
+
+        postButton.setOnClickListener {
+            val intent = Intent(this, UploadContent::class.java)
+            startActivity(intent)
+        }
+
+        profileButton.setOnClickListener {
+            val intent = Intent(this, UserProfile::class.java)
+            startActivity(intent)
+        }
+
+        exploreButton.setOnClickListener {
+            val intent = Intent(this, ExplorePage::class.java)
+            startActivity(intent)
+        }
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}

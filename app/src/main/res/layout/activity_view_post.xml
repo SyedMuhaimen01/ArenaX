@@ -18,12 +18,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
+            android:layout_marginTop="@dimen/_20sdp"
             android:background="@color/backgroundColor">
 
             <!-- Media and Toolbar Section -->
             <FrameLayout
                 android:layout_width="match_parent"
-
+                android:background="@color/textColor"
                 android:layout_height="@dimen/_510sdp">
 
                 <!-- Media Preview (Image or Video) -->
@@ -117,6 +118,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:layout_marginTop="@dimen/_5sdp"
                     android:gravity="center"
                     android:layout_weight="1">
                     <ImageButton
@@ -139,6 +141,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:layout_marginTop="@dimen/_5sdp"
                     android:layout_marginLeft="@dimen/_20sdp"
                     android:gravity="center"
                     android:layout_weight="1">
@@ -162,6 +165,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:layout_marginTop="@dimen/_5sdp"
                     android:layout_marginLeft="@dimen/_20sdp"
                     android:gravity="center"
                     android:layout_weight="1">
@@ -202,7 +206,11 @@
                 android:visibility="gone" />
             <!-- Comments RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
+                android:layout_marginTop="@dimen/_5sdp"
                 android:id="@+id/commentsRecyclerView"
+                android:background="@drawable/view_comment_bg"
+                android:layout_marginRight="@dimen/_2sdp"
+                android:layout_marginLeft="@dimen/_2sdp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
             <!-- Write Comment Section -->

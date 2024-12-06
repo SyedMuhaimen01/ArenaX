@@ -41,15 +41,7 @@ class explorePostsAdapter(private val postsList: List<Post>) : RecyclerView.Adap
             // Set the click listener for navigating to ViewPost activity
             itemView.setOnClickListener {
                 val intent = Intent(itemView.context, ViewPost::class.java).apply {
-                    putExtra("MEDIA", post.postContent)
-                    putExtra("Caption", post.caption)
-                    putExtra("Likes", post.likes)
-                    putExtra("Comments", post.comments)
-                    putExtra("Shares", post.shares)
-                    putExtra("TrimAudio", post.trimmedAudioUrl)
-                    putExtra("CreatedAt", post.createdAt)
-                    putExtra("City", post.city)
-                    putExtra("Country", post.country)
+                    putExtra("POST", post)
                 }
                 itemView.context.startActivity(intent) // Start the activity
             }

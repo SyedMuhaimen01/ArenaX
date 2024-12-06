@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -58,6 +59,9 @@ class UserFeedPostsAdapter(
         private val btnShare: ImageButton = itemView.findViewById(R.id.shareButton)
         private val commentButton: ImageButton = itemView.findViewById(R.id.commentButton)
         private val recyclerViewComments: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
+        private val newComment:EditText=itemView.findViewById(R.id.writeCommentEditText)
+        private val postComment:ImageButton=itemView.findViewById(R.id.postCommentButton)
+        private val commentProfilePicture: ImageView = itemView.findViewById(R.id.commentProfilePicture)
         private val client = OkHttpClient()
         private var exoPlayer: ExoPlayer? = null
 
@@ -71,7 +75,13 @@ class UserFeedPostsAdapter(
 
             // Set username, caption, location, likes, and comments count
             tvUserName.text = post.userFullName
-            tvCaption.text = post.caption ?: ""
+            if (post.caption=="null"){
+                tvCaption.visibility = View.GONE
+                tvCaption.text = ""
+            }
+            else{
+                tvCaption.text = post.caption ?: ""
+            }
             locationTextView.text = "${post.city ?: ""}, ${post.country ?: ""}".trimEnd { it == ',' || it.isWhitespace() }
             tvLikes.text = post.likes.toString()
             tvCommentsCount.text = post.comments.toString()

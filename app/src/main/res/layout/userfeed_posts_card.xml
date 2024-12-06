@@ -4,7 +4,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/_5sdp"
+    android:layout_marginTop="@dimen/_10sdp"
     tools:context=".uploadStory.viewStory"
     android:background="@color/backgroundColor">
 
@@ -26,13 +26,13 @@
             <FrameLayout
                 android:layout_width="match_parent"
 
-                android:layout_height="@dimen/_200sdp">
+                android:layout_height="@dimen/_340sdp">
 
                 <!-- Media Preview (Image or Video) -->
                 <ImageView
                     android:id="@+id/ImageView"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/_200sdp"
+                    android:layout_height="@dimen/_340sdp"
                     android:layout_weight="1"
                     android:scaleType="centerCrop"
                     android:background="@color/accentColor"
@@ -43,7 +43,7 @@
                 <com.google.android.exoplayer2.ui.PlayerView
                     android:id="@+id/videoPlayerView"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/_200sdp"
+                    android:layout_height="@dimen/_340sdp"
                     android:layout_weight="1"
                     android:scaleType="centerInside"
                     android:contentDescription="Media Preview"
@@ -206,6 +206,9 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_marginTop="@dimen/_5sdp"
                 android:id="@+id/commentsRecyclerView"
+                android:background="@drawable/view_comment_bg"
+                android:layout_marginRight="@dimen/_2sdp"
+                android:layout_marginLeft="@dimen/_2sdp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
             <!-- Write Comment Section -->

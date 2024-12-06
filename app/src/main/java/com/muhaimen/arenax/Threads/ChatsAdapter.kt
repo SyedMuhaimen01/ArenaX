@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.Threads
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.net.Uri
@@ -18,6 +19,7 @@ import com.muhaimen.arenax.utils.FirebaseManager
 import android.app.AlertDialog
 import android.content.Context
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 
 class ChatsAdapter(private val chatMessages: MutableList<ChatItem>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
@@ -273,45 +275,60 @@ class ChatsAdapter(private val chatMessages: MutableList<ChatItem>) : RecyclerVi
 
         }
     }
-
-
-
+    @SuppressLint("NotifyDataSetChanged")
     private fun unsendMessage(chatItem: ChatItem) {
         // Log the function call
         Log.d("UnsendMessage", "Called to unsend message with chatId: ${chatItem.chatId}")
 
-        // Get a reference to the "chats" node
-        val chatsReference = FirebaseDatabase.getInstance().getReference("chats")
+        // Get the userId from Firebase Authentication
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            Log.e("UnsendMessage", "User is not authenticated.")
+            return
+        }
 
-        // Query the "chats" node to find the specific chat node using the chatId
-        chatsReference.orderByChild("chatId").equalTo(chatItem.chatId).get().addOnCompleteListener { task ->
+        // Check if the current user is the sender of the message
+        if (userId != chatItem.senderId) {
+            Log.e("UnsendMessage", "The current user is not the sender, cannot unsend the message.")
+            return
+        }
+
+        // Define paths for sender's and receiver's chat nodes
+        val senderReceiverPath = "${chatItem.receiverId}-${chatItem.senderId}"
+        val receiverSenderPath = "${chatItem.receiverId}-${chatItem.senderId}"
+
+        // References to both chat nodes
+        val database = FirebaseDatabase.getInstance()
+        val senderChatReference = database.getReference("userData/$userId/chats/$senderReceiverPath/${chatItem.chatId}")
+        val receiverChatReference = database.getReference("userData/${chatItem.receiverId}/chats/$receiverSenderPath/${chatItem.chatId}")
+
+        // Remove the chat node from both locations
+        val senderTask = senderChatReference.removeValue()
+        val receiverTask = receiverChatReference.removeValue()
+
+        // Execute both removals and handle their results
+        senderTask.addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Log.d("UnsendMessage", "Chat node found for chatId: ${chatItem.chatId}")
-
-                // Check if any matching chat node is found
-                for (snapshot in task.result.children) {
-                    Log.d("UnsendMessage", "Found matching chat node: ${snapshot.key}")
-
-                    // Remove the entire chat node
-                    snapshot.ref.removeValue().addOnCompleteListener { deleteTask ->
-                        if (deleteTask.isSuccessful) {
-                            Log.d("UnsendMessage", "Successfully removed chat node with chatId: ${chatItem.chatId}")
-                            // Successfully removed the message
-                            chatMessages.remove(chatItem)
-                            notifyDataSetChanged() // Notify the adapter of data change
-                        } else {
-                            // Handle failure (e.g., log an error)
-                            Log.e("UnsendMessage", "Failed to remove chat node with chatId: ${chatItem.chatId}", deleteTask.exception)
-                        }
-                    }
-                }
+                Log.d("UnsendMessage", "Successfully removed sender chat node with chatId: ${chatItem.chatId}")
+                // Remove message from local sender chat list
+                chatMessages.remove(chatItem)
+                this.notifyDataSetChanged()
             } else {
-                // Handle failure to retrieve chats (e.g., log an error)
-                Log.e("UnsendMessage", "Failed to retrieve chats for chatId: ${chatItem.chatId}", task.exception)
+                Log.e("UnsendMessage", "Failed to remove sender chat node with chatId: ${chatItem.chatId}", task.exception)
+            }
+        }
+
+        receiverTask.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("UnsendMessage", "Successfully removed receiver chat node with chatId: ${chatItem.chatId}")
+                // Optionally remove message from local receiver chat list if needed
+                // receiverChatMessages.remove(chatItem)
+                // this.notifyDataSetChanged()
+            } else {
+                Log.e("UnsendMessage", "Failed to remove receiver chat node with chatId: ${chatItem.chatId}", task.exception)
             }
         }
     }
-
 
 
 }

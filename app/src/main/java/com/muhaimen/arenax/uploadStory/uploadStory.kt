@@ -381,17 +381,20 @@ class uploadStory : AppCompatActivity() {
         if (mediaUri != null) {
             val userId = auth.currentUser?.uid
             userData = UserData(userId = userId.toString())
-
             // Get the list of draggable texts
             val draggableTexts = getDraggableTextContent()
             val mediaUrl = mediaUri.toString()
             val duration =fixedDuration
+            val uploadTime = System.currentTimeMillis()
+
 
             val storyJson = JSONObject().apply {
-                put("userId", userData.userId)
+                put("id", UUID.randomUUID().toString() )
                 put("duration", duration)
-                put("trimmedAudioUrl", trimmedAudioUrl ?: JSONObject.NULL)
-
+                put("trimmed_audio_url", trimmedAudioUrl ?: JSONObject.NULL)
+                put("created_at", uploadTime)
+                put("full_name", userData.fullname)
+                put("profile_picture_url", userData.profilePicture)
                 if (draggableTexts.isNotEmpty()) {
                     val draggableTextsArray = JSONArray()
                     draggableTexts.forEach { draggableText ->
@@ -404,7 +407,7 @@ class uploadStory : AppCompatActivity() {
                         }
                         draggableTextsArray.put(textObject)
                     }
-                    put("draggableTexts", draggableTextsArray)
+                    put("draggable_texts", draggableTextsArray)
                 } else {
                     put("draggableTexts", JSONArray())
                 }

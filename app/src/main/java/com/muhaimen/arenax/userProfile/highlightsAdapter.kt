@@ -33,13 +33,7 @@ class highlightsAdapter(private val storiesList: List<Story>) : RecyclerView.Ada
                 val gson = Gson()
                 val draggableJson = gson.toJson(story.draggableTexts)
                 val intent = Intent(itemView.context, viewStory::class.java).apply {
-                    putExtra("MEDIA_URL", story.mediaUrl)
-                    putExtra("Audio", story.trimmedAudioUrl)
-                    putExtra("Texts", draggableJson)
-                    putExtra("Duration", story.duration)
-                    putExtra("UploadedAt", story.uploadedAt?.time) // Send as timestamp
-                    putExtra("UserName", story.userName)
-                    putExtra("UserProfilePicture", story.userProfilePicture)
+                    putExtra("Story", story)
                 }
                 itemView.context.startActivity(intent)
             }

@@ -1,7 +1,10 @@
 package com.muhaimen.arenax.Threads
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +12,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.ChatItem
 import com.muhaimen.arenax.utils.FirebaseManager
@@ -28,20 +33,25 @@ class ViewAllChatsAdapter(
         val newMsgIndicatorTextView: TextView = view.findViewById(R.id.newMsgIndicator)
 
         init {
+            // Handle normal click (to open the chat)
             itemView.setOnClickListener {
-                // Get the current user data based on the position
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     val chatItem = chatList[position]
-                    // Determine the other user's ID
                     val receiverId = if (chatItem.senderId == FirebaseManager.getCurrentUserId()) {
                         chatItem.receiverId
                     } else {
                         chatItem.senderId
                     }
-                    // Fetch selected user data and start ChatActivity
                     fetchUserDataAndStartChat(receiverId)
                 }
+            }
+            itemView.isLongClickable = true
+            // Handle long press to show delete dialog
+            itemView.setOnLongClickListener {
+                Log.d("LongClickTest", "Long click triggered!")
+                showDeleteChatDialog(itemView.context, chatList[adapterPosition])
+                true
             }
         }
 
@@ -51,29 +61,26 @@ class ViewAllChatsAdapter(
 
             userRef.get().addOnSuccessListener { dataSnapshot ->
                 if (dataSnapshot.exists()) {
-                    // Fetch only the necessary user data
                     val profileImageUrl = dataSnapshot.child("profilePicture").value?.toString() ?: ""
                     val fullname = dataSnapshot.child("fullname").value?.toString() ?: "Unknown User"
                     val gamerTag = dataSnapshot.child("gamerTag").value?.toString() ?: "Unknown GamerTag"
 
-                    // Create intent and pass user data
                     val intent = Intent(itemView.context, ChatActivity::class.java).apply {
                         putExtra("userId", receiverId)
                         putExtra("fullname", fullname)
                         putExtra("gamerTag", gamerTag)
                         putExtra("profilePicture", profileImageUrl)
-                        putExtra("gamerRank", "00") // You can modify this based on your logic
+                        putExtra("gamerRank", "00")
                     }
                     itemView.context.startActivity(intent)
                 }
             }.addOnFailureListener {
-                // Handle failure to retrieve data
                 val intent = Intent(itemView.context, ChatActivity::class.java).apply {
                     putExtra("userId", receiverId)
                     putExtra("fullname", "Unknown User")
                     putExtra("gamerTag", "Unknown GamerTag")
-                    putExtra("profilePicture", "null") // or a placeholder
-                    putExtra("gamerRank", "00") // You can modify this based on your logic
+                    putExtra("profilePicture", "null")
+                    putExtra("gamerRank", "00")
                 }
                 itemView.context.startActivity(intent)
             }
@@ -90,14 +97,12 @@ class ViewAllChatsAdapter(
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val chatItem = chatList[position]
 
-        // Determine the other user's ID
         val otherUserId = if (chatItem.senderId == FirebaseManager.getCurrentUserId()) {
             chatItem.receiverId
         } else {
             chatItem.senderId
         }
 
-        // Fetch the other user's profile picture from Firebase using their user ID
         val database = FirebaseManager.getDatabseInstance()
         val userRef = database.getReference("userData").child(otherUserId)
 
@@ -106,7 +111,6 @@ class ViewAllChatsAdapter(
                 val profileImageUrl = dataSnapshot.child("profilePicture").value?.toString() ?: ""
                 holder.usernameTextView.text = dataSnapshot.child("fullname").value?.toString() ?: "Unknown User"
 
-                // Load profile image using Glide
                 Glide.with(holder.profileImage.context)
                     .load(profileImageUrl)
                     .placeholder(R.drawable.game_icon_foreground)
@@ -122,13 +126,11 @@ class ViewAllChatsAdapter(
             holder.profileImage.setImageResource(R.drawable.game_icon_foreground)
         }
 
-        // Set the latest message time
         val formattedDate = convertTimestampToDateWithAmPm(chatItem.time)
         holder.timeTextView.text = formattedDate
 
-        // Conditionally show or hide the new message indicator
         holder.newMsgIndicatorTextView.visibility = if (chatItem.time > chatItem.lastReadTime) {
-            holder.newMsgIndicatorTextView.text = "new message" // Consider localization
+            holder.newMsgIndicatorTextView.text = "new message"
             View.VISIBLE
         } else {
             View.GONE
@@ -137,21 +139,57 @@ class ViewAllChatsAdapter(
 
     override fun getItemCount(): Int = chatList.size
 
-    // Method to update the chat list
-    @SuppressLint("NotifyDataSetChanged")
     fun updateChatList(newChatList: List<ChatItem>) {
         chatList = newChatList
         notifyDataSetChanged()
     }
 
     fun convertTimestampToDateWithAmPm(timestamp: Long): String {
-        // Create a Date object from the timestamp in milliseconds
         val date = Date(timestamp)
-
-        // Define a custom date format: "HH:mm a" (24-hour format with AM/PM)
         val dateFormat = SimpleDateFormat("HH:mm a", Locale.getDefault())
-
-        // Format the date to a readable string
         return dateFormat.format(date)
+    }
+
+    private fun showDeleteChatDialog(context: Context, chatItem: ChatItem) {
+
+            AlertDialog.Builder(context)
+                .setTitle("Delete Chat")
+                .setMessage("Are you sure you want to delete this chat?")
+                .setPositiveButton("Yes") { _, _ ->
+                    deleteChat(chatItem)
+                }
+                .setNegativeButton("No", null)
+                .show()
+    }
+
+    private fun deleteChat(chatItem: ChatItem) {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+        if (currentUserId == null) {
+            Log.e("DeleteChat", "User is not authenticated.")
+            return
+        }
+
+        val chatPath = if (chatItem.senderId == currentUserId) {
+            "userData/$currentUserId/chats/${chatItem.receiverId}-${chatItem.senderId}"
+        } else if (chatItem.receiverId == currentUserId) {
+            "userData/$currentUserId/chats/${chatItem.receiverId}-${chatItem.senderId}"
+        } else {
+            Log.e("DeleteChat", "User is neither the sender nor the receiver.")
+            return
+        }
+
+        val database = FirebaseDatabase.getInstance()
+        val chatReference = database.getReference(chatPath)
+
+        chatReference.removeValue()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("DeleteChat", "Successfully deleted chat node for chatId: ${chatItem.chatId}")
+                    chatList = chatList.filter { it.chatId != chatItem.chatId }
+                    notifyDataSetChanged()
+                } else {
+                    Log.e("DeleteChat", "Failed to delete chat node for chatId: ${chatItem.chatId}", task.exception)
+                }
+            }
     }
 }

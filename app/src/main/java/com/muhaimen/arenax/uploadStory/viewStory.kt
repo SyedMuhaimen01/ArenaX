@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
+import com.google.gson.Gson
 import org.json.JSONException
 import org.json.JSONObject
 import com.muhaimen.arenax.R
@@ -50,25 +51,19 @@ class viewStory : AppCompatActivity() {
     private val client = OkHttpClient()
     private lateinit var progressBar: ProgressBar
     private lateinit var timeAgoTextView: TextView
+    private lateinit var profilePicture:ImageView
 
     private var currentIndex = 0
     private lateinit var storiesList: List<Story>
-
-    private var mediaUrl: String? = null
-    private var audioUrl: String? = null
-    private var textsJson: String? = null
-    private var duration: Int = 0
-    private var uploadedAt: String? = null
-    private var userName: String? = null
-    private var userProfilePicture: String? = null
-
+    private lateinit var textJson: String
+    private lateinit var story: Story
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_story)
 
         storyImageView = findViewById(R.id.ImageView)
-        textureView = findViewById(R.id.VideoView)
+        textureView = findViewById(R.id.videoPlayerView)
         draggableTextContainer = FrameLayout(this).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -90,20 +85,20 @@ class viewStory : AppCompatActivity() {
 
         progressBar = findViewById(R.id.progressBar)
         timeAgoTextView = findViewById(R.id.timeAgoTextView)
+        profilePicture = findViewById(R.id.ProfilePicture)
 
         // Fetch data from intent extras
-        mediaUrl = intent.getStringExtra("MEDIA_URL") ?: ""  // Default to empty string if null
-        audioUrl = intent.getStringExtra("Audio") ?: ""  // Default to empty string if null
-        textsJson = intent.getStringExtra("Texts") ?: ""  // Default to empty string if null
-        duration = intent.getIntExtra("Duration", 0)  // Default to 0 if not present
-        uploadedAt = intent.getStringExtra("UploadedAt") ?: ""  // Default to empty string if null
-        userName = intent.getStringExtra("UserName") ?: ""  // Default to empty string if null
-        userProfilePicture = intent.getStringExtra("UserProfilePicture") ?: ""  // Default to empty string if null
+        story = intent.getParcelableExtra("Story")!!
+        Log.d("Story", story.toString())
 
+        val gson = Gson()
+        val draggableJson = gson.toJson(story.draggableTexts)
+        textJson = draggableJson
 
         // Check if individual story data is received
-        if (!mediaUrl.isNullOrEmpty()) {
+        if (!story.mediaUrl.isNullOrEmpty()) {
             // Display single story data
+            Log.d("ViewStory", "Displaying single story data.")
             displaySingleStory()
         } else {
             // Handle list of stories
@@ -133,9 +128,9 @@ class viewStory : AppCompatActivity() {
 
     private fun displaySingleStory() {
         // Convert uploadedAt to Date object if it's a String timestamp (optional, based on how the data is passed)
-        val uploadedAtDate = uploadedAt?.let {
+        val uploadedAtDate = story.uploadedAt?.let {
             try {
-                Date(it.toLong())
+                Date(story.uploadedAt.toString())
             } catch (e: Exception) {
                 null // Return null if parsing fails
             }
@@ -144,10 +139,10 @@ class viewStory : AppCompatActivity() {
         // Create a single Story object with the passed-in data
         val singleStory = Story(
             id = 0, // Unique ID if needed
-            mediaUrl = mediaUrl ?: "",
-            duration = duration,
-            trimmedAudioUrl = audioUrl,
-            draggableTexts = textsJson?.let {
+            mediaUrl = story.mediaUrl ?: "",
+            duration = story.duration,
+            trimmedAudioUrl = story.trimmedAudioUrl,
+            draggableTexts = textJson.let {
                 try {
                     // Try converting the string to JSONArray, return null if it fails
                     JSONArray(it)
@@ -156,8 +151,8 @@ class viewStory : AppCompatActivity() {
                 }
             },
             uploadedAt = uploadedAtDate, // Use the uploadedAtDate to pass as Date object
-            userName = userName ?: "", // Default to an empty string if userName is null
-            userProfilePicture = userProfilePicture ?: "" // Default to an empty string if userProfilePicture is null
+            userName = story.userName , // Default to an empty string if userName is null
+            userProfilePicture = story.userProfilePicture  // Default to an empty string if userProfilePicture is null
         )
 
         // Set the "time ago" text using the `timeAgo` property from Story
@@ -168,6 +163,17 @@ class viewStory : AppCompatActivity() {
             loadMedia(singleStory.mediaUrl)
         }
 
+        if(singleStory.userProfilePicture.isNotEmpty() && singleStory.userProfilePicture!="null")
+        {
+            Log.d("ProfilePicture", "Loading profile picture from URL: ${singleStory.userProfilePicture}")
+
+            val uri = Uri.parse(singleStory.userProfilePicture)
+            Glide.with(this)
+                .load(uri)
+                .thumbnail(0.1f)
+                .error("")
+                .into(profilePicture)
+        }
         // Play audio if available
         singleStory.trimmedAudioUrl?.let {
             playTrimmedAudio(it)
@@ -214,6 +220,7 @@ class viewStory : AppCompatActivity() {
 
 
     private fun displayStory() {
+        Log.d("ViewStory", "Displaying story at index: $currentIndex")
         val currentStory = storiesList[currentIndex]
 
         // Set the "time ago" text
@@ -382,12 +389,18 @@ class viewStory : AppCompatActivity() {
     }
 
     private fun setImage(imageUrl: String) {
+
+        if (imageUrl.isEmpty() || imageUrl == "null") {
+            Log.e("ViewPost", "Image URL is empty.")
+            return
+        }
         try {
             val uri = Uri.parse(imageUrl)
+            Log.d("setImage", "Attempting to load image from URL: $uri")
             Glide.with(this)
                 .load(uri)
                 .thumbnail(0.1f) // Show a thumbnail while loading
-                .error(R.mipmap.appicon2) // Show a default error image if loading fails
+                .error("") // Show a default error image if loading fails
                 .into(storyImageView)
             Log.d("ViewPost", "Attempting to load image from URL: $imageUrl")
 
@@ -400,13 +413,19 @@ class viewStory : AppCompatActivity() {
         Log.d("DraggableTextsJson", "Received JSON string: $json")
 
         try {
-            val jsonObject = JSONObject(json)
-            val valuesArray = jsonObject.getJSONArray("values")
+            // Check if the JSON string is empty or represents an empty array
+            if (json == "[]") {
+                Log.d("DraggableTexts", "Received an empty array.")
+                return  // No draggable texts to process
+            }
 
-            Log.d("DraggableTexts", "Received draggable texts count: ${valuesArray.length()}")
+            // Attempt to parse the string as a JSONArray if it's not empty
+            val jsonArray = JSONArray(json)
 
-            for (i in 0 until valuesArray.length()) {
-                val valueObject = valuesArray.getJSONObject(i)
+            Log.d("DraggableTexts", "Received draggable texts count: ${jsonArray.length()}")
+
+            for (i in 0 until jsonArray.length()) {
+                val valueObject = jsonArray.getJSONObject(i)
                 val nameValuePairs = valueObject.getJSONObject("nameValuePairs")
 
                 val content = nameValuePairs.getString("content")
@@ -422,13 +441,15 @@ class viewStory : AppCompatActivity() {
                 draggableTextContainer.addView(textView)
             }
         } catch (e: JSONException) {
-            Log.e("JSON", "JSON parsing error: ${e.message}")
+            Log.e("JSON", "JSON parsing error draggable text: ${e.message}")
         } catch (e: Exception) {
             Log.e("Error", "Unexpected error while parsing draggable texts: ${e.message}")
         }
     }
 
+
     private fun createDraggableTextView(draggableText: DraggableText): TextView {
+        Log.d("DraggableText", "Creating draggable text view: $draggableText")
         return TextView(this).apply {
             text = draggableText.content
             textSize = 20f
@@ -446,23 +467,25 @@ class viewStory : AppCompatActivity() {
     }
 
     private fun playTrimmedAudio(outputPath: String) {
-        try {
-            mediaPlayer = MediaPlayer().apply {
-                setDataSource(outputPath)
-                prepareAsync()
+        if(outputPath!="null") {
+            try {
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(outputPath)
+                    prepareAsync()
 
-                setOnPreparedListener {
-                    isLooping = true
-                    start()
-                    Log.d("MediaPlayer", "Playing trimmed audio in loop.")
-                }
+                    setOnPreparedListener {
+                        isLooping = true
+                        start()
+                        Log.d("MediaPlayer", "Playing trimmed audio in loop.")
+                    }
 
-                setOnCompletionListener {
-                    Log.d("MediaPlayer", "Trimmed audio playback completed. It will restart.")
+                    setOnCompletionListener {
+                        Log.d("MediaPlayer", "Trimmed audio playback completed. It will restart.")
+                    }
                 }
+            } catch (e: IOException) {
+                Log.e("MediaPlayer", "Error playing trimmed audio: ${e.message}")
             }
-        } catch (e: IOException) {
-            Log.e("MediaPlayer", "Error playing trimmed audio: ${e.message}")
         }
     }
 
@@ -477,7 +500,9 @@ class viewStory : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        Log.d("ActivityLifecycle", "onDestroy")
         super.onDestroy()
+
         releaseMediaPlayer()
         handler.removeCallbacksAndMessages(null)
     }
