@@ -33,6 +33,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -362,44 +364,51 @@ class UploadContent : AppCompatActivity() {
     }
 
     private fun savePostDetailsToServer(userId: String, mediaUrl: String, caption: String) {
-        userData = UserData(userId = userId)
-
-        // Load location details (city, country, latitude, longitude)
-        val (city, country, coordinates) = loadLocationFromSharedPreferences()
-        val latitude = coordinates?.first ?: 0.0 // Default to 0.0 if coordinates are null
-        val longitude = coordinates?.second ?: 0.0 // Default to 0.0 if coordinates are null
-
         val requestQueue = Volley.newRequestQueue(this)
 
-        val jsonRequest = JSONObject().apply {
-            put("userId", userData.userId)
-            put("content", mediaUrl)
-            put("caption", caption)
-            put("sponsored", false)
-            put("city", city) // City from shared preferences
-            put("country", country) // Country from shared preferences
-            put("latitude", latitude) // Latitude from shared preferences
-            put("longitude", longitude) // Longitude from shared preferences
-            put("created_at", System.currentTimeMillis())
-            put("trimmed_audio_url", trimmedAudioUrl)
-        }
+        // Step 1: Fetch user location details from the backend
+        fetchUserLocation(
+            context = this,
+            firebaseUid = userId,
+            onSuccess = { city, country, latitude, longitude ->
+                // Step 2: Prepare the JSON payload with location data
+                val jsonRequest = JSONObject().apply {
+                    put("userId", userId)
+                    put("content", mediaUrl)
+                    put("caption", caption)
+                    put("sponsored", false)
+                    put("city", city) // Fetched city
+                    put("country", country) // Fetched country
+                    put("latitude", latitude ?: 0.0) // Fetched latitude, default to 0.0 if null
+                    put("longitude", longitude ?: 0.0) // Fetched longitude, default to 0.0 if null
+                    put("created_at", System.currentTimeMillis())
+                    put("trimmed_audio_url", trimmedAudioUrl)
+                }
 
-        val postRequest = JsonObjectRequest(
-            Request.Method.POST,
-            "${Constants.SERVER_URL}uploads/uploadPost",
-            jsonRequest,
-            { _ ->
-                Toast.makeText(this, "Post uploaded successfully", Toast.LENGTH_SHORT).show()
-                val intent = Intent("NEW_POST_ADDED")
-                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+                // Step 3: Send the post data to the server
+                val postRequest = JsonObjectRequest(
+                    Request.Method.POST,
+                    "${Constants.SERVER_URL}uploads/uploadPost",
+                    jsonRequest,
+                    { _ ->
+                        Toast.makeText(this, "Post uploaded successfully", Toast.LENGTH_SHORT).show()
+                        val intent = Intent("NEW_POST_ADDED")
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+                    },
+                    { error ->
+                        Toast.makeText(this, "Failed to upload post: ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
+                )
+
+                requestQueue.add(postRequest)
             },
-            { error ->
-                // Handle error if needed
+            onError = { error ->
+                // Handle the case when fetching user location fails
+                Toast.makeText(this, "Failed to fetch user location: $error", Toast.LENGTH_SHORT).show()
             }
         )
-
-        requestQueue.add(postRequest)
     }
+
 
 
     companion object {
@@ -623,4 +632,47 @@ class UploadContent : AppCompatActivity() {
         // Return the data in a Triple: City, Country, and the Pair of latitude and longitude
         return Triple(city, country, Pair(latitude, longitude))
     }
+
+    fun fetchUserLocation(
+        context: Context,
+        firebaseUid: String,
+        onSuccess: (city: String?, country: String?, latitude: Double?, longitude: Double?) -> Unit,
+        onError: (error: String) -> Unit
+    ) {
+        // Initialize the request queue
+        val requestQueue: RequestQueue = Volley.newRequestQueue(context)
+
+        // Backend API endpoint
+        val url = "${Constants.SERVER_URL}api2/getUserLocation/$firebaseUid" // Replace with your backend URL
+
+        // Create a JSON object request
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                try {
+                    // Extract data from the JSON response
+                    val city = response.optString("city")
+                    val country = response.optString("country")
+                    val latitude = response.optDouble("latitude", Double.NaN)
+                    val longitude = response.optDouble("longitude", Double.NaN)
+
+                    // Pass the data to the onSuccess callback
+                    onSuccess(city, country, latitude, longitude)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    onError("Failed to parse response: ${e.message}")
+                }
+            },
+            { error ->
+                error.printStackTrace()
+                onError("Request failed: ${error.message}")
+            }
+        )
+
+        // Add the request to the queue
+        requestQueue.add(jsonObjectRequest)
+    }
+
 }

@@ -642,7 +642,6 @@ class UserProfile : AppCompatActivity() {
                 try {
                     // Create a list to hold the user's posts
                     val postsList = mutableListOf<Post>()
-
                     for (i in 0 until response.length()) {
                         val postJson = response.getJSONObject(i)
 
@@ -716,7 +715,6 @@ class UserProfile : AppCompatActivity() {
                         // Add the post to the list
                         postsList.add(post)
                     }
-
                     // Save posts to shared preferences for offline use
                     savePostsDataToSharedPreference(postsList)
 
