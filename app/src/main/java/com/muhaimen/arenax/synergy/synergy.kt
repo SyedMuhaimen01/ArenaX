@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -21,7 +22,7 @@ class synergy : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
     private lateinit var addPost: ImageView
-    private lateinit var homeButton: ImageView
+    private lateinit var homeButton: LinearLayout
     private lateinit var profileButton: ImageView
     private lateinit var exploreButton: ImageView
 

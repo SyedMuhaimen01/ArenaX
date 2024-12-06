@@ -6,7 +6,9 @@
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/_2sdp"
     android:background="@drawable/view_comment_bg"
-    android:backgroundTint="@color/white">
+
+    android:layout_marginLeft="@dimen/_10sdp"
+    android:layout_marginRight="@dimen/_10sdp">
 
     <LinearLayout
         android:layout_width="match_parent"

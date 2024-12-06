@@ -98,7 +98,6 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 
-@Suppress("DEPRECATED_IDENTITY_EQUALS")
 class UserProfile : AppCompatActivity() {
     private val USAGE_STATS_PERMISSION_REQUEST_CODE = 1001
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
@@ -319,6 +318,7 @@ class UserProfile : AppCompatActivity() {
             fetchUserPosts()
             fetchUserRank()
             fetchUserGames()
+            fetchAndSetCounts(auth.currentUser?.uid ?: "")
 
         }
 
@@ -579,7 +579,9 @@ class UserProfile : AppCompatActivity() {
                         val storyId = storyJson.getInt("id")
                         val mediaUrl = storyJson.getString("media_url")
                         val duration = storyJson.getInt("duration")
-                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url",
+                            null.toString()
+                        )
                         val draggableTexts = storyJson.optJSONArray("draggable_texts")
                         val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
                         val userName = storyJson.getString("full_name") // Fetch user's name
@@ -646,21 +648,25 @@ class UserProfile : AppCompatActivity() {
 
                         // Parse fields from the JSON response with safe defaults
                         val postId = postJson.getInt("post_id")
-                        val postContent = postJson.optString("post_content", null)
-                        val caption = postJson.optString("caption", null) // Safe string parsing
+                        val postContent = postJson.optString("post_content", null.toString())
+                        val caption = postJson.optString("caption", null.toString()) // Safe string parsing
                         val sponsored = postJson.getBoolean("sponsored")
                         val likes = postJson.getInt("likes")
                         val comments = postJson.getInt("post_comments")
                         val shares = postJson.getInt("shares")
                         val clicks = postJson.getInt("clicks")
-                        val city = postJson.optString("city", null)
-                        val country = postJson.optString("country", null)
-                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null)
+                        val city = postJson.optString("city", null.toString())
+                        val country = postJson.optString("country", null.toString())
+                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url",
+                            null.toString()
+                        )
                         val createdAt = postJson.getString("created_at")
 
                         // Parse the user details safely
-                        val userFullName = postJson.optString("full_name", null) // Ensure it uses the correct field name
-                        val userProfilePictureUrl = postJson.optString("profile_picture_url", null)
+                        val userFullName = postJson.optString("full_name", null.toString()) // Ensure it uses the correct field name
+                        val userProfilePictureUrl = postJson.optString("profile_picture_url",
+                            null.toString()
+                        )
 
                         // Parse the comments data
                         val commentsDataJson = postJson.optJSONArray("comments")
@@ -673,7 +679,9 @@ class UserProfile : AppCompatActivity() {
                                 val commentText = commentJson.optString("comment", "No comment provided") // Safe text parsing
                                 val commentCreatedAt = commentJson.getString("created_at")
                                 val commenterName = commentJson.optString("commenter_name", "Unknown commenter")
-                                val commenterProfilePictureUrl = commentJson.optString("commenter_profile_pic", null)
+                                val commenterProfilePictureUrl = commentJson.optString("commenter_profile_pic",
+                                    null.toString()
+                                )
 
                                 val comment = Comment(
                                     commentId = commentId,
@@ -737,6 +745,7 @@ class UserProfile : AppCompatActivity() {
 
 
     // Function to update the UI with the fetched posts
+    @SuppressLint("SetTextI18n")
     private fun updatePostsUI(posts: List<Post>) {
         postsAdapter = PostsAdapter(posts) // Create a new adapter with the fetched posts
         postsRecyclerView.adapter = postsAdapter
@@ -751,6 +760,7 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     fun loadRankFromPreferences() {
         val sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         val rank = sharedPreferences.getInt("rank_key", -1) // Assuming rank is stored as an integer
@@ -1145,11 +1155,13 @@ class UserProfile : AppCompatActivity() {
 
                         // Safely parse fields with error handling
                         val storyId = storyJson.optInt("id", -1)
-                        val mediaUrl = storyJson.optString("media_url", null)
+                        val mediaUrl = storyJson.optString("media_url", null.toString())
                         val duration = storyJson.optInt("duration", 0)
-                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url",
+                            null.toString()
+                        )
                         val draggableTexts = storyJson.optJSONArray("draggable_texts")
-                        val createdAt = storyJson.optString("created_at", null)
+                        val createdAt = storyJson.optString("created_at", null.toString())
 
                         // Fetch the new fields: user name and profile picture
                         val userName = storyJson.optString("full_name", "")
@@ -1208,8 +1220,7 @@ class UserProfile : AppCompatActivity() {
                     is AuthFailureError -> "Authentication error: ${error.message}"
                     is ServerError -> "Server error: ${String(error.networkResponse?.data ?: ByteArray(0))}"
                     is NetworkError -> "Network error: ${error.message}"
-                    is ParseError -> "Response parse error: ${error.message}"
-                    else -> "Unknown error: ${error.message}"
+                    else -> "Response parse error: ${error.message}"
                 }
                 Log.e("fetchUserStory", errorMessage)
                 Toast.makeText(this, "Failed to fetch stories: $errorMessage", Toast.LENGTH_SHORT).show()
@@ -1295,6 +1306,7 @@ class UserProfile : AppCompatActivity() {
 
         // Fetch and count followers with status "accepted"
         followersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            @SuppressLint("SetTextI18n")
             override fun onDataChange(snapshot: DataSnapshot) {
                 val acceptedFollowersCount = snapshot.children.count {
                     it.child("status").value?.toString() == "accepted"
@@ -1309,6 +1321,7 @@ class UserProfile : AppCompatActivity() {
 
         // Fetch and count following with status "accepted"
         followingRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            @SuppressLint("SetTextI18n")
             override fun onDataChange(snapshot: DataSnapshot) {
                 val acceptedFollowingCount = snapshot.children.count {
                     it.child("status").value?.toString() == "accepted"

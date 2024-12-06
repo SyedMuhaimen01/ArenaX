@@ -408,9 +408,8 @@
           <androidx.recyclerview.widget.RecyclerView
               android:id="@+id/posts_recyclerview"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-          </androidx.recyclerview.widget.RecyclerView>
+              android:layout_height="wrap_content"
+              />
         </LinearLayout>
 
       </LinearLayout>
@@ -452,7 +451,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/white"
-            android:background="@drawable/ic_navigation_home"/>
+            android:background="@drawable/ic_navigation_home"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -462,7 +462,7 @@
             android:textSize="15sp"
             android:layout_marginLeft="5dp"
 
-            />
+            tools:ignore="HardcodedText" />
 
       </LinearLayout>
 
@@ -474,7 +474,8 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_marginLeft="25dp"
-          android:background="@drawable/ic_navigation_search" />
+          android:background="@drawable/ic_navigation_search"
+          tools:ignore="ContentDescription" />
 
 
 

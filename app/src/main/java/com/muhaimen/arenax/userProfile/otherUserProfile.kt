@@ -92,6 +92,7 @@ class otherUserProfile : AppCompatActivity() {
     private lateinit var userData: UserData
     private lateinit var messageButton: Button
     private lateinit var leaderboardButton: ImageView
+    private lateinit var profileButton:ImageView
     private lateinit var rankTextView: TextView
     private lateinit var requestQueue: RequestQueue
     private lateinit var myGamesButton: ImageView
@@ -156,6 +157,12 @@ class otherUserProfile : AppCompatActivity() {
         myGamesButton= findViewById(R.id.myGamesButton)
         myGamesButton.setOnClickListener {
             val intent = Intent(this, MyGamesList::class.java)
+            startActivity(intent)
+        }
+
+        profileButton=findViewById(R.id.profileButton)
+        profileButton.setOnClickListener {
+            val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
         }
         // Initialize the RecyclerView for analytics

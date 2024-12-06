@@ -1,24 +1,36 @@
 package com.muhaimen.arenax.uploadContent
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.ui.PlayerView
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
-
+import com.muhaimen.arenax.dataClasses.Comment
+import com.muhaimen.arenax.dataClasses.Post
+import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.userFeed.commentsAdapter
+import com.muhaimen.arenax.utils.Constants
+import com.muhaimen.arenax.utils.FirebaseManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,99 +38,262 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import org.json.JSONArray
+import org.json.JSONObject
+import retrofit2.http.Url
 import java.io.IOException
 
 class ViewPost : AppCompatActivity() {
     private lateinit var imageView: ImageView
-    private lateinit var postCaption: TextView // TextView for caption
-    private lateinit var seeMoreButton: Button // Button to toggle full caption
-    private lateinit var likeCount: TextView // TextView for likes
-    private lateinit var commentCount: TextView // TextView for comments
-    private lateinit var shareCount: TextView // TextView for shares
-    private lateinit var playerView: PlayerView // ExoPlayer view for video
+    private lateinit var postCaption: TextView
+    private lateinit var seeMoreButton: Button
+    private lateinit var likeCount: TextView
+    private lateinit var commentCount: TextView
+    private lateinit var shareCount: TextView
+    private lateinit var playerView: PlayerView
+    private lateinit var commentButton: ImageButton
+    private lateinit var commentsRecyclerView: RecyclerView
+    private lateinit var commentsAdapter: commentsAdapter
+    private lateinit var writeCommentEditText:EditText
+    private lateinit var postCommentButton:ImageButton
+    private lateinit var commenterProfilePicture:ImageView
+    private lateinit var profilePicture:ImageView
+    private lateinit var username:TextView
+    private lateinit var location:TextView
+    private lateinit var commenterName:String
+    private lateinit var commenterPicture:String
     private var exoPlayer: ExoPlayer? = null
-
+    private var captionText:String = ""
     private val client = OkHttpClient()
     private var isExpanded: Boolean = false
-
+    private lateinit var post: Post
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_view_post)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        // Setup UI elements
+        imageView = findViewById(R.id.ImageView)
+        playerView = findViewById(R.id.videoPlayerView)
+        postCaption = findViewById(R.id.postCaption)
+        seeMoreButton = findViewById(R.id.seeMoreButton)
+        likeCount = findViewById(R.id.likeCount)
+        commentCount = findViewById(R.id.commentCount)
+        shareCount = findViewById(R.id.shareCount)
+        commentsRecyclerView = findViewById(R.id.commentsRecyclerView)
+        commentsRecyclerView.visibility = View.GONE
+        commentButton = findViewById(R.id.commentButton)
+        commenterProfilePicture = findViewById(R.id.commentProfilePicture)
+        writeCommentEditText = findViewById(R.id.writeCommentEditText)
+        postCommentButton = findViewById(R.id.postCommentButton)
+        location = findViewById(R.id.locationTextView)
+        username = findViewById(R.id.usernameTextView)
+        profilePicture = findViewById(R.id.ProfilePicture)
+
+        commentButton.setOnClickListener {
+            commentsRecyclerView.visibility = if (commentsRecyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
-        window.statusBarColor = resources.getColor(R.color.primaryColor)
-        window.navigationBarColor = resources.getColor(R.color.primaryColor)
-        playerView = findViewById(R.id.videoPlayerView) // Initialize ExoPlayer view
 
-        imageView = findViewById(R.id.ImageView) // Initialize ImageView
-        postCaption = findViewById(R.id.postCaption) // Initialize caption TextView
-        seeMoreButton = findViewById(R.id.seeMoreButton) // Initialize See More Button
-        likeCount = findViewById(R.id.likeCount) // Initialize likes TextView
-        commentCount = findViewById(R.id.commentCount) // Initialize comments TextView
-        shareCount = findViewById(R.id.shareCount) // Initialize shares TextView
+        val userId=FirebaseManager.getCurrentUserId()
+        if (userId != null) {
+            val database = FirebaseDatabase.getInstance()
+            val userDataRef: DatabaseReference = database.reference.child("userData").child(userId)
 
-
-
-
-        // Retrieve post data from intent
-        val mediaContent = intent.getStringExtra("MEDIA")
-        val caption = intent.getStringExtra("Caption")
-        val likes = intent.getIntExtra("Likes", 0)
-        val comments = intent.getIntExtra("Comments", 0)
-        val shares = intent.getIntExtra("Shares", 0)
-        val trimmedAudioUrl = intent.getStringExtra("trimAudio")
-        val createdAt = intent.getStringExtra("createdAt")
-        val city = intent.getStringExtra("city")
-        val country = intent.getStringExtra("country")
-
-        // Set text data to UI components
-
-        // Set the retrieved data to views
-        likeCount.text = likes.toString() // Set likes count
-        commentCount.text = comments.toString() // Set comments count
-        shareCount.text = shares.toString() // Set shares count
-
-        // Handle caption display
-        if (caption.isNullOrEmpty() || caption == "null") {
-            postCaption.visibility = View.GONE // Hide if null or empty
-            seeMoreButton.visibility = View.GONE // Hide the button if there's no caption
-            Log.d("ViewPost", "Caption is null or empty, hiding caption view.")
-        } else {
-            postCaption.text = if (caption.length > 50) {
-                caption.take(50) + "..." // Display only the first 50 characters with ellipsis
-            } else {
-                caption // Display the whole caption if it's within the limit
+            // Query the Firebase Database for the user profile picture
+            userDataRef.get().addOnSuccessListener { dataSnapshot ->
+                commenterPicture = dataSnapshot.child("profilePicture").getValue(String::class.java).toString()
+                commenterName = dataSnapshot.child("fullname").getValue(String::class.java).toString()
+                Log.d("Firebase", "Profile picture URL: $commenterPicture")
+                // Check if a profile picture URL exists
+                if (commenterPicture != null) {
+                    // Use Glide (or Picasso) to load the profile picture into the ImageView
+                    Glide.with(this)
+                        .load(commenterPicture) // Load the image from URL
+                        .placeholder(R.mipmap.appicon2) // Optional: placeholder while loading
+                        .circleCrop()
+                        .into(commenterProfilePicture) // ImageView where you want to set the image
+                } else {
+                    // If no profile picture is found, set a default image
+                    commenterProfilePicture.setImageResource(R.mipmap.appicon2)
+                }
+            }.addOnFailureListener { exception ->
+                // Handle the error
+                Log.e("Firebase", "Error fetching user data", exception)
             }
-            seeMoreButton.visibility = if (caption.length > 50) View.VISIBLE else View.GONE // Show See More button if necessary
-            Log.d("ViewPost", "Caption set to: ${postCaption.text}")
+        } else {
+            // Handle the case where the user is not logged in
+            Log.e("Firebase", "User is not logged in.")
+        }
+        postCommentButton.setOnClickListener {
+            // Get the text from the EditText
+            val commentText = writeCommentEditText.text.toString()
+
+            // Check if the comment is not empty
+            if (commentText.isNotEmpty()) {
+                // Generate a random commentId (you can also use a better strategy for ID generation)
+                val commentId = (0..Int.MAX_VALUE).random() // Generating a random comment ID
+
+                // Get the current timestamp as a string
+                val createdAt = System.currentTimeMillis().toString()
+
+                // Get the user's name and profile picture URL (these would come from your user profile)
+
+
+                // Create a new comment object
+                val newComment = Comment(
+                    commentId = commentId,
+                    commentText = commentText,
+                    createdAt = createdAt,
+                    commenterName = commenterName,
+                    commenterProfilePictureUrl = commenterPicture
+                )
+
+                // Add the new comment to the post's comments list
+                val updatedCommentsList = post.commentsData?.toMutableList() ?: mutableListOf()
+                updatedCommentsList.add(newComment)
+
+                // Update the post's comment count (number of comments)
+                val updatedPost = post.copy(
+                    commentsData = updatedCommentsList,
+                    comments = updatedCommentsList.size // Updated comments count
+                )
+
+                // Save the updated post details to the server
+                savePostDetailsToServer(updatedPost)
+
+                // Optionally clear the EditText after posting the comment
+                writeCommentEditText.text.clear()
+
+            } else {
+                // Optionally show a message if the comment is empty
+                Toast.makeText(this, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        // Set up See More button listener
-        seeMoreButton.setOnClickListener {
-            toggleCaption() // Toggle caption visibility
+
+
+
+
+        // Retrieve the Post object from Intent
+        post = intent.getParcelableExtra("POST")!!
+        post?.let {
+            // Set text data to UI components
+            likeCount.text = it.likes.toString()
+            commentCount.text = it.comments.toString()
+            shareCount.text = it.shares.toString()
+
+            captionText = it.caption.toString()
+
+            if (post.caption=="null"){
+                postCaption.visibility = View.GONE
+                postCaption.text = ""
+            }
+            else{
+                postCaption.text = post.caption ?: ""
+            }
+            // Handle caption display
+            if (it.caption.isNullOrEmpty()) {
+                postCaption.visibility = View.GONE
+                seeMoreButton.visibility = View.GONE
+            } else {
+                postCaption.text = if (it.caption.length > 50) {
+                    it.caption.take(50) + "..."
+                } else {
+                    it.caption
+                }
+                seeMoreButton.visibility = if (it.caption.length > 50) View.VISIBLE else View.GONE
+            }
+            username.text = it.userFullName
+            location.text = it.city + ", " + it.country
+
+            if (post.userProfilePictureUrl != null) {
+                // Use Glide (or Picasso) to load the profile picture into the ImageView
+                Glide.with(this)
+                    .load(post.userProfilePictureUrl) // Load the image from URL
+                    .placeholder(R.mipmap.appicon2) // Optional: placeholder while loading
+                    .circleCrop()
+                    .into(profilePicture) // ImageView where you want to set the image
+            } else {
+                // If no profile picture is found, set a default image
+                profilePicture.setImageResource(R.mipmap.appicon2)
+            }
+
+
+
+            seeMoreButton.setOnClickListener {
+                toggleCaption(post.caption ?: "")
+            }
+
+            post.postContent?.let { mediaUrl ->
+                loadMedia(mediaUrl)
+            }
+
+            it.trimmedAudioUrl?.let { audioUrl ->
+                playTrimmedAudio(audioUrl)
+            }
+        } ?: Log.d("ViewPost", "Post data is null.")
+    }
+
+    private fun savePostDetailsToServer(post: Post) {
+        val requestQueue = Volley.newRequestQueue(this)
+
+        // Create a JSON object for the updated post
+        val jsonRequest = JSONObject().apply {
+            put("postId", post.postId)
+            put("content", post.postContent)
+            put("caption", post.caption)
+            put("sponsored", post.sponsored)
+            put("likes", post.likes)
+            put("comments", post.comments)  // Updated comment count
+            put("shares", post.shares)
+            put("clicks", post.clicks)
+            put("city", post.city) // City from shared preferences
+            put("country", post.country) // Country from shared preferences
+            put("created_at", post.createdAt)
+            put("trimmed_audio_url", post.trimmedAudioUrl)
+
+            // Add comments data (convert it to JSON array or handle as necessary)
+            val commentsArray = JSONArray()
+            post.commentsData?.forEach { comment ->
+                val commentJson = JSONObject().apply {
+                    put("comment_id", comment.commentId)
+                    put("comment", comment.commentText)
+                    put("created_at", comment.createdAt)
+                    put("commenter_name", comment.commenterName)
+                    put("commenter_profile_pic", comment.commenterProfilePictureUrl)
+                }
+                commentsArray.put(commentJson)
+            }
+            put("commentsData", commentsArray)  // Add the comments data to the request
         }
 
-        mediaContent?.let {
-            loadMedia(it) // Load media content
-        } ?: Log.d("ViewPost", "Media content is null.")
+        // Create a POST request
+        val postRequest = JsonObjectRequest(
+            com.android.volley.Request.Method.POST,
+            "${Constants.SERVER_URL}uploads/uploadPost",
+            jsonRequest,
+            { response ->
+                // Handle the response from the server (success)
+                Toast.makeText(this, "Post and comment uploaded successfully", Toast.LENGTH_SHORT).show()
 
-        // Play the trimmed audio if available
-        trimmedAudioUrl?.let {
-            playTrimmedAudio(it) // Play trimmed audio
-        } ?: Log.d("ViewPost", "Trimmed audio URL is null.")
+                // Optionally notify other parts of the app (e.g., refresh the UI)
+                val intent = Intent("NEW_POST_ADDED")
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+            },
+            { error ->
+                // Handle error (e.g., show a toast or log the error)
+                Toast.makeText(this, "Failed to upload post", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Add the request to the request queue
+        requestQueue.add(postRequest)
     }
 
     private fun loadMedia(mediaUrl: String) {
         CoroutineScope(Dispatchers.IO).launch {
             val mediaType = getMediaType(mediaUrl)
-
-            // Switch back to the main thread to update UI
             withContext(Dispatchers.Main) {
                 if (mediaType != null) {
                     when {
@@ -136,29 +311,19 @@ class ViewPost : AppCompatActivity() {
                             Log.e("ViewPost", "Unsupported media type: $mediaType")
                         }
                     }
-                } else {
-                    Log.e("ViewPost", "Failed to retrieve media type.")
                 }
             }
         }
     }
 
-    private suspend fun getMediaType(mediaUrl: String): String? {
-        val request = Request.Builder()
-            .url(mediaUrl)
-            .head() // Use HEAD to get the headers only
-            .build()
-
-        return try {
-            val response: Response = client.newCall(request).execute()
-            // Handle response and return media type
-            response.header("Content-Type").also {
-                Log.d("ViewPost", "Media type retrieved: $it")
-            }
-        } catch (e: Exception) {
-            Log.e("ViewPost", "Error retrieving media type: ${e.message}")
-            null
+    private fun toggleCaption(caption: String) {
+        isExpanded = !isExpanded
+        postCaption.text = if (isExpanded) {
+            caption
+        } else {
+            caption.take(50) + "..."
         }
+        seeMoreButton.text = if (isExpanded) "See Less" else "See More"
     }
 
     private fun setImage(imageUrl: String) {
@@ -166,24 +331,12 @@ class ViewPost : AppCompatActivity() {
             val uri = Uri.parse(imageUrl)
             Glide.with(this)
                 .load(uri)
-                .thumbnail(0.1f) // Show a thumbnail while loading
-                .error(R.mipmap.appicon2) // Show a default error image if loading fails
+                .thumbnail(0.1f)
+                .error(R.mipmap.appicon2)
                 .into(imageView)
-            Log.d("ViewPost", "Attempting to load image from URL: $imageUrl")
-
         } catch (e: Exception) {
             Log.e("ViewPost", "Exception while loading image: ${e.message}")
         }
-    }
-
-    private fun toggleCaption() {
-        isExpanded = !isExpanded // Toggle the expanded state
-        postCaption.text = if (isExpanded) {
-            intent.getStringExtra("Caption") // Display full caption
-        } else {
-            intent.getStringExtra("Caption")?.take(50) + "..." // Limit to 50 characters again
-        }
-        seeMoreButton.text = if (isExpanded) "See Less" else "See More" // Change button text
     }
 
     private fun playVideo(videoPath: String) {
@@ -191,15 +344,12 @@ class ViewPost : AppCompatActivity() {
         exoPlayer = ExoPlayer.Builder(this).build().apply {
             setMediaItem(mediaItem)
             prepare()
-            playWhenReady = true // Start playback immediately
+            playWhenReady = true
             playerView.player = this
         }
-
-        Log.d("ViewPost", "Attempting to play video from path: $videoPath")
     }
 
     private fun playTrimmedAudio(outputPath: String) {
-        // You can also use ExoPlayer to play audio, here’s an example for that:
         val audioUri = Uri.parse(outputPath)
         val audioMediaItem = MediaItem.fromUri(audioUri)
         exoPlayer = ExoPlayer.Builder(this).build().apply {
@@ -207,8 +357,6 @@ class ViewPost : AppCompatActivity() {
             prepare()
             playWhenReady = true
         }
-
-        Log.d("ViewPost", "Playing trimmed audio from: $outputPath")
     }
 
     override fun onDestroy() {
@@ -219,6 +367,18 @@ class ViewPost : AppCompatActivity() {
 
     override fun onBackPressed() {
         exoPlayer?.release()
-        super.onBackPressed() // Call super to finish the activity
+        super.onBackPressed()
+    }
+
+    private fun getMediaType(mediaUrl: String): String? {
+        // Function to fetch the media type from the URL or server
+        try {
+            val request = Request.Builder().url(mediaUrl).build()
+            val response: Response = client.newCall(request).execute()
+            return response.header("Content-Type")
+        } catch (e: IOException) {
+            Log.e("ViewPost", "Error fetching media type: ${e.message}")
+            return null
+        }
     }
 }
