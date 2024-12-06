@@ -1,6 +1,7 @@
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,7 +9,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.google.gson.Gson
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.uploadStory.viewStory
@@ -30,12 +30,12 @@ class highlightsAdapter(private val storiesList: List<Story>) : RecyclerView.Ada
                 .into(storyImage)
 
             itemView.setOnClickListener {
-                val gson = Gson()
-                val draggableJson = gson.toJson(story.draggableTexts)
                 val intent = Intent(itemView.context, viewStory::class.java).apply {
-                    putExtra("Story", story)
+                    putExtra("Story", story) // Send entire Story object to the viewStory activity
                 }
                 itemView.context.startActivity(intent)
+
+
             }
         }
     }

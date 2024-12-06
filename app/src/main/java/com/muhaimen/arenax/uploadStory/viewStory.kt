@@ -87,166 +87,210 @@ class viewStory : AppCompatActivity() {
         timeAgoTextView = findViewById(R.id.timeAgoTextView)
         profilePicture = findViewById(R.id.ProfilePicture)
 
-        // Fetch data from intent extras
-        story = intent.getParcelableExtra("Story")!!
-        Log.d("Story", story.toString())
+        val storyFromIntent = intent.getParcelableExtra<Story>("Story")
+        val storiesListFromIntent = intent.getParcelableArrayListExtra<Story>("storiesList")
+        val currentIndexFromIntent = intent.getIntExtra("currentIndex", 0)
 
-        val gson = Gson()
-        val draggableJson = gson.toJson(story.draggableTexts)
-        textJson = draggableJson
+        if (storyFromIntent != null) {
+            // Data received from the first route (single story)
+            story = storyFromIntent
+            Log.d("Story", "Received single story: ${story.toString()}")
 
-        // Check if individual story data is received
-        if (!story.mediaUrl.isNullOrEmpty()) {
+            val gson = Gson()
+            val draggableJson = gson.toJson(story.draggableTexts)
+            textJson = draggableJson
+            Log.d("Story", "Converted draggable texts to JSON: $textJson")
+
             // Display single story data
             Log.d("ViewStory", "Displaying single story data.")
             displaySingleStory()
-        } else {
-            // Handle list of stories
-            storiesList = intent.getParcelableArrayListExtra("storiesList") ?: emptyList()
-            currentIndex = intent.getIntExtra("currentIndex", 0)
+        } else if (storiesListFromIntent != null && storiesListFromIntent.isNotEmpty()) {
+            // Data received from the second route (list of stories)
+            storiesList = storiesListFromIntent
+            currentIndex = currentIndexFromIntent
+            Log.d(
+                "ViewStory",
+                "Displaying list of stories. Total stories: ${storiesList.size}, Current index: $currentIndex"
+            )
 
-            if (storiesList.isNotEmpty()) {
-                displayStory()
-            }
+            // Display the list of stories
+            displayStory()
+        } else {
+            // Handle case where no valid data is received
+            Log.e("ViewStory", "No valid story data received.")
+            // Optionally show a default view or an error message
         }
 
-        // Handle next/previous story navigation
         textureView.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_UP -> {
                     if (event.x > resources.displayMetrics.widthPixels / 2) {
+                        Log.d("ViewStory", "Swiped right, moving to next story.")
                         nextStory()
                     } else {
+                        Log.d("ViewStory", "Swiped left, moving to previous story.")
                         previousStory()
                     }
                     true
                 }
+
                 else -> false
             }
         }
     }
 
-    private fun displaySingleStory() {
-        // Convert uploadedAt to Date object if it's a String timestamp (optional, based on how the data is passed)
-        val uploadedAtDate = story.uploadedAt?.let {
-            try {
-                Date(story.uploadedAt.toString())
-            } catch (e: Exception) {
-                null // Return null if parsing fails
-            }
-        }
+        private fun displaySingleStory() {
+            Log.d("ViewStory", "Displaying single story with ID: ${story.id}")
 
-        // Create a single Story object with the passed-in data
-        val singleStory = Story(
-            id = 0, // Unique ID if needed
-            mediaUrl = story.mediaUrl ?: "",
-            duration = story.duration,
-            trimmedAudioUrl = story.trimmedAudioUrl,
-            draggableTexts = textJson.let {
+            // Convert uploadedAt to Date object if it's a String timestamp (optional, based on how the data is passed)
+            val uploadedAtDate = story.uploadedAt?.let {
                 try {
-                    // Try converting the string to JSONArray, return null if it fails
-                    JSONArray(it)
+                    Log.d("ViewStory", "Converting uploadedAt: ${story.uploadedAt!!.time}")
+                    Date(story.uploadedAt!!.time) // directly use the time property for conversion to Date
                 } catch (e: Exception) {
-                    null // Return null if the conversion fails
-                }
-            },
-            uploadedAt = uploadedAtDate, // Use the uploadedAtDate to pass as Date object
-            userName = story.userName , // Default to an empty string if userName is null
-            userProfilePicture = story.userProfilePicture  // Default to an empty string if userProfilePicture is null
-        )
-
-        // Set the "time ago" text using the `timeAgo` property from Story
-        timeAgoTextView.text = singleStory.timeAgo
-
-        // Load media if mediaUrl is not null or empty
-        if (singleStory.mediaUrl.isNotEmpty()) {
-            loadMedia(singleStory.mediaUrl)
-        }
-
-        if(singleStory.userProfilePicture.isNotEmpty() && singleStory.userProfilePicture!="null")
-        {
-            Log.d("ProfilePicture", "Loading profile picture from URL: ${singleStory.userProfilePicture}")
-
-            val uri = Uri.parse(singleStory.userProfilePicture)
-            Glide.with(this)
-                .load(uri)
-                .thumbnail(0.1f)
-                .error("")
-                .into(profilePicture)
-        }
-        // Play audio if available
-        singleStory.trimmedAudioUrl?.let {
-            playTrimmedAudio(it)
-        }
-
-        // Display draggable texts if available
-        singleStory.draggableTexts?.let {
-            displayDraggableTexts(it.toString()) // Assuming it needs to be a String
-        }
-
-        // Set progress bar (to simulate progress over the story's duration)
-        progressBar.max = 100  // Assuming the max value is 100% for the progress
-        progressBar.progress = 0  // Start at 0%
-
-        // Update progress bar based on duration
-        val progressInterval = 1000L // 1 second interval for progress update
-        val totalDuration = singleStory.duration.toLong()
-
-        val progressRunnable = object : Runnable {
-            var progress = 0
-
-            override fun run() {
-                if (progress < 100) {
-                    progress += (100 * progressInterval / totalDuration).toInt()
-                    progressBar.progress = progress
-                    handler.postDelayed(this, progressInterval)
-                } else {
-                    progressBar.progress = 100
+                    Log.e("ViewStory", "Error parsing uploadedAt: ${e.message}")
+                    null // Return null if parsing fails
                 }
             }
+
+            Log.d("ViewStory", "Single story prepared with uploadedAtDate: $uploadedAtDate")
+
+            // Create a single Story object with the passed-in data
+            val singleStory = Story(
+                id = story.id,
+                mediaUrl = story.mediaUrl ?: "",
+                duration = story.duration,
+                trimmedAudioUrl = story.trimmedAudioUrl,
+                draggableTexts = story.draggableTexts ?: JSONArray(), // Use the passed draggableTexts or empty JSONArray
+                uploadedAt = uploadedAtDate,
+                userName = story.userName,
+                userProfilePicture = story.userProfilePicture,
+                city = story.city,
+                country = story.country,
+                latitude = story.latitude,
+                longitude = story.longitude
+            )
+
+            // Set the "time ago" text using the `timeAgo` property from Story
+            timeAgoTextView.text = singleStory.timeAgo
+
+            // Load media if mediaUrl is not null or empty
+            if (singleStory.mediaUrl.isNotEmpty()) {
+                Log.d("ViewStory", "Loading media from URL: ${singleStory.mediaUrl}")
+                loadMedia(singleStory.mediaUrl)
+            }
+
+            // Load profile picture if available
+            if (singleStory.userProfilePicture.isNotEmpty() && singleStory.userProfilePicture != "null") {
+                Log.d("ProfilePicture", "Loading profile picture from URL: ${singleStory.userProfilePicture}")
+                val uri = Uri.parse(singleStory.userProfilePicture)
+                Glide.with(this)
+                    .load(uri)
+                    .thumbnail(0.1f)
+                    .error(R.drawable.add_icon_foreground) // You can specify a default image here
+                    .into(profilePicture)
+            } else {
+                Log.e("ProfilePicture", "Profile picture URL is invalid or empty.")
+            }
+
+            // Play audio if available
+            singleStory.trimmedAudioUrl?.let {
+                Log.d("Audio", "Playing trimmed audio from URL: $it")
+                playTrimmedAudio(it)
+            }
+
+            // Display draggable texts if available
+            singleStory.draggableTexts?.let {
+                Log.d("DraggableTexts", "Displaying draggable texts: $it")
+                displayDraggableTexts(it.toString()) // Assuming it needs to be a String
+            }
+
+            // Set progress bar (to simulate progress over the story's duration)
+            progressBar.max = 100  // Assuming the max value is 100% for the progress
+            progressBar.progress = 0  // Start at 0%
+
+            // Update progress bar based on duration
+            val progressInterval = 1000L // 1 second interval for progress update
+            val totalDuration = singleStory.duration.toLong()
+
+            val progressRunnable = object : Runnable {
+                var progress = 0
+
+                override fun run() {
+                    if (progress < 100) {
+                        progress += (100 * progressInterval / totalDuration).toInt()
+                        progressBar.progress = progress
+                        handler.postDelayed(this, progressInterval)
+                    } else {
+                        progressBar.progress = 100
+                    }
+                }
+            }
+
+            // Start updating progress
+            handler.post(progressRunnable)
+
+            // Navigate to the next story after the duration
+            handler.postDelayed({ finish() }, totalDuration * 1000L) // Multiply by 1000 to convert seconds to milliseconds
         }
 
-        // Start updating progress
-        handler.post(progressRunnable)
+        private fun displayStory() {
+            Log.d("ViewStory", "Displaying story at index: $currentIndex")
+            val currentStory = storiesList[currentIndex]
 
-        // Navigate to the next story after the duration
-        handler.postDelayed({ finish() }, totalDuration)
-    }
+            // Set the "time ago" text using the updated `calculateTimeAgo` function
+            timeAgoTextView.text = calculateTimeAgo(currentStory.uploadedAt)
 
+            // Load media if available
+            if (currentStory.mediaUrl.isNotEmpty()) {
+                Log.d("ViewStory", "Loading media from URL: ${currentStory.mediaUrl}")
+                loadMedia(currentStory.mediaUrl)
+            }
 
+            // Display draggable texts if available
+            currentStory.draggableTexts?.let {
+                Log.d("DraggableTexts", "Displaying draggable texts: $it")
+                displayDraggableTexts(it.toString()) // Assuming it needs to be a String
+            }
 
+            // Load audio if available
+            currentStory.trimmedAudioUrl?.let { audioUrl ->
+                Log.d("Audio", "Playing audio from URL: $audioUrl")
+                playTrimmedAudio(audioUrl)
+            }
 
+            // Set progress bar based on the index and total number of stories
+            progressBar.max = storiesList.size
+            progressBar.progress = currentIndex + 1 // Progress is 1-based
 
+            // Start updating the progress bar
+            val progressInterval = 1000L // 1 second interval for progress update
+            val totalDuration = currentStory.duration.toLong()
 
+            val progressRunnable = object : Runnable {
+                var progress = (100 * (currentIndex) / storiesList.size).toInt()
 
-    private fun displayStory() {
-        Log.d("ViewStory", "Displaying story at index: $currentIndex")
-        val currentStory = storiesList[currentIndex]
+                override fun run() {
+                    if (progress < 100) {
+                        progress += (100 * progressInterval / totalDuration).toInt()
+                        progressBar.progress = progress
+                        handler.postDelayed(this, progressInterval)
+                    } else {
+                        progressBar.progress = 100
+                    }
+                }
+            }
 
-        // Set the "time ago" text
-        timeAgoTextView.text = calculateTimeAgo(currentStory.uploadedAt)
+            // Start updating progress
+            handler.post(progressRunnable)
 
-        // Load media
-        loadMedia(currentStory.mediaUrl)
-
-        // Display draggable texts
-        displayDraggableTexts(currentStory.draggableTexts.toString())
-
-        // Load audio if available
-        currentStory.trimmedAudioUrl?.let { audioUrl ->
-            playTrimmedAudio(audioUrl)
+            // Navigate to the next story after the duration
+            handler.postDelayed({ nextStory() }, currentStory.duration.toLong() * 1000L) // Convert seconds to milliseconds
         }
 
-        // Set progress bar
-        progressBar.max = storiesList.size
-        progressBar.progress = currentIndex + 1 // Progress is 1-based
-
-        // Navigate to the next story after duration
-        handler.postDelayed({ nextStory() }, currentStory.duration.toLong())
-    }
 
 
-    private fun calculateTimeAgo(uploadedAt: Date?): String {
+        private fun calculateTimeAgo(uploadedAt: Date?): String {
         if (uploadedAt == null) return "Unknown time"
 
         val now = System.currentTimeMillis()
@@ -266,6 +310,7 @@ class viewStory : AppCompatActivity() {
             else -> SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(uploadedAt)
         }
     }
+
 
 
     private fun loadMedia(mediaUrl: String) {
@@ -296,6 +341,7 @@ class viewStory : AppCompatActivity() {
             }
         }
     }
+
 
 
     private fun nextStory() {
@@ -426,13 +472,13 @@ class viewStory : AppCompatActivity() {
 
             for (i in 0 until jsonArray.length()) {
                 val valueObject = jsonArray.getJSONObject(i)
-                val nameValuePairs = valueObject.getJSONObject("nameValuePairs")
 
-                val content = nameValuePairs.getString("content")
-                val x = nameValuePairs.getDouble("x").toFloat()
-                val y = nameValuePairs.getDouble("y").toFloat()
-                val backgroundColor = nameValuePairs.getInt("backgroundColor")
-                val textColor = nameValuePairs.getInt("textColor")
+                // Directly access the fields, no need for nameValuePairs
+                val content = valueObject.getString("content")
+                val x = valueObject.getDouble("x").toFloat()
+                val y = valueObject.getDouble("y").toFloat()
+                val backgroundColor = valueObject.optInt("backgroundColor", 0) // Use optInt to avoid exceptions
+                val textColor = valueObject.optInt("textColor", 0) // Use optInt to avoid exceptions
 
                 Log.d("DraggableText", "Content: $content, X: $x, Y: $y, BG: $backgroundColor, Text: $textColor")
                 val draggableText = DraggableText(content, x, y, backgroundColor, textColor)
@@ -446,6 +492,7 @@ class viewStory : AppCompatActivity() {
             Log.e("Error", "Unexpected error while parsing draggable texts: ${e.message}")
         }
     }
+
 
 
     private fun createDraggableTextView(draggableText: DraggableText): TextView {

@@ -41,7 +41,10 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 class UserFeed : AppCompatActivity() {
     private lateinit var userFeedAdapter: UserFeedPostsAdapter
@@ -286,18 +289,23 @@ class UserFeed : AppCompatActivity() {
         for (i in 0 until jsonArray.length()) {
             val storyObject = jsonArray.getJSONObject(i)
 
-            val storyId = storyObject.optInt("id", 0)
-            val mediaUrl = storyObject.optString("media_url", null)
+            val storyId = storyObject.optString("id", "")
+            val mediaUrl = storyObject.optString("media_url", "")
             val duration = storyObject.optInt("duration", 0)
             val trimmedAudioUrl = storyObject.optString("trimmed_audio_url", null)
             val draggableTexts = storyObject.optJSONArray("draggable_texts")
             val createdAt = storyObject.optString("created_at", "")
-
             val userName = storyObject.optString("user_name", "Unknown")
-            val userProfilePicture = storyObject.optString("user_profile_picture", null)
+            val userProfilePicture = storyObject.optString("user_profile_picture", "")
+            val city = storyObject.optString("city", null)
+            val country = storyObject.optString("country", null)
+            val latitude = storyObject.optDouble("latitude", Double.NaN)
+            val longitude = storyObject.optDouble("longitude", Double.NaN)
 
+            // Parse the uploadedAt date
             val uploadedAt = parseDate(createdAt) ?: continue
 
+            // Create the Story object
             val story = Story(
                 id = storyId,
                 mediaUrl = mediaUrl,
@@ -306,7 +314,11 @@ class UserFeed : AppCompatActivity() {
                 draggableTexts = draggableTexts,
                 uploadedAt = uploadedAt,
                 userName = userName,
-                userProfilePicture = userProfilePicture
+                userProfilePicture = userProfilePicture,
+                city = city,
+                country = country,
+                latitude = if (latitude.isNaN()) null else latitude,
+                longitude = if (longitude.isNaN()) null else longitude
             )
 
             stories.add(story)
@@ -315,13 +327,12 @@ class UserFeed : AppCompatActivity() {
         return stories
     }
 
-
-
-    private fun parseDate(dateString: String): Date? {
+    fun parseDate(dateString: String): Date? {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        dateFormat.isLenient = false
         return try {
-            val format = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault())
-            format.parse(dateString)
-        } catch (e: Exception) {
+            dateFormat.parse(dateString)
+        } catch (e: ParseException) {
             e.printStackTrace()
             null
         }

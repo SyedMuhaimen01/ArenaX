@@ -92,9 +92,11 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.jsoup.parser.ParseError
 import java.io.IOException
-import java.text.SimpleDateFormat
+import java.text.ParseException
 import java.util.Date
 import java.util.Locale
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -576,19 +578,38 @@ class UserProfile : AppCompatActivity() {
                     val storiesList = mutableListOf<Story>()
                     for (i in 0 until response.length()) {
                         val storyJson = response.getJSONObject(i)
-                        val storyId = storyJson.getInt("id")
-                        val mediaUrl = storyJson.getString("media_url")
-                        val duration = storyJson.getInt("duration")
-                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url",
-                            null.toString()
-                        )
-                        val draggableTexts = storyJson.optJSONArray("draggable_texts")
-                        val createdAt = storyJson.getString("created_at") // Fetch created_at timestamp
-                        val userName = storyJson.getString("full_name") // Fetch user's name
-                        val userProfilePicture = storyJson.getString("profile_picture_url") // Fetch user's profile picture URL
+
+                        // Safely parse fields with error handling
+                        val storyId = storyJson.optString("story_id", "") // Updated to match the backend response
+                        val mediaUrl = storyJson.optString("media_url", "")
+                        val duration = storyJson.optInt("duration", 0)
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
+
+                        // Handle draggable_texts as a JSON string
+                        val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]") // Handle as string
+                        val draggableTexts = try {
+                            JSONArray(draggableTextsJsonString) // Convert string to JSONArray
+                        } catch (e: JSONException) {
+                            Log.e("fetchUserStories", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
+                            JSONArray() // Return an empty JSONArray in case of error
+                        }
+
+                        val createdAt = storyJson.optString("created_at", null)
+                        val city = storyJson.optString("city", null)
+                        val country = storyJson.optString("country", null)
+                        val latitude = storyJson.optDouble("latitude", 0.0)
+                        val longitude = storyJson.optDouble("longitude", 0.0)
+                        val userName = storyJson.optString("full_name", "")
+                        val userProfilePicture = storyJson.optString("profile_picture_url", "")
+
+                        // Ensure mandatory fields are valid
+                        if (storyId.isEmpty() || mediaUrl.isEmpty() || createdAt.isNullOrEmpty()) {
+                            Log.e("fetchUserStories", "Invalid story data: $storyJson")
+                            continue
+                        }
 
                         // Convert createdAt string to Date
-                        val uploadedAt = parseDate(createdAt)
+                        val uploadedAt = parseDate(createdAt) ?: continue
 
                         // Create the Story object
                         val story = Story(
@@ -599,29 +620,30 @@ class UserProfile : AppCompatActivity() {
                             draggableTexts = draggableTexts,
                             uploadedAt = uploadedAt,
                             userName = userName,
-                            userProfilePicture = userProfilePicture
+                            userProfilePicture = userProfilePicture,
+                            city = city,
+                            country = country,
+                            latitude = latitude,
+                            longitude = longitude
                         )
 
                         storiesList.add(story)
                     }
-
+                    Log.e("Fetecd","Soties:${storiesList}")
                     saveStoriesDataToSharedPreference(storiesList)
                     updateStoriesUI(storiesList)
-
                 } catch (e: JSONException) {
                     e.printStackTrace()
-                    // Optionally show a Toast message for error feedback
-                    // Toast.makeText(this, "Error parsing response", Toast.LENGTH_SHORT).show()
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching stories: ${error.message}")
-                loadStoriesFromSharedPreferences()
+                loadStoriesFromSharedPreferences() // Optionally load stories from SharedPreferences if error occurs
             }
         )
+
         requestQueue.add(jsonArrayRequest)
     }
-
 
 
 
@@ -825,12 +847,16 @@ class UserProfile : AppCompatActivity() {
                     put("created_at", story.uploadedAt?.time ?: 0L) // Store as timestamp
                     put("full_name", story.userName) // Store user name
                     put("profile_picture_url", story.userProfilePicture) // Store user profile picture URL
+                    put("city", story.city) // Store user's city
+                    put("country", story.country) // Store user's country
+                    put("latitude", story.latitude) // Store latitude
+                    put("longitude", story.longitude) // Store longitude
                 })
             }
         }.toString()
 
         with(sharedPreferences2.edit()) {
-            putString("storiesList", storiesJsonArray)
+            putString("storiesList", storiesJsonArray.toString())
             apply()
         }
     }
@@ -844,20 +870,25 @@ class UserProfile : AppCompatActivity() {
                 val storyJson = jsonArray.getJSONObject(i)
                 val uploadedAt = storyJson.getLong("created_at") // Get the timestamp
                 val story = Story(
-                    storyJson.getInt("id"),
+                    storyJson.getString("id"),
                     storyJson.getString("media_url"),
                     storyJson.getInt("duration"),
                     storyJson.optString("trimmed_audio_url", null),
                     storyJson.optJSONArray("draggable_texts"),
                     Date(uploadedAt),
                     storyJson.getString("full_name"), // Get user name
-                    storyJson.getString("profile_picture_url") // Get user profile picture URL
+                    storyJson.getString("profile_picture_url"), // Get user profile picture URL
+                    storyJson.optString("city", null), // Get user's city
+                    storyJson.optString("country", null), // Get user's country
+                    storyJson.optDouble("latitude", Double.NaN).takeIf { it != Double.NaN }, // Get latitude
+                    storyJson.optDouble("longitude", Double.NaN).takeIf { it != Double.NaN } // Get longitude
                 )
                 stories.add(story)
             }
             updateStoriesUI(stories)
         }
     }
+
 
 
 
@@ -1152,21 +1183,30 @@ class UserProfile : AppCompatActivity() {
                         val storyJson = response.getJSONObject(i)
 
                         // Safely parse fields with error handling
-                        val storyId = storyJson.optInt("id", -1)
-                        val mediaUrl = storyJson.optString("media_url", null.toString())
+                        val storyId = storyJson.optString("story_id", "")
+                        val mediaUrl = storyJson.optString("media_url", "")
                         val duration = storyJson.optInt("duration", 0)
-                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url",
-                            null.toString()
-                        )
-                        val draggableTexts = storyJson.optJSONArray("draggable_texts")
-                        val createdAt = storyJson.optString("created_at", null.toString())
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
 
-                        // Fetch the new fields: user name and profile picture
+                        // Handle draggable_texts as a JSON string
+                        val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]") // Handle as string
+                        val draggableTexts = try {
+                            JSONArray(draggableTextsJsonString) // Convert string to JSONArray
+                        } catch (e: JSONException) {
+                            Log.e("fetchUserStory", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
+                            JSONArray() // Return an empty JSONArray in case of error
+                        }
+
+                        val createdAt = storyJson.optString("created_at", null)
+                        val city = storyJson.optString("city", null)
+                        val country = storyJson.optString("country", null)
+                        val latitude = storyJson.optDouble("latitude", 0.0)
+                        val longitude = storyJson.optDouble("longitude", 0.0)
                         val userName = storyJson.optString("full_name", "")
                         val userProfilePicture = storyJson.optString("profile_picture_url", "")
 
                         // Ensure mandatory fields are valid
-                        if (storyId == -1 || mediaUrl.isNullOrEmpty() || createdAt.isNullOrEmpty()) {
+                        if (storyId.isEmpty() || mediaUrl.isEmpty() || createdAt.isNullOrEmpty()) {
                             Log.e("fetchUserStory", "Invalid story data: $storyJson")
                             continue
                         }
@@ -1174,7 +1214,7 @@ class UserProfile : AppCompatActivity() {
                         // Convert createdAt string to Date
                         val uploadedAt = parseDate(createdAt) ?: continue
 
-                        // Create and add Story object
+                        // Create the Story object
                         val story = Story(
                             id = storyId,
                             mediaUrl = mediaUrl,
@@ -1182,8 +1222,12 @@ class UserProfile : AppCompatActivity() {
                             trimmedAudioUrl = trimmedAudioUrl,
                             draggableTexts = draggableTexts,
                             uploadedAt = uploadedAt,
-                            userName = userName, // Add user name
-                            userProfilePicture = userProfilePicture // Add user profile picture URL
+                            userName = userName,
+                            userProfilePicture = userProfilePicture,
+                            city = city,
+                            country = country,
+                            latitude = latitude,
+                            longitude = longitude
                         )
 
                         storiesList.add(story)
@@ -1232,16 +1276,23 @@ class UserProfile : AppCompatActivity() {
 
 
 
-    // Helper function to parse the date string
-    private fun parseDate(dateString: String): Date? {
+
+    fun parseDate(dateString: String): Date? {
         return try {
-            val format = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault())
+            // Updated format to handle the 'Z' (UTC) and milliseconds (SSS)
+            val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            format.timeZone = TimeZone.getTimeZone("UTC") // Ensure it's parsed as UTC
             format.parse(dateString)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("fetchUserStory", "Date parsing error: ${e.message}")
             null
         }
     }
+
+
+
+
+
 
 
     private fun calculateHoursAgo(createdAt: String): Long {

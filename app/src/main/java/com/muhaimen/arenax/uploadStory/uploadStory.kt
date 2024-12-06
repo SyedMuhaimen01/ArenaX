@@ -51,6 +51,11 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.arthenica.mobileffmpeg.FFmpeg
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.DraggableText
@@ -79,6 +84,7 @@ class uploadStory : AppCompatActivity() {
     private lateinit var userData: UserData
     private lateinit var auth: FirebaseAuth
     private val firebaseStorage = FirebaseStorage.getInstance()
+    private lateinit var databaseReference: DatabaseReference
     private var selectedImageUri: Uri? = null
     private lateinit var tracksRecyclerView: RecyclerView
     private lateinit var adapter: TracksAdapter
@@ -127,12 +133,11 @@ class uploadStory : AppCompatActivity() {
         endSeekBar = findViewById(R.id.endSeekBar)
         trimTrackLayout = findViewById(R.id.trimTrackLayout)
         backButton = findViewById(R.id.backButton)
-
+        auth=FirebaseAuth.getInstance()
+        databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(auth.currentUser?.uid ?: "")
         backButton.setOnClickListener(){
             finish()
         }
-        // Initialize Firebase Auth
-        auth = FirebaseManager.getAuthInstance()
 
         // Hide trimming options initially
         trimTrackLayout.visibility = View.GONE
@@ -278,7 +283,7 @@ class uploadStory : AppCompatActivity() {
 
         // Button for uploading the story
         uploadButton.setOnClickListener {
-            uploadStory()
+            uploadStoryToBackend()
             adapter.releasePlayer()
             val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
@@ -377,49 +382,85 @@ class uploadStory : AppCompatActivity() {
         // Stop any background tasks or services if needed
         adapter.releasePlayer()// Example function to stop background tasks
     }
-    private fun uploadStory() {
+
+    private fun uploadStoryToBackend() {
         if (mediaUri != null) {
             val userId = auth.currentUser?.uid
-            userData = UserData(userId = userId.toString())
-            // Get the list of draggable texts
-            val draggableTexts = getDraggableTextContent()
-            val mediaUrl = mediaUri.toString()
-            val duration =fixedDuration
-            val uploadTime = System.currentTimeMillis()
 
-
-            val storyJson = JSONObject().apply {
-                put("id", UUID.randomUUID().toString() )
-                put("duration", duration)
-                put("trimmed_audio_url", trimmedAudioUrl ?: JSONObject.NULL)
-                put("created_at", uploadTime)
-                put("full_name", userData.fullname)
-                put("profile_picture_url", userData.profilePicture)
-                if (draggableTexts.isNotEmpty()) {
-                    val draggableTextsArray = JSONArray()
-                    draggableTexts.forEach { draggableText ->
-                        val textObject = JSONObject().apply {
-                            put("content", draggableText.content)
-                            put("x", draggableText.x)
-                            put("y", draggableText.y)
-                            put("backgroundColor", draggableText.backgroundColor)
-                            put("textColor", draggableText.textColor)
-                        }
-                        draggableTextsArray.put(textObject)
-                    }
-                    put("draggable_texts", draggableTextsArray)
-                } else {
-                    put("draggableTexts", JSONArray())
-                }
+            if (userId == null) {
+                Toast.makeText(this, "User not authenticated.", Toast.LENGTH_SHORT).show()
+                return
             }
-            Log.d("UploadStory", storyJson.toString())
 
-            // Send the JSON to the server
-            uploadToFirebaseStorage(storyJson)
+            // Fetch user details from Firebase
+            userId.let { uid ->
+                databaseReference.get().addOnSuccessListener { dataSnapshot ->
+                    val username = dataSnapshot.child("fullname").getValue(String::class.java)?.toString()
+                    val profilePicture = dataSnapshot.child("profilePicture").getValue(String::class.java)?.toString()
+
+                    if (username != null && profilePicture != null) {
+                        // Proceed to fetch user data and upload the story
+                        fetchUserLocation(
+                            context = this@uploadStory,
+                            firebaseUid = userId,
+                            onSuccess = { city, country, latitude, longitude ->
+
+                                val draggableTexts = getDraggableTextContent()
+                                val mediaUrl = mediaUri.toString()
+                                val duration = fixedDuration
+                                val uploadTime = System.currentTimeMillis()
+
+                                val storyJson = JSONObject().apply {
+                                    put("id", userId)
+                                    put("duration", duration)
+                                    put("trimmed_audio_url", trimmedAudioUrl ?: JSONObject.NULL)
+                                    put("created_at", uploadTime)
+                                    put("full_name", username)
+                                    put("profile_picture_url", profilePicture)
+                                    put("city", city ?: JSONObject.NULL)
+                                    put("country", country ?: JSONObject.NULL)
+                                    put("latitude", latitude ?: JSONObject.NULL)
+                                    put("longitude", longitude ?: JSONObject.NULL)
+
+                                    if (draggableTexts.isNotEmpty()) {
+                                        val draggableTextsArray = JSONArray()
+                                        draggableTexts.forEach { draggableText ->
+                                            val textObject = JSONObject().apply {
+                                                put("content", draggableText.content)
+                                                put("x", draggableText.x)
+                                                put("y", draggableText.y)
+                                                put("backgroundColor", draggableText.backgroundColor)
+                                                put("textColor", draggableText.textColor)
+                                            }
+                                            draggableTextsArray.put(textObject)
+                                        }
+                                        put("draggable_texts", draggableTextsArray)
+                                    } else {
+                                        put("draggable_texts", JSONArray())
+                                    }
+                                }
+
+                                Log.d("UploadStory", storyJson.toString())
+                                uploadToFirebaseStorage(storyJson)
+                            },
+                            onError = { error ->
+                                Toast.makeText(this@uploadStory, "Location error: $error", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    } else {
+                        Toast.makeText(this@uploadStory, "User data not found in Firebase.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+            }
         } else {
             Toast.makeText(this, "Please select an image.", Toast.LENGTH_SHORT).show()
         }
     }
+
+
+
+
 
     private fun uploadToFirebaseStorage(storyJson: JSONObject) {
         val mediaRef = firebaseStorage.reference.child("stories/${UUID.randomUUID()}")
@@ -922,4 +963,47 @@ class uploadStory : AppCompatActivity() {
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo != null && networkInfo.isConnected
     }
+
+    fun fetchUserLocation(
+        context: Context,
+        firebaseUid: String,
+        onSuccess: (city: String?, country: String?, latitude: Double?, longitude: Double?) -> Unit,
+        onError: (error: String) -> Unit
+    ) {
+        // Initialize the request queue
+        val requestQueue: RequestQueue = Volley.newRequestQueue(context)
+
+        // Backend API endpoint
+        val url = "${Constants.SERVER_URL}api2/getUserLocation/$firebaseUid" // Replace with your backend URL
+
+        // Create a JSON object request
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET,
+            url,
+            null,
+            { response ->
+                try {
+                    // Extract data from the JSON response
+                    val city = response.optString("city")
+                    val country = response.optString("country")
+                    val latitude = response.optDouble("latitude", Double.NaN)
+                    val longitude = response.optDouble("longitude", Double.NaN)
+
+                    // Pass the data to the onSuccess callback
+                    onSuccess(city, country, latitude, longitude)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    onError("Failed to parse response: ${e.message}")
+                }
+            },
+            { error ->
+                error.printStackTrace()
+                onError("Request failed: ${error.message}")
+            }
+        )
+
+        // Add the request to the queue
+        requestQueue.add(jsonObjectRequest)
+    }
+
 }
