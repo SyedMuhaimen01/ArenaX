@@ -678,16 +678,12 @@ class UserProfile : AppCompatActivity() {
                         val clicks = postJson.getInt("clicks")
                         val city = postJson.optString("city", null.toString())
                         val country = postJson.optString("country", null.toString())
-                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url",
-                            null.toString()
-                        )
+                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null.toString())
                         val createdAt = postJson.getString("created_at")
-
+                        val likedByUser = postJson.getBoolean("likedByUser")
                         // Parse the user details safely
                         val userFullName = postJson.optString("full_name", null.toString()) // Ensure it uses the correct field name
-                        val userProfilePictureUrl = postJson.optString("profile_picture_url",
-                            null.toString()
-                        )
+                        val userProfilePictureUrl = postJson.optString("profile_picture_url", null.toString())
 
                         // Parse the comments data
                         val commentsDataJson = postJson.optJSONArray("comments")
@@ -700,9 +696,7 @@ class UserProfile : AppCompatActivity() {
                                 val commentText = commentJson.optString("comment", "No comment provided") // Safe text parsing
                                 val commentCreatedAt = commentJson.getString("created_at")
                                 val commenterName = commentJson.optString("commenter_name", "Unknown commenter")
-                                val commenterProfilePictureUrl = commentJson.optString("commenter_profile_pic",
-                                    null.toString()
-                                )
+                                val commenterProfilePictureUrl = commentJson.optString("commenter_profile_pic", null.toString())
 
                                 val comment = Comment(
                                     commentId = commentId,
@@ -714,6 +708,8 @@ class UserProfile : AppCompatActivity() {
                                 commentsList.add(comment)
                             }
                         }
+
+
 
                         // Create a Post object
                         val post = Post(
@@ -731,12 +727,14 @@ class UserProfile : AppCompatActivity() {
                             createdAt = createdAt,
                             userFullName = userFullName ?: "Unknown user", // Default name if null
                             userProfilePictureUrl = userProfilePictureUrl ?: "path/to/default/profile/picture.jpg", // Default profile picture if null
-                            commentsData = if (commentsList.isNotEmpty()) commentsList else null // Null if no comments
+                            commentsData = if (commentsList.isNotEmpty()) commentsList else null, // Null if no comments
+                            isLikedByUser = likedByUser // Add likedByUser attribute
                         )
 
                         // Add the post to the list
                         postsList.add(post)
                     }
+
                     // Save posts to shared preferences for offline use
                     savePostsDataToSharedPreference(postsList)
 
@@ -758,10 +756,6 @@ class UserProfile : AppCompatActivity() {
         // Add the request to the RequestQueue
         requestQueue.add(jsonArrayRequest)
     }
-
-
-
-
 
 
     // Function to update the UI with the fetched posts
@@ -941,6 +935,8 @@ class UserProfile : AppCompatActivity() {
                         })
                     }
                     put("commentsData", commentsJsonArray)
+
+                    put("likedByUser", post.isLikedByUser)
                 })
             }
         }.toString()
@@ -1020,7 +1016,10 @@ class UserProfile : AppCompatActivity() {
                                 )
                                 add(comment)
                             }
-                        }
+                        },
+
+                        // Parse isLikedByUser field
+                        isLikedByUser = postJson.getBoolean("likedByUser") // Adding the likedByUser field
                     )
                 }
                 if (post != null) {
@@ -1030,6 +1029,7 @@ class UserProfile : AppCompatActivity() {
             updatePostsUI(posts)
         }
     }
+
 
 
     override fun onResume() {

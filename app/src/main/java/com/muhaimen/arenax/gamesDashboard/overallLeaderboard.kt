@@ -5,6 +5,8 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -15,10 +17,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.RankingData
 import com.muhaimen.arenax.overallLeaderboardAdapter.overallLeaderboardAdapter
 import com.muhaimen.arenax.utils.Constants
+import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -27,9 +33,14 @@ class overallLeaderboard : AppCompatActivity() {
     private lateinit var overallLeaderboardAdapter: overallLeaderboardAdapter
     private lateinit var backButton: ImageButton
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
-
+    private lateinit var profilePicture:ImageView
+    private lateinit var name:TextView
+    private lateinit var totalHours:TextView
+    private lateinit var rank:TextView
+    private lateinit var gamerTag:TextView
+    private lateinit var currentUserGamerTag: String
+    private var rankingsList = mutableListOf<RankingData>()
     private val sharedPreferences by lazy { getSharedPreferences("Leaderboard", Context.MODE_PRIVATE) }
-
     private val baseUrl = "${Constants.SERVER_URL}leaderboard/rankings"
 
     @SuppressLint("MissingInflatedId")
@@ -44,6 +55,13 @@ class overallLeaderboard : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        profilePicture = findViewById(R.id.profilePicture)
+        name = findViewById(R.id.nameTextView)
+        totalHours = findViewById(R.id.totalHours)
+        rank = findViewById(R.id.rankNumber)
+        gamerTag = findViewById(R.id.gamerTagTextView)
+
 
         backButton = findViewById(R.id.backButton)
         backButton.setOnClickListener {
@@ -61,6 +79,47 @@ class overallLeaderboard : AppCompatActivity() {
             fetchRankings()
 
         }
+        val userId = FirebaseManager.getCurrentUserId()
+        if (userId != null) {
+            val database = FirebaseDatabase.getInstance()
+            val userDataRef: DatabaseReference = database.reference.child("userData").child(userId)
+            userDataRef.get().addOnSuccessListener { dataSnapshot ->
+                currentUserGamerTag = dataSnapshot.child("gamerTag").getValue(String::class.java).toString()
+
+                // Call getCurrentUserRanking only after gamerTag is fetched
+                val currentUserRanking = getCurrentUserRanking(rankingsList, currentUserGamerTag)
+                if (currentUserRanking != null) {
+                    name.text = currentUserRanking.name
+                    totalHours.text = "${currentUserRanking.totalHrs}"
+
+                    val uri = currentUserRanking.profilePicture
+
+                    Glide.with(this)
+                        .load(uri)
+                        .placeholder(R.drawable.circle)
+                        .error(R.drawable.circle)
+                        .circleCrop()
+                        .into(profilePicture)
+
+                    // Handle the rank text, checking for "Unranked"
+                    if (currentUserRanking.rank == "Unranked") {
+                        rank.text = currentUserRanking.rank
+                        rank.setTextColor(resources.getColor(R.color.white))
+                    } else {
+                        rank.text = currentUserRanking.rank.toString()
+                        rank.setTextColor(resources.getColor(R.color.white))
+                    }
+
+                    gamerTag.text = currentUserRanking.gamerTag
+                }
+            }.addOnFailureListener { exception ->
+                Log.e("Firebase", "Error fetching user data", exception)
+            }
+        } else {
+            Log.e("Firebase", "User is not logged in.")
+        }
+
+
     }
 
     private fun fetchRankings() {
@@ -88,7 +147,7 @@ class overallLeaderboard : AppCompatActivity() {
 
 
     private fun parseRankings(response: JSONArray): List<RankingData> {
-        val rankingsList = mutableListOf<RankingData>()
+
 
         for (i in 0 until response.length()) {
             val jsonObject: JSONObject = response.getJSONObject(i)
@@ -116,7 +175,6 @@ class overallLeaderboard : AppCompatActivity() {
 
 
     private fun saveRankingsToPreferences(rankings: List<RankingData>) {
-        val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
 
         val jsonArray = JSONArray()
@@ -136,7 +194,6 @@ class overallLeaderboard : AppCompatActivity() {
     }
 
     private fun loadRankingsFromPreferences(): List<RankingData> {
-        val sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
         val jsonString = sharedPreferences.getString("rankingsList", null)
 
         return if (jsonString != null) {
@@ -158,6 +215,10 @@ class overallLeaderboard : AppCompatActivity() {
         } else {
             emptyList()
         }
+    }
+
+    private fun getCurrentUserRanking(rankingsList: List<RankingData>, currentUserGamerTag: String): RankingData? {
+        return rankingsList.find { it.gamerTag == currentUserGamerTag }
     }
 
 

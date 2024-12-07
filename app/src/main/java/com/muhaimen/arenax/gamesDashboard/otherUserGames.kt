@@ -69,7 +69,7 @@ class otherUserGames : AppCompatActivity() {
     private lateinit var playtimeBarChart: BarChart
     private val client = OkHttpClient()
     private var isGameAdded = false
-    private lateinit var userId:String
+    private lateinit var receivedUserId: String
     private val sharedPreferences by lazy { getSharedPreferences("MyGamesPrefs", Context.MODE_PRIVATE) }
 
     @SuppressLint("MissingInflatedId")
@@ -85,14 +85,11 @@ class otherUserGames : AppCompatActivity() {
         }
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
-        auth = FirebaseAuth.getInstance()
-        userId = auth.currentUser?.uid ?: ""
+        receivedUserId = intent.getStringExtra("userId").toString()
+
         gamesSearchBar = findViewById(R.id.searchbar)
 
         backButton = findViewById(R.id.backButton)
-
-
-
 
         playtimeBarChart = findViewById(R.id.totalPlaytimeBarChart)
         myGamesListRecyclerView = findViewById(R.id.myGamesListRecyclerView)
@@ -123,7 +120,7 @@ class otherUserGames : AppCompatActivity() {
 
 
 
-        myGamesListAdapter = MyGamesListAdapter(emptyList(), userId)
+        myGamesListAdapter = MyGamesListAdapter(emptyList(), receivedUserId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
@@ -144,44 +141,15 @@ class otherUserGames : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.e("MyGamesList", "onResume called ")
-        isGameAdded = false
-        val filter = IntentFilter("NEW_GAME_ADDED")
-        LocalBroadcastManager.getInstance(this).registerReceiver(gameBroadcastReceiver, filter)
-        if (!isGameAdded) {
-            fetchUserGames()
-        }
-    }
-
-
-    private val gameBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Log.e("BroadcastReceiver", "Game added broadcast received")
-            isGameAdded = true
-            fetchUserGames()
-        }
-    }
-
-
-    override fun onPause() {
-        super.onPause()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(gameBroadcastReceiver)
-    }
-
     private fun fetchUserGames() {
         val request = Request.Builder()
-            .url("${Constants.SERVER_URL}usergames/user/${userId}/mygames")
+            .url("${Constants.SERVER_URL}usergames/user/${receivedUserId}/mygames")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
-                runOnUiThread {
-                    // Uncomment the next line to show a toast message on failure
-                    // Toast.makeText(this@MyGamesList, "Failed to fetch games", Toast.LENGTH_SHORT).show()
-                }
+                runOnUiThread {}
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -189,13 +157,11 @@ class otherUserGames : AppCompatActivity() {
                     val responseBody = response.body?.string() ?: ""
                     if (responseBody.isNotEmpty()) {
                         parseGamesData(responseBody)
-                        saveGamesToPreferences(responseBody)
                     } else {
-                        updateEmptyGameList()
+                        myGamesListAdapter.updateGamesList(emptyList())
                     }
                 } else {
                     runOnUiThread {
-                        // Toast.makeText(this@MyGamesList, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -241,26 +207,6 @@ class otherUserGames : AppCompatActivity() {
     }
 
 
-    private fun updateEmptyGameList() {
-        with(sharedPreferences.edit()) {
-            putString("gamesList", "[]")
-            apply()
-        }
-        runOnUiThread {
-            myGamesListAdapter.updateGamesList(emptyList())
-            //   Toast.makeText(this@MyGamesList, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
-        }
-    }
-
-    private fun saveGamesToPreferences(gamesJson: String) {
-        with(sharedPreferences.edit()) {
-            putString("gamesList", gamesJson)
-            apply()
-        }
-    }
-
-
-
     private fun setupAutoComplete() {
         val gameNames = myGamesList.map { it.gameName }
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, gameNames)
@@ -296,11 +242,10 @@ class otherUserGames : AppCompatActivity() {
     }
     private fun fetchUserGameStats(game: String) {
         val url = "${Constants.SERVER_URL}analytics/gameAnalytics"
-        val userId = intent.getStringExtra("userId")
 
         val requestBody = JSONObject().apply {
             put("gameName", game)
-            put("userId", userId)
+            put("userId", receivedUserId)
         }
 
         val queue = Volley.newRequestQueue(this)
@@ -366,15 +311,11 @@ class otherUserGames : AppCompatActivity() {
 
 
     private fun fetchUserGameStats() {
-        val userId = auth.currentUser?.uid ?: return // Ensure user is authenticated
-        val url = "${Constants.SERVER_URL}analytics/user/$userId/hoursPerGame" // URL with userId in the path
-
-
+        val url = "${Constants.SERVER_URL}analytics/user/${receivedUserId}/hoursPerGame" // URL with userId in the path
         val client = OkHttpClient.Builder().build()
-
         val request = Request.Builder()
             .url(url)
-            .get() // HTTP GET request
+            .get()
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -410,25 +351,19 @@ class otherUserGames : AppCompatActivity() {
 
     private fun parseAndPopulateCharts(response: JSONObject) {
         try {
-
-            // Get the game statistics from the response
             val gameStats = response.getJSONArray("gameAnalytics")
 
-            // Prepare lists for playtime and game names
             val playtimeList = mutableListOf<Float>()
             val gameNamesList = mutableListOf<String>()
 
             for (i in 0 until gameStats.length()) {
                 val game = gameStats.getJSONObject(i)
-                val playtime = game.getString("totalPlaytime").toFloatOrNull() ?: 0f  // Convert to Float
-                val gameName = game.getString("gameName") // Game name
+                val playtime = game.getString("totalPlaytime").toFloatOrNull() ?: 0f
+                val gameName = game.getString("gameName")
 
                 playtimeList.add(playtime)
                 gameNamesList.add(gameName)
             }
-
-
-            // Now call the playtimeBarChart method with the correct data
             playtimeBarChart(playtimeList, gameNamesList)
 
         } catch (e: JSONException) {
@@ -436,7 +371,4 @@ class otherUserGames : AppCompatActivity() {
             e.printStackTrace()
         }
     }
-
-
-
 }

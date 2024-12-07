@@ -27,7 +27,7 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
         @SuppressLint("SetTextI18n")
         fun bind(data: RankingData) {
             name.text = data.name
-            totalHours.text = "Total Hours: ${data.totalHrs}"
+            totalHours.text = "${data.totalHrs}"
 
             val uri = Uri.parse(data.profilePicture)
 

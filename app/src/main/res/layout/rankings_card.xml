@@ -6,7 +6,6 @@
     android:id="@+id/analytics_card_view"
     android:layout_width="match_parent"
     android:layout_height="@dimen/_60sdp"
-    android:layout_margin="@dimen/_6sdp"
     app:cardBackgroundColor="@android:color/white"
     app:cardCornerRadius="@dimen/_6sdp"
     app:cardElevation="@dimen/_2sdp">
@@ -15,29 +14,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="@dimen/_4sdp">
+        android:padding="@dimen/_4sdp"
+        android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/rankNumber"
             android:layout_width="@dimen/_30sdp"
             android:layout_height="wrap_content"
             android:text="1."
-            android:layout_marginTop="@dimen/_15sdp"
             android:textStyle="bold"
             android:textSize="@dimen/_15ssp"
             android:textAlignment="center"
             android:textColor="@color/textColor"
-            android:layout_marginStart="@dimen/_5sdp"></TextView>
+            android:layout_marginStart="@dimen/_5sdp" />
+
         <!-- Game Icon -->
         <ImageView
             android:id="@+id/profilePicture"
             android:background="@drawable/circle"
             android:layout_width="@dimen/_45sdp"
             android:layout_height="@dimen/_45sdp"
-            android:layout_marginEnd="@dimen/_10sdp"
             android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
             android:scaleType="centerCrop"
-            android:layout_gravity="center"
             android:contentDescription="Profile Picture"
             tools:ignore="HardcodedText" />
 
@@ -45,7 +44,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center_vertical">
 
             <!-- Game Name -->
             <TextView
@@ -65,19 +65,20 @@
                 android:textSize="@dimen/_12ssp"
                 android:textColor="@color/textColor"
                 tools:ignore="HardcodedText" />
-
-            <TextView
-                android:id="@+id/totalHours"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Total hrs:"
-
-                android:textStyle="bold"
-                android:textSize="@dimen/_10sdp"
-                android:textColor="@color/hinttextColor"
-                android:layout_marginEnd="@dimen/_10sdp"
-                tools:ignore="HardcodedText" />
         </LinearLayout>
 
+        <!-- Total Hours on the right -->
+        <TextView
+            android:id="@+id/totalHours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total hrs:"
+            android:textStyle="bold"
+            android:textSize="@dimen/_14sdp"
+            android:textColor="@color/hinttextColor"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:gravity="end"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>
+

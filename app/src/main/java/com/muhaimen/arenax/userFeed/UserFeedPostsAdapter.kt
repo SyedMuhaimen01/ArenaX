@@ -127,39 +127,53 @@ class UserFeedPostsAdapter(
                         commenterProfilePictureUrl = commenterPicture.toString()
                     )
 
+                    // Send only the new comment with the post ID
+                    saveCommentToServer(post.postId.toString(), newComment)
+
+                    // Optionally update the local comments list for UI
                     val updatedCommentsList = post.commentsData?.toMutableList() ?: mutableListOf()
                     updatedCommentsList.add(newComment)
+                    post.commentsData = updatedCommentsList
 
-                    val updatedPost = post.copy(
-                        commentsData = updatedCommentsList,
-                        comments = updatedCommentsList.size
-                    )
-
-                    savePostDetailsToServer(updatedPost)
+                    // Clear the input field
                     newCommentEditText.text.clear()
                 }
             }
 
-            likeButton.visibility=View.VISIBLE
+            if (post.isLikedByUser) {
+                likeButton.visibility = View.GONE
+                alreadyLikedButton.visibility = View.VISIBLE
+            } else {
+                likeButton.visibility = View.VISIBLE
+                alreadyLikedButton.visibility = View.GONE
+            }
 
             likeButton.setOnClickListener {
+                // Update the UI when the post is liked
                 likeButton.visibility = View.GONE
                 alreadyLikedButton.visibility = View.VISIBLE
                 likesCount.text = (post.likes + 1).toString()
+
+                // Save the like on the server
                 savePostLikeOnServer(post)
             }
 
             alreadyLikedButton.setOnClickListener {
+                // Update the UI when the user removes the like
                 alreadyLikedButton.visibility = View.GONE
                 likeButton.visibility = View.VISIBLE
+
                 if (post.likes == 0) {
                     likesCount.text = "0"
                 } else {
                     likesCount.text = (post.likes - 1).toString()
                 }
+
+                // Remove the like on the server
                 deletePostLikeOnServer(post)
                 Log.d("already liked clicked", "already liked clicked")
             }
+
 
 
             Glide.with(itemView.context)
@@ -258,58 +272,36 @@ class UserFeedPostsAdapter(
             playerView.player = exoPlayer
         }
 
-        private fun savePostDetailsToServer(post: Post) {
+        private fun saveCommentToServer(postId: String, newComment: Comment) {
             val requestQueue = Volley.newRequestQueue(itemView.context)
-            val jsonRequest = JSONObject().apply {
-                put("postId", post.postId)
-                put("content", post.postContent)
-                put("caption", post.caption)
-                put("sponsored", post.sponsored)
-                put("likes", post.likes)
-                put("comments", post.comments)  // Updated comment count
-                put("shares", post.shares)
-                put("clicks", post.clicks)
-                put("city", post.city)
-                put("country", post.country)
-                put("created_at", post.createdAt)
-                put("trimmed_audio_url", post.trimmedAudioUrl)
 
-                // Add comments data (convert it to JSON array or handle as necessary)
-                val commentsArray = JSONArray()
-                post.commentsData?.forEach { comment ->
-                    val commentJson = JSONObject().apply {
-                        put("comment_id", comment.commentId)
-                        put("comment", comment.commentText)
-                        put("created_at", comment.createdAt)
-                        put("commenter_name", comment.commenterName)
-                        put("commenter_profile_pic", comment.commenterProfilePictureUrl)
-                    }
-                    commentsArray.put(commentJson)
-                }
-                put("commentsData", commentsArray)  // Add the comments data to the request
+            val jsonRequest = JSONObject().apply {
+                put("postId", postId)
+                put("comment", JSONObject().apply {
+                    put("comment_id", newComment.commentId)
+                    put("comment", newComment.commentText)
+                    put("created_at", newComment.createdAt)
+                    put("commenter_name", newComment.commenterName)
+                    put("commenter_profile_pic", newComment.commenterProfilePictureUrl)
+                })
             }
 
-            // Create a POST request
             val postRequest = JsonObjectRequest(
                 com.android.volley.Request.Method.POST,
                 "${Constants.SERVER_URL}uploads/uploadComments",
                 jsonRequest,
                 { response ->
-                    // Handle the response from the server (success)
-
-                    // Optionally notify other parts of the app (e.g., refresh the UI)
-                    val intent = Intent("NEW_POST_ADDED")
+                    // Handle success
+                    val intent = Intent("NEW_COMMENT_ADDED")
                     LocalBroadcastManager.getInstance(itemView.context).sendBroadcast(intent)
                 },
                 { error ->
-                    // Handle error (e.g., show a toast or log the error)
+                    // Handle error
                 }
             )
 
-
             requestQueue.add(postRequest)
         }
-
 
         private fun savePostLikeOnServer(post: Post)
         {

@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.explore
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -45,6 +46,7 @@ class explorePosts : Fragment() {
         return view
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun fetchPosts() {
         val userId = auth.currentUser?.uid ?: return
         val url = "${Constants.SERVER_URL}explorePosts/user/$userId/fetchPosts" // Replace with your backend API endpoint
@@ -101,7 +103,8 @@ class explorePosts : Fragment() {
                                 createdAt = postObject.optString("created_at", ""),
                                 userFullName = postObject.optString("full_name", "Unknown User"),  // Default to "Unknown User" if null
                                 userProfilePictureUrl = postObject.optString("profile_picture_url", null),
-                                commentsData = commentsData
+                                commentsData = commentsData,
+                                isLikedByUser = postObject.optBoolean("likedByUser", false)  // Default to false if not provided
                             )
                             posts.add(post)
                         }
@@ -119,6 +122,7 @@ class explorePosts : Fragment() {
             }
         }
     }
+
 
 
 }

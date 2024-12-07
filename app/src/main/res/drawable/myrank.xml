@@ -1,0 +1,13 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Set the solid color (yellow in this case) -->
+    <solid android:color="@color/black"/>
+
+    <!-- Define the rectangle -->
+    <size
+        android:width="@dimen/_30sdp"
+        android:height="@dimen/_10sdp"/>
+
+    <path
+        android:fillColor="@android:color/holo_orange_light"
+        android:pathData="M 0,0 L 200,0 L 200,100 Z" />
+</shape>
