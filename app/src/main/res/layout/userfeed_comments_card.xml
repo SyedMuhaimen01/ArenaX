@@ -14,7 +14,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="@dimen/_10sdp"
         android:gravity="center_vertical">
 
         <!-- Profile Picture -->
@@ -22,6 +21,7 @@
             android:id="@+id/commentProfilePicture"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_marginStart="@dimen/_10sdp"
             android:layout_marginEnd="@dimen/_10sdp"
             android:scaleType="centerCrop"
             android:background="@drawable/circle"
@@ -47,7 +47,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="John Doe"
-                    android:textSize="@dimen/_14ssp"
+                    android:textSize="@dimen/_12sdp"
                     android:textStyle="bold"
                     android:textColor="@color/black"
                     tools:text="Commenter Name" />
@@ -57,7 +57,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="2h ago"
-                    android:textSize="@dimen/_12ssp"
+                    android:textSize="@dimen/_10ssp"
+                    android:layout_marginLeft="@dimen/_5sdp"
                     android:textColor="@color/accentColor"
                     tools:text="2h ago" />
             </LinearLayout>
@@ -67,7 +68,7 @@
                 android:id="@+id/commentTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_2sdp"
                 android:text="This is a comment text."
                 android:textSize="@dimen/_14ssp"
                 android:textColor="@color/textColor"

@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -27,7 +28,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Comment
 import com.muhaimen.arenax.dataClasses.Post
-import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.userFeed.commentsAdapter
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
@@ -40,14 +40,15 @@ import okhttp3.Request
 import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
-import retrofit2.http.Url
 import java.io.IOException
 
 class ViewPost : AppCompatActivity() {
     private lateinit var imageView: ImageView
     private lateinit var postCaption: TextView
     private lateinit var seeMoreButton: Button
-    private lateinit var likeCount: TextView
+    private lateinit var likesCount: TextView
+    private lateinit var likeButton: ImageButton
+    private lateinit var alreadyLikedButton: ImageButton
     private lateinit var commentCount: TextView
     private lateinit var shareCount: TextView
     private lateinit var playerView: PlayerView
@@ -67,7 +68,8 @@ class ViewPost : AppCompatActivity() {
     private val client = OkHttpClient()
     private var isExpanded: Boolean = false
     private lateinit var post: Post
-    @SuppressLint("MissingInflatedId")
+    private lateinit var commentsList: MutableList<Comment>
+    @SuppressLint("MissingInflatedId", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -78,7 +80,7 @@ class ViewPost : AppCompatActivity() {
         playerView = findViewById(R.id.videoPlayerView)
         postCaption = findViewById(R.id.postCaption)
         seeMoreButton = findViewById(R.id.seeMoreButton)
-        likeCount = findViewById(R.id.likeCount)
+        likesCount = findViewById(R.id.likeCount)
         commentCount = findViewById(R.id.commentCount)
         shareCount = findViewById(R.id.shareCount)
         commentsRecyclerView = findViewById(R.id.commentsRecyclerView)
@@ -90,10 +92,13 @@ class ViewPost : AppCompatActivity() {
         location = findViewById(R.id.locationTextView)
         username = findViewById(R.id.usernameTextView)
         profilePicture = findViewById(R.id.ProfilePicture)
+        likeButton = findViewById(R.id.likeButton)
+        alreadyLikedButton = findViewById(R.id.likeFilledButton)
 
-        commentButton.setOnClickListener {
-            commentsRecyclerView.visibility = if (commentsRecyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-        }
+        commentsRecyclerView.layoutManager=LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+
+
+
 
         val userId=FirebaseManager.getCurrentUserId()
         if (userId != null) {
@@ -124,6 +129,27 @@ class ViewPost : AppCompatActivity() {
         } else {
             // Handle the case where the user is not logged in
             Log.e("Firebase", "User is not logged in.")
+        }
+
+        likeButton.visibility=View.VISIBLE
+
+        likeButton.setOnClickListener {
+            likeButton.visibility = View.GONE
+            alreadyLikedButton.visibility = View.VISIBLE
+            likesCount.text = (post.likes + 1).toString()
+            savePostLikeOnServer()
+        }
+
+        alreadyLikedButton.setOnClickListener {
+            alreadyLikedButton.visibility = View.GONE
+            likeButton.visibility = View.VISIBLE
+            if (post.likes == 0) {
+                likesCount.text = "0"
+            } else {
+                likesCount.text = (post.likes - 1).toString()
+            }
+            deletePostLikeOnServer()
+            Log.d("already liked clicked", "already liked clicked")
         }
         postCommentButton.setOnClickListener {
             // Get the text from the EditText
@@ -174,9 +200,10 @@ class ViewPost : AppCompatActivity() {
 
         // Retrieve the Post object from Intent
         post = intent.getParcelableExtra("POST")!!
-        post?.let {
+        Log.d("Post", "Post data: $post")
+        post.let {
             // Set text data to UI components
-            likeCount.text = it.likes.toString()
+            likesCount.text = it.likes.toString()
             commentCount.text = it.comments.toString()
             shareCount.text = it.shares.toString()
 
@@ -190,6 +217,13 @@ class ViewPost : AppCompatActivity() {
                 postCaption.text = post.caption ?: ""
             }
             // Handle caption display
+            if(post.commentsData!=null){
+                commentsList = post.commentsData!!.toMutableList()
+                updatePostsUI(commentsList)
+            }
+            else{
+                commentsList = mutableListOf()
+            }
             if (it.caption.isNullOrEmpty()) {
                 postCaption.visibility = View.GONE
                 seeMoreButton.visibility = View.GONE
@@ -216,12 +250,15 @@ class ViewPost : AppCompatActivity() {
                 profilePicture.setImageResource(R.mipmap.appicon2)
             }
 
-
+            commentButton.setOnClickListener {
+                commentsRecyclerView.visibility = if (commentsRecyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            }
 
             seeMoreButton.setOnClickListener {
                 toggleCaption(post.caption ?: "")
             }
 
+            likesCount.text = it.likes.toString()
             post.postContent?.let { mediaUrl ->
                 loadMedia(mediaUrl)
             }
@@ -378,4 +415,99 @@ class ViewPost : AppCompatActivity() {
             return null
         }
     }
+
+
+    @SuppressLint("ResourceType", "SetTextI18n")
+    private fun updatePostsUI(comments: List<Comment>) {
+        commentsAdapter = commentsAdapter(comments)
+        commentsRecyclerView.adapter = commentsAdapter
+        commentCount.setText(commentsAdapter.itemCount.toString())
+
+        // Create a temporary ViewHolder to measure the height of the comment card
+        val viewHolder = commentsAdapter.createViewHolder(commentsRecyclerView, commentsAdapter.getItemViewType(0))
+        val itemView = viewHolder.itemView
+
+        // Measure the itemView (comment card) with a given width and height
+        itemView.measure(View.MeasureSpec.makeMeasureSpec(R.layout.userfeed_comments_card, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+
+        // Get the measured height of the individual comment card
+        val itemHeight = itemView.measuredHeight
+
+        // Now calculate the total height based on the number of items
+        val totalHeight = itemHeight * commentsAdapter.itemCount
+
+        // Set the RecyclerView height dynamically
+        commentsRecyclerView.layoutParams.height = totalHeight
+        commentsRecyclerView.requestLayout()
+    }
+
+    private fun savePostLikeOnServer()
+    {
+        val requestQueue = Volley.newRequestQueue(this)
+
+        // Create a JSON object for the updated post
+        val jsonRequest = JSONObject().apply {
+            put("postId", post.postId)
+            put("userId",FirebaseManager.getCurrentUserId() )
+
+        }
+
+        // Create a POST request
+        val postRequest = JsonObjectRequest(
+            com.android.volley.Request.Method.POST,
+            "${Constants.SERVER_URL}uploads/uploadLike",
+            jsonRequest,
+            { response ->
+                // Handle the response from the server (success)
+                Toast.makeText(this, "Post and like uploaded successfully", Toast.LENGTH_SHORT).show()
+
+                // Optionally notify other parts of the app (e.g., refresh the UI)
+                val intent = Intent("Like added ")
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+            },
+            { error ->
+                // Handle error (e.g., show a toast or log the error)
+                Toast.makeText(this, "Failed to update post likes", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Add the request to the request queue
+        requestQueue.add(postRequest)
+    }
+
+    private fun deletePostLikeOnServer()
+    {
+        val requestQueue = Volley.newRequestQueue(this)
+
+        // Create a JSON object for the updated post
+        val jsonRequest = JSONObject().apply {
+            put("postId", post.postId)
+            put("userId",FirebaseManager.getCurrentUserId() )
+
+        }
+
+        // Create a POST request
+        val postRequest = JsonObjectRequest(
+            com.android.volley.Request.Method.POST,
+            "${Constants.SERVER_URL}uploads/deleteLike",
+            jsonRequest,
+            { response ->
+                // Handle the response from the server (success)
+                Toast.makeText(this, "Post and like updated successfully", Toast.LENGTH_SHORT).show()
+
+                // Optionally notify other parts of the app (e.g., refresh the UI)
+                val intent = Intent("Like Removed ")
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+            },
+            { error ->
+                // Handle error (e.g., show a toast or log the error)
+                Toast.makeText(this, "Failed to update post likes", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Add the request to the request queue
+        requestQueue.add(postRequest)
+    }
+
 }
