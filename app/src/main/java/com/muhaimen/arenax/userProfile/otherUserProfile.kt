@@ -167,9 +167,12 @@ class otherUserProfile : AppCompatActivity() {
 
         myGamesButton= findViewById(R.id.myGamesButton)
         myGamesButton.setOnClickListener {
-            val intent = Intent(this, otherUserGames::class.java)
+            val intent = Intent(this, otherUserGames::class.java).apply {
+                putExtra("userId", receivedUserId)  // Pass the user ID to the next activity
+            }
             startActivity(intent)
         }
+
 
         profileButton=findViewById(R.id.profileButton)
         profileButton.setOnClickListener {
@@ -631,7 +634,8 @@ class otherUserProfile : AppCompatActivity() {
     }
 
     private fun fetchUserPosts() {
-        val url = "${Constants.SERVER_URL}uploads/user/$receivedUserId/getUserPosts"
+        val userId = auth.currentUser?.uid
+        val url = "${Constants.SERVER_URL}uploads/user/${receivedUserId}/getUserPosts"
 
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
@@ -641,27 +645,26 @@ class otherUserProfile : AppCompatActivity() {
                 try {
                     // Create a list to hold the user's posts
                     val postsList = mutableListOf<Post>()
-
                     for (i in 0 until response.length()) {
                         val postJson = response.getJSONObject(i)
 
                         // Parse fields from the JSON response with safe defaults
                         val postId = postJson.getInt("post_id")
-                        val postContent = postJson.optString("post_content", null)
-                        val caption = postJson.optString("caption", null) // Safe string parsing
+                        val postContent = postJson.optString("post_content", null.toString())
+                        val caption = postJson.optString("caption", null.toString()) // Safe string parsing
                         val sponsored = postJson.getBoolean("sponsored")
                         val likes = postJson.getInt("likes")
                         val comments = postJson.getInt("post_comments")
                         val shares = postJson.getInt("shares")
                         val clicks = postJson.getInt("clicks")
-                        val city = postJson.optString("city", null)
-                        val country = postJson.optString("country", null)
-                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null)
+                        val city = postJson.optString("city", null.toString())
+                        val country = postJson.optString("country", null.toString())
+                        val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null.toString())
                         val createdAt = postJson.getString("created_at")
-
+                        val likedByUser = postJson.getBoolean("likedByUser")
                         // Parse the user details safely
-                        val userFullName = postJson.optString("full_name", null) // Ensure it uses the correct field name
-                        val userProfilePictureUrl = postJson.optString("profile_picture_url", null)
+                        val userFullName = postJson.optString("full_name", null.toString()) // Ensure it uses the correct field name
+                        val userProfilePictureUrl = postJson.optString("profile_picture_url", null.toString())
 
                         // Parse the comments data
                         val commentsDataJson = postJson.optJSONArray("comments")
@@ -674,7 +677,7 @@ class otherUserProfile : AppCompatActivity() {
                                 val commentText = commentJson.optString("comment", "No comment provided") // Safe text parsing
                                 val commentCreatedAt = commentJson.getString("created_at")
                                 val commenterName = commentJson.optString("commenter_name", "Unknown commenter")
-                                val commenterProfilePictureUrl = commentJson.optString("commenter_profile_pic", null)
+                                val commenterProfilePictureUrl = commentJson.optString("commenter_profile_pic", null.toString())
 
                                 val comment = Comment(
                                     commentId = commentId,
@@ -686,6 +689,8 @@ class otherUserProfile : AppCompatActivity() {
                                 commentsList.add(comment)
                             }
                         }
+
+
 
                         // Create a Post object
                         val post = Post(
@@ -703,7 +708,8 @@ class otherUserProfile : AppCompatActivity() {
                             createdAt = createdAt,
                             userFullName = userFullName ?: "Unknown user", // Default name if null
                             userProfilePictureUrl = userProfilePictureUrl ?: "path/to/default/profile/picture.jpg", // Default profile picture if null
-                            commentsData = if (commentsList.isNotEmpty()) commentsList else null // Null if no comments
+                            commentsData = if (commentsList.isNotEmpty()) commentsList else null, // Null if no comments
+                            isLikedByUser = likedByUser // Add likedByUser attribute
                         )
 
                         // Add the post to the list

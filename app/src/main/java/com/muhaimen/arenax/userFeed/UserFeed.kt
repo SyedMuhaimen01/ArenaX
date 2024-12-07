@@ -16,8 +16,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -40,6 +43,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -199,6 +203,7 @@ class UserFeed : AppCompatActivity() {
                 }
             }
 
+            // Create the Post object and add isLikedByUser field
             val post = Post(
                 postId = postObject.optInt("post_id", 0),
                 postContent = postObject.optString("post_content", null),
@@ -214,7 +219,8 @@ class UserFeed : AppCompatActivity() {
                 createdAt = postObject.optString("created_at", ""),
                 userFullName = postObject.optString("full_name", "Unknown User"),
                 userProfilePictureUrl = postObject.optString("profile_picture_url", null),
-                commentsData = commentsData
+                commentsData = commentsData,
+                isLikedByUser = postObject.optBoolean("likedByUser", false)  // Default to false if not provided
             )
             posts.add(post)
         }

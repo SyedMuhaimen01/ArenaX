@@ -18,7 +18,8 @@ data class Post(
     val createdAt: String,                 // Timestamp when the post was created
     val userFullName: String,              // Full name of the user who posted
     val userProfilePictureUrl: String?,    // Profile picture URL of the user
-    val commentsData: List<Comment>?       // List of comments associated with the post (can be null or empty)
+    var commentsData: List<Comment>?,      // List of comments associated with the post (can be null or empty)
+    var isLikedByUser: Boolean = false    // Indicates whether the post is liked by the user (default is false)
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -36,8 +37,8 @@ data class Post(
         parcel.readString() ?: "",
         parcel.readString().toString(),
         parcel.readString(),
-        parcel.createTypedArrayList(Comment.CREATOR)
-
+        parcel.createTypedArrayList(Comment.CREATOR),
+        parcel.readByte() != 0.toByte() // Read the `isLikedByUser` value from the Parcel
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -56,6 +57,7 @@ data class Post(
         parcel.writeString(userFullName)
         parcel.writeString(userProfilePictureUrl)
         parcel.writeTypedList(commentsData)
+        parcel.writeByte(if (isLikedByUser) 1 else 0)  // Write the `isLikedByUser` value to the Parcel
     }
 
     override fun describeContents(): Int = 0
@@ -112,5 +114,5 @@ data class Comment(
 
 data class Likes(
     val postId: Int,
-    val userId:String
+    val userId: String
 )

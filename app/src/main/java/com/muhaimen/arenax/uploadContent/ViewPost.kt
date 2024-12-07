@@ -131,26 +131,6 @@ class ViewPost : AppCompatActivity() {
             Log.e("Firebase", "User is not logged in.")
         }
 
-        likeButton.visibility=View.VISIBLE
-
-        likeButton.setOnClickListener {
-            likeButton.visibility = View.GONE
-            alreadyLikedButton.visibility = View.VISIBLE
-            likesCount.text = (post.likes + 1).toString()
-            savePostLikeOnServer()
-        }
-
-        alreadyLikedButton.setOnClickListener {
-            alreadyLikedButton.visibility = View.GONE
-            likeButton.visibility = View.VISIBLE
-            if (post.likes == 0) {
-                likesCount.text = "0"
-            } else {
-                likesCount.text = (post.likes - 1).toString()
-            }
-            deletePostLikeOnServer()
-            Log.d("already liked clicked", "already liked clicked")
-        }
         postCommentButton.setOnClickListener {
             // Get the text from the EditText
             val commentText = writeCommentEditText.text.toString()
@@ -238,6 +218,8 @@ class ViewPost : AppCompatActivity() {
             username.text = it.userFullName
             location.text = it.city + ", " + it.country
 
+
+
             if (post.userProfilePictureUrl != null) {
                 // Use Glide (or Picasso) to load the profile picture into the ImageView
                 Glide.with(this)
@@ -267,6 +249,39 @@ class ViewPost : AppCompatActivity() {
                 playTrimmedAudio(audioUrl)
             }
         } ?: Log.d("ViewPost", "Post data is null.")
+
+        if (post.isLikedByUser) {
+            likeButton.visibility = View.GONE
+            alreadyLikedButton.visibility = View.VISIBLE
+        } else {
+            likeButton.visibility = View.VISIBLE
+            alreadyLikedButton.visibility = View.GONE
+        }
+
+        likeButton.setOnClickListener {
+            // Update the UI when the post is liked
+            likeButton.visibility = View.GONE
+            alreadyLikedButton.visibility = View.VISIBLE
+            likesCount.text = (post.likes + 1).toString()
+
+            // Save the like on the server
+            savePostLikeOnServer()
+        }
+
+        alreadyLikedButton.setOnClickListener {
+            alreadyLikedButton.visibility = View.GONE
+            likeButton.visibility = View.VISIBLE
+
+            if (post.likes == 0) {
+                likesCount.text = "0"
+            } else {
+                likesCount.text = (post.likes - 1).toString()
+            }
+            deletePostLikeOnServer()
+            Log.d("already liked clicked", "already liked clicked")
+        }
+
+
     }
 
     private fun savePostDetailsToServer(post: Post) {

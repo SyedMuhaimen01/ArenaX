@@ -5,57 +5,210 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".gamesDashboard.overallLeaderboard">
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-  >
-    <LinearLayout
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@color/primaryColor"
-            android:paddingStart="@dimen/_10sdp"
-            android:paddingTop="@dimen/_10sdp"
-            android:paddingBottom="@dimen/_10sdp"
-            tools:ignore="RtlSymmetry">
-            <ImageButton
-                android:id="@+id/backButton"
-                android:layout_width="@dimen/_30sdp"
-                android:layout_height="@dimen/_20sdp"
-                android:src="@mipmap/back_white2_icon"
-                android:contentDescription="Back Button"
-                tools:ignore="HardcodedText" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_5sdp"
-                android:text="Leaderboard"
-                android:textStyle="bold"
-                android:textColor="@color/backgroundColor"
-                android:textSize="@dimen/_16sdp"
-                tools:ignore="HardcodedText" />
-        </LinearLayout>
+        android:layout_height="match_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_marginTop="@dimen/_1sdp"
-            android:layout_marginLeft="@dimen/_5sdp"
-            android:layout_marginRight="@dimen/_5sdp">
+            android:orientation="vertical">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/leaderboardRecyclerView"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
+                <!-- Header Row with Back Button and Title -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@color/primaryColor"
+                    android:paddingStart="@dimen/_10sdp"
+                    android:paddingTop="@dimen/_10sdp"
+                    android:paddingBottom="@dimen/_10sdp"
+                    tools:ignore="RtlSymmetry">
+                    <ImageButton
+                        android:id="@+id/backButton"
+                        android:layout_width="@dimen/_30sdp"
+                        android:layout_height="@dimen/_20sdp"
+                        android:src="@mipmap/back_white2_icon"
+                        android:contentDescription="Back Button"
+                        tools:ignore="HardcodedText" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_5sdp"
+                        android:text="Leaderboard"
+                        android:textStyle="bold"
+                        android:textColor="@color/backgroundColor"
+                        android:textSize="@dimen/_16sdp"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
+
+                <!-- Tag Row above RecyclerView -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@color/secondaryColor"
+                    android:paddingStart="@dimen/_10sdp"
+                    android:paddingTop="@dimen/_5sdp"
+                    android:paddingBottom="@dimen/_5sdp">
+
+                    <!-- Rank - Positioned on the left -->
+                    <TextView
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Rank"
+                        android:textColor="@color/textColor"
+                        android:textSize="@dimen/_10ssp"
+                        android:paddingLeft="@dimen/_6sdp"
+                        android:layout_marginEnd="@dimen/_10sdp"
+                        android:textStyle="bold"
+                        android:gravity="start"
+                        android:layout_gravity="start"
+                        />
+
+                    <!-- Name - In the center -->
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Player Name"
+                        android:textColor="@color/textColor"
+                        android:textSize="@dimen/_10ssp"
+                        android:layout_weight="1"
+                        android:textStyle="bold"
+                        android:gravity="center" />
+
+                    <!-- Gaming Hours - Positioned on the right -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:gravity="end"
+                        android:paddingRight="@dimen/_8sdp"
+                        android:text="Gaming Hours"
+                        android:textColor="@color/textColor"
+                        android:textSize="@dimen/_10ssp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- RecyclerView for displaying the leaderboard -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/leaderboardRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_10sdp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_90sdp"
+                android:layout_marginTop="-95dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/myrank"
+                    android:text="My Rank"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_12ssp"
+                    android:paddingLeft="@dimen/_6sdp"
+                    android:paddingVertical="@dimen/_3sdp"
+                    android:paddingHorizontal="@dimen/_6sdp"
+                    android:layout_marginTop="@dimen/_3sdp"
+                    android:layout_marginLeft="@dimen/_3sdp"
+                    />
+
+
+            <androidx.cardview.widget.CardView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/analytics_card_view"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_60sdp"
+                app:cardBackgroundColor="@color/black"
+                app:cardElevation="@dimen/_2sdp"
+                android:layout_marginTop="@dimen/_minus2sdp"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/_4sdp">
+
+                    <TextView
+                        android:id="@+id/rankNumber"
+                        android:layout_width="@dimen/_30sdp"
+                        android:layout_height="wrap_content"
+                        android:text="1."
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_15ssp"
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:layout_marginStart="@dimen/_5sdp" />
+                    <!-- Game Icon -->
+                    <ImageView
+                        android:id="@+id/profilePicture"
+                        android:background="@drawable/circle"
+                        android:layout_width="@dimen/_45sdp"
+                        android:layout_height="@dimen/_45sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:layout_marginEnd="@dimen/_10sdp"
+                        android:scaleType="centerCrop"
+                        android:contentDescription="Profile Picture"
+                        tools:ignore="HardcodedText" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_vertical">
+
+                        <!-- Game Name -->
+                        <TextView
+                            android:id="@+id/nameTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Full Name"
+                            android:textStyle="bold"
+                            android:textSize="@dimen/_16ssp"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/gamerTagTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Genre"
+                            android:textSize="@dimen/_12ssp"
+                            android:textColor="@color/white"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+
+                    <!-- Total Hours on the right -->
+                    <TextView
+                        android:id="@+id/totalHours"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total hrs:"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_14sdp"
+                        android:textColor="@color/white"
+                        android:layout_marginEnd="@dimen/_10sdp"
+                        android:gravity="end"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
     </LinearLayout>
 
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
