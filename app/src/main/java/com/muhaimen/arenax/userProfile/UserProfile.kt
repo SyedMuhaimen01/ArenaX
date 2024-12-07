@@ -771,6 +771,22 @@ class UserProfile : AppCompatActivity() {
         postsRecyclerView.adapter = postsAdapter
         postsCount=findViewById(R.id.postsCount)
         postsCount.setText(postsAdapter.itemCount.toString())// Set the adapter to RecyclerView
+        val adapter = postsAdapter
+        val totalHeight = adapter.itemCount.let { count ->
+            // Calculate the height dynamically based on the number of items and individual item height
+            val itemHeight = resources.getDimensionPixelSize(com.intuit.sdp.R.dimen._120sdp) // Or calculate dynamically
+
+            if (count>3)
+            {
+                (itemHeight * count)/3
+            }
+            else{
+                itemHeight * count
+            }
+        }
+
+        postsRecyclerView.layoutParams.height = totalHeight
+        postsRecyclerView.requestLayout()
     }
 
     private fun saveRankToPreferences(rank: String) {

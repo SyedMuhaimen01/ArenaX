@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Comment
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class commentsAdapter(
     private val commentsList: List<Comment> // List of Comment objects
@@ -50,7 +52,16 @@ class commentsAdapter(
             .circleCrop()
             .into(holder.commentProfilePicture)
 
-        // Display comment timestamp
-        holder.commentTimestamp.text = comment.createdAt
+        val isoDateString = comment.createdAt // "2024-12-06T14:16:04.594Z"
+
+// Parse the string into a Date object
+        val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()) // ISO 8601 format
+        val date = isoFormat.parse(isoDateString) // Parse the string to Date
+
+// Now you can format the Date object
+        val formattedTimestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(date)
+
+        holder.commentTimestamp.text = formattedTimestamp
+
     }
 }

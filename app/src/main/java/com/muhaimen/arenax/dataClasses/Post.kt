@@ -109,3 +109,8 @@ data class Comment(
         }
     }
 }
+
+data class Likes(
+    val postId: Int,
+    val userId:String
+)

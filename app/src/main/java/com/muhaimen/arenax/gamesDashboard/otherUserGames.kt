@@ -61,7 +61,6 @@ class otherUserGames : AppCompatActivity() {
     private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var postButton:ImageView
     private lateinit var profileButton:ImageView
-    private lateinit var addGame: ImageView
     private lateinit var exploreButton: ImageView
     private lateinit var homeButton: LinearLayout
     lateinit var backButton: ImageButton
@@ -89,7 +88,7 @@ class otherUserGames : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         userId = auth.currentUser?.uid ?: ""
         gamesSearchBar = findViewById(R.id.searchbar)
-        addGame = findViewById(R.id.addGame)
+
         backButton = findViewById(R.id.backButton)
 
 
@@ -142,16 +141,6 @@ class otherUserGames : AppCompatActivity() {
 
         backButton.setOnClickListener {
             finish()
-        }
-        addGame.setOnClickListener {
-            val intent = Intent(this, gamesList::class.java)
-            startActivity(intent)
-        }
-
-
-        addGame.setOnClickListener {
-            val intent = Intent(this, gamesList::class.java)
-            startActivity(intent)
         }
     }
 

@@ -53,6 +53,7 @@ import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
+import com.muhaimen.arenax.gamesDashboard.otherUserGames
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.uploadStory.viewStory
@@ -166,7 +167,7 @@ class otherUserProfile : AppCompatActivity() {
 
         myGamesButton= findViewById(R.id.myGamesButton)
         myGamesButton.setOnClickListener {
-            val intent = Intent(this, MyGamesList::class.java)
+            val intent = Intent(this, otherUserGames::class.java)
             startActivity(intent)
         }
 

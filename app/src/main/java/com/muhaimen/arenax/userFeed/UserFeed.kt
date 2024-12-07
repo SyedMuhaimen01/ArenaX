@@ -95,11 +95,8 @@ class UserFeed : AppCompatActivity() {
 
         // Initialize adapter with empty data
         userFeedAdapter = UserFeedPostsAdapter(
-            postsList,
-            onLikeClick = { post -> onLikePost(post) },
-            onShareClick = { post -> onSharePost(post) },
-            onCommentClick = { post -> onCommentPost(post) }
-        )
+            postsList)
+
         recyclerView.adapter = userFeedAdapter
 
         // Fetch and populate posts from backend

@@ -125,8 +125,15 @@
                         android:id="@+id/likeButton"
                         android:layout_width="@dimen/_20sdp"
                         android:layout_height="@dimen/_20sdp"
-                        android:src="@mipmap/like_icon"
-                        android:contentDescription="Like Button"/>
+                        android:contentDescription="Like Button"
+                        android:src="@mipmap/like_icon" />
+                    <ImageButton
+                        android:id="@+id/likeFilledButton"
+                        android:layout_width="@dimen/_20sdp"
+                        android:layout_height="@dimen/_20sdp"
+                        android:contentDescription="Like Button"
+                        android:src="@mipmap/like_icon_filled"
+                        android:visibility="gone"/>
                     <TextView
                         android:id="@+id/likeCount"
                         android:layout_width="wrap_content"
@@ -207,8 +214,8 @@
                 android:layout_marginTop="@dimen/_5sdp"
                 android:id="@+id/commentsRecyclerView"
                 android:background="@drawable/view_comment_bg"
-                android:layout_marginRight="@dimen/_2sdp"
-                android:layout_marginLeft="@dimen/_2sdp"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
             <!-- Write Comment Section -->
@@ -226,10 +233,10 @@
                     android:id="@+id/commentProfilePicture"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:background="@drawable/circle"
                     android:layout_marginStart="@dimen/_10sdp"
-                    android:layout_marginEnd="8dp"
                     android:layout_marginTop="@dimen/_4sdp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/circle"
                     android:scaleType="centerCrop"
                     android:src="@mipmap/applogo"
                     tools:ignore="ContentDescription" />
