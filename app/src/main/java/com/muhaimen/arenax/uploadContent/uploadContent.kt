@@ -244,6 +244,7 @@ class UploadContent : AppCompatActivity() {
         uploadPostButton.setOnClickListener {
             uploadContent()
             adapter.releasePlayer()
+            releaseMediaPlayer()
             val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
         }
@@ -407,6 +408,7 @@ class UploadContent : AppCompatActivity() {
                 Toast.makeText(this, "Failed to fetch user location: $error", Toast.LENGTH_SHORT).show()
             }
         )
+        releaseMediaPlayer()
     }
 
 
@@ -606,6 +608,10 @@ class UploadContent : AppCompatActivity() {
         releaseMediaPlayer() // Release media player resources
     }
 
+    override fun onStop(){
+        super.onStop()
+        releaseMediaPlayer()
+    }
     // Handle back button press and release the MediaPlayer
 
     // Release MediaPlayer resources to avoid memory leaks

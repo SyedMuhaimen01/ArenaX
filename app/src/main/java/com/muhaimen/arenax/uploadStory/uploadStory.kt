@@ -285,6 +285,7 @@ class uploadStory : AppCompatActivity() {
         uploadButton.setOnClickListener {
             uploadStoryToBackend()
             adapter.releasePlayer()
+            releaseMediaPlayer()
             val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
         }
@@ -381,6 +382,7 @@ class uploadStory : AppCompatActivity() {
         super.onStop()
         // Stop any background tasks or services if needed
         adapter.releasePlayer()// Example function to stop background tasks
+        releaseMediaPlayer()
     }
 
     private fun uploadStoryToBackend() {
@@ -451,7 +453,7 @@ class uploadStory : AppCompatActivity() {
                         Toast.makeText(this@uploadStory, "User data not found in Firebase.", Toast.LENGTH_SHORT).show()
                     }
                 }
-
+                releaseMediaPlayer()
             }
         } else {
             Toast.makeText(this, "Please select an image.", Toast.LENGTH_SHORT).show()

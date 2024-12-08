@@ -52,17 +52,30 @@ class viewStory : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var timeAgoTextView: TextView
     private lateinit var profilePicture:ImageView
-
+    private lateinit var userNameTextView:TextView
     private var currentIndex = 0
     private lateinit var storiesList: List<Story>
+    private lateinit var storyId: String
+    private lateinit var storyMediaUrl: String
+    private var storyDuration: Int = 0
+    private lateinit var storyTrimmedAudioUrl: String
+    private var storyDraggableTexts: String?=null
+    private lateinit var storyUploadedAt: String
+    private lateinit var storyUserName: String
+    private lateinit var storyUserProfilePicture: String
+    private lateinit var storyCity: String
+    private lateinit var storyCountry: String
     private lateinit var textJson: String
-    private lateinit var story: Story
+    private var storyLongitude: Double = 0.0
+    private var storyLatitude: Double = 0.0
+    private lateinit var intentFrom:String
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_story)
 
         storyImageView = findViewById(R.id.ImageView)
+        userNameTextView = findViewById(R.id.usernameTextView)
         textureView = findViewById(R.id.videoPlayerView)
         draggableTextContainer = FrameLayout(this).apply {
             layoutParams = ViewGroup.LayoutParams(
@@ -87,38 +100,36 @@ class viewStory : AppCompatActivity() {
         timeAgoTextView = findViewById(R.id.timeAgoTextView)
         profilePicture = findViewById(R.id.ProfilePicture)
 
-        val storyFromIntent = intent.getParcelableExtra<Story>("Story")
-        val storiesListFromIntent = intent.getParcelableArrayListExtra<Story>("storiesList")
-        val currentIndexFromIntent = intent.getIntExtra("currentIndex", 0)
+        val intent = intent
+        intentFrom=intent.getStringExtra("intentFrom").toString()
 
-        if (storyFromIntent != null) {
-            // Data received from the first route (single story)
-            story = storyFromIntent
-            Log.d("Story", "Received single story: ${story.toString()}")
-
-            val gson = Gson()
-            val draggableJson = gson.toJson(story.draggableTexts)
-            textJson = draggableJson
-            Log.d("Story", "Converted draggable texts to JSON: $textJson")
-
-            // Display single story data
-            Log.d("ViewStory", "Displaying single story data.")
+        if(intentFrom=="Adapter") {
+            storyId = intent.getStringExtra("id").toString()
+            storyMediaUrl = intent.getStringExtra("mediaUrl").toString()  // String (URL)
+            storyDuration = intent.getIntExtra("duration", 0)  // Default value 0
+            storyTrimmedAudioUrl = intent.getStringExtra("trimmedAudioUrl").toString()
+            Log.d("trimmedAudio urd", storyTrimmedAudioUrl)
+            storyDraggableTexts = intent.getStringExtra("draggableTexts")
+            storyUploadedAt =
+                intent.getStringExtra("uploadedAt").toString() // String (Date as String)
+            storyUserName = intent.getStringExtra("userName").toString()  // String
+            storyUserProfilePicture =
+                intent.getStringExtra("userProfilePicture").toString()  // String (URL)
+            storyCity = intent.getStringExtra("city").toString()  // String
+            storyCountry = intent.getStringExtra("country").toString()  // String
+            storyLatitude = intent.getDoubleExtra("latitude", 0.0)  // Default value 0.0
+            storyLongitude = intent.getDoubleExtra("longitude", 0.0)  // Default value 0.0
             displaySingleStory()
-        } else if (storiesListFromIntent != null && storiesListFromIntent.isNotEmpty()) {
-            // Data received from the second route (list of stories)
-            storiesList = storiesListFromIntent
-            currentIndex = currentIndexFromIntent
-            Log.d(
-                "ViewStory",
-                "Displaying list of stories. Total stories: ${storiesList.size}, Current index: $currentIndex"
-            )
+        }
+        else{
+            val storiesJson = intent.getStringExtra("storiesListJson")
+            storiesList= Gson().fromJson(storiesJson, Array<Story>::class.java).toList()
+            currentIndex = intent.getIntExtra("currentIndex", 0)
+            Log.d("ViewStory", "Received stories list with size: ${storiesList.size}")
 
-            // Display the list of stories
-            displayStory()
-        } else {
-            // Handle case where no valid data is received
-            Log.e("ViewStory", "No valid story data received.")
-            // Optionally show a default view or an error message
+            if (storiesList.isNotEmpty()) {
+                displayStory()
+            }
         }
 
         textureView.setOnTouchListener { _, event ->
@@ -140,13 +151,13 @@ class viewStory : AppCompatActivity() {
     }
 
         private fun displaySingleStory() {
-            Log.d("ViewStory", "Displaying single story with ID: ${story.id}")
+            Log.d("ViewStory", "Displaying single story with ID: ${storyId}")
 
             // Convert uploadedAt to Date object if it's a String timestamp (optional, based on how the data is passed)
-            val uploadedAtDate = story.uploadedAt?.let {
+            val uploadedAtDate = storyUploadedAt.let {
                 try {
-                    Log.d("ViewStory", "Converting uploadedAt: ${story.uploadedAt!!.time}")
-                    Date(story.uploadedAt!!.time) // directly use the time property for conversion to Date
+                    Log.d("ViewStory", "Converting uploadedAt: ${storyUploadedAt!!}")
+                    Date(storyUploadedAt) // directly use the time property for conversion to Date
                 } catch (e: Exception) {
                     Log.e("ViewStory", "Error parsing uploadedAt: ${e.message}")
                     null // Return null if parsing fails
@@ -157,20 +168,21 @@ class viewStory : AppCompatActivity() {
 
             // Create a single Story object with the passed-in data
             val singleStory = Story(
-                id = story.id,
-                mediaUrl = story.mediaUrl ?: "",
-                duration = story.duration,
-                trimmedAudioUrl = story.trimmedAudioUrl,
-                draggableTexts = story.draggableTexts ?: JSONArray(), // Use the passed draggableTexts or empty JSONArray
+                id = storyId,
+                mediaUrl = storyMediaUrl ?: "",
+                duration = storyDuration,
+                trimmedAudioUrl = storyTrimmedAudioUrl,
+                draggableTexts = storyDraggableTexts?.let { convertToJSONArray(it) },
                 uploadedAt = uploadedAtDate,
-                userName = story.userName,
-                userProfilePicture = story.userProfilePicture,
-                city = story.city,
-                country = story.country,
-                latitude = story.latitude,
-                longitude = story.longitude
+                userName = storyUserName,
+                userProfilePicture = storyUserProfilePicture,
+                city = storyCity,
+                country = storyCountry,
+                latitude = storyLatitude,
+                longitude = storyLongitude
             )
-
+    Log.d("ViewStory", "Single story object created: $singleStory")
+            userNameTextView.text=singleStory.userName
             // Set the "time ago" text using the `timeAgo` property from Story
             timeAgoTextView.text = singleStory.timeAgo
 
@@ -181,12 +193,13 @@ class viewStory : AppCompatActivity() {
             }
 
             // Load profile picture if available
-            if (singleStory.userProfilePicture.isNotEmpty() && singleStory.userProfilePicture != "null") {
+            if (storyUserProfilePicture != "null") {
                 Log.d("ProfilePicture", "Loading profile picture from URL: ${singleStory.userProfilePicture}")
-                val uri = Uri.parse(singleStory.userProfilePicture)
+                val uri = Uri.parse(storyUserProfilePicture)
                 Glide.with(this)
                     .load(uri)
                     .thumbnail(0.1f)
+                    .circleCrop()
                     .error(R.drawable.add_icon_foreground) // You can specify a default image here
                     .into(profilePicture)
             } else {
@@ -200,10 +213,8 @@ class viewStory : AppCompatActivity() {
             }
 
             // Display draggable texts if available
-            singleStory.draggableTexts?.let {
-                Log.d("DraggableTexts", "Displaying draggable texts: $it")
-                displayDraggableTexts(it.toString()) // Assuming it needs to be a String
-            }
+            displayDraggableTexts(storyDraggableTexts.toString()) // Assuming it needs to be a String
+            Log.d("DraggableTexts", "Displaying draggable texts: ${storyDraggableTexts.toString()}")
 
             // Set progress bar (to simulate progress over the story's duration)
             progressBar.max = 100  // Assuming the max value is 100% for the progress
@@ -234,12 +245,23 @@ class viewStory : AppCompatActivity() {
             handler.postDelayed({ finish() }, totalDuration * 1000L) // Multiply by 1000 to convert seconds to milliseconds
         }
 
-        private fun displayStory() {
+    fun convertToJSONArray(json: String): JSONArray? {
+        return try {
+            JSONArray(json)
+        } catch (e: JSONException) {
+            // Handle the exception if any occurs during parsing
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun displayStory() {
             Log.d("ViewStory", "Displaying story at index: $currentIndex")
             val currentStory = storiesList[currentIndex]
-
+            Log.d("ViewStory", "Current story: $currentStory")
             // Set the "time ago" text using the updated `calculateTimeAgo` function
             timeAgoTextView.text = calculateTimeAgo(currentStory.uploadedAt)
+            userNameTextView.text=currentStory.userName
 
             // Load media if available
             if (currentStory.mediaUrl.isNotEmpty()) {
@@ -250,15 +272,26 @@ class viewStory : AppCompatActivity() {
             // Display draggable texts if available
             currentStory.draggableTexts?.let {
                 Log.d("DraggableTexts", "Displaying draggable texts: $it")
-                displayDraggableTexts(it.toString()) // Assuming it needs to be a String
+                displayDraggableTexts2(it.toString()) // Assuming it needs to be a String
             }
-
+            Log.d("DraggableTexts", "Displaying draggable texts: ${currentStory.draggableTexts}")
             // Load audio if available
             currentStory.trimmedAudioUrl?.let { audioUrl ->
                 Log.d("Audio", "Playing audio from URL: $audioUrl")
                 playTrimmedAudio(audioUrl)
             }
 
+        if (currentStory.userProfilePicture!= "null") {
+            val uri = Uri.parse(currentStory.userProfilePicture)
+            Glide.with(this)
+                .load(uri)
+                .thumbnail(0.1f)
+                .circleCrop()
+                .error(R.drawable.add_icon_foreground) // You can specify a default image here
+                .into(profilePicture)
+        } else {
+            Log.e("ProfilePicture", "Profile picture URL is invalid or empty.")
+        }
             // Set progress bar based on the index and total number of stories
             progressBar.max = storiesList.size
             progressBar.progress = currentIndex + 1 // Progress is 1-based
@@ -459,40 +492,70 @@ class viewStory : AppCompatActivity() {
         Log.d("DraggableTextsJson", "Received JSON string: $json")
 
         try {
-            // Check if the JSON string is empty or represents an empty array
-            if (json == "[]") {
-                Log.d("DraggableTexts", "Received an empty array.")
-                return  // No draggable texts to process
-            }
+            val jsonObject = JSONObject(json)
+            val valuesArray = jsonObject.getJSONArray("values")
 
-            // Attempt to parse the string as a JSONArray if it's not empty
-            val jsonArray = JSONArray(json)
+            Log.d("DraggableTexts", "Received draggable texts count: ${valuesArray.length()}")
 
-            Log.d("DraggableTexts", "Received draggable texts count: ${jsonArray.length()}")
+            for (i in 0 until valuesArray.length()) {
+                val valueObject = valuesArray.getJSONObject(i)
+                val nameValuePairs = valueObject.getJSONObject("nameValuePairs")
 
-            for (i in 0 until jsonArray.length()) {
-                val valueObject = jsonArray.getJSONObject(i)
-
-                // Directly access the fields, no need for nameValuePairs
-                val content = valueObject.getString("content")
-                val x = valueObject.getDouble("x").toFloat()
-                val y = valueObject.getDouble("y").toFloat()
-                val backgroundColor = valueObject.optInt("backgroundColor", 0) // Use optInt to avoid exceptions
-                val textColor = valueObject.optInt("textColor", 0) // Use optInt to avoid exceptions
+                // Use opt* methods for safer parsing with default values
+                val content = nameValuePairs.optString("content", "Default Text")
+                val x = nameValuePairs.optDouble("x", 0.0).toFloat()
+                val y = nameValuePairs.optDouble("y", 0.0).toFloat()
+                val backgroundColor = nameValuePairs.optInt("backgroundColor", 0xFFFFFF) // Default white color
+                val textColor = nameValuePairs.optInt("textColor", -1) // Default black color
 
                 Log.d("DraggableText", "Content: $content, X: $x, Y: $y, BG: $backgroundColor, Text: $textColor")
+
                 val draggableText = DraggableText(content, x, y, backgroundColor, textColor)
 
                 val textView = createDraggableTextView(draggableText)
                 draggableTextContainer.addView(textView)
             }
         } catch (e: JSONException) {
-            Log.e("JSON", "JSON parsing error draggable text: ${e.message}")
+            Log.e("JSON", "JSON parsing error: ${e.message}")
         } catch (e: Exception) {
             Log.e("Error", "Unexpected error while parsing draggable texts: ${e.message}")
         }
     }
 
+    private fun displayDraggableTexts2(json: String) {
+        Log.d("DraggableTextsJson", "Received JSON string: $json")
+
+        try {
+            // Parse the top-level array
+            val jsonArray = JSONArray(json)
+            Log.d("DraggableTexts", "Received draggable texts count: ${jsonArray.length()}")
+
+            for (i in 0 until jsonArray.length()) {
+                val jsonString = jsonArray.getString(i)  // Get the string object (which is like a JSON string)
+                val jsonObject = JSONObject(jsonString) // Now parse it as a JSONObject
+
+                val nameValuePairs = jsonObject.getJSONObject("nameValuePairs")
+
+                // Use opt* methods for safer parsing with default values
+                val content = nameValuePairs.optString("content", "Default Text")
+                val x = nameValuePairs.optDouble("x", 0.0).toFloat()
+                val y = nameValuePairs.optDouble("y", 0.0).toFloat()
+                val backgroundColor = nameValuePairs.optInt("backgroundColor", 0xFFFFFF) // Default white color
+                val textColor = nameValuePairs.optInt("textColor", -1) // Default black color
+
+                Log.d("DraggableText", "Content: $content, X: $x, Y: $y, BG: $backgroundColor, Text: $textColor")
+
+                val draggableText = DraggableText(content, x, y, backgroundColor, textColor)
+
+                val textView = createDraggableTextView(draggableText)
+                draggableTextContainer.addView(textView)
+            }
+        } catch (e: JSONException) {
+            Log.e("JSON", "JSON parsing error: ${e.message}")
+        } catch (e: Exception) {
+            Log.e("Error", "Unexpected error while parsing draggable texts: ${e.message}")
+        }
+    }
 
 
     private fun createDraggableTextView(draggableText: DraggableText): TextView {
