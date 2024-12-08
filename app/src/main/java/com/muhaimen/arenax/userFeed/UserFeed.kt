@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.userFeed
 
+import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
@@ -34,6 +35,7 @@ import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.utils.Constants
+import highlightsAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -52,7 +54,8 @@ import java.util.Locale
 
 class UserFeed : AppCompatActivity() {
     private lateinit var userFeedAdapter: UserFeedPostsAdapter
-    private lateinit var commentsAdapter: commentsAdapter
+    private lateinit var highlightsAdapter: highlightsAdapter
+    private lateinit var highlightsRecyclerView: RecyclerView
     private lateinit var threadsButton: ImageButton
     private lateinit var notificationsButton: ImageButton
     private lateinit var homeButton: LinearLayout
@@ -62,7 +65,7 @@ class UserFeed : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private val postsList = mutableListOf<Post>()
-
+    private val storiesList = mutableListOf<Story>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_feed)
@@ -75,6 +78,7 @@ class UserFeed : AppCompatActivity() {
         }
 
         setupBottomNavigation()
+
 
         // Set status bar and navigation bar color
         window.statusBarColor = resources.getColor(R.color.primaryColor)
@@ -103,10 +107,16 @@ class UserFeed : AppCompatActivity() {
 
         recyclerView.adapter = userFeedAdapter
 
+        highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
+        highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        highlightsAdapter = highlightsAdapter(storiesList)
+        highlightsRecyclerView.adapter = highlightsAdapter
         // Fetch and populate posts from backend
         fetchFollowingAndPopulatePosts()
+        fetchFollowingAndPopulateStories()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun fetchFollowingAndPopulatePosts() {
         lifecycleScope.launch {
             try {
@@ -124,6 +134,23 @@ class UserFeed : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private fun fetchFollowingAndPopulateStories() {
+        lifecycleScope.launch {
+            try {
+                // Call the combined function
+                fetchFollowedUsersStories { story ->
+                    // Update postsList and notify adapter
+                    storiesList.clear()
+                    storiesList.addAll(story)
+                    highlightsAdapter.notifyDataSetChanged()
+                }
+            } catch (e: Exception) {
+                Log.e("UserFeed", "Error fetching stories", e)
+                Toast.makeText(this@UserFeed, "Failed to fetch stories", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
     private fun fetchUserFeed(onPostsFetched: (List<Post>) -> Unit) {
         val userId = auth.currentUser?.uid ?: return
         val followingRef = database.child("userData").child(userId).child("synerG").child("following")
@@ -230,6 +257,7 @@ class UserFeed : AppCompatActivity() {
 
 
     private fun fetchFollowedUsersStories(onStoriesFetched: (List<Story>) -> Unit) {
+        Log.d("fetchFollowedUsersStories", "Fetching stories")
         val userId = auth.currentUser?.uid ?: return
         val followingRef = database.child("userData").child(userId).child("synerG").child("following")
 
@@ -286,6 +314,7 @@ class UserFeed : AppCompatActivity() {
 
     // Helper function to parse stories
     private fun parseStoriesFromResponse(responseData: String): List<Story> {
+        Log.d("Respomse","$responseData")
         val stories = mutableListOf<Story>()
         val jsonArray = JSONArray(responseData)
 

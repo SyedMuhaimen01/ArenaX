@@ -59,6 +59,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.google.gson.Gson
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ChatService
 import com.muhaimen.arenax.accountSettings.accountSettings
@@ -173,8 +174,6 @@ class UserProfile : AppCompatActivity() {
         followersLinearLayout=findViewById(R.id.followersLinearLayout)
         followingLinearLayout=findViewById(R.id.followingLinearLayout)
 
-        highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
-        highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         postsRecyclerView = findViewById(R.id.posts_recyclerview)
         postsRecyclerView.layoutManager = GridLayoutManager(this, 3)
@@ -333,8 +332,6 @@ class UserProfile : AppCompatActivity() {
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }
-
-
     }
 
     private fun loadGamesFromPreferences() {
@@ -1209,7 +1206,7 @@ class UserProfile : AppCompatActivity() {
                         val draggableTexts = try {
                             JSONArray(draggableTextsJsonString) // Convert string to JSONArray
                         } catch (e: JSONException) {
-                            Log.e("fetchUserStory", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
+                            Log.e("fetchUserStories", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
                             JSONArray() // Return an empty JSONArray in case of error
                         }
 
@@ -1250,19 +1247,23 @@ class UserProfile : AppCompatActivity() {
                     }
 
                     // Handle story presence
-                    val storyRing = findViewById<ImageView>(R.id.storyRing)
                     if (storiesList.isNotEmpty()) {
-                        storyRing.visibility = View.VISIBLE
+                        // Show the story ring
+                        findViewById<ImageView>(R.id.storyRing).visibility = View.VISIBLE
 
-                        // Launch StoryViewActivity if stories are available
+                        // Launch StoryViewActivity if there are stories
+                        val gson = Gson()
+                        val storiesJson = gson.toJson(storiesList)
+
                         val intent = Intent(this, viewStory::class.java).apply {
-                            putParcelableArrayListExtra("storiesList", ArrayList(storiesList))
+                            putExtra("intentFrom", "UserProfile")
+                            putExtra("storiesListJson", storiesJson)
                             putExtra("currentIndex", 0)
                         }
                         startActivity(intent)
                     } else {
-                        // Hide the story ring and navigate to the profile picture
-                        storyRing.visibility = View.GONE
+                        // Hide the story ring if there are no stories
+                        findViewById<ImageView>(R.id.storyRing).visibility = View.GONE
                         navigateToFullProfilePicture()
                     }
                 } catch (e: JSONException) {
