@@ -126,64 +126,85 @@ class ScreenTimeService : Service() {
             }
         }
 
-        // Send metrics to backend at 8 AM if not already sent today
+        // Send metrics to backend at 12:25 PM if not already sent today
         val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         val currentMinute = Calendar.getInstance().get(Calendar.MINUTE)
-        if (currentHour == 20 && currentMinute == 0 && !dataSentToday) {
+        if (currentHour == 14 && currentMinute == 11 && !dataSentToday) {
             sendMetricsToBackend()
         }
     }
 
     private fun sendMetricsToBackend() {
-        fetchUserGameList()
-        val userId = auth.currentUser?.uid ?: return
-        val gameMetrics = JSONObject().apply {
-            sessionData.forEach { (packageName, sessionLengths) ->
-                // Only process the games that are in the user's game list
-                if (isUserGame(packageName)) {
-                    val totalPlaytimeMillis = sessionLengths.sum()
-                    val averagePlaytimeMillis = sessionLengths.average()
-                    val peakPlaytimeMillis = sessionLengths.maxOrNull()
 
-                    put(packageName, JSONObject().apply {
-                        put("totalSessions", sessionCount[packageName])
-                        put("sessionLengths", sessionLengths.map { it / 3600000.0 })
-                        put("totalPlaytime", totalPlaytimeMillis / 3600000.0)
-                        put("averagePlaytime", averagePlaytimeMillis / 3600000.0)
-                        put("peakPlaytime", peakPlaytimeMillis?.div(3600000.0))
-                    })
+        fetchUserGameList { success ->
+            if (!success) {
+                Log.e("ScreenTimeService", "Failed to fetch user game list. Cannot send metrics.")
+                return@fetchUserGameList
+            }
+
+            val userId = auth.currentUser?.uid ?: ""
+
+            Log.e("ScreenTimeSessionssssss", "Session Data: $sessionData")
+            Log.d("usegames","$userGames")
+            val gameMetrics = JSONObject().apply {
+                sessionData.forEach { (packageName, sessionLengths) ->
+
+                    // Only process the games that are in the user's game list
+                    if (isUserGame(packageName)) {
+                        val totalPlaytimeMillis = sessionLengths.sum()
+                        val averagePlaytimeMillis = sessionLengths.average()
+                        val peakPlaytimeMillis = sessionLengths.maxOrNull()
+
+                        put(packageName, JSONObject().apply {
+                            put("sessionCount", sessionCount[packageName])
+                            put("sessionLengths", sessionLengths.map { it / 3600000.0 })
+                            put("totalPlaytime", totalPlaytimeMillis / 3600000.0)
+                            put("averagePlaytime", averagePlaytimeMillis / 3600000.0)
+                            put("peakPlaytime", peakPlaytimeMillis?.div(3600000.0))
+                        })
+
+                        // Log the metrics being added for each game
+                        Log.d("ScreenTimeService", "Added metrics for game: $packageName with playtime details: " +
+                                "Total Sessions: ${sessionCount[packageName]}, " +
+                                "Total Playtime: ${totalPlaytimeMillis / 3600000.0} hours, " +
+                                "Average Playtime: ${averagePlaytimeMillis / 3600000.0} hours, " +
+                                "Peak Playtime: ${peakPlaytimeMillis?.div(3600000.0)} hours")
+                    }
                 }
             }
-        }
 
-        val jsonObject = JSONObject().apply {
-            put("user_id", userId)
-            put("game_metrics", gameMetrics)
-        }
-
-        val request = JsonObjectRequest(
-            Request.Method.POST,
-            "${Constants.SERVER_URL}gameMetrics/user/$userId/gamesSessionMetrics",
-            jsonObject,
-            { response ->
-                Log.d("ScreenTimeService", "Successfully sent metrics to backend: $response")
-                dataSentToday = true
-                sessionData.clear()
-                sessionCount.clear()
-                currentSessionStartTime.clear()
-
-                // Notify success
-                sendSuccessNotification()
-            },
-            { error ->
-                Log.e("ScreenTimeService", "Error sending metrics to backend: ${error.message}")
-                if (!dataSentToday) {
-                    scheduleRetry()
-                }
+            val jsonObject = JSONObject().apply {
+                put("user_id", userId)
+                put("game_metrics", gameMetrics)
             }
-        )
 
-        queue.add(request)
+            // Log the entire JSON data being sent to the backend
+            Log.d("ScreenTimeService", "Sending the following metrics data to backend: $jsonObject")
+
+            val request = JsonObjectRequest(
+                Request.Method.POST,
+                "${Constants.SERVER_URL}gameMetrics/user/$userId/gamesSessionMetrics",
+                jsonObject,
+                { response ->
+                    dataSentToday = true
+                    sessionData.clear()
+                    sessionCount.clear()
+                    currentSessionStartTime.clear()
+                    Log.d("ScreenTimeService", "Successfully sent metrics to backend: $response")
+
+                    // Notify success
+                    sendSuccessNotification()
+                },
+                { error ->
+                    Log.e("ScreenTimeService", "Error sending metrics to backend: ${error.message}")
+                    if (!dataSentToday) {
+                        scheduleRetry()
+                    }
+                }
+            )
+
+            queue.add(request)
+        }
     }
 
     // Helper function to check if the game is in the user's game list
@@ -191,35 +212,35 @@ class ScreenTimeService : Service() {
         return userGames.any { it.packageName == packageName }
     }
 
-    private fun scheduleRetry() {
-        handler.postDelayed({ sendMetricsToBackend() }, retryInterval)
-        Log.d("ScreenTimeService", "Retrying in ${retryInterval / 60000} minutes")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        handler.removeCallbacks(usageCheckRunnable ?: return)
-    }
-
-    private fun fetchUserGameList() {
+    private fun fetchUserGameList(callback: (Boolean) -> Unit) {
         val userId = auth.currentUser?.uid ?: ""
 
+        // Update the URL to match the backend route
         val request = okhttp3.Request.Builder()
-            .url("${Constants.SERVER_URL}user/${userId}/gamelist")
+            .url("${Constants.SERVER_URL}usergames/user/$userId/gamelist")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             @SuppressLint("RestrictedApi")
             override fun onFailure(call: okhttp3.Call, e: IOException) {
                 e.printStackTrace()
-
+                Log.e("GameListActivity", "Error fetching game list", e)
+                callback(false) // Callback with failure status
             }
+
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string() ?: ""
                     if (responseBody.isNotEmpty()) {
                         parseGameListData(responseBody)
+                        callback(true) // Callback with success status
+                    } else {
+                        Log.e("GameListActivity", "Response body is empty")
+                        callback(false) // Callback with failure status
                     }
+                } else {
+                    Log.e("GameListActivity", "Failed to fetch game list: ${response.message}")
+                    callback(false) // Callback with failure status
                 }
             }
         })
@@ -228,8 +249,11 @@ class ScreenTimeService : Service() {
     private fun parseGameListData(responseBody: String) {
         try {
             val jsonObject = JSONObject(responseBody)
+
+            // Extracting the game list
             val gamesArray = jsonObject.getJSONArray("games")
 
+            // Parse games into the userGames list
             userGames = List(gamesArray.length()) { index ->
                 val gameObject = gamesArray.getJSONObject(index)
 
@@ -239,6 +263,8 @@ class ScreenTimeService : Service() {
                     packageName = gameObject.getString("packageName")
                 )
             }
+            Log.d("usegames","$userGames")
+
         } catch (e: Exception) {
             Log.e("GameListActivity", "Error parsing game list data", e)
         }
@@ -250,10 +276,21 @@ class ScreenTimeService : Service() {
         val packageName: String
     )
 
+
+    private fun scheduleRetry() {
+        handler.postDelayed({ sendMetricsToBackend() }, retryInterval)
+        Log.d("ScreenTimeService", "Retrying in ${retryInterval / 60000} minutes")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(usageCheckRunnable ?: return)
+    }
+
     // Function to send a notification on successful data submission
     private fun sendSuccessNotification() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notification = NotificationCompat.Builder(this, "screen_time_channel")
+        val notification = NotificationCompat.Builder(this, "ScreenTimeServiceChannel")
             .setContentTitle("Game data storage successful")
             .setContentText("Your game time has been successfully submitted.")
             .setSmallIcon(R.mipmap.appicon2)

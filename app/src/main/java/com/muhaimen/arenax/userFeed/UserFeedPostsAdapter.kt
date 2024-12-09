@@ -292,7 +292,7 @@ class UserFeedPostsAdapter(
                 jsonRequest,
                 { response ->
                     // Handle success
-                    val intent = Intent("NEW_COMMENT_ADDED")
+                    val intent = Intent("NEW_POST_ADDED")
                     LocalBroadcastManager.getInstance(itemView.context).sendBroadcast(intent)
                 },
                 { error ->

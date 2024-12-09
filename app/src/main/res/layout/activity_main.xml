@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:id="@+id/main"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context=".MainActivity"
-android:orientation="vertical"
-    android:background="@drawable/screenbackground"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical"
+    android:background="@drawable/screenbackground">
 
     <ImageView
         android:layout_marginTop="@dimen/_150sdp"
         android:layout_width="@dimen/_150sdp"
         android:layout_height="@dimen/_150sdp"
+        android:contentDescription="TODO"
         android:src="@mipmap/applogo_foreground"
-        android:layout_marginLeft="@dimen/_75sdp"
-        />
+        android:layout_marginStart="@dimen/_75sdp" />
 
     <TextView
         android:layout_marginTop="@dimen/_5sdp"
@@ -27,8 +26,7 @@ android:orientation="vertical"
         android:textColor="@color/white"
         android:layout_gravity="center"
         android:fontFamily="@font/exo2"
-        android:textStyle="bold"
-        />
+        android:textStyle="bold" />
 
     <TextView
         android:layout_marginTop="@dimen/_10sdp"
@@ -38,6 +36,5 @@ android:orientation="vertical"
         android:textSize="@dimen/_20ssp"
         android:textColor="@color/Silver"
         android:layout_gravity="center"
-        android:textStyle="italic"
-       />
+        android:textStyle="italic" />
 </LinearLayout>

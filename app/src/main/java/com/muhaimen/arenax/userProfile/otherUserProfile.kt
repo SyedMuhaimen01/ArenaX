@@ -1,11 +1,8 @@
 package com.muhaimen.arenax.userProfile
 
 import android.annotation.SuppressLint
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.ContentValues.TAG
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -43,6 +40,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.google.gson.Gson
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.AnalyticsData
@@ -51,8 +49,6 @@ import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.explore.ExplorePage
-import com.muhaimen.arenax.gamesDashboard.MyGamesList
-import com.muhaimen.arenax.gamesDashboard.MyGamesListAdapter
 import com.muhaimen.arenax.gamesDashboard.otherUserGames
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.uploadContent.UploadContent
@@ -70,11 +66,10 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
-import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.ArrayList
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 
 @Suppress("DEPRECATED_IDENTITY_EQUALS")
@@ -136,6 +131,7 @@ class otherUserProfile : AppCompatActivity() {
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         myGamesListAdapter = gamesDashboardAdapter(emptyList(), receivedUserId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
+        rankTextView = findViewById(R.id.rankTextView)
 
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -143,6 +139,7 @@ class otherUserProfile : AppCompatActivity() {
         postsRecyclerView = findViewById(R.id.posts_recyclerview)
         postsRecyclerView.layoutManager = GridLayoutManager(this, 3)
 
+        //fetching user's Data from Servers
         fetchUserDetailsFromFirebase()
         fetchUserStories()
         fetchUserPosts()
@@ -151,7 +148,6 @@ class otherUserProfile : AppCompatActivity() {
 
         followersTextView = findViewById(R.id.followersTextView)
         followingTextView = findViewById(R.id.followingTextView)
-
         fetchAndSetCounts(receivedUserId)
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
@@ -168,32 +164,26 @@ class otherUserProfile : AppCompatActivity() {
         myGamesButton= findViewById(R.id.myGamesButton)
         myGamesButton.setOnClickListener {
             val intent = Intent(this, otherUserGames::class.java).apply {
-                putExtra("userId", receivedUserId)  // Pass the user ID to the next activity
+                putExtra("userId", receivedUserId)
             }
             startActivity(intent)
         }
-
 
         profileButton=findViewById(R.id.profileButton)
         profileButton.setOnClickListener {
             val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
         }
-        // Initialize the RecyclerView for analytics
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
-        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-
-        // Set an empty adapter initially
+        myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         myGamesListAdapter = gamesDashboardAdapter(emptyList(), receivedUserId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
-        // Initialize the RecyclerView for highlights
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        rankTextView = findViewById(R.id.rankTextView)
 
+        //functionality to send connection request to the user whose profile is visited
         currentUserId= FirebaseManager.getCurrentUserId().toString()
-        // Assume currentUserId and receivedUserId are already defined.
         requestAllianceButton = findViewById(R.id.requestAllianceButton)
 
         if (currentUserId != null && receivedUserId != null) {
@@ -202,13 +192,12 @@ class otherUserProfile : AppCompatActivity() {
                 val allianceStatus = checkIfAlliance(currentUserId, receivedUserId)
                 updateButtonState(requestAllianceButton, allianceStatus)
             }
-
-            // Set up button click listener
             requestAllianceButton.setOnClickListener {
                 handleButtonClick(requestAllianceButton, currentUserId, receivedUserId)
             }
         }
 
+        //navigation bar listeners
         addPost= findViewById(R.id.addPostButton)
         addPost.setOnClickListener {
             val intent = Intent(this, UploadContent::class.java)
@@ -233,6 +222,7 @@ class otherUserProfile : AppCompatActivity() {
             onProfilePictureClick()
         }
 
+        //reload Activity's data on page reload
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
         swipeRefreshLayout.setColorSchemeResources(R.color.white)
         swipeRefreshLayout.setOnRefreshListener {
@@ -242,21 +232,9 @@ class otherUserProfile : AppCompatActivity() {
             fetchUserRank()
             fetchUserGames()
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "TrackingServiceChannel",
-                "Game Tracking Notifications",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(channel)
-        }
-
-
     }
 
-
+    //handles the connection button state
     private fun updateButtonState(button: Button, allianceStatus: String) {
         when (allianceStatus) {
             "accepted" -> {
@@ -280,7 +258,7 @@ class otherUserProfile : AppCompatActivity() {
         }
     }
 
-    // Handles button click logic
+    // Handles Connection's button click logic
     @SuppressLint("RestrictedApi")
     private fun handleButtonClick(button: Button, currentUserId: String, receiverId: String) {
         val database = FirebaseDatabase.getInstance()
@@ -307,7 +285,7 @@ class otherUserProfile : AppCompatActivity() {
 
                 // Update current user's following node
                 val currentUserFollowingRef = userRef.child(currentUserId).child("synerG").child("following").child(receiverId)
-                // Update receiver's followers node
+                // Update profile owner's followers node
                 val receiverFollowersRef = userRef.child(receiverId).child("synerG").child("followers").child(currentUserId)
 
                 // Perform both updates simultaneously
@@ -354,7 +332,6 @@ class otherUserProfile : AppCompatActivity() {
         }
     }
 
-
     // Checks the alliance status
     suspend fun checkIfAlliance(currentUserId: String, receivedUserId: String): String {
         val database = FirebaseDatabase.getInstance()
@@ -380,8 +357,7 @@ class otherUserProfile : AppCompatActivity() {
         }
     }
 
-
-
+    //fetch games list of the profile owner
     private fun fetchUserGames() {
         val request = okhttp3.Request.Builder()
             .url("${Constants.SERVER_URL}usergames/user/${receivedUserId}/mygames")
@@ -390,9 +366,7 @@ class otherUserProfile : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
-                runOnUiThread {
-                    Toast.makeText(this@otherUserProfile, "Failed to fetch games", Toast.LENGTH_SHORT).show()
-                }
+                runOnUiThread {}
             }
 
             override fun onResponse(call: Call, response: okhttp3.Response) {
@@ -405,9 +379,7 @@ class otherUserProfile : AppCompatActivity() {
                         updateEmptyGameList()
                     }
                 } else {
-                    runOnUiThread {
-                        Toast.makeText(this@otherUserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
-                    }
+                    runOnUiThread {}
                 }
             }
         })
@@ -422,27 +394,24 @@ class otherUserProfile : AppCompatActivity() {
     private fun parseGamesData(responseBody: String) {
         try {
             val jsonObject = JSONObject(responseBody)
-            val gamesArray = jsonObject.getJSONArray("games") // Fetch the 'games' array from the JSON object
+            val gamesArray = jsonObject.getJSONArray("games")
 
             myGamesList = List(gamesArray.length()) { index ->
                 val gameObject = gamesArray.getJSONObject(index)
                 Log.d("MyGamesList", "Parsing game: ${gameObject.getString("gameName")}, Icon URL: ${gameObject.getString("gameIcon")}")
-
-                // Assuming graphData is coming from the server as a List of objects
                 val graphDataArray = gameObject.getJSONArray("graphData")
                 val graphData = List(graphDataArray.length()) { gIndex ->
                     val dataPoint = graphDataArray.getJSONObject(gIndex)
-                    val date = dataPoint.getString("date") // Get date
-                    val totalHours = dataPoint.getDouble("totalHours") // Get total hours
+                    val date = dataPoint.getString("date")
+                    val totalHours = dataPoint.getDouble("totalHours")
                     Pair(date, totalHours)
                 }
 
-                // Create AnalyticsData object
                 AnalyticsData(
                     gameName = gameObject.getString("gameName"),
-                    totalHours = gameObject.getDouble("totalHours"), // Assuming totalHours is a double
+                    totalHours = gameObject.getDouble("totalHours"),
                     iconResId = gameObject.getString("gameIcon"),
-                    graphData = graphData // Assign the graph data
+                    graphData = graphData
                 )
             }
 
@@ -461,7 +430,6 @@ class otherUserProfile : AppCompatActivity() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         userData = snapshot.getValue(UserData::class.java) ?: UserData()
-                        Log.d("UserProfile", "Data loaded from Firebase: $userData")
                         findViewById<TextView>(R.id.userName).text = userData.fullname
                         findViewById<TextView>(R.id.gamerTag).text = userData.gamerTag
                         findViewById<TextView>(R.id.bioText).text = userData.bio
@@ -488,7 +456,6 @@ class otherUserProfile : AppCompatActivity() {
                         Log.w("UserProfile", "No data found for user ID: $uid")
                     }
                 }
-
                 override fun onCancelled(error: DatabaseError) {
                     Log.e("EditUserProfile", "Database error: ${error.message}")
                 }
@@ -505,33 +472,29 @@ class otherUserProfile : AppCompatActivity() {
             null,
             { response ->
                 try {
-                    val rank = response.getString("rank") // Get rank as a String
-
-                    // Check if the rank is 'unranked' or a number
+                    val rank = response.getString("rank")
                     if (rank == "unranked") {
                         rankTextView.text = "Rank: Unranked"
                     } else {
-                        val rankInt = rank.toIntOrNull() // Safely convert to Int if it is a valid number
+                        val rankInt = rank.toIntOrNull()
                         if (rankInt != null) {
                             rankTextView.text = "Rank: $rankInt"
                         } else {
-                            rankTextView.text = "Rank: Unranked" // Fallback in case of invalid rank format
+                            rankTextView.text = "Rank: Unranked"
                         }
                     }
                 } catch (e: JSONException) {
-                    if (receivedUserId != null) {
-                        addUserToRankingsIfNeeded(receivedUserId)
-                    }
+                    //addUserToRankingsIfNeeded(receivedUserId)
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching rank: ${error.message}")
-                // Toast.makeText(this, "Error fetching rank", Toast.LENGTH_SHORT).show()
             }
         )
         requestQueue.add(jsonObjectRequest)
     }
 
+    //function is not required in the current implemented logic
     private fun addUserToRankingsIfNeeded(userId: String) {
         val addRankUrl = "${Constants.SERVER_URL}leaderboard/user/$userId/add"
         val jsonObjectRequest = JsonObjectRequest(
@@ -549,9 +512,7 @@ class otherUserProfile : AppCompatActivity() {
     }
 
     private fun fetchUserStories() {
-        val userId = auth.currentUser?.uid ?: return
-        val url = "${Constants.SERVER_URL}stories/user/$userId/fetchStoryHighlights"
-
+        val url = "${Constants.SERVER_URL}stories/user/$receivedUserId/fetchStoryHighlights"
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
             url,
@@ -561,22 +522,17 @@ class otherUserProfile : AppCompatActivity() {
                     val storiesList = mutableListOf<Story>()
                     for (i in 0 until response.length()) {
                         val storyJson = response.getJSONObject(i)
-
-                        // Safely parse fields with error handling
-                        val storyId = storyJson.optString("story_id", "") // Updated to match the backend response
+                        val storyId = storyJson.optString("story_id", "")
                         val mediaUrl = storyJson.optString("media_url", "")
                         val duration = storyJson.optInt("duration", 0)
                         val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
-
-                        // Handle draggable_texts as a JSON string
                         val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]") // Handle as string
                         val draggableTexts = try {
-                            JSONArray(draggableTextsJsonString) // Convert string to JSONArray
+                            JSONArray(draggableTextsJsonString)
                         } catch (e: JSONException) {
                             Log.e("fetchUserStories", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
-                            JSONArray() // Return an empty JSONArray in case of error
+                            JSONArray()
                         }
-
                         val createdAt = storyJson.optString("created_at", null)
                         val city = storyJson.optString("city", null)
                         val country = storyJson.optString("country", null)
@@ -584,14 +540,10 @@ class otherUserProfile : AppCompatActivity() {
                         val longitude = storyJson.optDouble("longitude", 0.0)
                         val userName = storyJson.optString("full_name", "")
                         val userProfilePicture = storyJson.optString("profile_picture_url", "")
-
-                        // Ensure mandatory fields are valid
                         if (storyId.isEmpty() || mediaUrl.isEmpty() || createdAt.isNullOrEmpty()) {
                             Log.e("fetchUserStories", "Invalid story data: $storyJson")
                             continue
                         }
-
-                        // Convert createdAt string to Date
                         val uploadedAt = parseDate(createdAt) ?: continue
 
                         // Create the Story object
@@ -612,7 +564,6 @@ class otherUserProfile : AppCompatActivity() {
 
                         storiesList.add(story)
                     }
-                    Log.e("Fetecd","Soties:${storiesList}")
                     updateStoriesUI(storiesList)
                 } catch (e: JSONException) {
                     e.printStackTrace()
@@ -620,13 +571,11 @@ class otherUserProfile : AppCompatActivity() {
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching stories: ${error.message}")
-
             }
         )
 
         requestQueue.add(jsonArrayRequest)
     }
-
 
     private fun updateStoriesUI(stories: List<Story>) {
         highlightsAdapter = highlightsAdapter(stories)
@@ -634,7 +583,6 @@ class otherUserProfile : AppCompatActivity() {
     }
 
     private fun fetchUserPosts() {
-        val userId = auth.currentUser?.uid
         val url = "${Constants.SERVER_URL}uploads/user/${receivedUserId}/getUserPosts"
 
         val jsonArrayRequest = JsonArrayRequest(
@@ -643,15 +591,12 @@ class otherUserProfile : AppCompatActivity() {
             null,
             { response ->
                 try {
-                    // Create a list to hold the user's posts
                     val postsList = mutableListOf<Post>()
                     for (i in 0 until response.length()) {
                         val postJson = response.getJSONObject(i)
-
-                        // Parse fields from the JSON response with safe defaults
                         val postId = postJson.getInt("post_id")
                         val postContent = postJson.optString("post_content", null.toString())
-                        val caption = postJson.optString("caption", null.toString()) // Safe string parsing
+                        val caption = postJson.optString("caption", null.toString())
                         val sponsored = postJson.getBoolean("sponsored")
                         val likes = postJson.getInt("likes")
                         val comments = postJson.getInt("post_comments")
@@ -662,8 +607,7 @@ class otherUserProfile : AppCompatActivity() {
                         val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null.toString())
                         val createdAt = postJson.getString("created_at")
                         val likedByUser = postJson.getBoolean("likedByUser")
-                        // Parse the user details safely
-                        val userFullName = postJson.optString("full_name", null.toString()) // Ensure it uses the correct field name
+                        val userFullName = postJson.optString("full_name", null.toString())
                         val userProfilePictureUrl = postJson.optString("profile_picture_url", null.toString())
 
                         // Parse the comments data
@@ -672,11 +616,10 @@ class otherUserProfile : AppCompatActivity() {
                         if (commentsDataJson != null) {
                             for (j in 0 until commentsDataJson.length()) {
                                 val commentJson = commentsDataJson.getJSONObject(j)
-
                                 val commentId = commentJson.getInt("comment_id")
-                                val commentText = commentJson.optString("comment", "No comment provided") // Safe text parsing
+                                val commentText = commentJson.optString("comment", "")
                                 val commentCreatedAt = commentJson.getString("created_at")
-                                val commenterName = commentJson.optString("commenter_name", "Unknown commenter")
+                                val commenterName = commentJson.optString("commenter_name", "")
                                 val commenterProfilePictureUrl = commentJson.optString("commenter_profile_pic", null.toString())
 
                                 val comment = Comment(
@@ -690,13 +633,11 @@ class otherUserProfile : AppCompatActivity() {
                             }
                         }
 
-
-
                         // Create a Post object
                         val post = Post(
                             postId = postId,
                             postContent = postContent,
-                            caption = caption ?: "No caption provided", // Default caption if null
+                            caption = caption ?: "",
                             sponsored = sponsored,
                             likes = likes,
                             comments = comments,
@@ -706,42 +647,35 @@ class otherUserProfile : AppCompatActivity() {
                             country = country,
                             trimmedAudioUrl = trimmedAudioUrl,
                             createdAt = createdAt,
-                            userFullName = userFullName ?: "Unknown user", // Default name if null
-                            userProfilePictureUrl = userProfilePictureUrl ?: "path/to/default/profile/picture.jpg", // Default profile picture if null
-                            commentsData = if (commentsList.isNotEmpty()) commentsList else null, // Null if no comments
-                            isLikedByUser = likedByUser // Add likedByUser attribute
+                            userFullName = userFullName ?: "",
+                            userProfilePictureUrl = userProfilePictureUrl ?: "",
+                            commentsData = if (commentsList.isNotEmpty()) commentsList else null,
+                            isLikedByUser = likedByUser
                         )
-
-                        // Add the post to the list
                         postsList.add(post)
                     }
 
-                    // Update the UI with the fetched posts
                     updatePostsUI(postsList)
                 } catch (e: JSONException) {
                     e.printStackTrace()
                     Log.e(TAG, "Error parsing response: ${e.message}")
-                    // Optionally, notify the user about the error
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching posts: ${error.message}")
             }
         )
-
-        // Add the request to the RequestQueue
         requestQueue.add(jsonArrayRequest)
     }
 
-    // Function to update the UI with the fetched posts
     private fun updatePostsUI(posts: List<Post>) {
-        postsAdapter = PostsAdapter(posts) // Create a new adapter with the fetched posts
+        postsAdapter = PostsAdapter(posts)
         postsRecyclerView.adapter = postsAdapter
         postsCount=findViewById(R.id.postsCount)
-        postsCount.setText(postsAdapter.itemCount.toString())// Set the adapter to RecyclerView
+        postsCount.setText(postsAdapter.itemCount.toString())
     }
 
-
+    //Refetching Data from Servers on activity resumed
     override fun onResume() {
         super.onResume()
         fetchUserDetailsFromFirebase()
@@ -751,14 +685,12 @@ class otherUserProfile : AppCompatActivity() {
         fetchUserGames()
     }
 
-
     private fun onProfilePictureClick() {
         fetchUserStory(receivedUserId)
     }
 
     private fun fetchUserStory(userId: String) {
         val url = "${Constants.SERVER_URL}stories/user/$userId/fetchRecentStories"
-
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
             url,
@@ -769,20 +701,16 @@ class otherUserProfile : AppCompatActivity() {
 
                     for (i in 0 until response.length()) {
                         val storyJson = response.getJSONObject(i)
-
-                        // Safely parse fields with error handling
                         val storyId = storyJson.optString("story_id", "")
                         val mediaUrl = storyJson.optString("media_url", "")
                         val duration = storyJson.optInt("duration", 0)
                         val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
-
-                        // Handle draggable_texts as a JSON string
                         val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]") // Handle as string
                         val draggableTexts = try {
-                            JSONArray(draggableTextsJsonString) // Convert string to JSONArray
+                            JSONArray(draggableTextsJsonString)
                         } catch (e: JSONException) {
-                            Log.e("fetchUserStory", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
-                            JSONArray() // Return an empty JSONArray in case of error
+                            Log.e("fetchUserStories", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
+                            JSONArray()
                         }
 
                         val createdAt = storyJson.optString("created_at", null)
@@ -792,17 +720,11 @@ class otherUserProfile : AppCompatActivity() {
                         val longitude = storyJson.optDouble("longitude", 0.0)
                         val userName = storyJson.optString("full_name", "")
                         val userProfilePicture = storyJson.optString("profile_picture_url", "")
-
-                        // Ensure mandatory fields are valid
                         if (storyId.isEmpty() || mediaUrl.isEmpty() || createdAt.isNullOrEmpty()) {
                             Log.e("fetchUserStory", "Invalid story data: $storyJson")
                             continue
                         }
-
-                        // Convert createdAt string to Date
                         val uploadedAt = parseDate(createdAt) ?: continue
-
-                        // Create the Story object
                         val story = Story(
                             id = storyId,
                             mediaUrl = mediaUrl,
@@ -817,24 +739,24 @@ class otherUserProfile : AppCompatActivity() {
                             latitude = latitude,
                             longitude = longitude
                         )
-
                         storiesList.add(story)
                     }
-
-                    // Handle story presence
-                    val storyRing = findViewById<ImageView>(R.id.storyRing)
                     if (storiesList.isNotEmpty()) {
-                        storyRing.visibility = View.VISIBLE
+                        // Show the story ring
+                        findViewById<ImageView>(R.id.storyRing).visibility = View.VISIBLE
+                        // Launch StoryViewActivity if there are stories
+                        val gson = Gson()
+                        val storiesJson = gson.toJson(storiesList)
 
-                        // Launch StoryViewActivity if stories are available
                         val intent = Intent(this, viewStory::class.java).apply {
-                            putParcelableArrayListExtra("storiesList", ArrayList(storiesList))
+                            putExtra("intentFrom", "UserProfile")
+                            putExtra("storiesListJson", storiesJson)
                             putExtra("currentIndex", 0)
                         }
                         startActivity(intent)
                     } else {
-                        // Hide the story ring and navigate to the profile picture
-                        storyRing.visibility = View.GONE
+                        // Hide the story ring if there are no stories
+                        findViewById<ImageView>(R.id.storyRing).visibility = View.GONE
                         navigateToFullProfilePicture()
                     }
                 } catch (e: JSONException) {
@@ -861,22 +783,19 @@ class otherUserProfile : AppCompatActivity() {
         requestQueue.add(jsonArrayRequest)
     }
 
-    // Helper function to parse the date string
     fun parseDate(dateString: String): Date? {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-        dateFormat.isLenient = false
         return try {
-            dateFormat.parse(dateString)
-        } catch (e: ParseException) {
-            e.printStackTrace()
+            // Updated format to handle the 'Z' (UTC) and milliseconds (SSS)
+            val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            format.timeZone = TimeZone.getTimeZone("UTC") // Ensure it's parsed as UTC
+            format.parse(dateString)
+        } catch (e: Exception) {
+            Log.e("fetchUserStory", "Date parsing error: ${e.message}")
             null
         }
     }
 
-
-
     private fun navigateToFullProfilePicture() {
-
         val intent = Intent(this, ProfilePictureActivity::class.java).apply {
             putExtra("profilePictureUrl", picture)
         }
@@ -885,17 +804,13 @@ class otherUserProfile : AppCompatActivity() {
 
     fun checkRecentStories(userId: String, storyRing: ImageView) {
         val url = "${Constants.SERVER_URL}stories/user/$userId/hasRecentStory"
-
-        // Create a JsonObjectRequest to make the network call
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.GET,
             url,
             null,
             { response ->
-                // Assuming the response is a JSON object containing a boolean field 'hasRecentStory'
                 val hasRecentStory = response.getBoolean("hasRecentStory")
                 if (hasRecentStory) {
-                    // User has recent stories, make the ring visible
                     storyRing.visibility = View.VISIBLE
                 } else {
                     // No recent stories, keep the ring hidden
@@ -903,24 +818,16 @@ class otherUserProfile : AppCompatActivity() {
                 }
             },
             { error ->
-                // Handle error
                 error.printStackTrace()
-                // Hide ring on error as well
                 storyRing.visibility = View.GONE
             }
         )
-
-        // Add the request to the RequestQueue
         Volley.newRequestQueue(storyRing.context).add(jsonObjectRequest)
     }
 
     private fun fetchUserDataAndStartChat(receiverId: String) {
-        // Log the receiverId to see what data is being passed
-        Log.d("ChatActivity", "fetchUserDataAndStartChat called with receiverId: $receiverId")
-
         val database = FirebaseManager.getDatabseInstance()
         val userRef = database.getReference("userData").child(receiverId)
-
         // Try to fetch the user data from Firebase
         userRef.get().addOnSuccessListener { dataSnapshot ->
             if (dataSnapshot.exists()) {
@@ -929,9 +836,6 @@ class otherUserProfile : AppCompatActivity() {
                 val fullname = dataSnapshot.child("fullname").value?.toString() ?: "Unknown User"
                 val gamerTag = dataSnapshot.child("gamerTag").value?.toString() ?: "Unknown GamerTag"
                 val gamerRank = dataSnapshot.child("gamerRank").value?.toString() ?: "00" // Adjust logic to fetch gamerRank if needed
-
-                // Log the fetched data for debugging
-                Log.d("ChatActivity", "Data retrieved for $receiverId: Fullname = $fullname, GamerTag = $gamerTag, ProfilePicture = $profileImageUrl, GamerRank = $gamerRank")
 
                 // Create intent and pass user data
                 val intent = Intent(this, ChatActivity::class.java).apply {
@@ -944,8 +848,6 @@ class otherUserProfile : AppCompatActivity() {
                 // Start the ChatActivity with the data
                 startActivity(intent)
             } else {
-                // If data doesn't exist in Firebase, log the failure
-                Log.d("ChatActivity", "No data found for receiverId: $receiverId. Defaulting to Unknown User data.")
 
                 // Handle failure to retrieve data and start the chat with default values
                 val intent = Intent(this, ChatActivity::class.java).apply {
@@ -958,9 +860,6 @@ class otherUserProfile : AppCompatActivity() {
                 startActivity(intent)
             }
         }.addOnFailureListener { exception ->
-            // Log failure with exception message
-            Log.e("ChatActivity", "Error retrieving user data for $receiverId: ${exception.message}")
-
             // In case of failure, handle by passing default values
             val intent = Intent(this, ChatActivity::class.java).apply {
                 putExtra("userId", receiverId)

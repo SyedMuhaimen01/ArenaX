@@ -19,10 +19,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.LoginSignUp.LoginScreen
 import com.muhaimen.arenax.LoginSignUp.PersonalInfoActivity
 import com.muhaimen.arenax.LoginSignUp.RegisterActivity
-
 import com.muhaimen.arenax.dataClasses.UserData
-import com.muhaimen.arenax.explore.ExplorePage
-import com.muhaimen.arenax.userFeed.UserFeed
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
@@ -79,7 +76,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 navigateToUserProfile() // Navigate to UserProfile upon successful login
             } else {
-                navigateToRegisterActivity()     // User is logged in but email is not verified, navigate to RegisterActivity
+                navigateToRegisterActivity()     // User is authenticated by Firebase but email is not verified, navigate to RegisterActivity
             }
         }
     }
@@ -114,6 +111,7 @@ class MainActivity : AppCompatActivity() {
     private fun navigateToUserProfile() {
         auth= FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid ?: ""
+        //if User is verified and successfully registered. Data is fetched from Firebase and stored in PostgreSQL
         fetchUserData(uid)
         val intent = Intent(this,UserProfile::class.java)
         startActivity(intent)
@@ -153,13 +151,8 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "User data not found", Toast.LENGTH_SHORT).show()
                 Log.e(TAG, "User data not found for ID: $uid")
             }
-        }.addOnFailureListener { exception ->
-            // Toast.makeText(this, "Failed to fetch user data: ${exception.message}", Toast.LENGTH_SHORT).show()
-        }
+        }.addOnFailureListener { exception -> }
     }
-
-
-
 
     private fun sendUserDataToServer(userData: UserData) {
         val url = "${Constants.SERVER_URL}api/register"
@@ -188,5 +181,4 @@ class MainActivity : AppCompatActivity() {
         )
         requestQueue.add(jsonObjectRequest)
     }
-
 }

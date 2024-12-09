@@ -30,7 +30,6 @@ class TracksAdapter(
     }
 
     private var mediaPlayer: MediaPlayer? = null
-
     private var currentTrack: Track? = null
     var duration: Int = 0
     var downloadUrl: String? = null
@@ -70,8 +69,6 @@ class TracksAdapter(
             downloadUrl = track.downloadUrl
             duration = track.duration
             setSeekBarLimits(track.duration)
-
-            Log.d("MediaPlayer", "Audio duration: ${track.duration}")
         }
     }
 
@@ -154,13 +151,10 @@ class TracksAdapter(
         }
     }
 
-
     private fun setSeekBarLimits(duration: Int) {
         activity.startSeekBar.max = duration
         activity.endSeekBar.max = duration
         activity.searchLinearLayout.visibility = View.GONE
         activity.trimTrackLayout.visibility = View.VISIBLE
     }
-
-
 }

@@ -81,6 +81,7 @@ class ViewAllChatsAdapter(
                     putExtra("gamerTag", "Unknown GamerTag")
                     putExtra("profilePicture", "null")
                     putExtra("gamerRank", "00")
+                    putExtra("gamerRank", "00")
                 }
                 itemView.context.startActivity(intent)
             }

@@ -113,7 +113,8 @@ class UserFeed : AppCompatActivity() {
         highlightsRecyclerView.adapter = highlightsAdapter
         // Fetch and populate posts from backend
         fetchFollowingAndPopulatePosts()
-        fetchFollowingAndPopulateStories()
+        fetchFollowedUsersStories()
+
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -134,23 +135,6 @@ class UserFeed : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun fetchFollowingAndPopulateStories() {
-        lifecycleScope.launch {
-            try {
-                // Call the combined function
-                fetchFollowedUsersStories { story ->
-                    // Update postsList and notify adapter
-                    storiesList.clear()
-                    storiesList.addAll(story)
-                    highlightsAdapter.notifyDataSetChanged()
-                }
-            } catch (e: Exception) {
-                Log.e("UserFeed", "Error fetching stories", e)
-                Toast.makeText(this@UserFeed, "Failed to fetch stories", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
     private fun fetchUserFeed(onPostsFetched: (List<Post>) -> Unit) {
         val userId = auth.currentUser?.uid ?: return
         val followingRef = database.child("userData").child(userId).child("synerG").child("following")
@@ -256,7 +240,7 @@ class UserFeed : AppCompatActivity() {
     }
 
 
-    private fun fetchFollowedUsersStories(onStoriesFetched: (List<Story>) -> Unit) {
+    private fun fetchFollowedUsersStories() {
         Log.d("fetchFollowedUsersStories", "Fetching stories")
         val userId = auth.currentUser?.uid ?: return
         val followingRef = database.child("userData").child(userId).child("synerG").child("following")
@@ -267,12 +251,11 @@ class UserFeed : AppCompatActivity() {
                     val followingUids = snapshot.children.mapNotNull { it.key }
 
                     if (followingUids.isNotEmpty()) {
-                        // Prepare the request to fetch stories of followed users
                         val url = "${Constants.SERVER_URL}stories/user/$userId/fetchFeedStories"
                         val client = OkHttpClient()
 
                         val requestBody = JSONObject().apply {
-                            put("followingIds", JSONArray(followingUids))
+                            put("followingUids", JSONArray(followingUids))
                         }.toString().toRequestBody("application/json".toMediaType())
 
                         val request = Request.Builder()
@@ -286,9 +269,9 @@ class UserFeed : AppCompatActivity() {
                                 if (response.isSuccessful) {
                                     val responseData = response.body?.string()
                                     if (!responseData.isNullOrEmpty()) {
-                                        val stories = parseStoriesFromResponse(responseData)
+                                        val storiesList = parseStoriesFromResponse(responseData)
                                         withContext(Dispatchers.Main) {
-                                            onStoriesFetched(stories)
+                                            updateStoriesUI(storiesList)
                                         }
                                     } else {
                                         Log.e("fetchFollowedUsersStories", "Empty response from server")
@@ -312,52 +295,82 @@ class UserFeed : AppCompatActivity() {
             }
     }
 
+
+
     // Helper function to parse stories
     private fun parseStoriesFromResponse(responseData: String): List<Story> {
-        Log.d("Respomse","$responseData")
-        val stories = mutableListOf<Story>()
-        val jsonArray = JSONArray(responseData)
+        Log.d("Response", responseData)
+        val storiesList = mutableListOf<Story>()
+        try {
+            val jsonArray = JSONArray(responseData)
 
-        for (i in 0 until jsonArray.length()) {
-            val storyObject = jsonArray.getJSONObject(i)
+            for (i in 0 until jsonArray.length()) {
+                val storyJson = jsonArray.getJSONObject(i)
 
-            val storyId = storyObject.optString("id", "")
-            val mediaUrl = storyObject.optString("media_url", "")
-            val duration = storyObject.optInt("duration", 0)
-            val trimmedAudioUrl = storyObject.optString("trimmed_audio_url", null)
-            val draggableTexts = storyObject.optJSONArray("draggable_texts")
-            val createdAt = storyObject.optString("created_at", "")
-            val userName = storyObject.optString("user_name", "Unknown")
-            val userProfilePicture = storyObject.optString("user_profile_picture", "")
-            val city = storyObject.optString("city", null)
-            val country = storyObject.optString("country", null)
-            val latitude = storyObject.optDouble("latitude", Double.NaN)
-            val longitude = storyObject.optDouble("longitude", Double.NaN)
+                // Safely parse fields with error handling
+                val storyId = storyJson.optString("story_id", "")
+                val mediaUrl = storyJson.optString("media_url", "")
+                val duration = storyJson.optInt("duration", 0)
+                val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
 
-            // Parse the uploadedAt date
-            val uploadedAt = parseDate(createdAt) ?: continue
+                // Handle draggable_texts as a JSON string
+                val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]") // Handle as string
+                val draggableTexts = try {
+                    JSONArray(draggableTextsJsonString) // Convert string to JSONArray
+                } catch (e: JSONException) {
+                    Log.e("parseStoriesFromResponse", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
+                    JSONArray() // Return an empty JSONArray in case of error
+                }
 
-            // Create the Story object
-            val story = Story(
-                id = storyId,
-                mediaUrl = mediaUrl,
-                duration = duration,
-                trimmedAudioUrl = trimmedAudioUrl,
-                draggableTexts = draggableTexts,
-                uploadedAt = uploadedAt,
-                userName = userName,
-                userProfilePicture = userProfilePicture,
-                city = city,
-                country = country,
-                latitude = if (latitude.isNaN()) null else latitude,
-                longitude = if (longitude.isNaN()) null else longitude
-            )
+                val createdAt = storyJson.optString("created_at", null)
+                val city = storyJson.optString("city", null)
+                val country = storyJson.optString("country", null)
+                val latitude = storyJson.optDouble("latitude", 0.0)
+                val longitude = storyJson.optDouble("longitude", 0.0)
+                val userName = storyJson.optString("full_name", "")
+                val userProfilePicture = storyJson.optString("profile_picture_url", "")
 
-            stories.add(story)
+                // Ensure mandatory fields are valid
+                if (storyId.isEmpty() || mediaUrl.isEmpty() || createdAt.isNullOrEmpty()) {
+                    Log.e("parseStoriesFromResponse", "Invalid story data: $storyJson")
+                    continue
+                }
+
+                // Convert createdAt string to Date
+                val uploadedAt = parseDate(createdAt) ?: continue
+
+                // Create the Story object
+                val story = Story(
+                    id = storyId,
+                    mediaUrl = mediaUrl,
+                    duration = duration,
+                    trimmedAudioUrl = trimmedAudioUrl,
+                    draggableTexts = draggableTexts,
+                    uploadedAt = uploadedAt,
+                    userName = userName,
+                    userProfilePicture = userProfilePicture,
+                    city = city,
+                    country = country,
+                    latitude = latitude,
+                    longitude = longitude
+                )
+
+                storiesList.add(story)
+                Log.e("Story","$storiesList")
+            }
+        } catch (e: JSONException) {
+            Log.e("parseStoriesFromResponse", "Error parsing response data", e)
         }
 
-        return stories
+        return storiesList
     }
+
+    private fun updateStoriesUI(stories: List<Story>) {
+        highlightsAdapter = highlightsAdapter(stories)
+        highlightsRecyclerView.adapter = highlightsAdapter
+    }
+
+
 
     fun parseDate(dateString: String): Date? {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())

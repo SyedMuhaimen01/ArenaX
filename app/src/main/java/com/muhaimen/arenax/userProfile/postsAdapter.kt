@@ -1,13 +1,11 @@
 package com.muhaimen.arenax.userProfile
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
@@ -20,15 +18,13 @@ class PostsAdapter(private val postsList: List<Post>) : RecyclerView.Adapter<Pos
         private val postImage: ImageView = itemView.findViewById(R.id.image)
 
         fun bind(post: Post) {
-
             itemView.setOnClickListener {
                 val intent = Intent(itemView.context, ViewPost::class.java).apply {
                     putExtra("POST", post)
                 }
-                itemView.context.startActivity(intent) // Start the activity
+                itemView.context.startActivity(intent)
             }
 
-            // Check if the media exists before loading
             val uri = Uri.parse(post.postContent)
             Glide.with(itemView.context)
                 .load(uri)

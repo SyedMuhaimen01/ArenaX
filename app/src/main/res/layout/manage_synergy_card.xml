@@ -37,20 +37,31 @@
     android:layout_height="wrap_content"
     tools:ignore="UselessParent">
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Follow Request"
+        android:textColor="@color/textColor"
+        android:textSize="@dimen/_12sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        tools:ignore="HardcodedText"
+        android:textStyle="bold"/>
+
+    <TextView
         android:id="@+id/username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="username"
         android:textColor="@color/textColor"
-        android:textSize="@dimen/_16sdp"
-        android:layout_marginTop="@dimen/_10sdp"
-        tools:ignore="HardcodedText" />
+        android:textSize="@dimen/_15sdp"
+        android:layout_marginTop="@dimen/_30sdp"
+        tools:ignore="HardcodedText"
+        android:layout_marginLeft="-130dp"/>
 </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="@dimen/_20sdp">
+            android:layout_marginTop="@dimen/_10sdp">
 
             <Button
                 android:id="@+id/acceptButton"

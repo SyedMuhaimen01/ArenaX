@@ -74,8 +74,6 @@ class ViewPost : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_view_post)
-
-        // Setup UI elements
         imageView = findViewById(R.id.ImageView)
         playerView = findViewById(R.id.videoPlayerView)
         postCaption = findViewById(R.id.postCaption)
@@ -94,11 +92,7 @@ class ViewPost : AppCompatActivity() {
         profilePicture = findViewById(R.id.ProfilePicture)
         likeButton = findViewById(R.id.likeButton)
         alreadyLikedButton = findViewById(R.id.likeFilledButton)
-
         commentsRecyclerView.layoutManager=LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
-
-
-
 
         val userId=FirebaseManager.getCurrentUserId()
         if (userId != null) {
@@ -112,14 +106,13 @@ class ViewPost : AppCompatActivity() {
                 Log.d("Firebase", "Profile picture URL: $commenterPicture")
                 // Check if a profile picture URL exists
                 if (commenterPicture != null) {
-                    // Use Glide (or Picasso) to load the profile picture into the ImageView
                     Glide.with(this)
-                        .load(commenterPicture) // Load the image from URL
-                        .placeholder(R.mipmap.appicon2) // Optional: placeholder while loading
+                        .load(commenterPicture)
+                        .placeholder(R.mipmap.appicon2)
                         .circleCrop()
-                        .into(commenterProfilePicture) // ImageView where you want to set the image
+                        .into(commenterProfilePicture)
                 } else {
-                    // If no profile picture is found, set a default image
+                    // Setting default image incase of no profile picture
                     commenterProfilePicture.setImageResource(R.mipmap.appicon2)
                 }
             }.addOnFailureListener { exception ->
@@ -127,26 +120,15 @@ class ViewPost : AppCompatActivity() {
                 Log.e("Firebase", "Error fetching user data", exception)
             }
         } else {
-            // Handle the case where the user is not logged in
             Log.e("Firebase", "User is not logged in.")
         }
 
         postCommentButton.setOnClickListener {
-            // Get the text from the EditText
             val commentText = writeCommentEditText.text.toString()
-
-            // Check if the comment is not empty
             if (commentText.isNotEmpty()) {
-                // Generate a random commentId (you can also use a better strategy for ID generation)
                 val commentId = (0..Int.MAX_VALUE).random() // Generating a random comment ID
-
-                // Get the current timestamp as a string
                 val createdAt = System.currentTimeMillis().toString()
 
-                // Get the user's name and profile picture URL (these would come from your user profile)
-
-
-                // Create a new comment object
                 val newComment = Comment(
                     commentId = commentId,
                     commentText = commentText,
@@ -155,28 +137,20 @@ class ViewPost : AppCompatActivity() {
                     commenterProfilePictureUrl = commenterPicture
                 )
 
-                // Add the new comment to the post's comments list
+                saveCommentToServer(post.postId.toString(), newComment)
                 val updatedCommentsList = post.commentsData?.toMutableList() ?: mutableListOf()
                 updatedCommentsList.add(newComment)
 
-                // Update the post's comment count (number of comments)
                 val updatedPost = post.copy(
                     commentsData = updatedCommentsList,
-                    comments = updatedCommentsList.size // Updated comments count
+                    comments = updatedCommentsList.size
                 )
-
-                // Save the updated post details to the server
-                savePostDetailsToServer(updatedPost)
-
-                // Optionally clear the EditText after posting the comment
                 writeCommentEditText.text.clear()
 
             } else {
-                // Optionally show a message if the comment is empty
                 Toast.makeText(this, "Comment cannot be empty", Toast.LENGTH_SHORT).show()
             }
         }
-
 
         // Retrieve the Post object from Intent
         post = intent.getParcelableExtra("POST")!!
@@ -196,7 +170,6 @@ class ViewPost : AppCompatActivity() {
             else{
                 postCaption.text = post.caption ?: ""
             }
-            // Handle caption display
             if(post.commentsData!=null){
                 commentsList = post.commentsData!!.toMutableList()
                 updatePostsUI(commentsList)
@@ -218,17 +191,14 @@ class ViewPost : AppCompatActivity() {
             username.text = it.userFullName
             location.text = it.city + ", " + it.country
 
-
-
             if (post.userProfilePictureUrl != null) {
-                // Use Glide (or Picasso) to load the profile picture into the ImageView
                 Glide.with(this)
-                    .load(post.userProfilePictureUrl) // Load the image from URL
-                    .placeholder(R.mipmap.appicon2) // Optional: placeholder while loading
+                    .load(post.userProfilePictureUrl)
+                    .placeholder(R.mipmap.appicon2)
                     .circleCrop()
-                    .into(profilePicture) // ImageView where you want to set the image
+                    .into(profilePicture)
             } else {
-                // If no profile picture is found, set a default image
+                // default image incase of empty PFP
                 profilePicture.setImageResource(R.mipmap.appicon2)
             }
 
@@ -280,63 +250,32 @@ class ViewPost : AppCompatActivity() {
             deletePostLikeOnServer()
             Log.d("already liked clicked", "already liked clicked")
         }
-
-
     }
 
-    private fun savePostDetailsToServer(post: Post) {
+    private fun saveCommentToServer(postId: String, newComment: Comment) {
         val requestQueue = Volley.newRequestQueue(this)
-
-        // Create a JSON object for the updated post
         val jsonRequest = JSONObject().apply {
-            put("postId", post.postId)
-            put("content", post.postContent)
-            put("caption", post.caption)
-            put("sponsored", post.sponsored)
-            put("likes", post.likes)
-            put("comments", post.comments)  // Updated comment count
-            put("shares", post.shares)
-            put("clicks", post.clicks)
-            put("city", post.city)
-            put("country", post.country)
-            put("created_at", post.createdAt)
-            put("trimmed_audio_url", post.trimmedAudioUrl)
-
-            // Add comments data (convert it to JSON array or handle as necessary)
-            val commentsArray = JSONArray()
-            post.commentsData?.forEach { comment ->
-                val commentJson = JSONObject().apply {
-                    put("comment_id", comment.commentId)
-                    put("comment", comment.commentText)
-                    put("created_at", comment.createdAt)
-                    put("commenter_name", comment.commenterName)
-                    put("commenter_profile_pic", comment.commenterProfilePictureUrl)
-                }
-                commentsArray.put(commentJson)
-            }
-            put("commentsData", commentsArray)  // Add the comments data to the request
+            put("postId", postId)
+            put("comment", JSONObject().apply {
+                put("comment_id", newComment.commentId)
+                put("comment", newComment.commentText)
+                put("created_at", newComment.createdAt)
+                put("commenter_name", newComment.commenterName)
+                put("commenter_profile_pic", newComment.commenterProfilePictureUrl)
+            })
         }
 
-        // Create a POST request
         val postRequest = JsonObjectRequest(
             com.android.volley.Request.Method.POST,
             "${Constants.SERVER_URL}uploads/uploadComments",
             jsonRequest,
             { response ->
-                // Handle the response from the server (success)
-                Toast.makeText(this, "Post and comment uploaded successfully", Toast.LENGTH_SHORT).show()
-
-                // Optionally notify other parts of the app (e.g., refresh the UI)
-                val intent = Intent("NEW_POST_ADDED")
-                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+                notifyPostReload()
             },
             { error ->
-                // Handle error (e.g., show a toast or log the error)
-                Toast.makeText(this, "Failed to upload post", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Failed to upload comment", Toast.LENGTH_SHORT).show()
             }
         )
-
-        // Add the request to the request queue
         requestQueue.add(postRequest)
     }
 
@@ -419,8 +358,8 @@ class ViewPost : AppCompatActivity() {
         super.onBackPressed()
     }
 
+    // Function to fetch the media type from the URL or server
     private fun getMediaType(mediaUrl: String): String? {
-        // Function to fetch the media type from the URL or server
         try {
             val request = Request.Builder().url(mediaUrl).build()
             val response: Response = client.newCall(request).execute()
@@ -430,7 +369,6 @@ class ViewPost : AppCompatActivity() {
             return null
         }
     }
-
 
     @SuppressLint("ResourceType", "SetTextI18n")
     private fun updatePostsUI(comments: List<Comment>) {
@@ -460,69 +398,47 @@ class ViewPost : AppCompatActivity() {
     private fun savePostLikeOnServer()
     {
         val requestQueue = Volley.newRequestQueue(this)
-
-        // Create a JSON object for the updated post
         val jsonRequest = JSONObject().apply {
             put("postId", post.postId)
             put("userId",FirebaseManager.getCurrentUserId() )
-
         }
 
-        // Create a POST request
         val postRequest = JsonObjectRequest(
             com.android.volley.Request.Method.POST,
             "${Constants.SERVER_URL}uploads/uploadLike",
             jsonRequest,
             { response ->
-                // Handle the response from the server (success)
-                Toast.makeText(this, "Post and like uploaded successfully", Toast.LENGTH_SHORT).show()
-
-                // Optionally notify other parts of the app (e.g., refresh the UI)
-                val intent = Intent("Like added ")
-                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+                notifyPostReload()
             },
-            { error ->
-                // Handle error (e.g., show a toast or log the error)
-                Toast.makeText(this, "Failed to update post likes", Toast.LENGTH_SHORT).show()
-            }
+            { error -> }
         )
-
-        // Add the request to the request queue
         requestQueue.add(postRequest)
     }
 
     private fun deletePostLikeOnServer()
     {
         val requestQueue = Volley.newRequestQueue(this)
-
-        // Create a JSON object for the updated post
         val jsonRequest = JSONObject().apply {
             put("postId", post.postId)
             put("userId",FirebaseManager.getCurrentUserId() )
-
         }
 
-        // Create a POST request
         val postRequest = JsonObjectRequest(
             com.android.volley.Request.Method.POST,
             "${Constants.SERVER_URL}uploads/deleteLike",
             jsonRequest,
             { response ->
-                // Handle the response from the server (success)
-                Toast.makeText(this, "Post and like updated successfully", Toast.LENGTH_SHORT).show()
-
-                // Optionally notify other parts of the app (e.g., refresh the UI)
-                val intent = Intent("Like Removed ")
-                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+                notifyPostReload()
             },
             { error ->
-                // Handle error (e.g., show a toast or log the error)
                 Toast.makeText(this, "Failed to update post likes", Toast.LENGTH_SHORT).show()
             }
         )
-
-        // Add the request to the request queue
         requestQueue.add(postRequest)
     }
 
+    private fun notifyPostReload(){
+        val intent = Intent("NEW_POST_ADDED ")
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+    }
 }
