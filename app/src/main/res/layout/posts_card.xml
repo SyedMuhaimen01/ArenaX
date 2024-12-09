@@ -5,7 +5,7 @@
     android:id="@+id/card_view"
     android:layout_width="@dimen/_85sdp"
     android:layout_height="@dimen/_120sdp"
-    android:layout_margin="4dp"
+    android:layout_margin="1dp"
     app:cardBackgroundColor="@android:color/white"
     android:layout_marginLeft="@dimen/_10sdp"
     app:cardCornerRadius="1dp"

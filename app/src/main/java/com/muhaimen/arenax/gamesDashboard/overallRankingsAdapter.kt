@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
@@ -40,7 +41,7 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
 
             // Handle the rank text, checking for "Unranked"
             if (data.rank == "Unranked") {
-                rank.text = data.rank
+                rank.text = "∞"
                 rank.setTextColor(Color.GRAY) // You can customize this color
             } else {
                 rank.text = data.rank.toString()
@@ -66,27 +67,31 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
         // Change background color based on ranking position
         when (position) {
             0 -> { // Gold
-                holder.itemView.setBackgroundColor(Color.parseColor("#FFD700"))
+                holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.first_place_card)
                 holder.name.setTextColor(Color.WHITE)
                 holder.totalHours.setTextColor(Color.WHITE)
                 holder.gamerTag.setTextColor(Color.WHITE)
             }
             1 -> { // Silver
-                holder.itemView.setBackgroundColor(Color.parseColor("#C0C0C0"))
+                holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.second_place_card)
                 holder.name.setTextColor(Color.WHITE)
                 holder.totalHours.setTextColor(Color.WHITE)
                 holder.gamerTag.setTextColor(Color.WHITE)
             }
             2 -> { // Bronze
-                holder.itemView.setBackgroundColor(Color.parseColor("#cd7f32"))
+                holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.third_place_card)
                 holder.name.setTextColor(Color.WHITE)
                 holder.totalHours.setTextColor(Color.WHITE)
                 holder.gamerTag.setTextColor(Color.WHITE)
             }
-            else -> {
-                holder.itemView.setBackgroundColor(Color.WHITE) // Default background
+            else -> { // Unranked
+                holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.normal_ranked)
+                holder.name.setTextColor(Color.BLACK)
+                holder.totalHours.setTextColor(Color.BLACK)
+                holder.gamerTag.setTextColor(Color.BLACK)
             }
         }
+
     }
 
     // Return the size of the dataset

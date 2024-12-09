@@ -253,10 +253,11 @@
             <ImageView
 
                 android:id="@+id/leaderboardButton"
-                android:layout_width="12dp"
-                android:layout_height="14dp"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
                 android:layout_gravity="right|bottom"
-                android:src="@drawable/ic_rank_open" />
+                android:src="@mipmap/ic_leaderboard"
+                tools:ignore="ContentDescription" />
 
 
           </LinearLayout>

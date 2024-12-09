@@ -9,6 +9,7 @@
     <FrameLayout
         android:id="@+id/storyViewContainer"
         android:layout_width="match_parent"
+        android:background="@color/ImagePlaceholder"
         android:layout_height="match_parent">
 
         <!-- Media Preview (Image or Video) -->
@@ -47,6 +48,7 @@
                 android:layout_height="@dimen/_2sdp"
                 android:max="100"
                 android:progress="0"
+                android:visibility="gone"
                 android:background="@android:color/white"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:layout_gravity="center_horizontal"/>

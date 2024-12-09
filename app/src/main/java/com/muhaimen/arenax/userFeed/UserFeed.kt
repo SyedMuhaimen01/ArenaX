@@ -5,23 +5,15 @@ import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.Response
-import com.android.volley.VolleyError
-import com.android.volley.toolbox.JsonArrayRequest
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -35,9 +27,7 @@ import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.utils.Constants
-import highlightsAdapter
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -54,8 +44,9 @@ import java.util.Locale
 
 class UserFeed : AppCompatActivity() {
     private lateinit var userFeedAdapter: UserFeedPostsAdapter
-    private lateinit var highlightsAdapter: highlightsAdapter
+    private lateinit var highlightsAdapter: UserFeedHighlightsAdapter
     private lateinit var highlightsRecyclerView: RecyclerView
+    lateinit var recyclerView: RecyclerView
     private lateinit var threadsButton: ImageButton
     private lateinit var notificationsButton: ImageButton
     private lateinit var homeButton: LinearLayout
@@ -94,22 +85,30 @@ class UserFeed : AppCompatActivity() {
         }
 
         // Initialize RecyclerView for user feed
-        val recyclerView: RecyclerView = findViewById(R.id.recyclerViewUserFeed)
+        recyclerView = findViewById(R.id.recyclerViewUserFeed)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // Initialize adapter with empty data
-        userFeedAdapter = UserFeedPostsAdapter(postsList)
+        userFeedAdapter = UserFeedPostsAdapter(recyclerView,postsList)
         recyclerView.adapter = userFeedAdapter
 
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        highlightsAdapter = highlightsAdapter(storiesList)
+        highlightsAdapter = UserFeedHighlightsAdapter(storiesList)
         highlightsRecyclerView.adapter = highlightsAdapter
 
         // Fetch and populate UserFeed
         fetchFollowingAndPopulatePosts()
         fetchFollowedUsersStories()
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                userFeedAdapter.handlePlayerVisibility()
+            }
+        })
     }
+
 
     @SuppressLint("NotifyDataSetChanged")
     private fun fetchFollowingAndPopulatePosts() {
@@ -337,7 +336,7 @@ class UserFeed : AppCompatActivity() {
     }
 
     private fun updateStoriesUI(stories: List<Story>) {
-        highlightsAdapter = highlightsAdapter(stories)
+        highlightsAdapter = UserFeedHighlightsAdapter(stories)
         highlightsRecyclerView.adapter = highlightsAdapter
     }
 
@@ -392,5 +391,16 @@ class UserFeed : AppCompatActivity() {
             val intent = Intent(this, ExplorePage::class.java)
             startActivity(intent)
         }
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        userFeedAdapter.releaseAllPlayers()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        userFeedAdapter.releaseAllPlayers()
     }
 }

@@ -350,7 +350,13 @@ class ViewPost : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         exoPlayer?.release()
+
+
         exoPlayer = null
+    }
+    override fun onPause() {
+        super.onPause()
+        exoPlayer?.playWhenReady = false
     }
 
     override fun onBackPressed() {
@@ -377,20 +383,12 @@ class ViewPost : AppCompatActivity() {
         commentCount.setText(commentsAdapter.itemCount.toString())
 
         // Create a temporary ViewHolder to measure the height of the comment card
-        val viewHolder = commentsAdapter.createViewHolder(commentsRecyclerView, commentsAdapter.getItemViewType(0))
-        val itemView = viewHolder.itemView
-
-        // Measure the itemView (comment card) with a given width and height
-        itemView.measure(View.MeasureSpec.makeMeasureSpec(R.layout.userfeed_comments_card, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
-
-        // Get the measured height of the individual comment card
-        val itemHeight = itemView.measuredHeight
-
-        // Now calculate the total height based on the number of items
-        val totalHeight = itemHeight * commentsAdapter.itemCount
-
-        // Set the RecyclerView height dynamically
+        val adapter = commentsAdapter
+        val totalHeight = adapter.itemCount.let { count ->
+            // Calculate the height dynamically based on the number of items and individual item height
+            val itemHeight = resources.getDimensionPixelSize(com.intuit.sdp.R.dimen._40sdp) // Or calculate dynamically
+                itemHeight * count
+        }
         commentsRecyclerView.layoutParams.height = totalHeight
         commentsRecyclerView.requestLayout()
     }

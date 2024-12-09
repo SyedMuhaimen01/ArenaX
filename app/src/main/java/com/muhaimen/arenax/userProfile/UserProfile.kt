@@ -79,7 +79,6 @@ import com.muhaimen.arenax.uploadStory.uploadStory
 import com.muhaimen.arenax.uploadStory.viewStory
 import com.muhaimen.arenax.userFeed.UserFeed
 import com.muhaimen.arenax.utils.Constants
-import highlightsAdapter
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient

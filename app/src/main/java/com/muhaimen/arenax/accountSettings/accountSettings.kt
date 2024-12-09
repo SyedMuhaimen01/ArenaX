@@ -37,10 +37,9 @@ class accountSettings : AppCompatActivity() {
             FirebaseManager.signOutUser()
             ClearAllSharedPreferences.clearAllSharedPreferences(this)
             val intent = Intent(this, LoginScreen::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
+            finish() // Ensure the current activity is finished
         }
-
-
     }
-
 }

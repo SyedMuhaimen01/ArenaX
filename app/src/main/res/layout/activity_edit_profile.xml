@@ -117,6 +117,7 @@
             android:layout_marginLeft="@dimen/_23sdp"
             android:layout_marginRight="@dimen/_17sdp"
             android:layout_width="match_parent"
+            android:text="Bio"
             android:layout_height="@dimen/_40sdp"
             android:textSize="@dimen/_13ssp"
             android:background="@drawable/transparentinput"

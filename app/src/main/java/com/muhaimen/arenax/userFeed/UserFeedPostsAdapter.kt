@@ -39,7 +39,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 
-class UserFeedPostsAdapter(
+class UserFeedPostsAdapter(private val recyclerView: RecyclerView,
     private val posts: List<Post>
 ) : RecyclerView.Adapter<UserFeedPostsAdapter.PostViewHolder>() {
 
@@ -52,9 +52,46 @@ class UserFeedPostsAdapter(
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
         holder.bind(post)
+
+
     }
 
     override fun getItemCount(): Int = posts.size
+
+    private val playerList = mutableListOf<ExoPlayer>()
+
+    fun addPlayer(player: ExoPlayer) {
+        playerList.add(player)
+    }
+
+    fun releaseAllPlayers() {
+        playerList.forEach { player ->
+            player.stop()
+            player.release()
+        }
+        playerList.clear()
+    }
+
+    fun handlePlayerVisibility() {
+        val layoutManager = recyclerView.layoutManager as? LinearLayoutManager
+        if (layoutManager != null) {
+            val firstVisible = layoutManager.findFirstCompletelyVisibleItemPosition()
+            val lastVisible = layoutManager.findLastCompletelyVisibleItemPosition()
+
+            for (i in 0 until itemCount) {
+                val viewHolder = recyclerView.findViewHolderForAdapterPosition(i) as? UserFeedPostsAdapter.PostViewHolder
+                if (viewHolder != null) {
+                    if (i in firstVisible..lastVisible) {
+                        viewHolder.playContent() // Start playing if completely visible
+                    } else {
+                        viewHolder.stopContent() // Stop playing if not completely visible
+                    }
+                }
+            }
+        }
+    }
+
+
 
     inner class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val imageView: ImageView = itemView.findViewById(R.id.ImageView)
@@ -73,10 +110,24 @@ class UserFeedPostsAdapter(
         private val postCommentButton: ImageButton = itemView.findViewById(R.id.postCommentButton)
         private var commenterPicture: ImageView = itemView.findViewById(R.id.commentProfilePicture)
         private val client = OkHttpClient()
-        private var exoPlayer: ExoPlayer? = null
+        var exoPlayer: ExoPlayer? = null
         private lateinit var commenterName: String
         private var likeButton:ImageButton=itemView.findViewById(R.id.likeButton)
         private var alreadyLikedButton:ImageButton=itemView.findViewById(R.id.likeFilledButton)
+
+        fun playContent() {
+            exoPlayer?.playWhenReady = true // Resume playback
+        }
+
+        fun stopContent() {
+            exoPlayer?.playWhenReady = false // Pause playback
+        }
+
+        fun releaseContent() {
+            exoPlayer?.release()
+            exoPlayer = null
+        }
+
         @SuppressLint("SetTextI18n")
         fun bind(post: Post) {
 
@@ -182,6 +233,12 @@ class UserFeedPostsAdapter(
             likesCount.text = post.likes.toString()
             tvCommentsCount.text = post.comments.toString()
 
+            fun releaseMedia2() {
+                exoPlayer?.release()
+                exoPlayer = null
+            }
+
+            post.trimmedAudioUrl?.let { playTrimmedAudio(it) }
             val comments = post.commentsData ?: emptyList()
             val commentAdapter = commentsAdapter(comments)
             recyclerViewComments.layoutManager = LinearLayoutManager(itemView.context)
@@ -194,6 +251,8 @@ class UserFeedPostsAdapter(
 
             loadMedia(post.postContent)
         }
+
+
 
         private fun loadMedia(mediaUrl: String?) {
             if (mediaUrl.isNullOrEmpty()) return
@@ -252,7 +311,36 @@ class UserFeedPostsAdapter(
                 playWhenReady = true
             }
             playerView.player = exoPlayer
+            addPlayer(exoPlayer!!)
         }
+
+        fun releaseMedia() {
+            for (post in posts) {
+                post.trimmedAudioUrl?.let {
+                    stopTrimmedAudio()
+                }
+            }
+        }
+
+        private fun playTrimmedAudio(outputPath: String) {
+            val audioUri = Uri.parse(outputPath)
+            val audioMediaItem = MediaItem.fromUri(audioUri)
+            exoPlayer = ExoPlayer.Builder(itemView.context).build().apply {
+                setMediaItem(audioMediaItem)
+                prepare()
+                playWhenReady = true
+            }
+            addPlayer(exoPlayer!!)
+        }
+
+        fun stopTrimmedAudio() {
+            exoPlayer?.let { player ->
+                player.stop()
+                player.release()
+                exoPlayer = null
+            }
+        }
+
 
         private fun saveCommentToServer(postId: String, newComment: Comment) {
             val requestQueue = Volley.newRequestQueue(itemView.context)
@@ -278,6 +366,7 @@ class UserFeedPostsAdapter(
             )
             requestQueue.add(postRequest)
         }
+
 
         private fun savePostLikeOnServer(post: Post)
         {
@@ -326,6 +415,10 @@ class UserFeedPostsAdapter(
             val intent = Intent("NEW_POST_ADDED ")
             LocalBroadcastManager.getInstance(itemView.context).sendBroadcast(intent)
         }
+    }
+    override fun onViewRecycled(holder: PostViewHolder) {
+        super.onViewRecycled(holder)
+        holder.releaseContent()
     }
 
 }

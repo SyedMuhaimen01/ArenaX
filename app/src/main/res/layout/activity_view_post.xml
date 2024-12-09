@@ -25,7 +25,7 @@
             <!-- Media and Toolbar Section -->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:background="@color/textColor"
+                android:background="@color/ImagePlaceholder"
                 android:layout_height="@dimen/_510sdp">
 
                 <!-- Media Preview (Image or Video) -->
@@ -58,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:background="@android:color/transparent"
-                    android:layout_marginTop="@dimen/_5sdp"
+                    android:layout_marginTop="@dimen/_15sdp"
                     android:padding="@dimen/_4sdp"
                     android:layout_gravity="top">
 

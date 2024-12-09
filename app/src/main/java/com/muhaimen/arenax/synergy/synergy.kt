@@ -13,6 +13,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userFeed.UserFeed
@@ -67,7 +68,7 @@ class synergy : AppCompatActivity() {
         }
        exploreButton= findViewById(R.id.exploreButton)
         exploreButton.setOnClickListener {
-            val intent = Intent(this, MyGamesList::class.java)
+            val intent = Intent(this, ExplorePage::class.java)
             startActivity(intent)
         }
 
@@ -78,7 +79,7 @@ class synergy : AppCompatActivity() {
         }
 
         profileButton= findViewById(R.id.profileButton)
-        addPost.setOnClickListener {
+        profileButton.setOnClickListener {
             val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
         }

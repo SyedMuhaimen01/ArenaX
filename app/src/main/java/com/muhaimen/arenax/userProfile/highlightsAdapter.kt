@@ -1,3 +1,4 @@
+package com.muhaimen.arenax.userProfile
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri

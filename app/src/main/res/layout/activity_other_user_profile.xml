@@ -253,10 +253,11 @@
                         <ImageView
 
                             android:id="@+id/leaderboardButton"
-                            android:layout_width="12dp"
-                            android:layout_height="14dp"
+                            android:layout_width="@dimen/_20sdp"
+                            android:layout_height="@dimen/_20sdp"
                             android:layout_gravity="right|bottom"
-                            android:src="@drawable/ic_rank_open" />
+                            android:src="@mipmap/ic_leaderboard"
+                            tools:ignore="ContentDescription" />
 
 
                     </LinearLayout>
@@ -344,10 +345,10 @@
 
                         <ImageView
                             android:id="@+id/myGamesButton"
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/_10sdp"
+                            android:layout_width="@dimen/_20sdp"
+                            android:layout_height="@dimen/_20sdp"
                             android:layout_weight="0.2"
-                            android:src="@drawable/ic_navigation_add"
+                            android:src="@mipmap/ic_right_arrow"
                             android:layout_gravity="center" />
                     </LinearLayout>
 
@@ -393,7 +394,10 @@
                     android:id="@+id/postsBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:paddingTop="10dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingBottom="100dp"
                     android:orientation="vertical">
                     <TextView
                         android:text="Posts"
