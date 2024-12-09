@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -55,7 +54,6 @@ import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.uploadStory.viewStory
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
-import highlightsAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -187,6 +185,7 @@ class otherUserProfile : AppCompatActivity() {
         requestAllianceButton = findViewById(R.id.requestAllianceButton)
 
         if (currentUserId != null && receivedUserId != null) {
+            Log.d("UserProfile", "Current User ID: $currentUserId, Received User ID: $receivedUserId")
             // Check alliance status on activity load
             lifecycleScope.launch(Dispatchers.Main) {
                 val allianceStatus = checkIfAlliance(currentUserId, receivedUserId)
@@ -340,7 +339,7 @@ class otherUserProfile : AppCompatActivity() {
         return try {
             val dataSnapshot = userRef.child(currentUserId)
                 .child("synerG")
-                .child("alliance")
+                .child("following")
                 .child(receivedUserId)
                 .get()
                 .await()

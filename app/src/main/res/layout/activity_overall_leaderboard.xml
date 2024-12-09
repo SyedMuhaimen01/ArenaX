@@ -19,33 +19,36 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@color/backgroundColor"
                 android:orientation="vertical">
 
                 <!-- Header Row with Back Button and Title -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:background="@color/primaryColor"
+                    android:orientation="horizontal"
                     android:paddingStart="@dimen/_10sdp"
                     android:paddingTop="@dimen/_10sdp"
                     android:paddingBottom="@dimen/_10sdp"
                     tools:ignore="RtlSymmetry">
+
                     <ImageButton
                         android:id="@+id/backButton"
                         android:layout_width="@dimen/_30sdp"
                         android:layout_height="@dimen/_20sdp"
-                        android:src="@mipmap/back_white2_icon"
                         android:contentDescription="Back Button"
+                        android:src="@mipmap/back_white2_icon"
                         tools:ignore="HardcodedText" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/_5sdp"
                         android:text="Leaderboard"
-                        android:textStyle="bold"
                         android:textColor="@color/backgroundColor"
                         android:textSize="@dimen/_16sdp"
+                        android:textStyle="bold"
                         tools:ignore="HardcodedText" />
                 </LinearLayout>
 
@@ -53,8 +56,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:background="@color/secondaryColor"
+                    android:orientation="horizontal"
                     android:paddingStart="@dimen/_10sdp"
                     android:paddingTop="@dimen/_5sdp"
                     android:paddingBottom="@dimen/_5sdp">
@@ -64,26 +67,25 @@
 
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_marginEnd="@dimen/_10sdp"
+                        android:gravity="start"
+                        android:paddingLeft="@dimen/_6sdp"
                         android:text="Rank"
                         android:textColor="@color/textColor"
                         android:textSize="@dimen/_10ssp"
-                        android:paddingLeft="@dimen/_6sdp"
-                        android:layout_marginEnd="@dimen/_10sdp"
-                        android:textStyle="bold"
-                        android:gravity="start"
-                        android:layout_gravity="start"
-                        />
+                        android:textStyle="bold" />
 
                     <!-- Name - In the center -->
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
                         android:text="Player Name"
                         android:textColor="@color/textColor"
                         android:textSize="@dimen/_10ssp"
-                        android:layout_weight="1"
-                        android:textStyle="bold"
-                        android:gravity="center" />
+                        android:textStyle="bold" />
 
                     <!-- Gaming Hours - Positioned on the right -->
                     <TextView
@@ -104,7 +106,7 @@
                     android:id="@+id/leaderboardRecyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_10sdp" />
+                    android:layout_marginTop="@dimen/_2sdp" />
             </LinearLayout>
 
             <LinearLayout
@@ -149,6 +151,7 @@
                         android:layout_height="wrap_content"
                         android:text="1."
                         android:textStyle="bold"
+                        android:layout_gravity="center"
                         android:textSize="@dimen/_15ssp"
                         android:textAlignment="center"
                         android:textColor="@color/white"
@@ -160,6 +163,7 @@
                         android:layout_width="@dimen/_45sdp"
                         android:layout_height="@dimen/_45sdp"
                         android:layout_marginStart="@dimen/_10sdp"
+                        android:layout_gravity="center"
                         android:layout_marginEnd="@dimen/_10sdp"
                         android:scaleType="centerCrop"
                         android:contentDescription="Profile Picture"
@@ -199,6 +203,7 @@
                         android:layout_height="wrap_content"
                         android:text="Total hrs:"
                         android:textStyle="bold"
+                        android:layout_gravity="center_vertical"
                         android:textSize="@dimen/_14sdp"
                         android:textColor="@color/white"
                         android:layout_marginEnd="@dimen/_10sdp"

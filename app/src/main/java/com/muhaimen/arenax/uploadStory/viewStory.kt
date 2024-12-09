@@ -247,8 +247,10 @@ class viewStory : AppCompatActivity() {
             }
 
             // Display draggable texts if available
-            currentStory.draggableTexts?.let {
-                displayDraggableTexts2(it.toString())
+            val gson=Gson()
+            val draggableJson=gson.toJson(currentStory.draggableTexts)
+            draggableJson?.let {
+                displayDraggableTexts(it.toString())
             }
             // Load audio if available
             currentStory.trimmedAudioUrl?.let { audioUrl ->
@@ -484,40 +486,6 @@ class viewStory : AppCompatActivity() {
         }
     }
 
-    private fun displayDraggableTexts2(json: String) {
-        Log.d("DraggableTextsJson", "Received JSON string: $json")
-
-        try {
-            // Parse the top-level array
-            val jsonArray = JSONArray(json)
-            Log.d("DraggableTexts", "Received draggable texts count: ${jsonArray.length()}")
-
-            for (i in 0 until jsonArray.length()) {
-                val jsonString = jsonArray.getString(i)  // Get the string object (which is like a JSON string)
-                val jsonObject = JSONObject(jsonString) // Now parse it as a JSONObject
-
-                val nameValuePairs = jsonObject.getJSONObject("nameValuePairs")
-
-                // Use opt* methods for safer parsing with default values
-                val content = nameValuePairs.optString("content", "Default Text")
-                val x = nameValuePairs.optDouble("x", 0.0).toFloat()
-                val y = nameValuePairs.optDouble("y", 0.0).toFloat()
-                val backgroundColor = nameValuePairs.optInt("backgroundColor", 0xFFFFFF) // Default white color
-                val textColor = nameValuePairs.optInt("textColor", -1) // Default black color
-
-                Log.d("DraggableText", "Content: $content, X: $x, Y: $y, BG: $backgroundColor, Text: $textColor")
-
-                val draggableText = DraggableText(content, x, y, backgroundColor, textColor)
-
-                val textView = createDraggableTextView(draggableText)
-                draggableTextContainer.addView(textView)
-            }
-        } catch (e: JSONException) {
-            Log.e("JSON", "JSON parsing error: ${e.message}")
-        } catch (e: Exception) {
-            Log.e("Error", "Unexpected error while parsing draggable texts: ${e.message}")
-        }
-    }
 
 
     private fun createDraggableTextView(draggableText: DraggableText): TextView {

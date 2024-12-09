@@ -103,7 +103,7 @@ class overallLeaderboard : AppCompatActivity() {
 
                     // Handle the rank text, checking for "Unranked"
                     if (currentUserRanking.rank == "Unranked") {
-                        rank.text = currentUserRanking.rank
+                        rank.text = "∞"
                         rank.setTextColor(resources.getColor(R.color.white))
                     } else {
                         rank.text = currentUserRanking.rank.toString()
