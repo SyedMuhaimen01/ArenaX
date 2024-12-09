@@ -18,7 +18,7 @@ data class FrequentSearchedUser(
     val fullname: String = "Unknown User",
     val profilePicture: String = "",
     val gamerTag: String = "",
-    val gamerRank: String = "Rank: 00"
+    val gamerRank: String = ""
 )
 
 class SearchUserAdapter(

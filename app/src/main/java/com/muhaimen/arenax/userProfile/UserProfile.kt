@@ -70,19 +70,14 @@ import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.editProfile.editProfile
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
-
 import com.muhaimen.arenax.explore.ExplorePage
-
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.screenTime.ScreenTimeService
 import com.muhaimen.arenax.synergy.synergy
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.uploadStory.uploadStory
-
 import com.muhaimen.arenax.uploadStory.viewStory
-
 import com.muhaimen.arenax.userFeed.UserFeed
-
 import com.muhaimen.arenax.utils.Constants
 import highlightsAdapter
 import okhttp3.Call
@@ -91,9 +86,7 @@ import okhttp3.OkHttpClient
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import org.jsoup.parser.ParseError
 import java.io.IOException
-import java.text.ParseException
 import java.util.Date
 import java.util.Locale
 import java.text.SimpleDateFormat
@@ -173,11 +166,10 @@ class UserProfile : AppCompatActivity() {
         myGamesListRecyclerView.adapter = myGamesListAdapter
         followersLinearLayout=findViewById(R.id.followersLinearLayout)
         followingLinearLayout=findViewById(R.id.followingLinearLayout)
-
-
+        rankTextView = findViewById(R.id.rankTextView)
         postsRecyclerView = findViewById(R.id.posts_recyclerview)
         postsRecyclerView.layoutManager = GridLayoutManager(this, 3)
-
+        //confirming Usage Stats Permission
         if (!checkUsageStatsPermission()) {
             requestUsageStatsPermission()
         } else {
@@ -215,7 +207,6 @@ class UserProfile : AppCompatActivity() {
         profileImage = findViewById(R.id.profilePicture)
         bioTextView = findViewById(R.id.bioText)
         showMoreTextView = findViewById(R.id.showMore)
-
         leaderboardButton = findViewById(R.id.leaderboardButton)
         leaderboardButton.setOnClickListener {
             val intent = Intent(this, overallLeaderboard::class.java)
@@ -229,14 +220,9 @@ class UserProfile : AppCompatActivity() {
 
         followersTextView=findViewById(R.id.followersTextView)
         followingTextView=findViewById(R.id.followingTextView)
-        if (auth.currentUser != null) {
-            fetchAndSetCounts(auth.currentUser?.uid ?: "")
-        } else {
-            Log.e("ProfileActivity", "Current user ID is null.")
-        }
+        fetchAndSetCounts(auth.currentUser?.uid ?: "")
 
-
-
+        //Chats Service for chat notifications (Not Working)
         val intent2 = Intent(this, ChatService::class.java)
         startService(intent2)
 
@@ -244,6 +230,7 @@ class UserProfile : AppCompatActivity() {
             val intent = Intent(this, synergy::class.java)
             startActivity(intent)
         }
+
         // Initialize the RecyclerView for analytics
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -252,20 +239,16 @@ class UserProfile : AppCompatActivity() {
         myGamesListAdapter = gamesDashboardAdapter(emptyList(),userId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
-
         // Initialize the RecyclerView for highlights
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-        rankTextView = findViewById(R.id.rankTextView)
-
-
+        //Navigation Bar Buttons
         uploadStoryButton = findViewById(R.id.uploadStoryButton)
         uploadStoryButton.setOnClickListener {
             val intent = Intent(this, uploadStory::class.java)
             startActivity(intent)
         }
-
 
         homeButton = findViewById(R.id.home)
         homeButton.setOnClickListener {
@@ -278,6 +261,7 @@ class UserProfile : AppCompatActivity() {
             val intent = Intent(this, editProfile::class.java)
             startActivity(intent)
         }
+
         addPost= findViewById(R.id.addPostButton)
         addPost.setOnClickListener {
             val intent = Intent(this, UploadContent::class.java)
@@ -295,12 +279,14 @@ class UserProfile : AppCompatActivity() {
             val intent = Intent(this, accountSettings::class.java)
             startActivity(intent)
         }
+
         myGamesButton= findViewById(R.id.myGamesButton)
         myGamesButton.setOnClickListener {
             val intent = Intent(this, MyGamesList::class.java)
             startActivity(intent)
         }
 
+        //A ring is visible around pfp if user has posted stories in past 24 hours
         storyRing = findViewById(R.id.storyRing)
         val userId=auth.currentUser?.uid
         if (userId != null) {
@@ -311,6 +297,7 @@ class UserProfile : AppCompatActivity() {
             onProfilePictureClick()
         }
 
+        //page refresh functionality to fetch all data from backend on page reload
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
         swipeRefreshLayout.setColorSchemeResources(R.color.white)
         swipeRefreshLayout.setOnRefreshListener {
@@ -323,6 +310,7 @@ class UserProfile : AppCompatActivity() {
 
         }
 
+        //notification to alert user that their screen time is being tracked
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "TrackingServiceChannel",
@@ -343,6 +331,7 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
+    //function to fetch user's listed games from backend
     private fun fetchUserGames() {
         val request = okhttp3.Request.Builder()
             .url("${Constants.SERVER_URL}usergames/user/${auth.currentUser?.uid}/mygames")
@@ -351,9 +340,7 @@ class UserProfile : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
-                runOnUiThread {
-                    //Toast.makeText(this@UserProfile, "Failed to fetch games", Toast.LENGTH_SHORT).show()
-                }
+                runOnUiThread {}
             }
 
             override fun onResponse(call: Call, response: okhttp3.Response) {
@@ -366,9 +353,7 @@ class UserProfile : AppCompatActivity() {
                         updateEmptyGameList()
                     }
                 } else {
-                    runOnUiThread {
-                        //Toast.makeText(this@UserProfile, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
-                    }
+                    runOnUiThread {}
                 }
             }
         })
@@ -381,7 +366,6 @@ class UserProfile : AppCompatActivity() {
         }
         runOnUiThread {
             myGamesListAdapter.updateGamesList(emptyList())
-            //Toast.makeText(this@UserProfile, "No games found", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -395,27 +379,25 @@ class UserProfile : AppCompatActivity() {
     private fun parseGamesData(responseBody: String) {
         try {
             val jsonObject = JSONObject(responseBody)
-            val gamesArray = jsonObject.getJSONArray("games") // Fetch the 'games' array from the JSON object
+            val gamesArray = jsonObject.getJSONArray("games")
 
             myGamesList = List(gamesArray.length()) { index ->
                 val gameObject = gamesArray.getJSONObject(index)
                 Log.d("MyGamesList", "Parsing game: ${gameObject.getString("gameName")}, Icon URL: ${gameObject.getString("gameIcon")}")
 
-                // Assuming graphData is coming from the server as a List of objects
                 val graphDataArray = gameObject.getJSONArray("graphData")
                 val graphData = List(graphDataArray.length()) { gIndex ->
                     val dataPoint = graphDataArray.getJSONObject(gIndex)
-                    val date = dataPoint.getString("date") // Get date
-                    val totalHours = dataPoint.getDouble("totalHours") // Get total hours
+                    val date = dataPoint.getString("date")
+                    val totalHours = dataPoint.getDouble("totalHours")
                     Pair(date, totalHours)
                 }
 
-                // Create AnalyticsData object
                 AnalyticsData(
                     gameName = gameObject.getString("gameName"),
-                    totalHours = gameObject.getDouble("totalHours"), // Assuming totalHours is a double
+                    totalHours = gameObject.getDouble("totalHours"),
                     iconResId = gameObject.getString("gameIcon"),
-                    graphData = graphData // Assign the graph data
+                    graphData = graphData
                 )
             }
 
@@ -428,7 +410,7 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
-
+    //checking for active internet connection
     private fun isConnected(): Boolean {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
@@ -442,7 +424,6 @@ class UserProfile : AppCompatActivity() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         userData = snapshot.getValue(UserData::class.java) ?: UserData()
-                        Log.d("UserProfile", "Data loaded from Firebase: $userData")
                         findViewById<TextView>(R.id.userName).setText(userData.fullname)
                         findViewById<TextView>(R.id.gamerTag).setText(userData.gamerTag)
                         findViewById<TextView>(R.id.bioText).setText(userData.bio)
@@ -458,7 +439,6 @@ class UserProfile : AppCompatActivity() {
                             bioTextView.ellipsize = null
                             showMoreTextView.visibility = View.GONE
                         }
-
                         userData.profilePicture?.let { url ->
                             Glide.with(this@UserProfile)
                                 .load(url)
@@ -467,7 +447,7 @@ class UserProfile : AppCompatActivity() {
                         }
                         saveUserDataToSharedPreferences(userData)
                     } else {
-                        Log.w("UserProfile", "No data found for user ID: $uid")
+                        Log.e("UserProfile", "No data found for user ID: $uid")
                     }
                 }
 
@@ -495,11 +475,10 @@ class UserProfile : AppCompatActivity() {
     }
 
     private fun startTrackingService() {
-        // Start your tracking service
+        // Start screen time tracking service
         val intent = Intent(this, ScreenTimeService::class.java)
         startService(intent)
     }
-
 
     @SuppressLint("SetTextI18n")
     private fun fetchUserRank() {
@@ -511,38 +490,32 @@ class UserProfile : AppCompatActivity() {
             null,
             { response ->
                 try {
-                    val rank = response.getString("rank") // Get rank as a String
-
-                    // Check if the rank is 'unranked' or a number
+                    val rank = response.getString("rank")
                     if (rank == "unranked") {
                         rankTextView.text = "Rank: Unranked"
                     } else {
-                        val rankInt = rank.toIntOrNull() // Safely convert to Int if it is a valid number
+                        val rankInt = rank.toIntOrNull()
                         if (rankInt != null) {
                             rankTextView.text = "Rank: $rankInt"
                         } else {
-                            rankTextView.text = "Rank: Unranked" // Fallback in case of invalid rank format
+                            rankTextView.text = "Rank: Unranked"
                         }
                     }
-
                     saveRankToPreferences(rank)
-
                 } catch (e: JSONException) {
-                    if (userId != null) {
-                        addUserToRankingsIfNeeded(userId)
-                    }
+                        //addUserToRankingsIfNeeded(userId)
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching rank: ${error.message}")
-                // Toast.makeText(this, "Error fetching rank", Toast.LENGTH_SHORT).show()
                 loadRankFromPreferences()
             }
         )
         requestQueue.add(jsonObjectRequest)
     }
 
-
+    //Not required in current implementation Logic
+    //Current logic implements real time rank calculation for each query instead of querying the rankings table
     private fun addUserToRankingsIfNeeded(userId: String) {
         val addRankUrl = "${Constants.SERVER_URL}leaderboard/user/$userId/add"
         val jsonObjectRequest = JsonObjectRequest(
@@ -554,18 +527,15 @@ class UserProfile : AppCompatActivity() {
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error adding user to rankings: ${error.message}")
-            //    Toast.makeText(this, "Error adding user to rankings", Toast.LENGTH_SHORT).show()
             }
         )
-
         requestQueue.add(jsonObjectRequest)
     }
 
-
+    //fetch all stories uploaded by a user
     private fun fetchUserStories() {
         val userId = auth.currentUser?.uid ?: return
         val url = "${Constants.SERVER_URL}stories/user/$userId/fetchStoryHighlights"
-
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
             url,
@@ -575,20 +545,16 @@ class UserProfile : AppCompatActivity() {
                     val storiesList = mutableListOf<Story>()
                     for (i in 0 until response.length()) {
                         val storyJson = response.getJSONObject(i)
-
-                        // Safely parse fields with error handling
-                        val storyId = storyJson.optString("story_id", "") // Updated to match the backend response
+                        val storyId = storyJson.optString("story_id", "")
                         val mediaUrl = storyJson.optString("media_url", "")
                         val duration = storyJson.optInt("duration", 0)
                         val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
-
-                        // Handle draggable_texts as a JSON string
-                        val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]") // Handle as string
+                        val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]")
                         val draggableTexts = try {
-                            JSONArray(draggableTextsJsonString) // Convert string to JSONArray
+                            JSONArray(draggableTextsJsonString)
                         } catch (e: JSONException) {
                             Log.e("fetchUserStories", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
-                            JSONArray() // Return an empty JSONArray in case of error
+                            JSONArray()
                         }
 
                         val createdAt = storyJson.optString("created_at", null)
@@ -599,16 +565,11 @@ class UserProfile : AppCompatActivity() {
                         val userName = storyJson.optString("full_name", "")
                         val userProfilePicture = storyJson.optString("profile_picture_url", "")
 
-                        // Ensure mandatory fields are valid
                         if (storyId.isEmpty() || mediaUrl.isEmpty() || createdAt.isNullOrEmpty()) {
                             Log.e("fetchUserStories", "Invalid story data: $storyJson")
                             continue
                         }
-
-                        // Convert createdAt string to Date
                         val uploadedAt = parseDate(createdAt) ?: continue
-
-                        // Create the Story object
                         val story = Story(
                             id = storyId,
                             mediaUrl = mediaUrl,
@@ -623,10 +584,9 @@ class UserProfile : AppCompatActivity() {
                             latitude = latitude,
                             longitude = longitude
                         )
-
                         storiesList.add(story)
                     }
-                    Log.e("Fetecd","Soties:${storiesList}")
+                    //Storing fetched Stories to local Phone storage for efficiency
                     saveStoriesDataToSharedPreference(storiesList)
                     updateStoriesUI(storiesList)
                 } catch (e: JSONException) {
@@ -635,14 +595,12 @@ class UserProfile : AppCompatActivity() {
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching stories: ${error.message}")
-                loadStoriesFromSharedPreferences() // Optionally load stories from SharedPreferences if error occurs
+                //load stories from local storage if DB fetch fails
+                loadStoriesFromSharedPreferences()
             }
         )
-
         requestQueue.add(jsonArrayRequest)
     }
-
-
 
     private fun updateStoriesUI(stories: List<Story>) {
         highlightsAdapter = highlightsAdapter(stories)
@@ -652,22 +610,18 @@ class UserProfile : AppCompatActivity() {
     private fun fetchUserPosts() {
         val userId = auth.currentUser?.uid
         val url = "${Constants.SERVER_URL}uploads/user/$userId/getUserPosts"
-
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
             url,
             null,
             { response ->
                 try {
-                    // Create a list to hold the user's posts
                     val postsList = mutableListOf<Post>()
                     for (i in 0 until response.length()) {
                         val postJson = response.getJSONObject(i)
-
-                        // Parse fields from the JSON response with safe defaults
                         val postId = postJson.getInt("post_id")
                         val postContent = postJson.optString("post_content", null.toString())
-                        val caption = postJson.optString("caption", null.toString()) // Safe string parsing
+                        val caption = postJson.optString("caption", null.toString())
                         val sponsored = postJson.getBoolean("sponsored")
                         val likes = postJson.getInt("likes")
                         val comments = postJson.getInt("post_comments")
@@ -678,23 +632,19 @@ class UserProfile : AppCompatActivity() {
                         val trimmedAudioUrl = postJson.optString("trimmed_audio_url", null.toString())
                         val createdAt = postJson.getString("created_at")
                         val likedByUser = postJson.getBoolean("likedByUser")
-                        // Parse the user details safely
-                        val userFullName = postJson.optString("full_name", null.toString()) // Ensure it uses the correct field name
+                        val userFullName = postJson.optString("full_name", null.toString())
                         val userProfilePictureUrl = postJson.optString("profile_picture_url", null.toString())
-
-                        // Parse the comments data
                         val commentsDataJson = postJson.optJSONArray("comments")
                         val commentsList = mutableListOf<Comment>()
                         if (commentsDataJson != null) {
                             for (j in 0 until commentsDataJson.length()) {
                                 val commentJson = commentsDataJson.getJSONObject(j)
-
                                 val commentId = commentJson.getInt("comment_id")
-                                val commentText = commentJson.optString("comment", "No comment provided") // Safe text parsing
+                                val commentText = commentJson.optString("comment", "No comment provided")
                                 val commentCreatedAt = commentJson.getString("created_at")
                                 val commenterName = commentJson.optString("commenter_name", "Unknown commenter")
                                 val commenterProfilePictureUrl = commentJson.optString("commenter_profile_pic", null.toString())
-
+                                //creating a comment Object with the data being recieved
                                 val comment = Comment(
                                     commentId = commentId,
                                     commentText = commentText,
@@ -705,14 +655,11 @@ class UserProfile : AppCompatActivity() {
                                 commentsList.add(comment)
                             }
                         }
-
-
-
-                        // Create a Post object
+                        //creating Post object filled with data being recieved
                         val post = Post(
                             postId = postId,
                             postContent = postContent,
-                            caption = caption ?: "No caption provided", // Default caption if null
+                            caption = caption ?: "",
                             sponsored = sponsored,
                             likes = likes,
                             comments = comments,
@@ -722,51 +669,40 @@ class UserProfile : AppCompatActivity() {
                             country = country,
                             trimmedAudioUrl = trimmedAudioUrl,
                             createdAt = createdAt,
-                            userFullName = userFullName ?: "Unknown user", // Default name if null
-                            userProfilePictureUrl = userProfilePictureUrl ?: "path/to/default/profile/picture.jpg", // Default profile picture if null
-                            commentsData = if (commentsList.isNotEmpty()) commentsList else null, // Null if no comments
-                            isLikedByUser = likedByUser // Add likedByUser attribute
+                            userFullName = userFullName ?: "",
+                            userProfilePictureUrl = userProfilePictureUrl ?: "",
+                            commentsData = if (commentsList.isNotEmpty()) commentsList else null,
+                            isLikedByUser = likedByUser
                         )
-
                         // Add the post to the list
                         postsList.add(post)
                     }
 
-                    // Save posts to shared preferences for offline use
                     savePostsDataToSharedPreference(postsList)
-
-                    // Update the UI with the fetched posts
                     updatePostsUI(postsList)
                 } catch (e: JSONException) {
                     e.printStackTrace()
                     Log.e(TAG, "Error parsing response: ${e.message}")
-                    // Optionally, notify the user about the error
                 }
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error fetching posts: ${error.message}")
-                // Load cached posts if the request fails
                 loadPostsFromSharedPreferences()
             }
         )
-
-        // Add the request to the RequestQueue
         requestQueue.add(jsonArrayRequest)
     }
 
-
-    // Function to update the UI with the fetched posts
     @SuppressLint("SetTextI18n")
     private fun updatePostsUI(posts: List<Post>) {
-        postsAdapter = PostsAdapter(posts) // Create a new adapter with the fetched posts
+        postsAdapter = PostsAdapter(posts)
         postsRecyclerView.adapter = postsAdapter
         postsCount=findViewById(R.id.postsCount)
-        postsCount.setText(postsAdapter.itemCount.toString())// Set the adapter to RecyclerView
+        postsCount.setText(postsAdapter.itemCount.toString())
         val adapter = postsAdapter
         val totalHeight = adapter.itemCount.let { count ->
             // Calculate the height dynamically based on the number of items and individual item height
             val itemHeight = resources.getDimensionPixelSize(com.intuit.sdp.R.dimen._120sdp) // Or calculate dynamically
-
             if (count>3)
             {
                 (itemHeight * count)/3
@@ -775,14 +711,13 @@ class UserProfile : AppCompatActivity() {
                 itemHeight * count
             }
         }
-
         postsRecyclerView.layoutParams.height = totalHeight
         postsRecyclerView.requestLayout()
     }
 
     private fun saveRankToPreferences(rank: String) {
         with(sharedPreferences4.edit()) {
-            putString("userRank", rank)  // Store rank as a String
+            putString("userRank", rank)
             apply()
         }
     }
@@ -790,28 +725,24 @@ class UserProfile : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     fun loadRankFromPreferences() {
         val sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-        val rank = sharedPreferences.getInt("rank_key", -1) // Assuming rank is stored as an integer
+        val rank = sharedPreferences.getInt("rank_key", -1)
         if (rank == -1) {
-            // Handle case where rank is not set (use "Unranked" or similar logic)
             rankTextView.text = "Unranked"
         } else {
-            // Handle the case where rank is a valid integer
             rankTextView.text = rank.toString()
         }
     }
 
-
+    //loading user data from sharedPreferences incase of no internet connection
     private fun loadUserDataFromSharedPreferences() {
         val userId = sharedPreferences5.getString("userId", "")
         val fullname = sharedPreferences5.getString("fullname", "")
         val gamerTag = sharedPreferences5.getString("gamerTag", "")
         val bio = sharedPreferences5.getString("bio", "")
         val profilePicture = sharedPreferences5.getString("profilePicture", "")
-
         findViewById<TextView>(R.id.userName).text = fullname
         findViewById<TextView>(R.id.gamerTag).text = gamerTag
         findViewById<TextView>(R.id.bioText).text = bio
-
         if (bio != null) {
             if (bio.length > 50) {
                 showMoreTextView.visibility = View.VISIBLE
@@ -822,7 +753,6 @@ class UserProfile : AppCompatActivity() {
             bioTextView.ellipsize = null
             showMoreTextView.visibility = View.GONE
         }
-
         profilePicture?.let { url ->
             Glide.with(this@UserProfile)
                 .load(url)
@@ -851,17 +781,16 @@ class UserProfile : AppCompatActivity() {
                     put("duration", story.duration)
                     put("trimmed_audio_url", story.trimmedAudioUrl)
                     put("draggable_texts", story.draggableTexts)
-                    put("created_at", story.uploadedAt?.time ?: 0L) // Store as timestamp
-                    put("full_name", story.userName) // Store user name
-                    put("profile_picture_url", story.userProfilePicture) // Store user profile picture URL
-                    put("city", story.city) // Store user's city
-                    put("country", story.country) // Store user's country
-                    put("latitude", story.latitude) // Store latitude
-                    put("longitude", story.longitude) // Store longitude
+                    put("created_at", story.uploadedAt?.time ?: 0L)
+                    put("full_name", story.userName)
+                    put("profile_picture_url", story.userProfilePicture)
+                    put("city", story.city)
+                    put("country", story.country)
+                    put("latitude", story.latitude)
+                    put("longitude", story.longitude)
                 })
             }
         }.toString()
-
         with(sharedPreferences2.edit()) {
             putString("storiesList", storiesJsonArray.toString())
             apply()
@@ -875,7 +804,7 @@ class UserProfile : AppCompatActivity() {
             val jsonArray = JSONArray(storiesJson)
             for (i in 0 until jsonArray.length()) {
                 val storyJson = jsonArray.getJSONObject(i)
-                val uploadedAt = storyJson.getLong("created_at") // Get the timestamp
+                val uploadedAt = storyJson.getLong("created_at")
                 val story = Story(
                     storyJson.getString("id"),
                     storyJson.getString("media_url"),
@@ -883,12 +812,12 @@ class UserProfile : AppCompatActivity() {
                     storyJson.optString("trimmed_audio_url", null),
                     storyJson.optJSONArray("draggable_texts"),
                     Date(uploadedAt),
-                    storyJson.getString("full_name"), // Get user name
-                    storyJson.getString("profile_picture_url"), // Get user profile picture URL
-                    storyJson.optString("city", null), // Get user's city
-                    storyJson.optString("country", null), // Get user's country
-                    storyJson.optDouble("latitude", Double.NaN).takeIf { it != Double.NaN }, // Get latitude
-                    storyJson.optDouble("longitude", Double.NaN).takeIf { it != Double.NaN } // Get longitude
+                    storyJson.getString("full_name"),
+                    storyJson.getString("profile_picture_url"),
+                    storyJson.optString("city", null),
+                    storyJson.optString("country", null),
+                    storyJson.optDouble("latitude", Double.NaN).takeIf { it != Double.NaN },
+                    storyJson.optDouble("longitude", Double.NaN).takeIf { it != Double.NaN }
                 )
                 stories.add(story)
             }
@@ -896,29 +825,24 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
-
-
-
     private fun savePostsDataToSharedPreference(posts: List<Post>) {
         val postsJsonArray = JSONArray().apply {
             posts.forEach { post ->
                 put(JSONObject().apply {
                     put("post_id", post.postId)
-                    put("post_content", post.postContent ?: JSONObject.NULL)  // Handle null content
-                    put("caption", post.caption ?: JSONObject.NULL)          // Handle null caption
+                    put("post_content", post.postContent ?: JSONObject.NULL)
+                    put("caption", post.caption ?: JSONObject.NULL)
                     put("sponsored", post.sponsored)
                     put("likes", post.likes)
                     put("post_comments", post.comments)
                     put("shares", post.shares)
                     put("clicks", post.clicks)
-                    put("city", post.city ?: JSONObject.NULL)                // Handle null city
-                    put("country", post.country ?: JSONObject.NULL)          // Handle null country
-                    put("trimmed_audio_url", post.trimmedAudioUrl ?: JSONObject.NULL) // Handle null audio URL
+                    put("city", post.city ?: JSONObject.NULL)
+                    put("country", post.country ?: JSONObject.NULL)
+                    put("trimmed_audio_url", post.trimmedAudioUrl ?: JSONObject.NULL)
                     put("created_at", post.createdAt)
-
-                    // Add user info
-                    put("userFullName", post.userFullName ?: JSONObject.NULL) // Handle null user full name
-                    put("userProfilePictureUrl", post.userProfilePictureUrl ?: JSONObject.NULL) // Handle null profile picture
+                    put("userFullName", post.userFullName ?: JSONObject.NULL)
+                    put("userProfilePictureUrl", post.userProfilePictureUrl ?: JSONObject.NULL)
 
                     // Add comments data
                     val commentsJsonArray = JSONArray()
@@ -932,7 +856,6 @@ class UserProfile : AppCompatActivity() {
                         })
                     }
                     put("commentsData", commentsJsonArray)
-
                     put("likedByUser", post.isLikedByUser)
                 })
             }
@@ -944,42 +867,31 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
-
-
     private fun saveLocationToSharedPreferences(city: String, country: String, latitude: Double, longitude: Double) {
         with(sharedPreferences6.edit()) {
             putString("city", city)
             putString("country", country)
-            putFloat("latitude", latitude.toFloat())   // Store latitude as Float
-            putFloat("longitude", longitude.toFloat()) // Store longitude as Float
+            putFloat("latitude", latitude.toFloat())
+            putFloat("longitude", longitude.toFloat())
             apply()
         }
     }
 
-
     private fun loadLocationFromSharedPreferences(): Triple<String?, String?, Pair<Double, Double>?> {
         val city = sharedPreferences6.getString("city", null)
         val country = sharedPreferences6.getString("country", null)
-
-        // Retrieve latitude and longitude as Floats, and then convert them back to Doubles
         val latitude = sharedPreferences6.getFloat("latitude", 0f).toDouble()
         val longitude = sharedPreferences6.getFloat("longitude", 0f).toDouble()
-
-        // Return the data in a Triple: City, Country, and the Pair of latitude and longitude
         return Triple(city, country, Pair(latitude, longitude))
     }
-
 
     private fun loadPostsFromSharedPreferences() {
         val postsJson = sharedPreferences3.getString("postsList", null)
         if (postsJson != null) {
             val posts = mutableListOf<Post>()
             val jsonArray = JSONArray(postsJson)
-
             for (i in 0 until jsonArray.length()) {
                 val postJson = jsonArray.getJSONObject(i)
-
-                // Parse post details
                 val post = (if (postJson.isNull("userFullName")) null else postJson.getString("userFullName"))?.let {
                     Post(
                         postId = postJson.getInt("post_id"),
@@ -994,11 +906,8 @@ class UserProfile : AppCompatActivity() {
                         country = if (postJson.isNull("country")) null else postJson.getString("country"),
                         trimmedAudioUrl = if (postJson.isNull("trimmed_audio_url")) null else postJson.getString("trimmed_audio_url"),
                         createdAt = postJson.getString("created_at"),
-
-                        // Parse user information
                         userFullName = it,
                         userProfilePictureUrl = if (postJson.isNull("userProfilePictureUrl")) null else postJson.getString("userProfilePictureUrl"),
-
                         // Parse comments data
                         commentsData = mutableListOf<Comment>().apply {
                             val commentsJsonArray = postJson.getJSONArray("commentsData")
@@ -1014,9 +923,7 @@ class UserProfile : AppCompatActivity() {
                                 add(comment)
                             }
                         },
-
-                        // Parse isLikedByUser field
-                        isLikedByUser = postJson.getBoolean("likedByUser") // Adding the likedByUser field
+                        isLikedByUser = postJson.getBoolean("likedByUser")
                     )
                 }
                 if (post != null) {
@@ -1026,8 +933,6 @@ class UserProfile : AppCompatActivity() {
             updatePostsUI(posts)
         }
     }
-
-
 
     override fun onResume() {
         super.onResume()
@@ -1099,11 +1004,9 @@ class UserProfile : AppCompatActivity() {
 
                     getCityAndCountry(latitude, longitude)
                 } ?: run {
-                   // Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener { e ->
-             //   Toast.makeText(this, "Failed to get location: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -1116,10 +1019,7 @@ class UserProfile : AppCompatActivity() {
                     val city = addresses[0].locality
                     val country = addresses[0].countryName
                     val (previousCity, previousCountry) = loadLocationFromSharedPreferences()
-
-                    // Check if the city or country has changed
                     if (city != previousCity || country != previousCountry) {
-                        // Now also send the latitude and longitude to updateUserLocation function
                         updateUserLocation(city, country, latitude, longitude)
                     }
                 }
@@ -1129,8 +1029,6 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
-
-    // Handle the result of the permission request
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -1147,10 +1045,7 @@ class UserProfile : AppCompatActivity() {
     }
 
     private fun updateUserLocation(city: String?, country: String?, latitude: Double?, longitude: Double?) {
-
         val url="${Constants.SERVER_URL}updateLocation/user/$userId/userLocation"
-
-        // Create the request body with city, country, latitude, and longitude
         val requestBody = JSONObject().apply {
             put("city", city)
             put("country", country)
@@ -1163,18 +1058,14 @@ class UserProfile : AppCompatActivity() {
             url,
             requestBody,
             { _ ->
-                // Save the updated location (city, country, latitude, longitude) to SharedPreferences
                 saveLocationToSharedPreferences(city ?: "", country ?: "", latitude ?: 0.0, longitude ?: 0.0)
             },
             { error: VolleyError ->
                 Log.e(TAG, "Error updating user location: ${error.message}")
             }
         )
-
         requestQueue.add(jsonObjectRequest)
     }
-
-
 
     private fun onProfilePictureClick() {
         val userId = auth.currentUser?.uid ?: return
@@ -1194,22 +1085,17 @@ class UserProfile : AppCompatActivity() {
 
                     for (i in 0 until response.length()) {
                         val storyJson = response.getJSONObject(i)
-
-                        // Safely parse fields with error handling
                         val storyId = storyJson.optString("story_id", "")
                         val mediaUrl = storyJson.optString("media_url", "")
                         val duration = storyJson.optInt("duration", 0)
                         val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
-
-                        // Handle draggable_texts as a JSON string
-                        val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]") // Handle as string
+                        val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]")
                         val draggableTexts = try {
-                            JSONArray(draggableTextsJsonString) // Convert string to JSONArray
+                            JSONArray(draggableTextsJsonString)
                         } catch (e: JSONException) {
                             Log.e("fetchUserStories", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
-                            JSONArray() // Return an empty JSONArray in case of error
+                            JSONArray()
                         }
-
                         val createdAt = storyJson.optString("created_at", null)
                         val city = storyJson.optString("city", null)
                         val country = storyJson.optString("country", null)
@@ -1217,16 +1103,12 @@ class UserProfile : AppCompatActivity() {
                         val longitude = storyJson.optDouble("longitude", 0.0)
                         val userName = storyJson.optString("full_name", "")
                         val userProfilePicture = storyJson.optString("profile_picture_url", "")
-
-                        // Ensure mandatory fields are valid
                         if (storyId.isEmpty() || mediaUrl.isEmpty() || createdAt.isNullOrEmpty()) {
                             Log.e("fetchUserStory", "Invalid story data: $storyJson")
                             continue
                         }
 
-                        // Convert createdAt string to Date
                         val uploadedAt = parseDate(createdAt) ?: continue
-
                         // Create the Story object
                         val story = Story(
                             id = storyId,
@@ -1242,19 +1124,14 @@ class UserProfile : AppCompatActivity() {
                             latitude = latitude,
                             longitude = longitude
                         )
-
                         storiesList.add(story)
                     }
 
-                    // Handle story presence
                     if (storiesList.isNotEmpty()) {
                         // Show the story ring
                         findViewById<ImageView>(R.id.storyRing).visibility = View.VISIBLE
-
-                        // Launch StoryViewActivity if there are stories
                         val gson = Gson()
                         val storiesJson = gson.toJson(storiesList)
-
                         val intent = Intent(this, viewStory::class.java).apply {
                             putExtra("intentFrom", "UserProfile")
                             putExtra("storiesListJson", storiesJson)
@@ -1282,23 +1159,16 @@ class UserProfile : AppCompatActivity() {
                     else -> "Response parse error: ${error.message}"
                 }
                 Log.e("fetchUserStory", errorMessage)
-                Toast.makeText(this, "Failed to fetch stories: $errorMessage", Toast.LENGTH_SHORT).show()
             }
         )
-
-        // Add the request to the request queue
         requestQueue.add(jsonArrayRequest)
     }
-
-
-
-
 
     fun parseDate(dateString: String): Date? {
         return try {
             // Updated format to handle the 'Z' (UTC) and milliseconds (SSS)
             val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-            format.timeZone = TimeZone.getTimeZone("UTC") // Ensure it's parsed as UTC
+            format.timeZone = TimeZone.getTimeZone("UTC")
             format.parse(dateString)
         } catch (e: Exception) {
             Log.e("fetchUserStory", "Date parsing error: ${e.message}")
@@ -1306,12 +1176,7 @@ class UserProfile : AppCompatActivity() {
         }
     }
 
-
-
-
-
-
-
+    //function to calculate hours ago. Not used in the current logic implementation
     private fun calculateHoursAgo(createdAt: String): Long {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
         val createdDate = dateFormat.parse(createdAt)
@@ -1326,7 +1191,6 @@ class UserProfile : AppCompatActivity() {
         return TimeUnit.MILLISECONDS.toHours(differenceInMillis)
     }
 
-
     private fun navigateToFullProfilePicture() {
         val profilePictureUrl = sharedPreferences5.getString("profilePicture", null)
         val intent = Intent(this, ProfilePictureActivity::class.java).apply {
@@ -1337,14 +1201,11 @@ class UserProfile : AppCompatActivity() {
 
     fun checkRecentStories(userId: String, storyRing: ImageView) {
         val url = "${Constants.SERVER_URL}stories/user/$userId/hasRecentStory"
-
-        // Create a JsonObjectRequest to make the network call
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.GET,
             url,
             null,
             { response ->
-                // Assuming the response is a JSON object containing a boolean field 'hasRecentStory'
                 val hasRecentStory = response.getBoolean("hasRecentStory")
                 if (hasRecentStory) {
                     // User has recent stories, make the ring visible
@@ -1355,17 +1216,16 @@ class UserProfile : AppCompatActivity() {
                 }
             },
             { error ->
-                // Handle error
                 error.printStackTrace()
                 // Hide ring on error as well
                 storyRing.visibility = View.GONE
             }
         )
 
-        // Add the request to the RequestQueue
         Volley.newRequestQueue(storyRing.context).add(jsonObjectRequest)
     }
 
+    //function to fetch the user's following and follower lists counts
     private fun fetchAndSetCounts(userId: String) {
         val followersRef = database.getReference("userData/$userId/synerG/followers")
         val followingRef = database.getReference("userData/$userId/synerG/following")
@@ -1401,37 +1261,30 @@ class UserProfile : AppCompatActivity() {
         })
     }
 
+    //function to generate a user account's interests
     fun GenerateUserInterests() {
-        // URL for the API endpoint (replace with actual URL)
         val url = "${Constants.SERVER_URL}userIntertests/user/$userId/generateInterests"
-
-        // Create a StringRequest to call the API
         val stringRequest = StringRequest(
             Request.Method.POST, url,
             { response ->
-                // Handle the response
                 Log.d("VolleyResponse", "Response: $response")
-                // You can handle the response here
             },
             { error ->
                 // Handle error
                 Log.e("VolleyError", "Error: ${error.message}")
             }
         )
-
-
         requestQueue.add(stringRequest)
     }
 
+    //setting the interests generated to avoid redundancy in interest generation
     fun setInterestsGenerated( userId: String, value: Boolean) {
         val editor = sharedPreferences7.edit()
         editor.putBoolean("interestsGenerated_$userId", value)
-        editor.apply()  // Commit the change asynchronously
+        editor.apply()
     }
 
     fun getInterestsGenerated( userId: String): Boolean {
         return sharedPreferences7.getBoolean("interestsGenerated_$userId", false)
     }
 }
-
-

@@ -27,6 +27,10 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import java.io.IOException
 
+data class GameData(
+    val gameName: String,
+    val packageName: String
+)
 
 class ScreenTimeService : Service() {
     private val CHANNEL_ID = "ScreenTimeServiceChannel"
@@ -84,7 +88,6 @@ class ScreenTimeService : Service() {
         }
     }
 
-
     private fun startUsageCheck() {
         usageCheckRunnable = object : Runnable {
             override fun run() {
@@ -98,7 +101,6 @@ class ScreenTimeService : Service() {
     private fun checkAppUsage() {
         val endTime = System.currentTimeMillis()
         val startTime = endTime - usageCheckInterval
-
         val usageStatsList = usageStatsManager.queryUsageStats(
             UsageStatsManager.INTERVAL_DAILY,
             startTime,
@@ -126,69 +128,123 @@ class ScreenTimeService : Service() {
             }
         }
 
-        // Send metrics to backend at 8 AM if not already sent today
+        // Send metrics to backend at 8 AM
         val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         val currentMinute = Calendar.getInstance().get(Calendar.MINUTE)
-        if (currentHour == 20 && currentMinute == 0 && !dataSentToday) {
+        if (currentHour == 8 && currentMinute == 0 && !dataSentToday) {
             sendMetricsToBackend()
         }
     }
 
     private fun sendMetricsToBackend() {
-        fetchUserGameList()
-        val userId = auth.currentUser?.uid ?: return
-        val gameMetrics = JSONObject().apply {
-            sessionData.forEach { (packageName, sessionLengths) ->
-                // Only process the games that are in the user's game list
-                if (isUserGame(packageName)) {
-                    val totalPlaytimeMillis = sessionLengths.sum()
-                    val averagePlaytimeMillis = sessionLengths.average()
-                    val peakPlaytimeMillis = sessionLengths.maxOrNull()
 
-                    put(packageName, JSONObject().apply {
-                        put("totalSessions", sessionCount[packageName])
-                        put("sessionLengths", sessionLengths.map { it / 3600000.0 })
-                        put("totalPlaytime", totalPlaytimeMillis / 3600000.0)
-                        put("averagePlaytime", averagePlaytimeMillis / 3600000.0)
-                        put("peakPlaytime", peakPlaytimeMillis?.div(3600000.0))
-                    })
+        fetchUserGameList { success ->
+            if (!success) {
+                Log.e("ScreenTimeService", "Failed to fetch user game list. Cannot send metrics.")
+                return@fetchUserGameList
+            }
+            val userId = auth.currentUser?.uid ?: ""
+            val gameMetrics = JSONObject().apply {
+                sessionData.forEach { (packageName, sessionLengths) ->
+
+                    // Only process the games that are in the user's game list
+                    if (isUserGame(packageName)) {
+                        val totalPlaytimeMillis = sessionLengths.sum()
+                        val averagePlaytimeMillis = sessionLengths.average()
+                        val peakPlaytimeMillis = sessionLengths.maxOrNull()
+
+                        put(packageName, JSONObject().apply {
+                            put("sessionCount", sessionCount[packageName])
+                            put("sessionLengths", sessionLengths.map { it / 3600000.0 })
+                            put("totalPlaytime", totalPlaytimeMillis / 3600000.0)
+                            put("averagePlaytime", averagePlaytimeMillis / 3600000.0)
+                            put("peakPlaytime", peakPlaytimeMillis?.div(3600000.0))
+                        })
+                    }
                 }
             }
-        }
 
-        val jsonObject = JSONObject().apply {
-            put("user_id", userId)
-            put("game_metrics", gameMetrics)
-        }
-
-        val request = JsonObjectRequest(
-            Request.Method.POST,
-            "${Constants.SERVER_URL}gameMetrics/user/$userId/gamesSessionMetrics",
-            jsonObject,
-            { response ->
-                Log.d("ScreenTimeService", "Successfully sent metrics to backend: $response")
-                dataSentToday = true
-                sessionData.clear()
-                sessionCount.clear()
-                currentSessionStartTime.clear()
-
-                // Notify success
-                sendSuccessNotification()
-            },
-            { error ->
-                Log.e("ScreenTimeService", "Error sending metrics to backend: ${error.message}")
-                if (!dataSentToday) {
-                    scheduleRetry()
-                }
+            val jsonObject = JSONObject().apply {
+                put("user_id", userId)
+                put("game_metrics", gameMetrics)
             }
-        )
+            val request = JsonObjectRequest(
+                Request.Method.POST,
+                "${Constants.SERVER_URL}gameMetrics/user/$userId/gamesSessionMetrics",
+                jsonObject,
+                { response ->
+                    dataSentToday = true
+                    sessionData.clear()
+                    sessionCount.clear()
+                    currentSessionStartTime.clear()
+                    Log.d("ScreenTimeService", "Successfully sent metrics to backend: $response")
 
-        queue.add(request)
+                    // Create notification for successful data storage
+                    sendSuccessNotification()
+                },
+                { error ->
+                    Log.e("ScreenTimeService", "Error sending metrics to backend: ${error.message}")
+                    if (!dataSentToday) {
+                        scheduleRetry()
+                    }
+                }
+            )
+            queue.add(request)
+        }
     }
 
     // Helper function to check if the game is in the user's game list
     private fun isUserGame(packageName: String): Boolean {
         return userGames.any { it.packageName == packageName }
+    }
+
+    //function to fetch user's game list
+    private fun fetchUserGameList(callback: (Boolean) -> Unit) {
+        val userId = auth.currentUser?.uid ?: ""
+        val request = okhttp3.Request.Builder()
+            .url("${Constants.SERVER_URL}usergames/user/$userId/gamelist")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            @SuppressLint("RestrictedApi")
+            override fun onFailure(call: okhttp3.Call, e: IOException) {
+                e.printStackTrace()
+                Log.e("GameListActivity", "Error fetching game list", e)
+                callback(false) // Callback with failure status
+            }
+
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string() ?: ""
+                    if (responseBody.isNotEmpty()) {
+                        parseGameListData(responseBody)
+                        callback(true) // Callback with success status
+                    } else {
+                        Log.e("GameListActivity", "Response body is empty")
+                        callback(false) // Callback with failure status
+                    }
+                } else {
+                    Log.e("GameListActivity", "Failed to fetch game list: ${response.message}")
+                    callback(false) // Callback with failure status
+                }
+            }
+        })
+    }
+
+    private fun parseGameListData(responseBody: String) {
+        try {
+            val jsonObject = JSONObject(responseBody)
+            val gamesArray = jsonObject.getJSONArray("games")
+            userGames = List(gamesArray.length()) { index ->
+                val gameObject = gamesArray.getJSONObject(index)
+                GameData(
+                    gameName = gameObject.getString("gameName"),
+                    packageName = gameObject.getString("packageName")
+                )
+            }
+        } catch (e: Exception) {
+            Log.e("GameListActivity", "Error parsing game list data", e)
+        }
     }
 
     private fun scheduleRetry() {
@@ -201,59 +257,10 @@ class ScreenTimeService : Service() {
         handler.removeCallbacks(usageCheckRunnable ?: return)
     }
 
-    private fun fetchUserGameList() {
-        val userId = auth.currentUser?.uid ?: ""
-
-        val request = okhttp3.Request.Builder()
-            .url("${Constants.SERVER_URL}user/${userId}/gamelist")
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            @SuppressLint("RestrictedApi")
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                e.printStackTrace()
-
-            }
-            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body?.string() ?: ""
-                    if (responseBody.isNotEmpty()) {
-                        parseGameListData(responseBody)
-                    }
-                }
-            }
-        })
-    }
-
-    private fun parseGameListData(responseBody: String) {
-        try {
-            val jsonObject = JSONObject(responseBody)
-            val gamesArray = jsonObject.getJSONArray("games")
-
-            userGames = List(gamesArray.length()) { index ->
-                val gameObject = gamesArray.getJSONObject(index)
-
-                // Extract game name and package name
-                GameData(
-                    gameName = gameObject.getString("gameName"),
-                    packageName = gameObject.getString("packageName")
-                )
-            }
-        } catch (e: Exception) {
-            Log.e("GameListActivity", "Error parsing game list data", e)
-        }
-    }
-
-    // Data class to hold game information
-    data class GameData(
-        val gameName: String,
-        val packageName: String
-    )
-
     // Function to send a notification on successful data submission
     private fun sendSuccessNotification() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notification = NotificationCompat.Builder(this, "screen_time_channel")
+        val notification = NotificationCompat.Builder(this, "ScreenTimeServiceChannel")
             .setContentTitle("Game data storage successful")
             .setContentText("Your game time has been successfully submitted.")
             .setSmallIcon(R.mipmap.appicon2)
@@ -262,5 +269,4 @@ class ScreenTimeService : Service() {
 
         notificationManager.notify(1, notification)
     }
-
 }

@@ -124,12 +124,8 @@ class LoginScreen : AppCompatActivity() {
                 Toast.makeText(this, "User data not found", Toast.LENGTH_SHORT).show()
                 Log.e(TAG, "User data not found for ID: $uid")
             }
-        }.addOnFailureListener { exception ->
-           // Toast.makeText(this, "Failed to fetch user data: ${exception.message}", Toast.LENGTH_SHORT).show()
-        }
+        }.addOnFailureListener { exception -> }
     }
-
-
 
     private fun checkUsageStatsPermission(): Boolean {
         val appOpsManager = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager

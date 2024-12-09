@@ -396,7 +396,7 @@
             android:paddingTop="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:paddingBottom="50dp"
+            android:paddingBottom="100dp"
             android:orientation="vertical">
           <TextView
               android:text="Posts"
@@ -406,10 +406,12 @@
               android:layout_height="wrap_content"
               android:textColor="@color/textColor"/>
           <androidx.recyclerview.widget.RecyclerView
-              android:id="@+id/posts_recyclerview"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              />
+            android:id="@+id/posts_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+          android:isScrollContainer="false" />
+
         </LinearLayout>
 
       </LinearLayout>

@@ -133,8 +133,6 @@ class UploadContent : AppCompatActivity() {
                 captionEditText.visibility = View.VISIBLE
                 uploadToolbar.visibility = View.VISIBLE
             }
-
-
         }
 
         // Set max to the duration in seconds
@@ -143,9 +141,6 @@ class UploadContent : AppCompatActivity() {
         startSeekBar.progress = 0
         endSeekBar.progress = fixedDuration
 
-
-
-// Listener for the Start SeekBar
         startSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -164,7 +159,6 @@ class UploadContent : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
 
-// Listener for the End SeekBar
         endSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -183,7 +177,6 @@ class UploadContent : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
 
-
         playPauseButton.setOnClickListener {
             if (isPlaying) {
                 // Pause the audio and hide trimming options
@@ -200,20 +193,16 @@ class UploadContent : AppCompatActivity() {
         }
 
         trimButton.setOnClickListener {
-            Log.d("uploadStory", "Start time: $startTime, End time: $endTime")
             if (startSeekBar.progress < endSeekBar.progress) {
                 adapter.pauseAudio()
                 playPauseButton.text = "Play"
-                Log.d("uploadStory", "Trimming audio...")
                 adapter.selectedTrack?.let { it1 -> trimAudio(it1) }
                 trimTrackLayout.visibility = View.GONE
                 previewImageView.visibility = View.VISIBLE
                 captionEditText.visibility = View.VISIBLE
                 uploadToolbar.visibility = View.VISIBLE
                 isPlaying = false
-            } else {
-              //  Toast.makeText(this, "Invalid time range", Toast.LENGTH_SHORT).show()
-            }
+            } else { }
         }
 
         cancelButton.setOnClickListener {
@@ -226,6 +215,7 @@ class UploadContent : AppCompatActivity() {
             adapter.releasePlayer()
             finish()
         }
+
         // Gallery button action
         galleryButton.setOnClickListener {
             openGallery()
@@ -334,14 +324,12 @@ class UploadContent : AppCompatActivity() {
             if (caption.isBlank()) {
                 caption=""
             }
-            val userId = auth.currentUser?.uid // Get the current user's ID
+            val userId = auth.currentUser?.uid
             if (userId != null) {
                 uploadToFirebaseStorage(userId, caption)
-            } else {
-             //   Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
-            }
+            } else { }
         } else {
-            Toast.makeText(this, "Please select media and write a caption.", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Please select media to upload", Toast.LENGTH_SHORT)
                 .show()
         }
     }
@@ -355,38 +343,33 @@ class UploadContent : AppCompatActivity() {
 
             uploadTask.addOnSuccessListener {
                 mediaRef.downloadUrl.addOnSuccessListener { downloadUri ->
-
                     savePostDetailsToServer(userId, downloadUri.toString(), caption)
                 }
-            }.addOnFailureListener {
-                Toast.makeText(this, "Upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
-            }
+            }.addOnFailureListener {}
         }
     }
 
     private fun savePostDetailsToServer(userId: String, mediaUrl: String, caption: String) {
         val requestQueue = Volley.newRequestQueue(this)
-
-        // Step 1: Fetch user location details from the backend
+        //Fetch user location details from the backend
         fetchUserLocation(
             context = this,
             firebaseUid = userId,
             onSuccess = { city, country, latitude, longitude ->
-                // Step 2: Prepare the JSON payload with location data
+                // Preparing the JSON payload with location data
                 val jsonRequest = JSONObject().apply {
                     put("userId", userId)
                     put("content", mediaUrl)
                     put("caption", caption)
                     put("sponsored", false)
-                    put("city", city) // Fetched city
-                    put("country", country) // Fetched country
-                    put("latitude", latitude ?: 0.0) // Fetched latitude, default to 0.0 if null
-                    put("longitude", longitude ?: 0.0) // Fetched longitude, default to 0.0 if null
+                    put("city", city)
+                    put("country", country)
+                    put("latitude", latitude ?: 0.0)
+                    put("longitude", longitude ?: 0.0)
                     put("created_at", System.currentTimeMillis())
                     put("trimmed_audio_url", trimmedAudioUrl)
                 }
 
-                // Step 3: Send the post data to the server
                 val postRequest = JsonObjectRequest(
                     Request.Method.POST,
                     "${Constants.SERVER_URL}uploads/uploadPost",
@@ -400,53 +383,42 @@ class UploadContent : AppCompatActivity() {
                         Toast.makeText(this, "Failed to upload post: ${error.message}", Toast.LENGTH_SHORT).show()
                     }
                 )
-
                 requestQueue.add(postRequest)
             },
-            onError = { error ->
-                // Handle the case when fetching user location fails
-                Toast.makeText(this, "Failed to fetch user location: $error", Toast.LENGTH_SHORT).show()
-            }
+            onError = { error -> }
         )
         releaseMediaPlayer()
     }
-
-
 
     companion object {
         const val CAMERA_PERMISSION_REQUEST_CODE = 101
     }
 
     private fun fetchTracks() {
-        // Example API endpoint to fetch tracks
-        val url =
-            "${Constants.SERVER_URL}fetchSongs/data"
+        val url = "${Constants.SERVER_URL}fetchSongs/data"
 
         // Create a StringRequest to fetch tracks
         val requestQueue = Volley.newRequestQueue(this)
         val stringRequest = StringRequest(Request.Method.GET, url,
             { response ->
-                // Log the raw response for debugging
-                Log.d("uploadStory", "API Response: $response")
-
                 try {
                     val jsonObject = JSONObject(response)
-                    val jsonArray = jsonObject.getJSONArray("results") // Changed to "results"
+                    val jsonArray = jsonObject.getJSONArray("results")
                     val trackList = mutableListOf<Track>()
 
                     for (i in 0 until jsonArray.length()) {
                         val trackJson = jsonArray.getJSONObject(i)
                         val track = Track(
-                            id = trackJson.getString("id"), // Adjusted to correct field
-                            artist = trackJson.getString("artist_name"), // Adjusted to correct field
-                            title = trackJson.getString("name"), // Adjusted to correct field
-                            artistId = trackJson.getString("artist_id"), // Adjusted to correct field
-                            albumName = trackJson.getString("album_name"), // Adjusted to correct field
-                            albumId = trackJson.getString("album_id"), // Adjusted to correct field
-                            duration = trackJson.getInt("duration"), // Adjusted to correct field
-                            audioUrl = trackJson.getString("audio"), // Adjusted to correct field
+                            id = trackJson.getString("id"),
+                            artist = trackJson.getString("artist_name"),
+                            title = trackJson.getString("name"),
+                            artistId = trackJson.getString("artist_id"),
+                            albumName = trackJson.getString("album_name"),
+                            albumId = trackJson.getString("album_id"),
+                            duration = trackJson.getInt("duration"),
+                            audioUrl = trackJson.getString("audio"),
                             albumImage = trackJson.getString("image"),
-                            downloadUrl = trackJson.getString("audiodownload") // Added download URL
+                            downloadUrl = trackJson.getString("audiodownload")
                         )
                         trackList.add(track)
                         TrackList=trackList
@@ -462,31 +434,19 @@ class UploadContent : AppCompatActivity() {
                 Log.e("uploadStory", "Error fetching tracks: ${error.message}")
             }
         )
-
-        // Add the request to the RequestQueue
         requestQueue.add(stringRequest)
     }
     fun trimAudio(track: Track) {
-        Log.d("TrimAudio", "trimAudio function called.")
-
-        // Assuming `track` has an attribute `downloadUrl` that contains the audio URL
         val audioUrl = track.downloadUrl
-        Log.d("Audio URL", "Audio URL: $audioUrl") // Log the audio URL
-
         // Set visibility for trimming layout
         trimTrackLayout.visibility = View.VISIBLE
         searchLinearLayout.visibility = View.GONE
-        Log.d("Trim Layout", "Trimming layout made visible.")
 
         // Calculate the start and end times based on seek bar progress (in milliseconds)
         val startTime = startSeekBar.progress * 1000 // Convert seconds to milliseconds
         val endTime = endSeekBar.progress * 1000 // Convert seconds to milliseconds
-        if (endTime <= startTime) {
-         //   Toast.makeText(this, "End time must be greater than start time.", Toast.LENGTH_SHORT).show()
-            return
-        }
+        if (endTime <= startTime) { return }
         val duration = endTime - startTime
-        Log.d("Duration", "Calculated duration: $duration milliseconds")
 
         // Specify the output file path
         val outputPath = "${externalCacheDir?.absolutePath}/trimmed_audio.mp3"
@@ -495,7 +455,7 @@ class UploadContent : AppCompatActivity() {
         // Check if the output file already exists and delete it
         val outputFile = File(outputPath)
         if (outputFile.exists()) {
-            outputFile.delete() // Delete existing file
+            outputFile.delete()
             Log.d("Output File", "Existing output file deleted.")
         } else {
             Log.d("Output File", "No existing output file found.")
@@ -535,33 +495,26 @@ class UploadContent : AppCompatActivity() {
             mediaPlayer!!.prepare() // Prepare the player asynchronously
 
             mediaPlayer!!.setOnPreparedListener {
-                mediaPlayer!!.isLooping = true // Set looping
-                mediaPlayer!!.start() // Start playing when prepared
+                mediaPlayer!!.isLooping = true
+                mediaPlayer!!.start()
                 Log.d("MediaPlayer", "Playing trimmed audio in loop.")
             }
 
             mediaPlayer!!.setOnCompletionListener {
                 Log.d("MediaPlayer", "Trimmed audio playback completed. It will restart.")
-                // No need to release here, as it will loop indefinitely
             }
         } catch (e: IOException) {
             Log.e("MediaPlayer", "Error playing trimmed audio: ${e.message}")
         }
     }
 
-
     private fun setupAutoComplete() {
-
         val trackNames = TrackList.map { it.title }
-        // Create an ArrayAdapter for AutoCompleteTextView
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, trackNames)
         searchBar.setAdapter(adapter)
 
-        // Set up the item click listener for auto-complete suggestions
         searchBar.setOnItemClickListener { _, _, position, _ ->
-            // When a suggestion is selected, filter the list based on the selected game
             val selectedTrackName = searchBar.adapter.getItem(position).toString()
-            // Filter the list based on selected game
             filterTracksList(selectedTrackName)
         }
     }
@@ -569,27 +522,21 @@ class UploadContent : AppCompatActivity() {
     private fun setupSearchFilter() {
         searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 // Filter the list based on the text entered in the search bar
                 val searchQuery = s.toString()
                 filterTracksList(searchQuery)
             }
-
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
     private fun filterTracksList(query: String) {
-
-        // Filter games based on the query
         val filteredList = if (query.isEmpty()) {
-            TrackList // Show all games if query is empty
+            TrackList
         } else {
-            TrackList.filter { it.title.contains(query, ignoreCase = true) } // Filter by game name
+            TrackList.filter { it.title.contains(query, ignoreCase = true) }
         }
-
-        // Update the adapter with the filtered list
         adapter.updateTracks(filteredList)
     }
     override fun onPause() {
@@ -612,7 +559,6 @@ class UploadContent : AppCompatActivity() {
         super.onStop()
         releaseMediaPlayer()
     }
-    // Handle back button press and release the MediaPlayer
 
     // Release MediaPlayer resources to avoid memory leaks
     private fun releaseMediaPlayer() {
@@ -623,48 +569,28 @@ class UploadContent : AppCompatActivity() {
             }
             it.release() // Release the resources
             mediaPlayer = null // Set to null after release
-            Log.d("MediaPlayer", "MediaPlayer released.")
         }
     }
 
-    private fun loadLocationFromSharedPreferences(): Triple<String?, String?, Pair<Double, Double>?> {
-        val city = sharedPreferences6.getString("city", null)
-        val country = sharedPreferences6.getString("country", null)
-
-        // Retrieve latitude and longitude as Floats, and then convert them back to Doubles
-        val latitude = sharedPreferences6.getFloat("latitude", 0f).toDouble()
-        val longitude = sharedPreferences6.getFloat("longitude", 0f).toDouble()
-
-        // Return the data in a Triple: City, Country, and the Pair of latitude and longitude
-        return Triple(city, country, Pair(latitude, longitude))
-    }
-
-    fun fetchUserLocation(
+    private fun fetchUserLocation(
         context: Context,
         firebaseUid: String,
         onSuccess: (city: String?, country: String?, latitude: Double?, longitude: Double?) -> Unit,
         onError: (error: String) -> Unit
     ) {
-        // Initialize the request queue
         val requestQueue: RequestQueue = Volley.newRequestQueue(context)
-
-        // Backend API endpoint
-        val url = "${Constants.SERVER_URL}api2/getUserLocation/$firebaseUid" // Replace with your backend URL
-
-        // Create a JSON object request
+        val url = "${Constants.SERVER_URL}api2/getUserLocation/$firebaseUid"
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.GET,
             url,
             null,
             { response ->
                 try {
-                    // Extract data from the JSON response
                     val city = response.optString("city")
                     val country = response.optString("country")
                     val latitude = response.optDouble("latitude", Double.NaN)
                     val longitude = response.optDouble("longitude", Double.NaN)
 
-                    // Pass the data to the onSuccess callback
                     onSuccess(city, country, latitude, longitude)
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -676,9 +602,6 @@ class UploadContent : AppCompatActivity() {
                 onError("Request failed: ${error.message}")
             }
         )
-
-        // Add the request to the queue
         requestQueue.add(jsonObjectRequest)
     }
-
 }

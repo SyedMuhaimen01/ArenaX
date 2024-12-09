@@ -38,7 +38,7 @@ class RegisterActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        //Checks permission for user Stats Manager
         if (!checkUsageStatsPermission()) {
             showUsageStatsPermissionDialog()
         }
@@ -54,7 +54,7 @@ class RegisterActivity : AppCompatActivity() {
             val reEnterPassword = reEnterPasswordEditText.text.toString()
 
             if (validateInput(email, password, reEnterPassword)) {
-                // Navigate to PersonalInfoActivity and pass email and password
+                // Navigate to PersonalInfoActivity and pass email and password as intents
                 val intent = Intent(this, PersonalInfoActivity::class.java)
                 intent.putExtra("email", email)
                 intent.putExtra("password", password)

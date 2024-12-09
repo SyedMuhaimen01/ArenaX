@@ -5,5 +5,4 @@ data class AnalyticsData(
     val totalHours: Double,
     val iconResId: String,
     val graphData: List<Pair<String, Double>>
-
 )

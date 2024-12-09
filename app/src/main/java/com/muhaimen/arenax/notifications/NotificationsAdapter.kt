@@ -1,6 +1,7 @@
 package com.muhaimen.arenax.notifications
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.NotificationsItem
+import com.muhaimen.arenax.userProfile.otherUserProfile
 
 class NotificationsAdapter(
     private val context: Context,
@@ -24,6 +26,7 @@ class NotificationsAdapter(
         val username: TextView = itemView.findViewById(R.id.username)
         val acceptButton: Button = itemView.findViewById(R.id.acceptButton)
         val rejectButton: Button = itemView.findViewById(R.id.rejectButton)
+        val cardView: View = itemView // Reference to the root view (card)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationsViewHolder {
@@ -33,15 +36,20 @@ class NotificationsAdapter(
 
     override fun onBindViewHolder(holder: NotificationsViewHolder, position: Int) {
         val notificationItem = notificationList[position]
-
-        // Load profile picture using Glide
         Glide.with(context)
             .load(notificationItem.profilePicture)
-            .placeholder(R.drawable.add_icon_foreground) // Placeholder image
+            .circleCrop()
+            .placeholder(R.mipmap.appicon2)
             .into(holder.profilePicture)
 
-        // Set username
         holder.username.text = notificationItem.username
+
+        holder.cardView.setOnClickListener {
+            val intent = Intent(context, otherUserProfile::class.java).apply {
+                putExtra("userId", notificationItem.receiverId)
+            }
+            context.startActivity(intent)
+        }
 
         // Handle accept button click
         holder.acceptButton.setOnClickListener {

@@ -37,20 +37,19 @@ class highlightsAdapter(private val storiesList: List<Story>) : RecyclerView.Ada
                 val intent = Intent(itemView.context, viewStory::class.java).apply {
                     Log.d("StoryAdapter", story.toString())
                     Log.d("StoryAdapter", draggableJson)
-                    // Use the appropriate types for each key-value pair
                     putExtra("intentFrom","Adapter")
-                    putExtra("id", story.id)  // Int
-                    putExtra("mediaUrl", story.mediaUrl)  // String (URL)
-                    putExtra("duration", story.duration)  // Int
-                    putExtra("trimmedAudioUrl", story.trimmedAudioUrl)  // String (file path)
-                    putExtra("draggableTexts", draggableJson)  // String (JSONArray as String)
-                    putExtra("uploadedAt", story.uploadedAt.toString())  // String (Date as String)
-                    putExtra("userName", story.userName)  // String
-                    putExtra("userProfilePicture", story.userProfilePicture)  // String (URL)
-                    putExtra("city", story.city)  // String
-                    putExtra("country", story.country)  // String
-                    putExtra("latitude", story.latitude)  // Double
-                    putExtra("longitude", story.longitude)  // Double
+                    putExtra("id", story.id)
+                    putExtra("mediaUrl", story.mediaUrl)
+                    putExtra("duration", story.duration)
+                    putExtra("trimmedAudioUrl", story.trimmedAudioUrl)
+                    putExtra("draggableTexts", draggableJson)
+                    putExtra("uploadedAt", story.uploadedAt.toString())
+                    putExtra("userName", story.userName)
+                    putExtra("userProfilePicture", story.userProfilePicture)
+                    putExtra("city", story.city)
+                    putExtra("country", story.country)
+                    putExtra("latitude", story.latitude)
+                    putExtra("longitude", story.longitude)
                 }
 
                 itemView.context.startActivity(intent)

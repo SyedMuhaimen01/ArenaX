@@ -152,19 +152,13 @@ class viewStory : AppCompatActivity() {
 
         private fun displaySingleStory() {
             Log.d("ViewStory", "Displaying single story with ID: ${storyId}")
-
-            // Convert uploadedAt to Date object if it's a String timestamp (optional, based on how the data is passed)
             val uploadedAtDate = storyUploadedAt.let {
                 try {
-                    Log.d("ViewStory", "Converting uploadedAt: ${storyUploadedAt!!}")
-                    Date(storyUploadedAt) // directly use the time property for conversion to Date
+                    Date(storyUploadedAt)
                 } catch (e: Exception) {
-                    Log.e("ViewStory", "Error parsing uploadedAt: ${e.message}")
-                    null // Return null if parsing fails
+                    null
                 }
             }
-
-            Log.d("ViewStory", "Single story prepared with uploadedAtDate: $uploadedAtDate")
 
             // Create a single Story object with the passed-in data
             val singleStory = Story(
@@ -181,43 +175,31 @@ class viewStory : AppCompatActivity() {
                 latitude = storyLatitude,
                 longitude = storyLongitude
             )
-    Log.d("ViewStory", "Single story object created: $singleStory")
-            userNameTextView.text=singleStory.userName
-            // Set the "time ago" text using the `timeAgo` property from Story
-            timeAgoTextView.text = singleStory.timeAgo
 
-            // Load media if mediaUrl is not null or empty
+            userNameTextView.text=singleStory.userName
+            timeAgoTextView.text = singleStory.timeAgo
             if (singleStory.mediaUrl.isNotEmpty()) {
-                Log.d("ViewStory", "Loading media from URL: ${singleStory.mediaUrl}")
                 loadMedia(singleStory.mediaUrl)
             }
 
-            // Load profile picture if available
-            if (storyUserProfilePicture != "null") {
-                Log.d("ProfilePicture", "Loading profile picture from URL: ${singleStory.userProfilePicture}")
-                val uri = Uri.parse(storyUserProfilePicture)
-                Glide.with(this)
-                    .load(uri)
-                    .thumbnail(0.1f)
-                    .circleCrop()
-                    .error(R.drawable.add_icon_foreground) // You can specify a default image here
-                    .into(profilePicture)
-            } else {
-                Log.e("ProfilePicture", "Profile picture URL is invalid or empty.")
-            }
+            val uri = Uri.parse(storyUserProfilePicture)
+            Glide.with(this)
+                .load(uri)
+                .thumbnail(0.1f)
+                .circleCrop()
+                .error(R.drawable.add_icon_foreground)
+                .into(profilePicture)
 
             // Play audio if available
             singleStory.trimmedAudioUrl?.let {
-                Log.d("Audio", "Playing trimmed audio from URL: $it")
                 playTrimmedAudio(it)
             }
 
             // Display draggable texts if available
-            displayDraggableTexts(storyDraggableTexts.toString()) // Assuming it needs to be a String
-            Log.d("DraggableTexts", "Displaying draggable texts: ${storyDraggableTexts.toString()}")
+            displayDraggableTexts(storyDraggableTexts.toString())
 
             // Set progress bar (to simulate progress over the story's duration)
-            progressBar.max = 100  // Assuming the max value is 100% for the progress
+            progressBar.max = 100
             progressBar.progress = 0  // Start at 0%
 
             // Update progress bar based on duration
@@ -249,49 +231,38 @@ class viewStory : AppCompatActivity() {
         return try {
             JSONArray(json)
         } catch (e: JSONException) {
-            // Handle the exception if any occurs during parsing
             e.printStackTrace()
             null
         }
     }
 
     private fun displayStory() {
-            Log.d("ViewStory", "Displaying story at index: $currentIndex")
             val currentStory = storiesList[currentIndex]
-            Log.d("ViewStory", "Current story: $currentStory")
-            // Set the "time ago" text using the updated `calculateTimeAgo` function
             timeAgoTextView.text = calculateTimeAgo(currentStory.uploadedAt)
             userNameTextView.text=currentStory.userName
 
             // Load media if available
             if (currentStory.mediaUrl.isNotEmpty()) {
-                Log.d("ViewStory", "Loading media from URL: ${currentStory.mediaUrl}")
                 loadMedia(currentStory.mediaUrl)
             }
 
             // Display draggable texts if available
             currentStory.draggableTexts?.let {
-                Log.d("DraggableTexts", "Displaying draggable texts: $it")
-                displayDraggableTexts2(it.toString()) // Assuming it needs to be a String
+                displayDraggableTexts2(it.toString())
             }
-            Log.d("DraggableTexts", "Displaying draggable texts: ${currentStory.draggableTexts}")
             // Load audio if available
             currentStory.trimmedAudioUrl?.let { audioUrl ->
-                Log.d("Audio", "Playing audio from URL: $audioUrl")
                 playTrimmedAudio(audioUrl)
             }
 
-        if (currentStory.userProfilePicture!= "null") {
             val uri = Uri.parse(currentStory.userProfilePicture)
             Glide.with(this)
                 .load(uri)
                 .thumbnail(0.1f)
                 .circleCrop()
-                .error(R.drawable.add_icon_foreground) // You can specify a default image here
+                .error(R.drawable.add_icon_foreground)
                 .into(profilePicture)
-        } else {
-            Log.e("ProfilePicture", "Profile picture URL is invalid or empty.")
-        }
+
             // Set progress bar based on the index and total number of stories
             progressBar.max = storiesList.size
             progressBar.progress = currentIndex + 1 // Progress is 1-based
@@ -321,8 +292,6 @@ class viewStory : AppCompatActivity() {
             handler.postDelayed({ nextStory() }, currentStory.duration.toLong() * 1000L) // Convert seconds to milliseconds
         }
 
-
-
         private fun calculateTimeAgo(uploadedAt: Date?): String {
         if (uploadedAt == null) return "Unknown time"
 
@@ -344,8 +313,6 @@ class viewStory : AppCompatActivity() {
         }
     }
 
-
-
     private fun loadMedia(mediaUrl: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -365,7 +332,6 @@ class viewStory : AppCompatActivity() {
                         }
                         else -> {
                             Log.e("ViewPost", "Unsupported media type: $mediaType")
-                            // Optionally show an error message to the user
                         }
                     }
                 }
@@ -375,8 +341,6 @@ class viewStory : AppCompatActivity() {
         }
     }
 
-
-
     private fun nextStory() {
         if (currentIndex < storiesList.size - 1) {
             currentIndex++
@@ -385,7 +349,6 @@ class viewStory : AppCompatActivity() {
             finish()
         }
     }
-
 
     private fun previousStory() {
         if (currentIndex > 0) {
@@ -428,13 +391,12 @@ class viewStory : AppCompatActivity() {
 
                     setOnCompletionListener {
                         Log.d("ViewPost", "Video playback completed.")
-                        seekTo(0) // Reset the video to the start
-                        start() // Optionally, restart the video
+                        seekTo(0)
+                        start()
                     }
-
                     setOnErrorListener { mp, what, extra ->
                         Log.e("ViewPost", "Error occurred while playing video. What: $what, Extra: $extra")
-                        true // Returning true indicates that we've handled the error
+                        true
                     }
                 }
             }
@@ -453,7 +415,7 @@ class viewStory : AppCompatActivity() {
     private suspend fun getMediaType(mediaUrl: String): String? {
         val request = Request.Builder()
             .url(mediaUrl)
-            .head() // Use HEAD to get the headers only
+            .head()
             .build()
 
         return try {

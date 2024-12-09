@@ -77,7 +77,7 @@ class PersonalInfoActivity : AppCompatActivity() {
         super.onResume()
         checkIfRolledBack()
     }
-
+    //Triggered when user does not verify email within given time. So user data is deleted.
     private fun checkIfRolledBack() {
         if (intent.getBooleanExtra("fromMainActivity", false)) {
             deleteUserNode()
@@ -103,12 +103,10 @@ class PersonalInfoActivity : AppCompatActivity() {
         showLoadingUI()
 
         val email = email ?: run {
-        //    showToast("Error retrieving email.")
             hideLoadingUI()
             return
         }
         val password = password ?: run {
-         //   showToast("Error retrieving password.")
             hideLoadingUI()
             return
         }

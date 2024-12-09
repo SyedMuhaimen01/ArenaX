@@ -87,14 +87,9 @@ class UserFeedPostsAdapter(
 
                 // Query the Firebase Database for the user profile picture
                 userDataRef.get().addOnSuccessListener { dataSnapshot ->
-                    // Safely retrieve values from Firebase snapshot
                     val picture = dataSnapshot.child("profilePicture").getValue(String::class.java)
                     val name = dataSnapshot.child("fullname").getValue(String::class.java)
 
-                    Log.d("Firebase", "Profile picture URL: $picture")
-                    Log.d("Firebase", "User Name: $name")
-
-                    // Check if a profile picture URL exists
                     if (!picture.isNullOrEmpty()) {
                         Glide.with(commenterPicture.context)
                             .load(picture)
@@ -126,11 +121,8 @@ class UserFeedPostsAdapter(
                         commenterName = commenterName,
                         commenterProfilePictureUrl = commenterPicture.toString()
                     )
-
-                    // Send only the new comment with the post ID
                     saveCommentToServer(post.postId.toString(), newComment)
 
-                    // Optionally update the local comments list for UI
                     val updatedCommentsList = post.commentsData?.toMutableList() ?: mutableListOf()
                     updatedCommentsList.add(newComment)
                     post.commentsData = updatedCommentsList
@@ -149,7 +141,6 @@ class UserFeedPostsAdapter(
             }
 
             likeButton.setOnClickListener {
-                // Update the UI when the post is liked
                 likeButton.visibility = View.GONE
                 alreadyLikedButton.visibility = View.VISIBLE
                 likesCount.text = (post.likes + 1).toString()
@@ -174,15 +165,11 @@ class UserFeedPostsAdapter(
                 Log.d("already liked clicked", "already liked clicked")
             }
 
-
-
             Glide.with(itemView.context)
                 .load(post.userProfilePictureUrl)
                 .placeholder(R.drawable.game_icon_foreground)
                 .circleCrop()
                 .into(profilePicture)
-
-            Log.d("UserFeed post adapter", "Post: $post")
 
             tvUserName.text = post.userFullName
             if (post.caption == "null") {
@@ -200,9 +187,6 @@ class UserFeedPostsAdapter(
             recyclerViewComments.layoutManager = LinearLayoutManager(itemView.context)
             recyclerViewComments.adapter = commentAdapter
             recyclerViewComments.isNestedScrollingEnabled = false
-
-
-
             recyclerViewComments.visibility = View.GONE
             commentButton.setOnClickListener {
                 recyclerViewComments.visibility = if (recyclerViewComments.visibility == View.VISIBLE) View.GONE else View.VISIBLE
@@ -213,10 +197,8 @@ class UserFeedPostsAdapter(
 
         private fun loadMedia(mediaUrl: String?) {
             if (mediaUrl.isNullOrEmpty()) return
-
             CoroutineScope(Dispatchers.IO).launch {
                 val mediaType = getMediaType(mediaUrl)
-
                 withContext(Dispatchers.Main) {
                     when {
                         mediaType?.startsWith("image/") == true -> {
@@ -274,7 +256,6 @@ class UserFeedPostsAdapter(
 
         private fun saveCommentToServer(postId: String, newComment: Comment) {
             val requestQueue = Volley.newRequestQueue(itemView.context)
-
             val jsonRequest = JSONObject().apply {
                 put("postId", postId)
                 put("comment", JSONObject().apply {
@@ -291,80 +272,59 @@ class UserFeedPostsAdapter(
                 "${Constants.SERVER_URL}uploads/uploadComments",
                 jsonRequest,
                 { response ->
-                    // Handle success
-                    val intent = Intent("NEW_COMMENT_ADDED")
-                    LocalBroadcastManager.getInstance(itemView.context).sendBroadcast(intent)
+                    notifyPostReload()
                 },
-                { error ->
-                    // Handle error
-                }
+                { error -> }
             )
-
             requestQueue.add(postRequest)
         }
 
         private fun savePostLikeOnServer(post: Post)
         {
             val requestQueue = Volley.newRequestQueue(itemView.context)
-
-            // Create a JSON object for the updated post
             val jsonRequest = JSONObject().apply {
                 put("postId", post.postId)
                 put("userId",FirebaseManager.getCurrentUserId() )
 
             }
 
-            // Create a POST request
             val postRequest = JsonObjectRequest(
                 com.android.volley.Request.Method.POST,
                 "${Constants.SERVER_URL}uploads/uploadLike",
                 jsonRequest,
                 { response ->
-                    // Handle the response from the server (success)
-
-                    // Optionally notify other parts of the app (e.g., refresh the UI)
-                    val intent = Intent("Like added ")
-                    LocalBroadcastManager.getInstance(itemView.context).sendBroadcast(intent)
+                    notifyPostReload()
                 },
                 { error ->
-                    // Handle error (e.g., show a toast or log the error)
                 }
             )
-
-            // Add the request to the request queue
             requestQueue.add(postRequest)
         }
 
         private fun deletePostLikeOnServer(post: Post)
         {
             val requestQueue = Volley.newRequestQueue(itemView.context)
-
-            // Create a JSON object for the updated post
             val jsonRequest = JSONObject().apply {
                 put("postId", post.postId)
                 put("userId",FirebaseManager.getCurrentUserId() )
 
             }
 
-            // Create a POST request
             val postRequest = JsonObjectRequest(
                 com.android.volley.Request.Method.POST,
                 "${Constants.SERVER_URL}uploads/deleteLike",
                 jsonRequest,
                 { response ->
-                    // Handle the response from the server (success)
-
-                    // Optionally notify other parts of the app (e.g., refresh the UI)
-                    val intent = Intent("Like Removed ")
-                    LocalBroadcastManager.getInstance(itemView.context).sendBroadcast(intent)
+                    notifyPostReload()
                 },
                 { error ->
-                    // Handle error (e.g., show a toast or log the error)
                 }
             )
-
-            // Add the request to the request queue
             requestQueue.add(postRequest)
+        }
+        private fun notifyPostReload(){
+            val intent = Intent("NEW_POST_ADDED ")
+            LocalBroadcastManager.getInstance(itemView.context).sendBroadcast(intent)
         }
     }
 
