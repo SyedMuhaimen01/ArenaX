@@ -30,7 +30,7 @@ class TracksAdapter(
     }
 
     private var mediaPlayer: MediaPlayer? = null
-    private var currentTrack: Track? = null // To keep track of the currently playing track
+    private var currentTrack: Track? = null
     var duration: Int = 0
     var downloadUrl: String? = null
     var audioUrl: String? = null
@@ -49,14 +49,13 @@ class TracksAdapter(
         holder.title.text = track.title
         holder.artist.text = track.artist
         holder.track_duration.text = String.format("Duration: %02d:%02d", minutes, seconds)
-        holder.albumName.text = "Album: ${track.albumName}" // Set album name
+        holder.albumName.text = "Album: ${track.albumName}"
 
-        Glide.with(holder.itemView.context) // Load album image using Glide
+        Glide.with(holder.itemView.context)
             .load(track.albumImage)
             .into(holder.albumImage)
 
         holder.itemView.setOnClickListener {
-            // Stop and release any existing media player before starting a new one
             stopAudio()
 
             // Set the current track and start playing the audio
@@ -69,8 +68,6 @@ class TracksAdapter(
             downloadUrl = track.downloadUrl
             duration = track.duration
             setSeekBarLimits(track.duration)
-
-            Log.d("MediaPlayer", "Audio duration: ${track.duration}")
         }
     }
 
@@ -153,13 +150,10 @@ class TracksAdapter(
         }
     }
 
-
     private fun setSeekBarLimits(duration: Int) {
         activity.startSeekBar.max = duration
         activity.endSeekBar.max = duration
         activity.searchLinearLayout.visibility = View.GONE
         activity.trimTrackLayout.visibility = View.VISIBLE
     }
-
-
 }

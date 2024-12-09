@@ -36,15 +36,12 @@ class NotificationsAdapter(
 
     override fun onBindViewHolder(holder: NotificationsViewHolder, position: Int) {
         val notificationItem = notificationList[position]
-
-        // Load profile picture using Glide
         Glide.with(context)
             .load(notificationItem.profilePicture)
             .circleCrop()
             .placeholder(R.mipmap.appicon2)
             .into(holder.profilePicture)
 
-        // Set username
         holder.username.text = notificationItem.username
 
         holder.cardView.setOnClickListener {

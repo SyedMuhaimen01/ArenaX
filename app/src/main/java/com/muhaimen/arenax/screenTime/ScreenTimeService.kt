@@ -27,6 +27,10 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import java.io.IOException
 
+data class GameData(
+    val gameName: String,
+    val packageName: String
+)
 
 class ScreenTimeService : Service() {
     private val CHANNEL_ID = "ScreenTimeServiceChannel"
@@ -84,7 +88,6 @@ class ScreenTimeService : Service() {
         }
     }
 
-
     private fun startUsageCheck() {
         usageCheckRunnable = object : Runnable {
             override fun run() {
@@ -98,7 +101,6 @@ class ScreenTimeService : Service() {
     private fun checkAppUsage() {
         val endTime = System.currentTimeMillis()
         val startTime = endTime - usageCheckInterval
-
         val usageStatsList = usageStatsManager.queryUsageStats(
             UsageStatsManager.INTERVAL_DAILY,
             startTime,
@@ -126,10 +128,10 @@ class ScreenTimeService : Service() {
             }
         }
 
-        // Send metrics to backend at 12:25 PM if not already sent today
+        // Send metrics to backend at 8 AM
         val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         val currentMinute = Calendar.getInstance().get(Calendar.MINUTE)
-        if (currentHour == 14 && currentMinute == 11 && !dataSentToday) {
+        if (currentHour == 8 && currentMinute == 0 && !dataSentToday) {
             sendMetricsToBackend()
         }
     }
@@ -141,11 +143,7 @@ class ScreenTimeService : Service() {
                 Log.e("ScreenTimeService", "Failed to fetch user game list. Cannot send metrics.")
                 return@fetchUserGameList
             }
-
             val userId = auth.currentUser?.uid ?: ""
-
-            Log.e("ScreenTimeSessionssssss", "Session Data: $sessionData")
-            Log.d("usegames","$userGames")
             val gameMetrics = JSONObject().apply {
                 sessionData.forEach { (packageName, sessionLengths) ->
 
@@ -162,13 +160,6 @@ class ScreenTimeService : Service() {
                             put("averagePlaytime", averagePlaytimeMillis / 3600000.0)
                             put("peakPlaytime", peakPlaytimeMillis?.div(3600000.0))
                         })
-
-                        // Log the metrics being added for each game
-                        Log.d("ScreenTimeService", "Added metrics for game: $packageName with playtime details: " +
-                                "Total Sessions: ${sessionCount[packageName]}, " +
-                                "Total Playtime: ${totalPlaytimeMillis / 3600000.0} hours, " +
-                                "Average Playtime: ${averagePlaytimeMillis / 3600000.0} hours, " +
-                                "Peak Playtime: ${peakPlaytimeMillis?.div(3600000.0)} hours")
                     }
                 }
             }
@@ -177,10 +168,6 @@ class ScreenTimeService : Service() {
                 put("user_id", userId)
                 put("game_metrics", gameMetrics)
             }
-
-            // Log the entire JSON data being sent to the backend
-            Log.d("ScreenTimeService", "Sending the following metrics data to backend: $jsonObject")
-
             val request = JsonObjectRequest(
                 Request.Method.POST,
                 "${Constants.SERVER_URL}gameMetrics/user/$userId/gamesSessionMetrics",
@@ -192,7 +179,7 @@ class ScreenTimeService : Service() {
                     currentSessionStartTime.clear()
                     Log.d("ScreenTimeService", "Successfully sent metrics to backend: $response")
 
-                    // Notify success
+                    // Create notification for successful data storage
                     sendSuccessNotification()
                 },
                 { error ->
@@ -202,7 +189,6 @@ class ScreenTimeService : Service() {
                     }
                 }
             )
-
             queue.add(request)
         }
     }
@@ -212,10 +198,9 @@ class ScreenTimeService : Service() {
         return userGames.any { it.packageName == packageName }
     }
 
+    //function to fetch user's game list
     private fun fetchUserGameList(callback: (Boolean) -> Unit) {
         val userId = auth.currentUser?.uid ?: ""
-
-        // Update the URL to match the backend route
         val request = okhttp3.Request.Builder()
             .url("${Constants.SERVER_URL}usergames/user/$userId/gamelist")
             .build()
@@ -249,33 +234,18 @@ class ScreenTimeService : Service() {
     private fun parseGameListData(responseBody: String) {
         try {
             val jsonObject = JSONObject(responseBody)
-
-            // Extracting the game list
             val gamesArray = jsonObject.getJSONArray("games")
-
-            // Parse games into the userGames list
             userGames = List(gamesArray.length()) { index ->
                 val gameObject = gamesArray.getJSONObject(index)
-
-                // Extract game name and package name
                 GameData(
                     gameName = gameObject.getString("gameName"),
                     packageName = gameObject.getString("packageName")
                 )
             }
-            Log.d("usegames","$userGames")
-
         } catch (e: Exception) {
             Log.e("GameListActivity", "Error parsing game list data", e)
         }
     }
-
-    // Data class to hold game information
-    data class GameData(
-        val gameName: String,
-        val packageName: String
-    )
-
 
     private fun scheduleRetry() {
         handler.postDelayed({ sendMetricsToBackend() }, retryInterval)
@@ -299,5 +269,4 @@ class ScreenTimeService : Service() {
 
         notificationManager.notify(1, notification)
     }
-
 }

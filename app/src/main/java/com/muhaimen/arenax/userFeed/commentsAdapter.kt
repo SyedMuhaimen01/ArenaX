@@ -38,29 +38,18 @@ class commentsAdapter(
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
         // Bind the comment data
         val comment = commentsList[position]
-
-        // Set commenter's name
         holder.commenterName.text = comment.commenterName
-
-        // Set the comment text
         holder.commentText.text = comment.commentText
-
-        // Load profile picture using Glide, with a placeholder if null
         Glide.with(holder.itemView.context)
             .load(comment.commenterProfilePictureUrl)
             .placeholder(R.drawable.game_icon_foreground)
             .circleCrop()
             .into(holder.commentProfilePicture)
 
-        val isoDateString = comment.createdAt // "2024-12-06T14:16:04.594Z"
-
-// Parse the string into a Date object
+        val isoDateString = comment.createdAt
         val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()) // ISO 8601 format
         val date = isoFormat.parse(isoDateString) // Parse the string to Date
-
-// Now you can format the Date object
         val formattedTimestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(date)
-
         holder.commentTimestamp.text = formattedTimestamp
 
     }
