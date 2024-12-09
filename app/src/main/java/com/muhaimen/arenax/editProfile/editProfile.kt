@@ -97,13 +97,12 @@ class editProfile : AppCompatActivity() {
         }else{
             loadUserDataFromSharedPreferences()
         }
-    backBUtton.setOnClickListener {
+        backBUtton.setOnClickListener {
             finish()
         }
         val editProfileButton = findViewById<Button>(R.id.updateChangesButton)
         editProfileButton.setOnClickListener {
             updateProfile()
-
         }
 
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
@@ -327,7 +326,6 @@ class editProfile : AppCompatActivity() {
         if (!userId.isNullOrEmpty() && !fullname.isNullOrEmpty() && !gamerTag.isNullOrEmpty()) {
             populateUIWithUserData(userId, fullname, gamerTag, savedGender, bio, profilePicture)
         }
-
     }
 
     private fun populateUIWithUserData(
@@ -354,7 +352,6 @@ class editProfile : AppCompatActivity() {
                 .circleCrop()
                 .into(profileImage)
         }
-
     }
 
     companion object {

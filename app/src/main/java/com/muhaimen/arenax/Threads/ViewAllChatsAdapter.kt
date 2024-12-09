@@ -25,7 +25,6 @@ class ViewAllChatsAdapter(
     private var chatList: List<ChatItem>
 ) : RecyclerView.Adapter<ViewAllChatsAdapter.ChatViewHolder>() {
 
-    // ViewHolder class to hold and bind the views for each item
     inner class ChatViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val profileImage: ImageView = view.findViewById(R.id.profilePicture)
         val usernameTextView: TextView = view.findViewById(R.id.fullname)
@@ -49,7 +48,6 @@ class ViewAllChatsAdapter(
             itemView.isLongClickable = true
             // Handle long press to show delete dialog
             itemView.setOnLongClickListener {
-                Log.d("LongClickTest", "Long click triggered!")
                 showDeleteChatDialog(itemView.context, chatList[adapterPosition])
                 true
             }
@@ -74,17 +72,7 @@ class ViewAllChatsAdapter(
                     }
                     itemView.context.startActivity(intent)
                 }
-            }.addOnFailureListener {
-                val intent = Intent(itemView.context, ChatActivity::class.java).apply {
-                    putExtra("userId", receiverId)
-                    putExtra("fullname", "Unknown User")
-                    putExtra("gamerTag", "Unknown GamerTag")
-                    putExtra("profilePicture", "null")
-                    putExtra("gamerRank", "00")
-                    putExtra("gamerRank", "00")
-                }
-                itemView.context.startActivity(intent)
-            }
+            }.addOnFailureListener {}
         }
     }
 

@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.synergy
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +16,7 @@ import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.userProfile.otherUserProfile
 
 class FollowingAdapter(
-    private var profiles: List<UserData>,  // Make profiles mutable
+    private var profiles: List<UserData>,
     private val onMessageClick: (UserData) -> Unit,
     private val onRemoveClick: (UserData) -> Unit
 ) : RecyclerView.Adapter<FollowingAdapter.UserDataViewHolder>() {
@@ -37,9 +38,8 @@ class FollowingAdapter(
                 gamerRankTextView.text = "Rank: ${profile.rank}"
             }
 
-            // Load profile picture with Glide
             Glide.with(itemView.context)
-                .load(profile.profilePicture ?: R.drawable.game_icon_foreground) // Use default if null
+                .load(profile.profilePicture ?: R.drawable.game_icon_foreground)
                 .placeholder(R.drawable.game_icon_foreground)
                 .error(R.drawable.game_icon_foreground)
                 .circleCrop()
@@ -48,7 +48,7 @@ class FollowingAdapter(
             itemView.setOnClickListener {
                 val context = itemView.context
                 val intent = Intent(context, otherUserProfile::class.java)
-                intent.putExtra("userId", profile.userId) // Pass the firebaseUid
+                intent.putExtra("userId", profile.userId)
                 context.startActivity(intent)
             }
         }
@@ -75,9 +75,9 @@ class FollowingAdapter(
 
     override fun getItemCount(): Int = profiles.size
 
-    // Method to update the list of profiles dynamically
+    @SuppressLint("NotifyDataSetChanged")
     fun updateProfiles(newProfiles: List<UserData>) {
         this.profiles = newProfiles
-        notifyDataSetChanged()  // Notify the adapter to update the view
+        notifyDataSetChanged()
     }
 }

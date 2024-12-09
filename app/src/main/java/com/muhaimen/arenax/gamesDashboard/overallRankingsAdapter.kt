@@ -16,7 +16,6 @@ import com.muhaimen.arenax.dataClasses.RankingData
 
 class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerView.Adapter<overallLeaderboardAdapter.OverallLeaderboardViewHolder>() {
 
-    // ViewHolder class
     inner class OverallLeaderboardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val profilePicture: ImageView = itemView.findViewById(R.id.profilePicture)
         val name: TextView = itemView.findViewById(R.id.nameTextView)
@@ -24,14 +23,12 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
         val rank: TextView = itemView.findViewById(R.id.rankNumber)
         val gamerTag: TextView = itemView.findViewById(R.id.gamerTagTextView)
 
-        // Function to populate the view with data
         @SuppressLint("SetTextI18n")
         fun bind(data: RankingData) {
             name.text = data.name
             totalHours.text = "${data.totalHrs}"
 
             val uri = Uri.parse(data.profilePicture)
-
             Glide.with(itemView.context)
                 .load(uri)
                 .placeholder(R.drawable.circle)
@@ -39,15 +36,13 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
                 .circleCrop()
                 .into(profilePicture)
 
-            // Handle the rank text, checking for "Unranked"
             if (data.rank == "Unranked") {
                 rank.text = "∞"
-                rank.setTextColor(Color.GRAY) // You can customize this color
+                rank.setTextColor(Color.GRAY)
             } else {
                 rank.text = data.rank.toString()
-                rank.setTextColor(Color.BLACK) // Default color for ranked players
+                rank.setTextColor(Color.BLACK)
             }
-
             gamerTag.text = data.gamerTag
         }
     }

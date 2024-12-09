@@ -41,8 +41,6 @@ class ViewAllChats : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_all_chats)
-
-        // Initialize RecyclerViews and adapters
         setupChatRecyclerView()
         setupSearchUserRecyclerView()
         profileButton=findViewById(R.id.profileButton)
@@ -123,8 +121,6 @@ class ViewAllChats : AppCompatActivity() {
         val chatsRef = database.getReference("userData/$userId/chats")
         val uniqueChatPairs = mutableSetOf<Pair<String, String>>()
         val chatItems = mutableListOf<ChatItem>()
-
-        Log.d("ViewAllChats", "Fetching chats for user: $userId")
 
         chatsRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

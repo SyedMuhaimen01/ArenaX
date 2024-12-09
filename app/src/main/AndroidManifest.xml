@@ -50,9 +50,6 @@
             android:exported="true" />
 
         <activity
-            android:name=".gamesDashboard.allGamesAnalytics"
-            android:exported="false" />
-        <activity
             android:name=".notifications.Notifications"
             android:exported="false" />
         <activity

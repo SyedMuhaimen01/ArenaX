@@ -15,12 +15,11 @@ import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.userProfile.otherUserProfile
 
 class FollowersAdapter(
-    private var profiles: List<UserData>, // Change to a mutable list
+    private var profiles: List<UserData>,
     private val onMessageClick: (UserData) -> Unit,
     private val onRemoveClick: (UserData) -> Unit
 ) : RecyclerView.Adapter<FollowersAdapter.UserDataViewHolder>() {
 
-    // ViewHolder class for binding individual user data
     inner class UserDataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val profilePicture: ImageView = itemView.findViewById(R.id.profilePicture)
         private val fullNameTextView: TextView = itemView.findViewById(R.id.fullname)
@@ -34,7 +33,6 @@ class FollowersAdapter(
             gamerTagTextView.text = profile.gamerTag
             gamerRankTextView.text = if (profile.rank == "Unranked") "Rank: Unranked" else "Rank: ${profile.rank}"
 
-            // Load profile picture with Glide, using default if null
             Glide.with(itemView.context)
                 .load(profile.profilePicture ?: R.drawable.game_icon_foreground)
                 .placeholder(R.drawable.game_icon_foreground)
@@ -45,7 +43,7 @@ class FollowersAdapter(
             itemView.setOnClickListener {
                 val context = itemView.context
                 val intent = Intent(context, otherUserProfile::class.java)
-                intent.putExtra("userId", profile.userId) // Pass the firebaseUid
+                intent.putExtra("userId", profile.userId)
                 context.startActivity(intent)
             }
         }
@@ -72,9 +70,8 @@ class FollowersAdapter(
 
     override fun getItemCount(): Int = profiles.size
 
-    // Method to update the profiles list and notify the adapter
     fun updateProfiles(newProfiles: List<UserData>) {
         profiles = newProfiles
-        notifyDataSetChanged() // Refresh the adapter with the new list
+        notifyDataSetChanged()
     }
 }

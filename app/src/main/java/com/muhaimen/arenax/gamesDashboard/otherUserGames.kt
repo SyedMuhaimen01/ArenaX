@@ -64,13 +64,10 @@ class otherUserGames : AppCompatActivity() {
     private lateinit var exploreButton: ImageView
     private lateinit var homeButton: LinearLayout
     lateinit var backButton: ImageButton
-    private lateinit var auth: FirebaseAuth
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var playtimeBarChart: BarChart
     private val client = OkHttpClient()
-    private var isGameAdded = false
     private lateinit var receivedUserId: String
-    private val sharedPreferences by lazy { getSharedPreferences("MyGamesPrefs", Context.MODE_PRIVATE) }
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,9 +83,7 @@ class otherUserGames : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
         receivedUserId = intent.getStringExtra("userId").toString()
-
         gamesSearchBar = findViewById(R.id.searchbar)
-
         backButton = findViewById(R.id.backButton)
 
         playtimeBarChart = findViewById(R.id.totalPlaytimeBarChart)
@@ -118,8 +113,6 @@ class otherUserGames : AppCompatActivity() {
             startActivity(intent)
         }
 
-
-
         myGamesListAdapter = MyGamesListAdapter(emptyList(), receivedUserId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
@@ -131,7 +124,6 @@ class otherUserGames : AppCompatActivity() {
             fetchUserGameStats()
             swipeRefreshLayout.isRefreshing = false
         }
-
 
         fetchUserGameStats()
         fetchUserGames()
@@ -181,22 +173,20 @@ class otherUserGames : AppCompatActivity() {
                 val graphDataArray = gameObject.getJSONArray("graphData")
                 val graphData = List(graphDataArray.length()) { gIndex ->
                     val dataPoint = graphDataArray.getJSONObject(gIndex)
-                    val date = dataPoint.getString("date") // Get date
-                    val totalHours = dataPoint.getDouble("totalHours") // Get total hours
+                    val date = dataPoint.getString("date")
+                    val totalHours = dataPoint.getDouble("totalHours")
                     Pair(date, totalHours)
                 }
 
                 // Create AnalyticsData object
                 AnalyticsData(
                     gameName = gameObject.getString("gameName"),
-                    totalHours = gameObject.getDouble("totalHours"), // Assuming totalHours is a double
+                    totalHours = gameObject.getDouble("totalHours"),
                     iconResId = gameObject.getString("gameIcon"),
-                    graphData = graphData // Assign the graph data
+                    graphData = graphData
                 )
             }
-
             runOnUiThread {
-                Log.d("MyGamesList", "Number of games fetched: ${myGamesList.size}")
                 myGamesListAdapter.updateGamesList(myGamesList)
                 setupAutoComplete()
                 setupSearchFilter()
@@ -205,7 +195,6 @@ class otherUserGames : AppCompatActivity() {
             Log.e("MyGamesList", "Error parsing games data", e)
         }
     }
-
 
     private fun setupAutoComplete() {
         val gameNames = myGamesList.map { it.gameName }
@@ -240,6 +229,8 @@ class otherUserGames : AppCompatActivity() {
         }
         myGamesListAdapter.updateGamesList(filteredList)
     }
+
+    //Function not used in the current implemented app logic
     private fun fetchUserGameStats(game: String) {
         val url = "${Constants.SERVER_URL}analytics/gameAnalytics"
 
@@ -261,7 +252,6 @@ class otherUserGames : AppCompatActivity() {
 
         queue.add(jsonObjectRequest)
     }
-
 
     private fun playtimeBarChart(sessionFrequencyPerDay: MutableList<Float>, gameNames: List<String>) {
         // Create BarEntries for each game with its playtime
@@ -308,10 +298,8 @@ class otherUserGames : AppCompatActivity() {
         }
     }
 
-
-
     private fun fetchUserGameStats() {
-        val url = "${Constants.SERVER_URL}analytics/user/${receivedUserId}/hoursPerGame" // URL with userId in the path
+        val url = "${Constants.SERVER_URL}analytics/user/${receivedUserId}/hoursPerGame"
         val client = OkHttpClient.Builder().build()
         val request = Request.Builder()
             .url(url)
@@ -322,7 +310,7 @@ class otherUserGames : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("GameAnalytics", "Error fetching game stats: ${e.message}")
                 e.printStackTrace()
-                runOnUiThread {  } // Ensure UI updates are done on the main thread
+                runOnUiThread {  }
 
             }
 
@@ -337,12 +325,11 @@ class otherUserGames : AppCompatActivity() {
                     try {
                         val jsonResponse = JSONObject(responseBody.string())
                         Log.d("GameAnalytics", "Successfully fetched game stats: $jsonResponse")
-                        runOnUiThread { parseAndPopulateCharts(jsonResponse) } // Update UI on the main thread
+                        runOnUiThread { parseAndPopulateCharts(jsonResponse) }
                     } catch (e: Exception) {
                         Log.e("GameAnalytics", "Error parsing response: ${e.message}")
                         e.printStackTrace()
                         runOnUiThread {  }
-
                     }
                 }
             }

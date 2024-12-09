@@ -131,42 +131,39 @@ class UserFeed : AppCompatActivity() {
 
         followingRef.orderByChild("status").equalTo("accepted").get()
             .addOnSuccessListener { snapshot ->
-                if (snapshot.exists()) {
-                    val followingUids = snapshot.children.mapNotNull { it.key }
-                    val url = "${Constants.SERVER_URL}explorePosts/user/$userId/fetchFeedPosts"
-                    val client = OkHttpClient()
-                    val requestBody = JSONObject().apply {
-                        put("followingIds", JSONArray(followingUids))
-                    }.toString().toRequestBody("application/json".toMediaType())
+                val followingUids = snapshot.children.mapNotNull { it.key }
+                val url = "${Constants.SERVER_URL}explorePosts/user/$userId/fetchFeedPosts"
+                val client = OkHttpClient()
+                val requestBody = JSONObject().apply {
+                    put("followingIds", JSONArray(followingUids))
+                }.toString().toRequestBody("application/json".toMediaType())
 
-                    val request = Request.Builder()
-                        .url(url)
-                        .post(requestBody)
-                        .build()
+                val request = Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .build()
 
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        try {
-                            val response = client.newCall(request).execute()
-                            if (response.isSuccessful) {
-                                val responseData = response.body?.string()
-                                if (!responseData.isNullOrEmpty()) {
-                                    val posts = parsePostsFromResponse(responseData)
-                                    withContext(Dispatchers.Main) {
-                                        onPostsFetched(posts)
-                                    }
-                                } else {
-                                    Log.e("fetchUserFeed", "Empty response from server")
+                lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        val response = client.newCall(request).execute()
+                        if (response.isSuccessful) {
+                            val responseData = response.body?.string()
+                            if (!responseData.isNullOrEmpty()) {
+                                val posts = parsePostsFromResponse(responseData)
+                                withContext(Dispatchers.Main) {
+                                    onPostsFetched(posts)
                                 }
                             } else {
-                                Log.e("fetchUserFeed", "Server error: ${response.code}")
+                                Log.e("fetchUserFeed", "Empty response from server")
                             }
-                        } catch (e: Exception) {
-                            Log.e("fetchUserFeed", "Error fetching posts", e)
+                        } else {
+                            Log.e("fetchUserFeed", "Server error: ${response.code}")
                         }
+                    } catch (e: Exception) {
+                        Log.e("fetchUserFeed", "Error fetching posts", e)
                     }
-                } else {
-                    Log.d("fetchUserFeed", "No data exists for following users")
                 }
+
             }
             .addOnFailureListener { exception ->
                 Log.e("fetchUserFeed", "Error fetching following list: ${exception.message}")

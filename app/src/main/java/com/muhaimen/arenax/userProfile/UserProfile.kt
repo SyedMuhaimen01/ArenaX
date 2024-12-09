@@ -1148,17 +1148,7 @@ class UserProfile : AppCompatActivity() {
                     Log.e("fetchUserStory", "Unexpected error: ${e.message}")
                 }
             },
-            { error ->
-                val errorMessage = when (error) {
-                    is TimeoutError -> "Request timed out"
-                    is NoConnectionError -> "No internet connection"
-                    is AuthFailureError -> "Authentication error: ${error.message}"
-                    is ServerError -> "Server error: ${String(error.networkResponse?.data ?: ByteArray(0))}"
-                    is NetworkError -> "Network error: ${error.message}"
-                    else -> "Response parse error: ${error.message}"
-                }
-                Log.e("fetchUserStory", errorMessage)
-            }
+            { error -> }
         )
         requestQueue.add(jsonArrayRequest)
     }

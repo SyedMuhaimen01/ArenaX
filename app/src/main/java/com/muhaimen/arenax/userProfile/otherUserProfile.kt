@@ -764,18 +764,7 @@ class otherUserProfile : AppCompatActivity() {
                     Log.e("fetchUserStory", "Unexpected error: ${e.message}")
                 }
             },
-            { error ->
-                val errorMessage = when (error) {
-                    is TimeoutError -> "Request timed out"
-                    is NoConnectionError -> "No internet connection"
-                    is AuthFailureError -> "Authentication error: ${error.message}"
-                    is ServerError -> "Server error: ${String(error.networkResponse?.data ?: ByteArray(0))}"
-                    is NetworkError -> "Network error: ${error.message}"
-                    else -> "Response parse error: ${error.message}"
-                }
-                Log.e("fetchUserStory", errorMessage)
-                Toast.makeText(this, "Failed to fetch stories: $errorMessage", Toast.LENGTH_SHORT).show()
-            }
+            { error -> }
         )
 
         // Add the request to the request queue
@@ -853,22 +842,12 @@ class otherUserProfile : AppCompatActivity() {
                     putExtra("userId", receiverId)
                     putExtra("fullname", "Unknown User")
                     putExtra("gamerTag", "Unknown GamerTag")
-                    putExtra("profilePicture", "null") // or a placeholder image URL
-                    putExtra("gamerRank", "00") // Default value
+                    putExtra("profilePicture", "null")
+                    putExtra("gamerRank", "00")
                 }
                 startActivity(intent)
             }
-        }.addOnFailureListener { exception ->
-            // In case of failure, handle by passing default values
-            val intent = Intent(this, ChatActivity::class.java).apply {
-                putExtra("userId", receiverId)
-                putExtra("fullname", "Unknown User")
-                putExtra("gamerTag", "Unknown GamerTag")
-                putExtra("profilePicture", "null") // or a placeholder image URL
-                putExtra("gamerRank", "00") // Default value
-            }
-            startActivity(intent)
-        }
+        }.addOnFailureListener { exception -> }
     }
     private fun fetchAndSetCounts(userId: String) {
         val followersRef = database.getReference("userData/$userId/synerG/followers")

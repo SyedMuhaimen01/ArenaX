@@ -18,6 +18,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
@@ -68,12 +69,14 @@ class viewStory : AppCompatActivity() {
     private lateinit var textJson: String
     private var storyLongitude: Double = 0.0
     private var storyLatitude: Double = 0.0
+    private var startX = 0f
+    private var startY = 0f
+    private val SWIPE_THRESHOLD = 100
     private lateinit var intentFrom:String
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_story)
-
         storyImageView = findViewById(R.id.ImageView)
         userNameTextView = findViewById(R.id.usernameTextView)
         textureView = findViewById(R.id.videoPlayerView)
@@ -101,12 +104,12 @@ class viewStory : AppCompatActivity() {
         profilePicture = findViewById(R.id.ProfilePicture)
 
         val intent = intent
-        intentFrom=intent.getStringExtra("intentFrom").toString()
+        intentFrom = intent.getStringExtra("intentFrom").toString()
 
-        if(intentFrom=="Adapter") {
+        if (intentFrom == "Adapter") {
             storyId = intent.getStringExtra("id").toString()
             storyMediaUrl = intent.getStringExtra("mediaUrl").toString()  // String (URL)
-            storyDuration = intent.getIntExtra("duration", 0)  // Default value 0
+            storyDuration = intent.getIntExtra("duration", 0)
             storyTrimmedAudioUrl = intent.getStringExtra("trimmedAudioUrl").toString()
             Log.d("trimmedAudio urd", storyTrimmedAudioUrl)
             storyDraggableTexts = intent.getStringExtra("draggableTexts")
@@ -120,10 +123,9 @@ class viewStory : AppCompatActivity() {
             storyLatitude = intent.getDoubleExtra("latitude", 0.0)  // Default value 0.0
             storyLongitude = intent.getDoubleExtra("longitude", 0.0)  // Default value 0.0
             displaySingleStory()
-        }
-        else{
+        } else {
             val storiesJson = intent.getStringExtra("storiesListJson")
-            storiesList= Gson().fromJson(storiesJson, Array<Story>::class.java).toList()
+            storiesList = Gson().fromJson(storiesJson, Array<Story>::class.java).toList()
             currentIndex = intent.getIntExtra("currentIndex", 0)
             Log.d("ViewStory", "Received stories list with size: ${storiesList.size}")
 
@@ -132,100 +134,113 @@ class viewStory : AppCompatActivity() {
             }
         }
 
-        textureView.setOnTouchListener { _, event ->
+        mainLayout.setOnTouchListener { _, event ->
             when (event.action) {
-                MotionEvent.ACTION_UP -> {
-                    if (event.x > resources.displayMetrics.widthPixels / 2) {
-                        Log.d("ViewStory", "Swiped right, moving to next story.")
-                        nextStory()
-                    } else {
-                        Log.d("ViewStory", "Swiped left, moving to previous story.")
-                        previousStory()
-                    }
+                MotionEvent.ACTION_DOWN -> {
+                    // Capture the starting position
+                    startX = event.x
+                    startY = event.y
                     true
                 }
+                MotionEvent.ACTION_UP -> {
+                    val endX = event.x
+                    val endY = event.y
+                    val deltaX = endX - startX
+                    val deltaY = endY - startY
 
+                    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                        if (deltaX > 0) {
+                            releaseMediaPlayer()
+                            previousStory()
+                        } else {
+                            releaseMediaPlayer()
+                            nextStory()
+                        }
+                        true
+                    } else { false }
+                }
                 else -> false
             }
         }
+
     }
 
-        private fun displaySingleStory() {
-            Log.d("ViewStory", "Displaying single story with ID: ${storyId}")
-            val uploadedAtDate = storyUploadedAt.let {
-                try {
-                    Date(storyUploadedAt)
-                } catch (e: Exception) {
-                    null
-                }
+    private fun displaySingleStory() {
+        Log.d("ViewStory", "Displaying single story with ID: ${storyId}")
+        val uploadedAtDate = storyUploadedAt.let {
+            try {
+                Date(storyUploadedAt)
+            } catch (e: Exception) {
+                null
             }
-
-            // Create a single Story object with the passed-in data
-            val singleStory = Story(
-                id = storyId,
-                mediaUrl = storyMediaUrl ?: "",
-                duration = storyDuration,
-                trimmedAudioUrl = storyTrimmedAudioUrl,
-                draggableTexts = storyDraggableTexts?.let { convertToJSONArray(it) },
-                uploadedAt = uploadedAtDate,
-                userName = storyUserName,
-                userProfilePicture = storyUserProfilePicture,
-                city = storyCity,
-                country = storyCountry,
-                latitude = storyLatitude,
-                longitude = storyLongitude
-            )
-
-            userNameTextView.text=singleStory.userName
-            timeAgoTextView.text = singleStory.timeAgo
-            if (singleStory.mediaUrl.isNotEmpty()) {
-                loadMedia(singleStory.mediaUrl)
-            }
-
-            val uri = Uri.parse(storyUserProfilePicture)
-            Glide.with(this)
-                .load(uri)
-                .thumbnail(0.1f)
-                .circleCrop()
-                .error(R.drawable.add_icon_foreground)
-                .into(profilePicture)
-
-            // Play audio if available
-            singleStory.trimmedAudioUrl?.let {
-                playTrimmedAudio(it)
-            }
-
-            // Display draggable texts if available
-            displayDraggableTexts(storyDraggableTexts.toString())
-
-            // Set progress bar (to simulate progress over the story's duration)
-            progressBar.max = 100
-            progressBar.progress = 0  // Start at 0%
-
-            // Update progress bar based on duration
-            val progressInterval = 1000L // 1 second interval for progress update
-            val totalDuration = singleStory.duration.toLong()
-
-            val progressRunnable = object : Runnable {
-                var progress = 0
-
-                override fun run() {
-                    if (progress < 100) {
-                        progress += (100 * progressInterval / totalDuration).toInt()
-                        progressBar.progress = progress
-                        handler.postDelayed(this, progressInterval)
-                    } else {
-                        progressBar.progress = 100
-                    }
-                }
-            }
-
-            // Start updating progress
-            handler.post(progressRunnable)
-
-            // Navigate to the next story after the duration
-            handler.postDelayed({ finish() }, totalDuration * 1000L) // Multiply by 1000 to convert seconds to milliseconds
         }
+
+        // Create a single Story object with the passed-in data
+        val singleStory = Story(
+            id = storyId,
+            mediaUrl = storyMediaUrl ?: "",
+            duration = storyDuration,
+            trimmedAudioUrl = storyTrimmedAudioUrl,
+            draggableTexts = storyDraggableTexts?.let { convertToJSONArray(it) },
+            uploadedAt = uploadedAtDate,
+            userName = storyUserName,
+            userProfilePicture = storyUserProfilePicture,
+            city = storyCity,
+            country = storyCountry,
+            latitude = storyLatitude,
+            longitude = storyLongitude
+        )
+
+        userNameTextView.text=singleStory.userName
+        timeAgoTextView.text = singleStory.timeAgo
+        if (singleStory.mediaUrl.isNotEmpty()) {
+            loadMedia(singleStory.mediaUrl)
+        }
+
+        val uri = Uri.parse(storyUserProfilePicture)
+        Glide.with(this)
+            .load(uri)
+            .thumbnail(0.1f)
+            .circleCrop()
+            .error(R.drawable.add_icon_foreground)
+            .into(profilePicture)
+
+        // Play audio if available
+        singleStory.trimmedAudioUrl?.let {
+            playTrimmedAudio(it)
+        }
+
+        // Display draggable texts if available
+        displayDraggableTexts(storyDraggableTexts.toString())
+
+        // Set progress bar (to simulate progress over the story's duration)
+        progressBar.max = 100
+        progressBar.progress = 0  // Start at 0%
+
+        // Update progress bar based on duration
+        val progressInterval = 1000L // 1 second interval for progress update
+        val totalDuration = singleStory.duration.toLong()
+
+        val progressRunnable = object : Runnable {
+            var progress = 0
+
+            override fun run() {
+                if (progress < 100) {
+                    progress += (100 * progressInterval / totalDuration).toInt()
+                    progressBar.progress = progress
+                    handler.postDelayed(this, progressInterval)
+                } else {
+                    progressBar.progress = 100
+                }
+            }
+        }
+
+        // Start updating progress
+        handler.post(progressRunnable)
+
+        // Navigate to the next story after the duration
+        handler.postDelayed({ finish() }, totalDuration * 1000L) // Multiply by 1000 to convert seconds to milliseconds
+    }
 
     fun convertToJSONArray(json: String): JSONArray? {
         return try {
