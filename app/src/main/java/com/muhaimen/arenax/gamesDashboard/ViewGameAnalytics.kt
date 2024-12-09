@@ -56,8 +56,6 @@ class ViewGameAnalytics : AppCompatActivity() {
             insets
         }
 
-
-        // Initialize views
         gameName = findViewById(R.id.game_name)
         totalHours = findViewById(R.id.total_hours)
         gameIcon = findViewById(R.id.game_icon)
@@ -80,13 +78,11 @@ class ViewGameAnalytics : AppCompatActivity() {
         backButton.setOnClickListener {
             finish()
         }
-
     }
 
     private fun fetchUserGameStats(game: String) {
         val url = "${Constants.SERVER_URL}analytics/gameAnalytics"
         val userId = intent.getStringExtra("userId")
-
         val requestBody = JSONObject().apply {
             put("gameName", game)
             put("userId", userId)
@@ -96,7 +92,7 @@ class ViewGameAnalytics : AppCompatActivity() {
         val jsonObjectRequest = JsonObjectRequest(Request.Method.POST, url, requestBody,
             { response ->
                 Log.d(TAG, "Response received: $response")
-                parseAndPopulateCharts(response) // Call the function to parse and set up charts
+                parseAndPopulateCharts(response)
             },
             { error ->
                 Log.e(TAG, "Error fetching data: ${error.message}")
@@ -110,10 +106,10 @@ class ViewGameAnalytics : AppCompatActivity() {
         return when {
             url.isEmpty() -> {
                 Log.e(TAG, "URL is null or empty!")
-                "" // Return empty string for null or empty input
+                ""
             }
-            url.startsWith("http://") || url.startsWith("https://") -> url // Return the URL as is
-            else -> "https:$url" // Prepend with https if it starts with //
+            url.startsWith("http://") || url.startsWith("https://") -> url
+            else -> "https:$url"
         }
     }
 

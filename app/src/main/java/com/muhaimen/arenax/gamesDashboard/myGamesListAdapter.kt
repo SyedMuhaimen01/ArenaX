@@ -1,3 +1,4 @@
+
 package com.muhaimen.arenax.gamesDashboard
 
 import android.annotation.SuppressLint
@@ -31,9 +32,6 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>, private
             totalHours.text = "Total Hours: ${data.totalHours}"
 
             val formattedIcon = formatUrl(data.iconResId)
-
-
-
             Glide.with(itemView.context)
                 .load(formattedIcon)
                 .placeholder(R.drawable.circle)
@@ -54,7 +52,7 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>, private
         private fun populateGraph(graphData: List<Pair<String, Double>>) {
             // Convert the List<Pair<String, Double>> to DataPoint[]
             val dataPoints = graphData.mapIndexed { index, pair ->
-                DataPoint(index.toDouble(), pair.second) // Use index for X-axis and total hours for Y-axis
+                DataPoint(index.toDouble(), pair.second) // index for X-axis and total hours for Y-axis
             }.toTypedArray()
 
             val series = LineGraphSeries(dataPoints)
@@ -114,9 +112,9 @@ class MyGamesListAdapter(private var analyticsList: List<AnalyticsData>, private
 
     private fun formatUrl(url: String?): String {
         return when {
-            url.isNullOrEmpty() -> "" // Return empty string for null or empty input
-            url.startsWith("http://") || url.startsWith("https://") -> url // Return the URL as is
-            else -> "https:$url" // Prepend with https if it starts with //
+            url.isNullOrEmpty() -> ""
+            url.startsWith("http://") || url.startsWith("https://") -> url
+            else -> "https:$url"
         }
     }
 }

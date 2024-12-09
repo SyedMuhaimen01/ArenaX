@@ -321,9 +321,6 @@ class ChatsAdapter(private val chatMessages: MutableList<ChatItem>) : RecyclerVi
         receiverTask.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Log.d("UnsendMessage", "Successfully removed receiver chat node with chatId: ${chatItem.chatId}")
-                // Optionally remove message from local receiver chat list if needed
-                // receiverChatMessages.remove(chatItem)
-                // this.notifyDataSetChanged()
             } else {
                 Log.e("UnsendMessage", "Failed to remove receiver chat node with chatId: ${chatItem.chatId}", task.exception)
             }

@@ -29,14 +29,13 @@ class viewChatMedia : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var downloadButton: ImageButton
     private var isVideoPlaying = true
-    private val PERMISSION_REQUEST_CODE = 1001 // Define permission request code
+    private val PERMISSION_REQUEST_CODE = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_view_chat_media)
 
-        // Initialize views
         imageView = findViewById(R.id.fullSizeImage)
         videoView = findViewById(R.id.fullSizeVideo)
         backButton = findViewById(R.id.backButton)
@@ -51,7 +50,6 @@ class viewChatMedia : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
 
-        // Get the media URL and type from intent
         val mediaUrl = intent.getStringExtra("mediaUrl")
         val mediaType = intent.getStringExtra("mediaType")
 
@@ -90,7 +88,7 @@ class viewChatMedia : AppCompatActivity() {
         videoView.setVideoURI(Uri.parse(url))
         videoView.setOnPreparedListener { mediaPlayer ->
             mediaPlayer.isLooping = true
-            videoView.start() // Start the video as soon as it's prepared
+            videoView.start()
         }
         videoView.setOnClickListener {
             if (isVideoPlaying) {
@@ -102,12 +100,10 @@ class viewChatMedia : AppCompatActivity() {
         }
     }
 
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                // Permission granted, proceed with media download
                 val mediaUrl = intent.getStringExtra("mediaUrl")
                 val mediaType = intent.getStringExtra("mediaType")
                 downloadMedia(mediaUrl, mediaType)
@@ -120,7 +116,7 @@ class viewChatMedia : AppCompatActivity() {
     @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
     override fun onBackPressed() {
         super.onBackPressed()
-        finish() // Closes the current activity
+        finish()
     }
 
     private fun downloadMedia(url: String?, mediaType: String?) {

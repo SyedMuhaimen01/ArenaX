@@ -78,7 +78,6 @@ class gamesList : AppCompatActivity() {
             fetchInstalledApps()
 
         }
-
     }
 
     private fun loadGamesFromSharedPreferences() {
@@ -156,10 +155,6 @@ class gamesList : AppCompatActivity() {
             },
             { error ->
                 error.printStackTrace()
-                if (error.networkResponse != null) {
-                    val errorResponse = String(error.networkResponse.data)
-                 //   Toast.makeText(this, "Error fetching games: $errorResponse", Toast.LENGTH_SHORT).show()
-                }
             }
         )
 
@@ -209,7 +204,6 @@ class gamesList : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 filterGamesList(s.toString())
             }
-
             override fun afterTextChanged(s: Editable?) {}
         })
     }

@@ -37,7 +37,7 @@ class explorePosts : Fragment() {
         // Initialize RecyclerView and set the adapter
         postsRecyclerView = view.findViewById(R.id.posts_recyclerview)
         postsRecyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
-        postsAdapter = explorePostsAdapter(postsList) // Adapter initialization
+        postsAdapter = explorePostsAdapter(postsList)
         postsRecyclerView.adapter = postsAdapter
 
         // Fetch posts from the backend
@@ -56,7 +56,6 @@ class explorePosts : Fragment() {
             .url(url)
             .build()
 
-        // Run the network request on a background thread
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 val response = client.newCall(request).execute()
@@ -69,18 +68,16 @@ class explorePosts : Fragment() {
 
                         for (i in 0 until jsonArray.length()) {
                             val postObject = jsonArray.getJSONObject(i)
-
-                            // Parse comments
                             val commentsData = mutableListOf<Comment>()
                             val commentsArray = postObject.optJSONArray("comments")
                             commentsArray?.let {
                                 for (j in 0 until it.length()) {
                                     val commentObject = it.getJSONObject(j)
                                     val comment = Comment(
-                                        commentId = commentObject.optInt("comment_id", 0),  // Use optInt to safely get an integer, defaulting to 0
-                                        commentText = commentObject.optString("comment", ""),  // Default to empty string if null
+                                        commentId = commentObject.optInt("comment_id", 0),
+                                        commentText = commentObject.optString("comment", ""),
                                         createdAt = commentObject.optString("created_at", ""),
-                                        commenterName = commentObject.optString("commenter_name", "Unknown"),  // Default name if missing
+                                        commenterName = commentObject.optString("commenter_name", "Unknown"),
                                         commenterProfilePictureUrl = commentObject.optString("commenter_profile_pic", null)
                                     )
                                     commentsData.add(comment)
@@ -89,22 +86,22 @@ class explorePosts : Fragment() {
 
                             // Create the Post object
                             val post = Post(
-                                postId = postObject.optInt("post_id", 0),  // Default to 0 if null
+                                postId = postObject.optInt("post_id", 0),
                                 postContent = postObject.optString("post_content", null),
                                 caption = postObject.optString("caption", null),
-                                sponsored = postObject.optBoolean("sponsored", false),  // Default to false if not provided
-                                likes = postObject.optInt("likes", 0),  // Default to 0 if null
-                                comments = postObject.optInt("post_comments", 0),  // Default to 0 if null
-                                shares = postObject.optInt("shares", 0),  // Default to 0 if null
-                                clicks = postObject.optInt("clicks", 0),  // Default to 0 if null
+                                sponsored = postObject.optBoolean("sponsored", false),
+                                likes = postObject.optInt("likes", 0),
+                                comments = postObject.optInt("post_comments", 0),
+                                shares = postObject.optInt("shares", 0),
+                                clicks = postObject.optInt("clicks", 0),
                                 city = postObject.optString("city", null),
                                 country = postObject.optString("country", null),
-                                trimmedAudioUrl = postObject.optString("trimmed_audio_url", null),  // This can be null, so no issue
+                                trimmedAudioUrl = postObject.optString("trimmed_audio_url", null),
                                 createdAt = postObject.optString("created_at", ""),
-                                userFullName = postObject.optString("full_name", "Unknown User"),  // Default to "Unknown User" if null
+                                userFullName = postObject.optString("full_name", "Unknown User"),
                                 userProfilePictureUrl = postObject.optString("profile_picture_url", null),
                                 commentsData = commentsData,
-                                isLikedByUser = postObject.optBoolean("likedByUser", false)  // Default to false if not provided
+                                isLikedByUser = postObject.optBoolean("likedByUser", false)
                             )
                             posts.add(post)
                         }
@@ -122,7 +119,4 @@ class explorePosts : Fragment() {
             }
         }
     }
-
-
-
 }

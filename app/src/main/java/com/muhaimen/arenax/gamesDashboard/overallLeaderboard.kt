@@ -76,6 +76,7 @@ class overallLeaderboard : AppCompatActivity() {
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
         swipeRefreshLayout.setColorSchemeResources(R.color.white)
         swipeRefreshLayout.setOnRefreshListener {
+            rankingsList.clear()
             fetchRankings()
 
         }
@@ -101,7 +102,6 @@ class overallLeaderboard : AppCompatActivity() {
                         .circleCrop()
                         .into(profilePicture)
 
-                    // Handle the rank text, checking for "Unranked"
                     if (currentUserRanking.rank == "Unranked") {
                         rank.text = "∞"
                         rank.setTextColor(resources.getColor(R.color.white))
@@ -118,16 +118,13 @@ class overallLeaderboard : AppCompatActivity() {
         } else {
             Log.e("Firebase", "User is not logged in.")
         }
-
-
     }
 
     private fun fetchRankings() {
         val requestQueue = Volley.newRequestQueue(this)
-
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET,
-            baseUrl, // Ensure this URL matches your backend endpoint
+            baseUrl,
             null,
             { response ->
                 val rankingsList = parseRankings(response)
@@ -147,8 +144,6 @@ class overallLeaderboard : AppCompatActivity() {
 
 
     private fun parseRankings(response: JSONArray): List<RankingData> {
-
-
         for (i in 0 until response.length()) {
             val jsonObject: JSONObject = response.getJSONObject(i)
             val name = jsonObject.getString("name")
@@ -157,12 +152,11 @@ class overallLeaderboard : AppCompatActivity() {
             val rank = jsonObject.getInt("rank")
             val gamerTag = jsonObject.getString("gamertag")
 
-            // Add a check to handle unranked users explicitly if necessary
             val rankingData = RankingData(
                 name = name,
                 totalHrs = totalHrs,
                 profilePicture = profilePictureUrl,
-                rank = if (rank == 0) "Unranked" else rank.toString(), // Set 'Unranked' for rank 0
+                rank = if (rank == 0) "Unranked" else rank.toString(),
                 gamerTag = gamerTag
             )
             rankingsList.add(rankingData)
@@ -173,10 +167,8 @@ class overallLeaderboard : AppCompatActivity() {
         return rankingsList
     }
 
-
     private fun saveRankingsToPreferences(rankings: List<RankingData>) {
         val editor = sharedPreferences.edit()
-
         val jsonArray = JSONArray()
         for (ranking in rankings) {
             val jsonObject = JSONObject().apply {
@@ -205,7 +197,7 @@ class overallLeaderboard : AppCompatActivity() {
                 val name = jsonObject.getString("name")
                 val gamerTag = jsonObject.getString("gamerTag")
                 val profilePicture = jsonObject.getString("profilePicture")
-                val rank = jsonObject.getString("rank") // Rank is stored as a string, can be "Unranked" or an integer
+                val rank = jsonObject.getString("rank")
                 val totalHrs = jsonObject.getInt("totalHours")
 
                 rankingsList.add(RankingData(name, gamerTag, profilePicture, rank, totalHrs))
@@ -220,7 +212,6 @@ class overallLeaderboard : AppCompatActivity() {
     private fun getCurrentUserRanking(rankingsList: List<RankingData>, currentUserGamerTag: String): RankingData? {
         return rankingsList.find { it.gamerTag == currentUserGamerTag }
     }
-
 
     override fun onResume() {
         super.onResume()

@@ -171,7 +171,8 @@ class ChatActivity : AppCompatActivity() {
             Toast.makeText(this, "Failed to send message: ${it.message}", Toast.LENGTH_SHORT).show()
         }
 
-        sendNotificationToBackend(senderId, receiverId)
+        //Below function not implemented in the current app logic
+        //sendNotificationToBackend(senderId, receiverId)
     }
 
     private fun sendMedia(uri: Uri, type: String) {
@@ -214,6 +215,8 @@ class ChatActivity : AppCompatActivity() {
             }
         }
     }
+
+    //Function to create notifications using the server
     private fun sendNotificationToBackend(senderId: String, receiverId: String) {
         // Create JSON object with the necessary data
         val jsonObject = JSONObject().apply {
@@ -222,10 +225,9 @@ class ChatActivity : AppCompatActivity() {
             put("message", "New Message")
         }
 
-        // Prepare the request
         val request = JsonObjectRequest(
             Request.Method.POST,
-            "${Constants.SERVER_URL}notify-new-message",  // Replace with your actual endpoint
+            "${Constants.SERVER_URL}notify-new-message",
             jsonObject,
             { response ->
                 // Successfully sent notification to backend
@@ -244,6 +246,4 @@ class ChatActivity : AppCompatActivity() {
         // Add the request to the queue (assuming you're using Volley)
         queue.add(request)
     }
-
-
 }

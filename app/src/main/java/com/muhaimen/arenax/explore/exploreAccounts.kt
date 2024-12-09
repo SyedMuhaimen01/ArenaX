@@ -25,9 +25,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.muhaimen.arenax.R
-
 import com.muhaimen.arenax.dataClasses.Gender
-
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
@@ -39,15 +37,11 @@ class exploreAccounts : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: exploreAccountsAdapter
     private lateinit var auth: FirebaseAuth
-
     private lateinit var searchUserRecyclerView: RecyclerView
     private lateinit var searchEditText: EditText
     private val currentUserId = FirebaseManager.getCurrentUserId()
     private lateinit var database: DatabaseReference
-
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
-
-
 
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
@@ -56,23 +50,17 @@ class exploreAccounts : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_explore_accounts, container, false)
 
-        // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.accounts_recyclerview)
         recyclerView.layoutManager = LinearLayoutManager(context)
         searchEditText = view.findViewById(R.id.searchbar)
-
         searchUserRecyclerView = view.findViewById(R.id.searchUserRecyclerView)
-        // Set up RecyclerView
         val searchUserAdapter = SearchUserAdapter(emptyList())
         searchUserRecyclerView.layoutManager = LinearLayoutManager(context)
         searchUserRecyclerView.adapter = searchUserAdapter
-
-        // Set up search EditText listener
         searchEditText.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 recyclerView.visibility = View.GONE
                 searchUserRecyclerView.visibility = View.VISIBLE
-                Log.d("ExploreAccounts", "Switched to search mode")
             }
         }
 
@@ -120,6 +108,7 @@ class exploreAccounts : Fragment() {
         return view
     }
 
+    //Not required in current implementation
     private fun fetchUserProfiles() {
         // Replace with your backend URL and userId
         auth = FirebaseAuth.getInstance()
@@ -143,7 +132,7 @@ class exploreAccounts : Fragment() {
 
         queue.add(jsonArrayRequest)
     }
-
+    //Not required in current implementation
     private fun parseUserProfiles(jsonArray: JSONArray): List<UserData> {
         val profiles = mutableListOf<UserData>()
 
@@ -180,8 +169,6 @@ class exploreAccounts : Fragment() {
 
     private fun searchUsers(query: String, adapter: SearchUserAdapter) {
         val usersList = mutableListOf<UserData>()
-
-        // Fetch all users from the database
         database.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 usersList.clear()
@@ -209,22 +196,15 @@ class exploreAccounts : Fragment() {
     }
 
     private fun fetchExploreUsers() {
-        // Replace with your backend URL and userId
         auth = FirebaseAuth.getInstance()
         val firebaseUid = auth.currentUser?.uid
         val url = "${Constants.SERVER_URL}exploreAccounts/user/${firebaseUid}/fetchAccounts"
-
         val queue = Volley.newRequestQueue(requireContext())
         val jsonArrayRequest = JsonArrayRequest(
             Request.Method.GET, url, null,
             { response ->
                 try {
-                    // Log the raw response for debugging
-                    Log.d("API Response", "Received response: $response")
-
-                    // Parse the response as a JSONArray
                     val profiles = parseExploreProfiles(response)
-                    // Set up the adapter with fetched data
                     adapter = exploreAccountsAdapter(profiles)
                     recyclerView.adapter = adapter
                 } catch (e: Exception) {
@@ -235,7 +215,6 @@ class exploreAccounts : Fragment() {
                 Log.e("Volley Error", "Error fetching user profiles: ${error.message}")
             }
         )
-
         queue.add(jsonArrayRequest)
     }
 
@@ -244,8 +223,6 @@ class exploreAccounts : Fragment() {
 
         for (i in 0 until jsonArray.length()) {
             val jsonObject: JSONObject = jsonArray.getJSONObject(i)
-
-            // Parsing data as per the backend response
             val firebaseUid = jsonObject.optString("firebaseUid", "")
             val fullName = jsonObject.optString("fullName", "")
             val gamerTag = jsonObject.optString("gamerTag", "")
@@ -254,23 +231,20 @@ class exploreAccounts : Fragment() {
             val similarity = jsonObject.optDouble("similarity", 0.0)
 
             val userData = UserData(
-                userId = firebaseUid,             // Mapping firebaseUid to userId in UserData
+                userId = firebaseUid,
                 fullname = fullName,
-                email = "",                       // Not available in the response
-                dOB = "",                         // Not available in the response
+                email = "",
+                dOB = "",
                 gamerTag = gamerTag,
                 profilePicture = profilePicture,
-                gender = Gender.PreferNotToSay,   // Assuming default as not available in response
-                bio = null,                       // Not available in the response
-                location = null,                  // Not available in the response
-                accountVerified = false,          // Not available in the response
+                gender = Gender.PreferNotToSay,
+                bio = null,
+                location = null,
+                accountVerified = false,
                 rank = gamerRank,
             )
-
             profiles.add(userData)
         }
-
         return profiles
     }
-
 }

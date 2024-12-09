@@ -94,10 +94,6 @@ class MyGamesList : AppCompatActivity() {
         gamesSearchBar = findViewById(R.id.searchbar)
         addGame = findViewById(R.id.addGame)
         backButton = findViewById(R.id.backButton)
-
-
-
-
         playtimeBarChart = findViewById(R.id.totalPlaytimeBarChart)
         myGamesListRecyclerView = findViewById(R.id.myGamesListRecyclerView)
         myGamesListRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -125,7 +121,6 @@ class MyGamesList : AppCompatActivity() {
             startActivity(intent)
         }
 
-
         myGamesListAdapter = MyGamesListAdapter(emptyList(), userId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
 
@@ -138,7 +133,6 @@ class MyGamesList : AppCompatActivity() {
             swipeRefreshLayout.isRefreshing = false
         }
 
-
         fetchUserGameStats()
         fetchUserGames()
 
@@ -150,7 +144,6 @@ class MyGamesList : AppCompatActivity() {
             startActivity(intent)
         }
 
-
         addGame.setOnClickListener {
             val intent = Intent(this, gamesList::class.java)
             startActivity(intent)
@@ -159,7 +152,6 @@ class MyGamesList : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        Log.e("MyGamesList", "onResume called ")
         isGameAdded = false
         val filter = IntentFilter("NEW_GAME_ADDED")
         LocalBroadcastManager.getInstance(this).registerReceiver(gameBroadcastReceiver, filter)
@@ -168,7 +160,6 @@ class MyGamesList : AppCompatActivity() {
         }
     }
 
-
     private val gameBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.e("BroadcastReceiver", "Game added broadcast received")
@@ -176,7 +167,6 @@ class MyGamesList : AppCompatActivity() {
             fetchUserGames()
         }
     }
-
 
     override fun onPause() {
         super.onPause()
@@ -191,10 +181,7 @@ class MyGamesList : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
-                runOnUiThread {
-                    // Uncomment the next line to show a toast message on failure
-                    // Toast.makeText(this@MyGamesList, "Failed to fetch games", Toast.LENGTH_SHORT).show()
-                }
+                runOnUiThread {}
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -207,9 +194,7 @@ class MyGamesList : AppCompatActivity() {
                         updateEmptyGameList()
                     }
                 } else {
-                    runOnUiThread {
-                        // Toast.makeText(this@MyGamesList, "Error: ${response.code}", Toast.LENGTH_SHORT).show()
-                    }
+                    runOnUiThread {}
                 }
             }
         })
@@ -219,7 +204,6 @@ class MyGamesList : AppCompatActivity() {
         try {
             val jsonObject = JSONObject(responseBody)
             val gamesArray = jsonObject.getJSONArray("games")
-
             myGamesList = List(gamesArray.length()) { index ->
                 val gameObject = gamesArray.getJSONObject(index)
                 Log.d("MyGamesList", "Parsing game: ${gameObject.getString("gameName")}, Icon URL: ${gameObject.getString("gameIcon")}")
@@ -228,22 +212,21 @@ class MyGamesList : AppCompatActivity() {
                 val graphDataArray = gameObject.getJSONArray("graphData")
                 val graphData = List(graphDataArray.length()) { gIndex ->
                     val dataPoint = graphDataArray.getJSONObject(gIndex)
-                    val date = dataPoint.getString("date") // Get date
-                    val totalHours = dataPoint.getDouble("totalHours") // Get total hours
+                    val date = dataPoint.getString("date")
+                    val totalHours = dataPoint.getDouble("totalHours")
                     Pair(date, totalHours)
                 }
 
                 // Create AnalyticsData object
                 AnalyticsData(
                     gameName = gameObject.getString("gameName"),
-                    totalHours = gameObject.getDouble("totalHours"), // Assuming totalHours is a double
+                    totalHours = gameObject.getDouble("totalHours"),
                     iconResId = gameObject.getString("gameIcon"),
-                    graphData = graphData // Assign the graph data
+                    graphData = graphData
                 )
             }
 
             runOnUiThread {
-                Log.d("MyGamesList", "Number of games fetched: ${myGamesList.size}")
                 myGamesListAdapter.updateGamesList(myGamesList)
                 setupAutoComplete()
                 setupSearchFilter()
@@ -253,7 +236,6 @@ class MyGamesList : AppCompatActivity() {
         }
     }
 
-
     private fun updateEmptyGameList() {
         with(sharedPreferences.edit()) {
             putString("gamesList", "[]")
@@ -261,7 +243,6 @@ class MyGamesList : AppCompatActivity() {
         }
         runOnUiThread {
             myGamesListAdapter.updateGamesList(emptyList())
-         //   Toast.makeText(this@MyGamesList, "No games found", Toast.LENGTH_SHORT).show() // Optional feedback
         }
     }
 
@@ -271,8 +252,6 @@ class MyGamesList : AppCompatActivity() {
             apply()
         }
     }
-
-
 
     private fun setupAutoComplete() {
         val gameNames = myGamesList.map { it.gameName }
@@ -292,7 +271,6 @@ class MyGamesList : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 filterGamesList(s.toString())
             }
-
             override fun afterTextChanged(s: Editable?) {}
         })
     }
@@ -307,6 +285,7 @@ class MyGamesList : AppCompatActivity() {
         }
         myGamesListAdapter.updateGamesList(filteredList)
     }
+    //Not used in the current implemented app logic
     private fun fetchUserGameStats(game: String) {
         val url = "${Constants.SERVER_URL}analytics/gameAnalytics"
         val userId = intent.getStringExtra("userId")
@@ -377,22 +356,20 @@ class MyGamesList : AppCompatActivity() {
     }
 
     private fun fetchUserGameStats() {
-        val userId = auth.currentUser?.uid ?: return // Ensure user is authenticated
-        val url = "${Constants.SERVER_URL}analytics/user/$userId/hoursPerGame" // URL with userId in the path
-
-
+        val userId = auth.currentUser?.uid ?: return
+        val url = "${Constants.SERVER_URL}analytics/user/$userId/hoursPerGame"
         val client = OkHttpClient.Builder().build()
 
         val request = Request.Builder()
             .url(url)
-            .get() // HTTP GET request
+            .get()
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("GameAnalytics", "Error fetching game stats: ${e.message}")
                 e.printStackTrace()
-                runOnUiThread {  } // Ensure UI updates are done on the main thread
+                runOnUiThread {  }
 
             }
 
@@ -406,13 +383,11 @@ class MyGamesList : AppCompatActivity() {
                 response.body?.let { responseBody ->
                     try {
                         val jsonResponse = JSONObject(responseBody.string())
-                        Log.d("GameAnalytics", "Successfully fetched game stats: $jsonResponse")
-                        runOnUiThread { parseAndPopulateCharts(jsonResponse) } // Update UI on the main thread
+                        runOnUiThread { parseAndPopulateCharts(jsonResponse) }
                     } catch (e: Exception) {
                         Log.e("GameAnalytics", "Error parsing response: ${e.message}")
                         e.printStackTrace()
                         runOnUiThread {  }
-
                     }
                 }
             }
@@ -431,15 +406,13 @@ class MyGamesList : AppCompatActivity() {
 
             for (i in 0 until gameStats.length()) {
                 val game = gameStats.getJSONObject(i)
-                val playtime = game.getString("totalPlaytime").toFloatOrNull() ?: 0f  // Convert to Float
-                val gameName = game.getString("gameName") // Game name
+                val playtime = game.getString("totalPlaytime").toFloatOrNull() ?: 0f
+                val gameName = game.getString("gameName")
 
                 playtimeList.add(playtime)
                 gameNamesList.add(gameName)
             }
 
-
-            // Now call the playtimeBarChart method with the correct data
             playtimeBarChart(playtimeList, gameNamesList)
 
         } catch (e: JSONException) {
@@ -447,7 +420,4 @@ class MyGamesList : AppCompatActivity() {
             e.printStackTrace()
         }
     }
-
-
-
 }

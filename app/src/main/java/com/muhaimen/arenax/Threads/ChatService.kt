@@ -23,24 +23,18 @@ class ChatService : Service() {
 
     private lateinit var database: DatabaseReference
     private lateinit var currentUserId: String
+    private lateinit var auth:FirebaseAuth
 
     override fun onCreate() {
         super.onCreate()
 
-        // Fetch current user ID using FirebaseAuth
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser != null) {
-            currentUserId = currentUser.uid
-        } else {
-            stopSelf()  // Stop the service if no user is authenticated
-            return
-        }
+        auth=FirebaseAuth.getInstance()
+        currentUserId = auth.currentUser?.uid ?: return
 
         // Initialize Firebase Database reference for the current user
-        // Assuming your new structure is: userData -> userId -> chats -> receiverId-senderId -> chatId
         database = FirebaseDatabase.getInstance().getReference("userData").child(currentUserId).child("chats")
 
-        // Set up a listener for changes in the "chats" node (detects new messages)
+        //listener for changes in the "chats" node (detects new messages)
         database.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 // Log the snapshot to see if the listener is triggered

@@ -43,7 +43,7 @@ class synergy : AppCompatActivity() {
         tabLayout = findViewById(R.id.tabLayout)
         viewPager = findViewById(R.id.viewPager)
         viewPager.isUserInputEnabled = true
-        // Set up ViewPager2 with an adapter (replace with your adapter)
+        // Set up ViewPager2 with an adapter
         viewPager.adapter = SynerGViewPagerAdapter(this)
 
         // Attach TabLayout with ViewPager2 using TabLayoutMediator
@@ -56,7 +56,7 @@ class synergy : AppCompatActivity() {
             }
         }.attach()
 
-        // Setup click listeners for the bottom navigation buttons
+        // Navigation bar listeners
         setupBottomNavigation()
     }
     private fun setupBottomNavigation() {

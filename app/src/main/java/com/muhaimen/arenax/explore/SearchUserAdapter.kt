@@ -27,7 +27,6 @@ class SearchUserAdapter(
     private var userList: List<UserData>
 ) : RecyclerView.Adapter<SearchUserAdapter.SearchViewHolder>() {
 
-    // Cache to store user data
     private val userCache = mutableMapOf<String, FrequentSearchedUser>()
 
     inner class SearchViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -36,7 +35,6 @@ class SearchUserAdapter(
         val gamerTagTextView: TextView = view.findViewById(R.id.gamerTag)
         val gamerRankTextView: TextView = view.findViewById(R.id.gamerRank)
 
-        // Set the click listener for the item view here
         init {
             itemView.setOnClickListener {
                 // Get the current user data based on the position

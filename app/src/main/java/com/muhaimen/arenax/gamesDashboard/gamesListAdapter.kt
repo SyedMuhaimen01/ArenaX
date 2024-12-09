@@ -101,31 +101,20 @@ class gamesListAdapter(
             },
             { error ->
                 error.printStackTrace()
-                // Toast.makeText(itemViewContext, "Error adding game", Toast.LENGTH_SHORT).show()
             }
         )
         queue.add(jsonObjectRequest)
     }
 
     fun GenerateUserInterests(context: Context) {
-        // URL for the API endpoint (replace with actual URL)
         val url = "${Constants.SERVER_URL}userIntertests/user/$userId/generateInterests"
-
-        // Create a StringRequest to call the API
         val stringRequest = StringRequest(
             Request.Method.POST, url,
-            { response ->
-                // Handle the response
-                Log.d("VolleyResponse", "Response: $response")
-                // You can handle the response here
-            },
+            { response -> },
             { error ->
-                // Handle error
                 Log.e("VolleyError", "Error: ${error.message}")
             }
         )
-
-        // Add the request to the Volley request queue
         val requestQueue = Volley.newRequestQueue(context)
         requestQueue.add(stringRequest)
     }

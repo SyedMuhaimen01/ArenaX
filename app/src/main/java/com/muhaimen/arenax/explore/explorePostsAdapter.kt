@@ -16,14 +16,8 @@ class explorePostsAdapter(private val postsList: List<Post>) : RecyclerView.Adap
 
     inner class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val postImage: ImageView = itemView.findViewById(R.id.image)
-        //private val usernameTextView: TextView = itemView.findViewById(R.id.username)
-        //private val captionTextView: TextView = itemView.findViewById(R.id.caption)
-        //private val likesTextView: TextView = itemView.findViewById(R.id.likes)
-        //private val commentsTextView: TextView = itemView.findViewById(R.id.comments)
-        //private val sharesTextView: TextView = itemView.findViewById(R.id.shares)
 
         fun bind(post: Post) {
-            // Bind the post image
             val uri = Uri.parse(post.postContent)
             Glide.with(itemView.context)
                 .load(uri)
@@ -31,19 +25,11 @@ class explorePostsAdapter(private val postsList: List<Post>) : RecyclerView.Adap
                 .error(R.mipmap.appicon2)
                 .into(postImage)
 
-            // Set the username and caption
-            //usernameTextView.text = post.userFullName
-            //captionTextView.text = post.caption ?: "No Caption Provided"
-            //likesTextView.text = "${post.likes} Likes"
-            //commentsTextView.text = "${post.comments} Comments"
-            //sharesTextView.text = "${post.shares} Shares"
-
-            // Set the click listener for navigating to ViewPost activity
             itemView.setOnClickListener {
                 val intent = Intent(itemView.context, ViewPost::class.java).apply {
                     putExtra("POST", post)
                 }
-                itemView.context.startActivity(intent) // Start the activity
+                itemView.context.startActivity(intent)
             }
         }
     }
