@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/analytics_card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/_6sdp"
+    app:cardBackgroundColor="@color/backgroundColor"
+    app:cardCornerRadius="@dimen/_6sdp"
+    app:cardElevation="@dimen/_2sdp"
+    android:layout_marginBottom="@dimen/_10sdp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/_4sdp">
+
+        <!-- Organization Logo -->
+        <ImageView
+            android:id="@+id/game_icon"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Organization Logo"
+            tools:ignore="HardcodedText" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Company Name -->
+
+            <TextView
+                android:id="@+id/companyName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Company Name"
+                android:textStyle="bold"
+                android:textSize="@dimen/_16sdp"
+                android:textColor="@color/textColor"
+                tools:ignore="HardcodedText" />
+
+            <!-- Organization Name -->
+            <TextView
+                android:id="@+id/organizationName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Organization Name"
+                android:textStyle="bold"
+                android:textSize="@dimen/_12sdp"
+                android:textColor="@color/textColor"
+                tools:ignore="HardcodedText" />
+
+
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

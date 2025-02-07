@@ -4,4 +4,20 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="profile_picture">Profile Picture</string>
+    <string name="title_activity_organization_home_page">organizationHomePage</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_Dashboard">Dashboard</string>
+    <string name="menu_PagePosts">Page Posts</string>
+    <string name="menu_editPage">Edit Page</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_jobs">Job Postings</string>
+    <string name="menu_sponsoredPosts">Sponsored Posts</string>
+    <string name="menu_exit">Exit</string>
+    <string name="menu_inbox">Inbox</string>
 </resources>

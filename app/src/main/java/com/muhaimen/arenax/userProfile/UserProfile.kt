@@ -69,6 +69,9 @@ import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.editProfile.editProfile
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.createOrganization.createOrganization
+import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
@@ -121,6 +124,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var storyRing: ImageView
     private lateinit var userData: UserData
     private lateinit var settingsButton:Button
+    private lateinit var talentExchangeButton:ImageView
     private lateinit var leaderboardButton: ImageView
     private lateinit var rankTextView: TextView
     private lateinit var followersLinearLayout:LinearLayout
@@ -282,6 +286,12 @@ class UserProfile : AppCompatActivity() {
         myGamesButton= findViewById(R.id.myGamesButton)
         myGamesButton.setOnClickListener {
             val intent = Intent(this, MyGamesList::class.java)
+            startActivity(intent)
+        }
+
+        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton.setOnClickListener {
+            val intent = Intent(this, switchToEsports::class.java)
             startActivity(intent)
         }
 
@@ -556,9 +566,9 @@ class UserProfile : AppCompatActivity() {
                             JSONArray()
                         }
 
-                        val createdAt = storyJson.optString("created_at", null)
-                        val city = storyJson.optString("city", null)
-                        val country = storyJson.optString("country", null)
+                        val createdAt = storyJson.optString("created_at", null.toString())
+                        val city = storyJson.optString("city", null.toString())
+                        val country = storyJson.optString("country", null.toString())
                         val latitude = storyJson.optDouble("latitude", 0.0)
                         val longitude = storyJson.optDouble("longitude", 0.0)
                         val userName = storyJson.optString("full_name", "")

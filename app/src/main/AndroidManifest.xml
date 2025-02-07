@@ -41,6 +41,46 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".esportsManagement.mangeOrganization.ui.settings.manageEmployees.manageEmployees"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.ui.settings.manageAdmins.manageAdmins"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.exploreEsports.exploreEsports"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.esportsProfile.esportsProfile"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.ui.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.OrganizationHomePageActivity"
+            android:exported="false"
+            android:label="@string/title_activity_organization_home_page"
+            android:theme="@style/Theme.ArenaX.NoActionBar" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.organizationHomePage"
+            android:exported="false"
+            android:label="@string/title_activity_organization_home_page"
+            android:theme="@style/Theme.ArenaX.NoActionBar" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.editOrganization.editOrganizationProfile"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.createOrganization.createOrganization"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.battlegrounds.battlegrounds"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.talentExchange.talentExchange"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.switchToEsports.switchToEsports"
+            android:exported="false" />
+        <activity
             android:name=".gamesDashboard.otherUserGames"
             android:exported="false" />
 

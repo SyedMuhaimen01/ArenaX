@@ -33,7 +33,8 @@ class Notifications : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
         backButton = findViewById(R.id.backButton)
         backButton.setOnClickListener {
             finish()

@@ -10,6 +10,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
+import android.media.MediaCodec
+import android.media.MediaExtractor
+import android.media.MediaFormat
+import android.media.MediaMuxer
 import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -45,17 +49,12 @@ import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
-import com.android.volley.TimeoutError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.arthenica.mobileffmpeg.FFmpeg
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.DraggableText
@@ -64,12 +63,11 @@ import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.uploadContent.UploadContent.Companion.CAMERA_PERMISSION_REQUEST_CODE
 import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.Constants
-
-import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import java.nio.ByteBuffer
 import java.util.UUID
 
 
@@ -712,65 +710,80 @@ class uploadStory : AppCompatActivity() {
         requestQueue.add(stringRequest)
     }
 
-    @SuppressLint("DefaultLocale")
+    @SuppressLint("DefaultLocale", "WrongConstant")
     fun trimAudio(track: Track) {
         Log.d("TrimAudio", "trimAudio function called.")
 
         val audioUrl = track.downloadUrl
-        // Set visibility for trimming layout
         trimTrackLayout.visibility = View.VISIBLE
         searchLinearLayout.visibility = View.GONE
         Log.d("Trim Layout", "Trimming layout made visible.")
 
-        // Calculate the start and end times based on seek bar progress
-        val startTime = startSeekBar.progress // in seconds
-        val endTime = endSeekBar.progress // in seconds
-        if (endTime <= startTime) {
-         //   Toast.makeText(this, "End time must be greater than start time.", Toast.LENGTH_SHORT).show()
+        val startTimeUs = startSeekBar.progress * 1_000_000L // Convert to microseconds
+        val endTimeUs = endSeekBar.progress * 1_000_000L // Convert to microseconds
+
+        if (endTimeUs <= startTimeUs) {
+            Log.e("TrimAudio", "End time must be greater than start time.")
             return
         }
-        val duration = endTime - startTime
-        Log.d("Duration", "Calculated duration: $duration seconds")
 
-        // Format start time to HH:MM:SS
-        val formattedStartTime = String.format("%02d:%02d:%02d",
-            startTime / 3600,
-            (startTime % 3600) / 60,
-            startTime % 60)
-
-        // Specify the output file path
         val outputPath = "${externalCacheDir?.absolutePath}/trimmed_audio.mp3"
         Log.d("Output Path", "Output path for trimmed audio: $outputPath")
 
-        // Check if the output file already exists and delete it
         val outputFile = File(outputPath)
         if (outputFile.exists()) {
-            outputFile.delete() // Delete existing file
+            outputFile.delete()
             Log.d("Output File", "Existing output file deleted.")
-        } else {
-            Log.d("Output File", "No existing output file found.")
         }
 
-        // Prepare the FFmpeg command
-        val command = arrayOf(
-            "-loglevel", "verbose",
-            "-ss", formattedStartTime,
-            "-i", audioUrl,
-            "-t", duration.toString(),
-            "-acodec", "libmp3lame", // Use libmp3lame for MP3 output
-            outputPath
-        )
-        // Execute the FFmpeg command asynchronously
-        FFmpeg.executeAsync(command) { executionId, returnCode ->
-            if (returnCode == 0) {
-                Log.d("FFmpeg", "Trimming completed successfully.")
-                // Play the trimmed audio
-                playTrimmedAudio(outputPath)
-            } else {
-                Log.e("FFmpeg", "Error trimming audio: $returnCode")
+        try {
+            val extractor = MediaExtractor()
+            extractor.setDataSource(audioUrl)
+
+            val trackIndex = (0 until extractor.trackCount).firstOrNull {
+                extractor.getTrackFormat(it).getString(MediaFormat.KEY_MIME)?.startsWith("audio/") == true
+            } ?: throw IllegalArgumentException("No audio track found")
+
+            extractor.selectTrack(trackIndex)
+
+            val format = extractor.getTrackFormat(trackIndex)
+            val muxer = MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            val audioTrackIndex = muxer.addTrack(format)
+
+            muxer.start()
+
+            val buffer = ByteBuffer.allocate(1024 * 1024)
+            val bufferInfo = MediaCodec.BufferInfo()
+
+            extractor.seekTo(startTimeUs, MediaExtractor.SEEK_TO_CLOSEST_SYNC)
+
+            while (true) {
+                bufferInfo.offset = 0
+                bufferInfo.size = extractor.readSampleData(buffer, 0)
+
+                if (bufferInfo.size < 0 || extractor.sampleTime > endTimeUs) {
+                    break
+                }
+
+                bufferInfo.presentationTimeUs = extractor.sampleTime
+                bufferInfo.flags = extractor.sampleFlags
+
+                muxer.writeSampleData(audioTrackIndex, buffer, bufferInfo)
+                extractor.advance()
             }
+
+            muxer.stop()
+            muxer.release()
+            extractor.release()
+
+            Log.d("TrimAudio", "Trimming completed successfully.")
+            playTrimmedAudio(outputPath)
+
+        } catch (e: Exception) {
+            Log.e("TrimAudio", "Error trimming audio: ${e.message}")
         }
     }
+
 
     fun playTrimmedAudio(outputPath: String) {
         try {

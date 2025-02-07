@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".explore.ExplorePage">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:ignore="UselessLeaf"
+        android:background="@color/backgroundColor">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            app:tabSelectedTextColor="@color/primaryColor"
+            >
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Employees"
+                android:textColor="@color/backgroundColor"
+                tools:ignore="HardcodedText" />
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Organizations"
+                android:textColor="@color/backgroundColor"
+                tools:ignore="HardcodedText" />
+
+        </com.google.android.material.tabs.TabLayout>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tabLayout"
+            android:background="@color/white" />
+    </LinearLayout>
+
+    <!-- Bottom Navigation -->
+    <LinearLayout
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+
+        android:gravity="center"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:background="@drawable/navigation_bar_bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
+
+
+
+
+        <!-- talent Exchange Button -->
+
+        <LinearLayout
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:backgroundTint="@color/primaryColor"
+            android:background="@drawable/selected_navigation_bar_bg"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/talentExchangeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                android:background="@drawable/ic_navigation_talent"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <!-- Explore Button -->
+
+        <ImageView
+            android:id="@+id/exploreButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_navigation_search"
+            android:layout_marginStart="30dp"/>
+
+
+
+
+        <!-- Battlegrounds Button -->
+        <ImageView
+            android:id="@+id/battlegroundsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:background="@drawable/ic_battlegrounds_foreground"
+            tools:ignore="ContentDescription" />
+
+
+        <!-- switchEsports Button -->
+        <ImageView
+            android:id="@+id/switchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:background="@drawable/ic_change_foreground"
+            tools:ignore="ContentDescription" />
+
+        <!-- Add Profile Button -->
+        <ImageView
+            android:id="@+id/profileButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_navigation_profile"
+            android:layout_marginStart="40dp"
+            tools:ignore="ContentDescription" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
