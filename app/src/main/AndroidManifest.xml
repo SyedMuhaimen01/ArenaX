@@ -41,6 +41,35 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".esportsManagement.esportsProfile.ui.FindTeam.recruitmentAdPosting.viewRecruitmentDetails"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.ui.Jobs.viewJobDetails"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.ui.manageEvents.schedulingEvent.schedulingEvent"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.esportsProfile.ui.FindTeam.recruitmentAdPosting.recruitmentAdPosting"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.esportsProfile.ui.notifications.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.esportsProfile.esportsProfile"
+            android:exported="false"
+            android:label="@string/title_activity_esports_profile"
+            android:theme="@style/Theme.ArenaX.NoActionBar" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.ui.pagePosts.uploadPosts.organizationPostActivity"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.ui.Jobs.jobPosting.jobPosting"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.ui.inbox.Threads.organizationChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".esportsManagement.mangeOrganization.ui.settings.manageEmployees.manageEmployees"
             android:exported="false" />
         <activity
@@ -48,9 +77,6 @@
             android:exported="false" />
         <activity
             android:name=".esportsManagement.exploreEsports.exploreEsports"
-            android:exported="false" />
-        <activity
-            android:name=".esportsManagement.esportsProfile.esportsProfile"
             android:exported="false" />
         <activity
             android:name=".esportsManagement.mangeOrganization.ui.MainActivity"

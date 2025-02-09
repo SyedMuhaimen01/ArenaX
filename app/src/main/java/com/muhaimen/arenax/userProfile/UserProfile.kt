@@ -292,6 +292,7 @@ class UserProfile : AppCompatActivity() {
         talentExchangeButton=findViewById(R.id.talentExchangeButton)
         talentExchangeButton.setOnClickListener {
             val intent = Intent(this, switchToEsports::class.java)
+            intent.putExtra("loadedFromActivity","casual")
             startActivity(intent)
         }
 

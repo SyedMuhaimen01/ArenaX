@@ -20,4 +20,14 @@
     <string name="menu_sponsoredPosts">Sponsored Posts</string>
     <string name="menu_exit">Exit</string>
     <string name="menu_inbox">Inbox</string>
+    <string name="title_activity_esports_profile">esportsProfile</string>
+
+    <string name="menu_profile">My Profile</string>
+    <string name="menu_organizations">My Organization(s)</string>
+    <string name="menu_notifications">Notifications</string>
+    <string name="menu_team">My Team(s)</string>
+    <string name="menu_organizationTeams">Roster(s)</string>
+    <string name="menu_findTeam">Looking For a Team</string>
+    <string name="menu_manageEvents">Manage Events</string>
+    <string name="menu_manageApplications">Manage Applications &amp; Invites</string>
 </resources>

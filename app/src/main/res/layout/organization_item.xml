@@ -25,8 +25,9 @@
             android:layout_height="@dimen/_50sdp"
             android:layout_marginEnd="@dimen/_10sdp"
             android:scaleType="centerCrop"
+            android:clipToOutline="true"
             android:contentDescription="Organization Logo"
-            tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText,UnusedAttribute" />
 
         <LinearLayout
             android:layout_width="0dp"

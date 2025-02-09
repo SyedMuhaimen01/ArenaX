@@ -1,79 +1,78 @@
 package com.muhaimen.arenax.esportsManagement.switchToEsports
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.ImageView
-import androidx.activity.enableEdgeToEdge
+import android.os.Handler
+import android.os.Looper
+import android.view.animation.AlphaAnimation
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import com.airbnb.lottie.LottieAnimationView
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.esportsManagement.battlegrounds.battlegrounds
-import com.muhaimen.arenax.esportsManagement.esportsProfile.esportsProfile
-import com.muhaimen.arenax.esportsManagement.exploreEsports.exploreEsports
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
-import com.muhaimen.arenax.esportsManagement.mangeOrganization.createOrganization.createOrganization
-import com.muhaimen.arenax.esportsManagement.talentExchange.talentExchange
 import com.muhaimen.arenax.userProfile.UserProfile
 
 class switchToEsports : AppCompatActivity() {
-    private lateinit var talentExhangeButton : ImageView
-    private lateinit var battlegroundsButton : ImageView
-    private lateinit var switchButton : ImageView
-    private lateinit var exploreButton : ImageView
-    private lateinit var profileButton : ImageView
-    private lateinit var createOrganizationButton: Button
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_switch_to_esports)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        // Set colors for status bar and navigation bar
+        window.statusBarColor = resources.getColor(R.color.primaryColor, theme)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor, theme)
+
+        val switchingText1: TextView = findViewById(R.id.switchingText1)
+        val switchingText2: TextView = findViewById(R.id.switchingText2)
+        val lottieAnimation: LottieAnimationView = findViewById(R.id.lottieAnimation)
+
+        var isEsportsProfile=false
+        val loadedFromActivity=intent.getStringExtra("loadedFromActivity")
+        if (loadedFromActivity=="casual")
+        {
+            isEsportsProfile=true
         }
-        window.statusBarColor = resources.getColor(R.color.primaryColor)
-        window.navigationBarColor = resources.getColor(R.color.primaryColor)
+        else if (loadedFromActivity=="esports")
+        {
+            isEsportsProfile=false
+        }
+        else
+        {
 
-        // button listeners initialization
-        talentExhangeButton = findViewById(R.id.talentExchangeButton)
-        battlegroundsButton = findViewById(R.id.battlegroundsButton)
-        switchButton = findViewById(R.id.switchButton)
-        exploreButton = findViewById(R.id.exploreButton)
-        profileButton = findViewById(R.id.profileButton)
-        createOrganizationButton = findViewById(R.id.createOrganizationButton)
+        }
+        // Decide which text to show
+        if (isEsportsProfile) {
+            switchingText1.visibility = TextView.VISIBLE
+            switchingText2.visibility = TextView.INVISIBLE
+        } else {
+            switchingText1.visibility = TextView.INVISIBLE
+            switchingText2.visibility = TextView.VISIBLE
+        }
 
-        talentExhangeButton.setOnClickListener {
-            val intent = Intent(this, talentExchange::class.java)
+        // Fade-in animation for text
+        val fadeIn = AlphaAnimation(0f, 1f).apply {
+            duration = 1000
+            fillAfter = true
+        }
+        if (isEsportsProfile) {
+            switchingText1.startAnimation(fadeIn)
+        } else {
+            switchingText2.startAnimation(fadeIn)
+        }
+
+        // Start Lottie animation
+        lottieAnimation.playAnimation()
+
+        // Delay transition to next activity
+        Handler(Looper.getMainLooper()).postDelayed({
+            val intent = if (isEsportsProfile) {
+                Intent(this, OrganizationHomePageActivity::class.java)
+            } else {
+                Intent(this, UserProfile::class.java)
+            }
             startActivity(intent)
-        }
+            finish()
+        }, 1500)
 
-        battlegroundsButton.setOnClickListener {
-            val intent = Intent(this, battlegrounds::class.java)
-            startActivity(intent)
-        }
-
-        switchButton.setOnClickListener {
-            val intent = Intent(this, UserProfile::class.java)
-            startActivity(intent)
-        }
-
-        exploreButton.setOnClickListener {
-            val intent = Intent(this, exploreEsports::class.java)
-            startActivity(intent)
-        }
-
-        profileButton.setOnClickListener {
-            val intent = Intent(this, OrganizationHomePageActivity::class.java)
-            startActivity(intent)
-        }
-
-        createOrganizationButton.setOnClickListener {
-            val intent = Intent(this, createOrganization::class.java)
-            startActivity(intent)
-        }
     }
+
 }

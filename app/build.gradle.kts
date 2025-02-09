@@ -90,4 +90,5 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.exoplayer )
     implementation(libs.media3exoplayer)
+    implementation ("com.airbnb.android:lottie:6.1.0")
 }

@@ -11,6 +11,7 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.esportsManagement.battlegrounds.battlegrounds
 import com.muhaimen.arenax.esportsManagement.esportsProfile.esportsProfile
 import com.muhaimen.arenax.esportsManagement.exploreEsports.exploreEsports
+import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
 import com.muhaimen.arenax.userProfile.UserProfile
 
 class talentExchange : AppCompatActivity() {
@@ -50,7 +51,8 @@ class talentExchange : AppCompatActivity() {
         }
 
         switchButton.setOnClickListener {
-            val intent = Intent(this, UserProfile::class.java)
+            val intent = Intent(this, switchToEsports::class.java)
+            intent.putExtra("loadedFromActivity", "esports")
             startActivity(intent)
         }
 

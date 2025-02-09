@@ -15,4 +15,5 @@
     <color name="orange">#FFFF4500</color>
     <color name="storyRingColor">#A020F0</color>
     <color name="yellow">#FFFFD700</color>
+    <color name="backgroundGrey">#EEEEEE</color>
 </resources>

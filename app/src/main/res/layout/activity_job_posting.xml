@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipeRefreshLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/screenbackground"
+    tools:context=".esportsManagement.mangeOrganization.createOrganization.createOrganization">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="UselessParent">
+        <LinearLayout
+
+            android:id="@+id/main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="vertical"
+
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp">
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:src="@mipmap/back_white_icon"
+                    tools:ignore="ContentDescription" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_5sdp"
+                    android:text="Job Posting"
+                    android:textStyle="bold"
+                    android:textColor="@color/backgroundColor"
+                    android:textSize="@dimen/_16sdp"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/_10sdp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Job Title"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+                <EditText
+                    android:id="@+id/jobTitleEditText"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@color/white"
+                    tools:ignore="Autofill,LabelFor,TextFields" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Job Type"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+
+
+                <Spinner
+                    android:id="@+id/jobTypeSpinner"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@android:color/white"
+                    />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Job Location"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+                <EditText
+                    android:id="@+id/industryEditText"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@color/white"
+                    tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Workplace Type"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+
+                <Spinner
+                    android:id="@+id/workplaceTypeSpinner"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@android:color/white"
+                    />
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Job Description"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+                <EditText
+                    android:id="@+id/organizationTypeEditText"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@color/white"
+
+                    android:inputType="textMultiLine"
+                    android:minLines="1"
+                    android:scrollHorizontally="false"
+                    android:gravity="start|top"
+                    android:breakStrategy="high_quality"
+                    tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tags"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" /> 
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <EditText
+                        android:id="@+id/tag1"
+                        android:layout_marginTop="@dimen/_2sdp"
+                        android:layout_marginStart="@dimen/_23sdp"
+                        android:layout_marginEnd="@dimen/_16sdp"
+                        android:layout_width="@dimen/_120sdp"
+                        android:layout_height="@dimen/_30sdp"
+                        android:textSize="@dimen/_11ssp"
+                        android:maxLength="15"
+                        android:background="@drawable/transparentinput"
+                        android:textColor="@color/white"
+                        tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+                    <EditText
+                        android:id="@+id/tag2"
+                        android:layout_marginTop="@dimen/_2sdp"
+
+                        android:layout_marginEnd="@dimen/_17sdp"
+                        android:layout_width="@dimen/_120sdp"
+                        android:layout_height="@dimen/_30sdp"
+                        android:textSize="@dimen/_11ssp"
+                        android:maxLength="15"
+                        android:background="@drawable/transparentinput"
+                        android:textColor="@color/white"
+                        tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:orientation="horizontal">
+                    <EditText
+                        android:id="@+id/tag3"
+                        android:layout_marginTop="@dimen/_2sdp"
+                        android:layout_marginStart="@dimen/_23sdp"
+                        android:layout_marginEnd="@dimen/_16sdp"
+                        android:layout_width="@dimen/_120sdp"
+                        android:layout_height="@dimen/_30sdp"
+                        android:textSize="@dimen/_11ssp"
+                        android:maxLength="15"
+                        android:background="@drawable/transparentinput"
+                        android:textColor="@color/white"
+                        tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+                    <EditText
+                        android:id="@+id/tag4"
+                        android:layout_marginTop="@dimen/_2sdp"
+
+                        android:layout_marginEnd="@dimen/_17sdp"
+                        android:layout_width="@dimen/_120sdp"
+                        android:layout_height="@dimen/_30sdp"
+                        android:textSize="@dimen/_11ssp"
+                        android:maxLength="15"
+                        android:background="@drawable/transparentinput"
+                        android:textColor="@color/white"
+                        tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+
+                </LinearLayout>
+                <Button
+                    android:id="@+id/updateChangesButton"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_35sdp"
+                    android:background="@drawable/buttonholder2"
+                    android:text="Post Job"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_13ssp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

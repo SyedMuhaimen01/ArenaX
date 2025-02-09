@@ -38,7 +38,9 @@ class OrganizationHomePageActivity : AppCompatActivity(),NavigationView.OnNaviga
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_dashboard, R.id.nav_pagePosts,R.id.nav_inbox,R.id.nav_editPage,R.id.nav_jobs,R.id.nav_sponsoredPosts,R.id.nav_settings
+                R.id.nav_dashboard, R.id.nav_pagePosts,R.id.nav_inbox,R.id.nav_editPage,
+                R.id.nav_jobs,R.id.nav_sponsoredPosts,R.id.nav_settings,R.id.nav_manageEvents,
+                R.id.nav_manageApplications,R.id.nav_organizationTeams,R.id.nav_exit
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -59,6 +61,15 @@ class OrganizationHomePageActivity : AppCompatActivity(),NavigationView.OnNaviga
             }
             R.id.nav_inbox -> {
                 navController.navigate(R.id.nav_inbox)
+            }
+            R.id.nav_organizationTeams ->{
+                navController.navigate(R.id.nav_organizationTeams)
+            }
+            R.id.nav_manageEvents-> {
+                navController.navigate(R.id.nav_manageEvents)
+            }
+            R.id.nav_manageApplications -> {
+                navController.navigate(R.id.nav_manageApplications)
             }
             R.id.nav_editPage -> {
                 navController.navigate(R.id.nav_editPage)

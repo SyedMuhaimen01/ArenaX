@@ -38,6 +38,27 @@
             android:title="@string/menu_sponsoredPosts"
             tools:ignore="UnusedAttribute" />
 
+        <item
+            android:id="@+id/nav_organizationTeams"
+            android:icon="@drawable/ic_team_foreground"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_organizationTeams"
+            tools:ignore="UnusedAttribute" />
+
+        <item
+            android:id="@+id/nav_manageEvents"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_manageEvents"
+            tools:ignore="UnusedAttribute" />
+
+        <item
+            android:id="@+id/nav_manageApplications"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_manageApplications"
+            tools:ignore="UnusedAttribute" />
+
 
     </group>
     <group

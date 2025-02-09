@@ -36,6 +36,25 @@
         tools:layout="@layout/fragment_jobs" />
 
     <fragment
+        android:id="@+id/nav_organizationTeams"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Teams.TeamsFragment"
+        android:label="@string/menu_organizationTeams"
+        tools:layout="@layout/fragment_teams" />
+
+    <fragment
+        android:id="@+id/nav_manageEvents"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.manageEvents.manageEventsFragment"
+        android:label="@string/menu_manageEvents"
+        tools:layout="@layout/fragment_manage_events" />
+
+    <fragment
+        android:id="@+id/nav_manageApplications"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.manageApplicationsAndInvites.manageApplicationsAndInvitesFragment"
+        android:label="@string/menu_manageEvents"
+        tools:layout="@layout/fragment_manage_applications_and_invites" />
+
+
+    <fragment
         android:id="@+id/nav_sponsoredPosts"
         android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.sponsoredPosts.sponsoredPostsFragment"
         android:label="@string/menu_sponsoredPosts"
@@ -47,5 +66,6 @@
         android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings.settingsFragment"
         android:label="@string/menu_settings"
         tools:layout="@layout/fragment_settings" />
+
 
 </navigation>

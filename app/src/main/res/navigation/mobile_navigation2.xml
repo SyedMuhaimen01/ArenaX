@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation2"
+    app:startDestination="@+id/nav_profile">
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.muhaimen.arenax.esportsManagement.esportsProfile.ui.profile.esportsProfileFragment"
+        android:label="@string/menu_profile"
+        tools:layout="@layout/fragment_esports_profile" />
+
+    <fragment
+        android:id="@+id/nav_notifications"
+        android:name="com.muhaimen.arenax.esportsManagement.esportsProfile.ui.notifications.notificationsFragment"
+        android:label="@string/menu_organizations"
+        tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/nav_organization"
+        android:name="com.muhaimen.arenax.esportsManagement.esportsProfile.ui.myOrganizations.myOrganizationsFragment"
+        android:label="@string/menu_organizations"
+        tools:layout="@layout/fragment_my_organizations" />
+
+    <fragment
+        android:id="@+id/nav_team"
+        android:name="com.muhaimen.arenax.esportsManagement.esportsProfile.ui.myTeams.myTeamsFragment"
+        android:label="@string/menu_organizationTeams"
+        tools:layout="@layout/fragment_my_teams" />
+
+    <fragment
+        android:id="@+id/nav_findTeam"
+        android:name="com.muhaimen.arenax.esportsManagement.esportsProfile.ui.FindTeam.findTeamFragment"
+        android:label="@string/menu_findTeam"
+        tools:layout="@layout/fragment_find_team" />
+
+</navigation>
