@@ -48,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:text="Job Title"
                     android:textStyle="bold"
-                    android:textSize="@dimen/_16ssp"
+                    android:textSize="@dimen/_16sdp"
                     android:textColor="@color/textColor"
                     tools:ignore="HardcodedText" />
 
@@ -57,7 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Job Type"
-                    android:textSize="@dimen/_12ssp"
+                    android:textSize="@dimen/_12sdp"
                     android:textColor="@color/textColor"
                     tools:ignore="HardcodedText" />
 

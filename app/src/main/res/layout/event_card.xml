@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@color/backgroundColor"
+    android:layout_margin="@dimen/_10sdp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Banner Image -->
+        <ImageView
+            android:id="@+id/eventBanner"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:scaleType="centerCrop"
+            app:srcCompat="@mipmap/ic_launcher_round"
+            tools:ignore="ContentDescription" />
+
+        <!-- Event Details Container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Event Title -->
+            <TextView
+                android:id="@+id/eventTitleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Event Title"
+                android:textColor="@color/textColor"
+                android:textSize="@dimen/_14sdp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+            <!-- Location -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_location_pin_foreground"
+                    android:scaleType="centerCrop"
+                    app:tint="@android:color/darker_gray"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/eventLocationTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Location"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginStart="4dp"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/eventModeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Online"
+                android:textSize="@dimen/_12sdp"
+                android:textColor="@color/textColor"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="5dp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/eventPlatformTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:text="Mobile"
+                android:textSize="@dimen/_12sdp"
+                android:textColor="@color/textColor"
+                android:layout_marginStart="4dp"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

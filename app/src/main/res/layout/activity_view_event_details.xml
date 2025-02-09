@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".uploadContent.UploadContent"
+    android:background="@color/backgroundColor"
+    android:id="@+id/main"
+    >
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/_30sdp"
+        android:paddingBottom="@dimen/_40sdp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_20sdp"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:orientation="horizontal">
+                <!-- Profile picture -->
+                <ImageView
+                    android:id="@+id/profilePicture"
+                    android:layout_width="@dimen/_60sdp"
+                    android:layout_height="@dimen/_60sdp"
+                    android:background="@drawable/circle"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:contentDescription="@string/nav_header_desc"
+                    android:clipToOutline="true"
+                    app:srcCompat="@mipmap/ic_launcher_round"
+                    tools:ignore="UnusedAttribute" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:orientation="vertical">
+
+
+
+                    <TextView
+                        android:id="@+id/companyNameTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Company Name"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_13sdp"
+                        android:textColor="@color/textColor"
+                        tools:ignore="HardcodedText" />
+                    <TextView
+                        android:id="@+id/organizationNameTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Organization Name"
+                        android:textStyle="italic"
+                        android:textSize="@dimen/_12sdp"
+                        android:textColor="@color/textColor"
+                        tools:ignore="HardcodedText" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+                        <TextView
+                            android:id="@+id/locationTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Islamabad, Pakistan"
+                            android:layout_weight="1"
+                            android:textSize="@dimen/_12ssp"
+                            android:textColor="@color/hinttextColor"
+                            tools:ignore="HardcodedText" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+            <!-- Media preview area (Image or Video) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:orientation="vertical">
+                <ImageView
+                    android:id="@+id/bannerImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_280sdp"
+                    android:scaleType="centerCrop"
+                    android:background="@color/ImagePlaceholder"
+                    android:contentDescription="Media Preview"
+                    tools:ignore="HardcodedText,MissingConstraints" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+             >
+            <TextView
+                android:id="@+id/jobTitleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Event Name"
+                android:textStyle="bold"
+                android:textSize="@dimen/_16sdp"
+                android:textColor="@color/textColor"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/eventLocationTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:text="Islamabad, Pakistan"
+                android:layout_weight="1"
+                android:textSize="@dimen/_12ssp"
+                android:textColor="@color/hinttextColor"
+                tools:ignore="HardcodedText,InefficientWeight" />
+
+                <TextView
+                    android:id="@+id/eventModeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:text="Online"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_13sdp"
+                    android:textColor="@color/textColor"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/eventPlatformTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:text="Mobile"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_13sdp"
+                    android:textColor="@color/textColor"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:baselineAligned="true"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                >
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Start Date"
+                        android:layout_gravity="center"
+                        android:textColor="@color/textColor"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_10sdp"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="20/1/11"
+                        android:textSize="@dimen/_12sdp"
+                        android:gravity="center"
+                        android:textColor="@color/textColor"
+                        tools:ignore="Autofill,HardcodedText,LabelFor" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="End Date"
+                        android:textColor="@color/textColor"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_10sdp"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="21/1/11"
+                        android:gravity="center"
+                        android:textColor="@color/textColor"
+                        android:textSize="@dimen/_12sdp"
+                        tools:ignore="Autofill,HardcodedText,LabelFor" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:baselineAligned="true"
+                android:orientation="horizontal"
+                android:weightSum="2">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Start Time"
+                        android:layout_gravity="center"
+                        android:textColor="@color/textColor"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_10sdp"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="11:40 am"
+                        android:textSize="@dimen/_12sdp"
+                        android:textColor="@color/textColor"
+                        android:gravity="center"
+                        tools:ignore="Autofill,HardcodedText,LabelFor" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="End Time"
+                        android:textColor="@color/textColor"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/_10sdp"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="12:00 pm"
+                        android:gravity="center"
+                        android:textColor="@color/textColor"
+                        android:textSize="@dimen/_12sdp"
+                        tools:ignore="Autofill,HardcodedText,LabelFor" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Event Details"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:textSize="@dimen/_14sdp"
+                android:textStyle="bold"
+                android:textColor="@color/textColor"
+                tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/eventDetailsTextView"
+                    android:layout_margin="@dimen/_10sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/_11sdp"
+                    android:textColor="@color/textColor"
+                    android:scrollbars="vertical"
+                    android:background="@color/backgroundGrey"
+                    android:text="Job Description here ..."
+                    android:maxLines="1000"
+                    tools:ignore="HardcodedText" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Event Link"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:textSize="@dimen/_14sdp"
+                android:textStyle="bold"
+                android:textColor="@color/textColor"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/eventLinkTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="www.event.com"
+                android:textStyle="italic"
+                android:textSize="@dimen/_12sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:textColor="@color/primaryColor"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/showInterestButton"
+                android:layout_marginTop="@dimen/_40sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_marginBottom="@dimen/_40sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_35sdp"
+                android:background="@drawable/buttonholder2"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:text="Show Interest"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_13ssp"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

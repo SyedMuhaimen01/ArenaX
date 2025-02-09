@@ -11,13 +11,12 @@ class schedulingEvent : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_scheduling_event)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        setContentView(R.layout.activity_view_event_details)
+
+        // Set colors for status bar and navigation bar
         window.statusBarColor = resources.getColor(R.color.primaryColor, theme)
         window.navigationBarColor = resources.getColor(R.color.primaryColor, theme)
+
+
     }
 }
