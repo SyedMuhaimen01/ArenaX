@@ -29,5 +29,6 @@
     <string name="menu_organizationTeams">Roster(s)</string>
     <string name="menu_findTeam">Looking For a Team</string>
     <string name="menu_manageEvents">Manage Events</string>
-    <string name="menu_manageApplications">Manage Applications &amp; Invites</string>
+    <string name="menu_manageApplications">Manage Applications </string>
+
 </resources>

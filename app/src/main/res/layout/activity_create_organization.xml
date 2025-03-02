@@ -44,7 +44,7 @@
 
         <ImageView
             android:layout_marginTop="@dimen/_10sdp"
-            android:id="@+id/ProfilePicture"
+            android:id="@+id/organizationLogoImageButton"
             android:layout_width="@dimen/_60sdp"
             android:layout_height="@dimen/_60sdp"
             android:scaleType="centerCrop"
@@ -71,17 +71,18 @@
             android:orientation="vertical"
             android:layout_marginTop="@dimen/_10sdp">
 
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Company Name"
+                android:text="Organization Name"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:layout_marginStart="@dimen/_27sdp"
                 android:textSize="@dimen/_10sdp"
                 android:textColor="@color/white"
                 tools:ignore="HardcodedText" />
             <EditText
-                android:id="@+id/nameEditText"
+                android:id="@+id/organizationNameEditText"
                 android:layout_marginTop="@dimen/_2sdp"
                 android:layout_marginStart="@dimen/_23sdp"
                 android:layout_marginEnd="@dimen/_17sdp"
@@ -95,19 +96,63 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Organization Name"
+                android:text="Organization Location"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:layout_marginStart="@dimen/_27sdp"
                 android:textSize="@dimen/_10sdp"
                 android:textColor="@color/white"
                 tools:ignore="HardcodedText" />
             <EditText
-                android:id="@+id/gamertagEditText"
+                android:id="@+id/organizationLocationEditText"
                 android:layout_marginTop="@dimen/_2sdp"
                 android:layout_marginStart="@dimen/_23sdp"
                 android:layout_marginEnd="@dimen/_17sdp"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                tools:ignore="Autofill,LabelFor,TextFields" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Organization Email"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/organizationEmailEditText"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                android:inputType="textEmailAddress"
+                tools:ignore="Autofill,LabelFor,TextFields" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Organization Phone"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/organizationPhoneEditText"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:inputType="phone"
                 android:textSize="@dimen/_13ssp"
                 android:background="@drawable/transparentinput"
                 android:textColor="@color/white"
@@ -123,7 +168,7 @@
                 android:textColor="@color/white"
                 tools:ignore="HardcodedText" />
             <EditText
-                android:id="@+id/websiteEditText"
+                android:id="@+id/organizationWebsiteEditText"
                 android:layout_marginTop="@dimen/_2sdp"
                 android:layout_marginStart="@dimen/_23sdp"
                 android:layout_marginEnd="@dimen/_17sdp"
@@ -146,7 +191,7 @@
                 android:textColor="@color/white"
                 tools:ignore="HardcodedText" />
             <EditText
-                android:id="@+id/industryEditText"
+                android:id="@+id/organizationIndustryEditText"
                 android:layout_marginTop="@dimen/_2sdp"
                 android:layout_marginStart="@dimen/_23sdp"
                 android:layout_marginEnd="@dimen/_17sdp"
@@ -166,8 +211,8 @@
                 android:textSize="@dimen/_10sdp"
                 android:textColor="@color/white"
                 tools:ignore="HardcodedText" />
-            <EditText
-                android:id="@+id/organizationTypeEditText"
+            <Spinner
+                android:id="@+id/organizationTypeSpinner"
                 android:layout_marginTop="@dimen/_2sdp"
                 android:layout_marginStart="@dimen/_23sdp"
                 android:layout_marginEnd="@dimen/_17sdp"
@@ -210,7 +255,7 @@
                 android:textColor="@color/white"
                 tools:ignore="HardcodedText" />
             <EditText
-                android:id="@+id/taglineEditText"
+                android:id="@+id/organizationTaglineEditText"
                 android:layout_marginTop="@dimen/_2sdp"
                 android:layout_marginStart="@dimen/_23sdp"
                 android:layout_marginEnd="@dimen/_17sdp"
@@ -222,8 +267,30 @@
                 android:textColor="@color/white"
                 tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Organization Description"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/organizationDescriptionEditText"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                tools:ignore="Autofill,LabelFor,TextFields" />
+
             <Button
-                android:id="@+id/updateChangesButton"
+                android:id="@+id/submitButton"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:layout_marginStart="@dimen/_23sdp"
                 android:layout_marginEnd="@dimen/_17sdp"

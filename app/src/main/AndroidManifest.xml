@@ -41,6 +41,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".esportsManagement.mangeOrganization.ui.settings.manageFollowing.manageFollowing"
+            android:exported="false" />
+        <activity
             android:name=".esportsManagement.mangeOrganization.ui.manageEvents.viewEventDetails"
             android:exported="false" />
         <activity

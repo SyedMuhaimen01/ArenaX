@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings.manageAdmins.manageAdmins
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings.manageEmployees.manageEmployees
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings.manageFollowing.manageFollowing
 
 class settingsFragment : Fragment() {
     private lateinit var manageAdminsButton:LinearLayout
@@ -53,6 +54,10 @@ class settingsFragment : Fragment() {
             startActivity(intent)
         }
 
+        manageFollowingButton.setOnClickListener {
+            val intent= Intent(context, manageFollowing::class.java)
+            startActivity(intent)
+        }
         val builder= context?.let { androidx.appcompat.app.AlertDialog.Builder(it) }
         builder?.setTitle("Delete Organization")
         builder?.setMessage("Are you sure you want to delete this organization?")

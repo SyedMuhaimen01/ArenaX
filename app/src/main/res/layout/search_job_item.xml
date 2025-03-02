@@ -1,0 +1,22 @@
+    <androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/_5sdp"
+    android:background="@color/backgroundColor"
+    android:backgroundTint="@color/backgroundColor"
+    >
+
+    <TextView
+        android:id="@+id/JobTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Job Title"
+        android:textColor="@color/textColor"
+        android:layout_margin="@dimen/_10sdp"
+        android:textSize="@dimen/_12sdp"
+        android:background="@color/backgroundColor"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
+</androidx.cardview.widget.CardView>

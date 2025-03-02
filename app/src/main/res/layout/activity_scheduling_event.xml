@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".uploadContent.UploadContent"
+    tools:context=".esportsManagement.mangeOrganization.ui.manageEvents.schedulingEvent.schedulingEvent"
     android:background="@drawable/screenbackground"
     android:id="@+id/main"
     >
@@ -65,7 +65,7 @@
         tools:ignore="HardcodedText,MissingConstraints" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/postButton"
+            android:id="@+id/galleryButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_menu_gallery"
@@ -174,7 +174,7 @@
         tools:ignore="HardcodedText" />
 
         <EditText
-            android:id="@+id/eventDetailsTextView"
+            android:id="@+id/eventDetailsEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="@dimen/_13sdp"
@@ -214,6 +214,7 @@
                         tools:ignore="HardcodedText" />
 
                     <EditText
+                        android:id="@+id/startDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="20/1/11"
@@ -242,6 +243,7 @@
                         tools:ignore="HardcodedText" />
 
                     <EditText
+                        android:id="@+id/endDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="21/1/11"
@@ -249,7 +251,7 @@
                         android:gravity="center"
                         android:textColor="@color/backgroundColor"
                         android:textSize="@dimen/_12sdp"
-                        android:inputType="text"
+                        android:inputType="date"
                         tools:ignore="Autofill,HardcodedText,LabelFor" />
                 </LinearLayout>
             </LinearLayout>
@@ -279,6 +281,7 @@
                         tools:ignore="HardcodedText" />
 
                     <EditText
+                        android:id="@+id/startTime"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="11:40 am"
@@ -307,6 +310,7 @@
                         tools:ignore="HardcodedText" />
 
                     <EditText
+                        android:id="@+id/endTime"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="12:00 pm"
@@ -314,7 +318,7 @@
                         android:textColorHint="@color/accentColor"
                         android:textColor="@color/backgroundColor"
                         android:textSize="@dimen/_12sdp"
-                        android:inputType="date"
+                        android:inputType="time"
                         tools:ignore="Autofill,HardcodedText,LabelFor" />
                 </LinearLayout>
             </LinearLayout>
@@ -329,7 +333,7 @@
                 android:textColor="@color/backgroundColor"
                 tools:ignore="HardcodedText" />
             <EditText
-                android:id="@+id/eventLinkTextView"
+                android:id="@+id/eventLinkEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="www.event.com"
@@ -347,7 +351,7 @@
                 android:layout_marginTop="@dimen/_40sdp"
                 android:layout_marginStart="@dimen/_23sdp"
                 android:layout_marginEnd="@dimen/_17sdp"
-                android:layout_marginBottom="@dimen/_40sdp"
+                android:layout_marginBottom="@dimen/_50sdp"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
                 android:background="@drawable/buttonholder2"

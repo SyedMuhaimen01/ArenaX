@@ -103,7 +103,7 @@
                     android:textColor="@color/white"
                     tools:ignore="HardcodedText" />
                 <EditText
-                    android:id="@+id/industryEditText"
+                    android:id="@+id/jobLocationEditText"
                     android:layout_marginTop="@dimen/_2sdp"
                     android:layout_marginStart="@dimen/_23sdp"
                     android:layout_marginEnd="@dimen/_17sdp"
@@ -146,7 +146,7 @@
                     android:textColor="@color/white"
                     tools:ignore="HardcodedText" />
                 <EditText
-                    android:id="@+id/organizationTypeEditText"
+                    android:id="@+id/jobDescriptionEditText"
                     android:layout_marginTop="@dimen/_2sdp"
                     android:layout_marginStart="@dimen/_23sdp"
                     android:layout_marginEnd="@dimen/_17sdp"
@@ -237,7 +237,7 @@
 
                 </LinearLayout>
                 <Button
-                    android:id="@+id/updateChangesButton"
+                    android:id="@+id/postJobButton"
                     android:layout_marginTop="@dimen/_10sdp"
                     android:layout_marginStart="@dimen/_23sdp"
                     android:layout_marginEnd="@dimen/_17sdp"

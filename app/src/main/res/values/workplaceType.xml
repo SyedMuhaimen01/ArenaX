@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="workplace_types">
+        <item>On-Site</item>
+        <item>Remote</item>
+        <item>Hybrid</item>
+    </string-array>
+</resources>

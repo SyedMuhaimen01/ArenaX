@@ -93,15 +93,16 @@
                     android:layout_marginRight="@dimen/_10sdp"
                     android:background="@color/backgroundColor"
                     android:orientation="horizontal">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Delete Organization"
-                        android:textColor="@color/textColor"
-                        android:textStyle="bold"
-                        android:textSize="@dimen/_16sdp"
-                        android:layout_marginStart="@dimen/_10sdp"
                         android:layout_gravity="center"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:text="Delete Organization"
+                        android:textColor="@color/red"
+                        android:textSize="@dimen/_16sdp"
+                        android:textStyle="bold"
                         tools:ignore="HardcodedText" />
                 </LinearLayout>
 

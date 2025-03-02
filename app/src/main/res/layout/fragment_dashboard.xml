@@ -8,7 +8,186 @@
     android:background="@color/backgroundColor"
     tools:context=".esportsManagement.mangeOrganization.ui.dashboard.dashboardFragment">
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/InfoCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_5sdp"
+        android:background="@color/primaryColor"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardUseCompatPadding="true"
+        app:cardPreventCornerOverlap="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="MissingConstraints">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <!-- Profile picture -->
+            <ImageView
+                android:id="@+id/profilePicture"
+                android:layout_width="@dimen/_60sdp"
+                android:layout_height="@dimen/_60sdp"
+                android:background="@drawable/circle"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:contentDescription="@string/nav_header_desc"
+                android:clipToOutline="true"
+                app:srcCompat="@mipmap/ic_launcher_round"
+                tools:ignore="UnusedAttribute" />
 
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <!-- Name -->
+                <TextView
+                    android:id="@+id/organizationNameTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Organization Name"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_16ssp"
+                    android:textColor="@color/textColor"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/organizationWebsiteTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="www.website.com"
+                    android:textStyle="italic"
+
+                    android:textSize="@dimen/_12ssp"
+                    android:textColor="@color/primaryColor"
+                    tools:ignore="HardcodedText" />
+                <TextView
+                    android:id="@+id/organizationIndustryTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Esports organization"
+                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/textColor"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/organizationTypeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Public Limited"
+                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/textColor"
+                    tools:ignore="HardcodedText" />
+                <TextView
+                    android:id="@+id/organizationSizeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="500+ Empployees"
+                    android:textStyle="italic"
+                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/textColor"
+                    tools:ignore="HardcodedText" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+                    <TextView
+                        android:id="@+id/organizationLocationTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Islamabad, Pakistan"
+                        android:layout_weight="1"
+                        android:textSize="@dimen/_12ssp"
+                        android:textColor="@color/hinttextColor"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/organizationTaglineTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Build, Connect, Compete"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/textColor"
+                    tools:ignore="HardcodedText" />
+
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/DescriptionCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_5sdp"
+        android:background="@color/primaryColor"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardUseCompatPadding="true"
+        app:cardPreventCornerOverlap="true"
+        app:layout_constraintTop_toBottomOf="@id/InfoCard"
+        app:layout_constraintStart_toStartOf="@id/InfoCard"
+        app:layout_constraintEnd_toEndOf="@id/InfoCard"
+        tools:ignore="MissingConstraints">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/organizationEmailTextView"
+                    android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_5sdp"
+                    android:textSize="@dimen/_11ssp"
+                    android:gravity="center"
+                    android:background="@drawable/searchbar"
+                    android:backgroundTint="@color/primaryColor"
+                    android:text="muhaimensyed@gmail.com"
+                    android:textColor="@color/white"
+                    tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+                <TextView
+                    android:id="@+id/organizationPhoneTextView"
+                    android:layout_gravity="center"
+                    android:padding="@dimen/_5sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="+92 321 123 1234"
+                    android:textSize="@dimen/_11ssp"
+                    android:backgroundTint="@color/primaryColor"
+                    android:background="@drawable/searchbar"
+                    android:textColor="@color/white"
+                    tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+
+            </LinearLayout>
+            <TextView
+                android:id="@+id/organizationDescriptionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Description"
+                android:textSize="@dimen/_11sdp"
+                android:textColor="@color/textColor"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
     <!-- Metrics Card (Posts, Followers, Following) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/statsCard"
@@ -24,8 +203,9 @@
         app:cardBackgroundColor="@color/white"
         app:cardUseCompatPadding="true"
         app:cardPreventCornerOverlap="true"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/DescriptionCard"
+        app:layout_constraintStart_toStartOf="@id/DescriptionCard"
+        app:layout_constraintEnd_toEndOf="@id/DescriptionCard"
         tools:ignore="MissingConstraints">
 
         <LinearLayout
@@ -45,7 +225,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/postsCount"
+                    android:id="@+id/postsCountTextView"
                     android:text="0"
 
                     android:textSize="22sp"
@@ -72,7 +252,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/followersTextView"
+                    android:id="@+id/followersCountTextView"
                     android:text="0"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -98,7 +278,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/followingTextView"
+                    android:id="@+id/followingCountTextView"
                     android:text="0"
                     android:textSize="22sp"
                     android:textStyle="bold"

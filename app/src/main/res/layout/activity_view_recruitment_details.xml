@@ -57,8 +57,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Job Type"
-                    android:textSize="@dimen/_12ssp"
                     android:textColor="@color/textColor"
+                    android:textSize="@dimen/_12ssp"
                     tools:ignore="HardcodedText" />
 
                 <TextView
@@ -70,14 +70,15 @@
                     android:textSize="@dimen/_13sdp"
                     android:textColor="@color/textColor"
                     tools:ignore="HardcodedText" />
+
                 <TextView
                     android:id="@+id/gamerTagTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Gamer Tag"
-                    android:textStyle="italic"
-                    android:textSize="@dimen/_12sdp"
                     android:textColor="@color/textColor"
+                    android:textSize="@dimen/_12sdp"
+                    android:textStyle="italic"
                     tools:ignore="HardcodedText" />
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -231,7 +232,7 @@
     </ScrollView>
 
     <Button
-        android:id="@+id/updateChangesButton"
+        android:id="@+id/recruitButton"
         android:layout_marginTop="@dimen/_20sdp"
         android:layout_marginStart="@dimen/_23sdp"
         android:layout_marginEnd="@dimen/_17sdp"

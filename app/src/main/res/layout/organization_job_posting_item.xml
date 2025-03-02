@@ -22,7 +22,7 @@
             android:orientation="horizontal">
             <!-- Profile picture -->
             <ImageView
-                android:id="@+id/profilePicture"
+                android:id="@+id/organizationLogo"
                 android:layout_width="@dimen/_60sdp"
                 android:layout_height="@dimen/_60sdp"
                 android:background="@drawable/circle"
@@ -59,21 +59,12 @@
                     tools:ignore="HardcodedText" />
 
                 <TextView
-                    android:id="@+id/companyNameTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Company Name"
-                    android:textStyle="bold"
-                    android:textSize="@dimen/_13sdp"
-                    android:textColor="@color/textColor"
-                    tools:ignore="HardcodedText" />
-                <TextView
                     android:id="@+id/organizationNameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Organization Name"
-                    android:textStyle="italic"
-                    android:textSize="@dimen/_12sdp"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_13sdp"
                     android:textColor="@color/textColor"
                     tools:ignore="HardcodedText" />
                 <LinearLayout

@@ -72,11 +72,11 @@
                 android:id="@+id/eventModeTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Online"
-                android:textSize="@dimen/_12sdp"
-                android:textColor="@color/textColor"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="5dp"
+                android:text="Online"
+                android:textColor="@color/textColor"
+                android:textSize="@dimen/_12sdp"
                 tools:ignore="HardcodedText" />
 
             <TextView

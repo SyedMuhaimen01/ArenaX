@@ -48,23 +48,16 @@
 
 
                     <TextView
-                        android:id="@+id/companyNameTextView"
+                        android:id="@+id/organizationNameTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Company Name"
+                        android:text="organization Name"
                         android:textStyle="bold"
                         android:textSize="@dimen/_13sdp"
                         android:textColor="@color/textColor"
                         tools:ignore="HardcodedText" />
-                    <TextView
-                        android:id="@+id/organizationNameTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Organization Name"
-                        android:textStyle="italic"
-                        android:textSize="@dimen/_12sdp"
-                        android:textColor="@color/textColor"
-                        tools:ignore="HardcodedText" />
+
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -110,7 +103,7 @@
                 android:layout_marginTop="@dimen/_10sdp"
              >
             <TextView
-                android:id="@+id/jobTitleTextView"
+                android:id="@+id/eventNameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Event Name"
@@ -181,6 +174,7 @@
                         tools:ignore="HardcodedText" />
 
                     <TextView
+                        android:id="@+id/startDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="20/1/11"
@@ -207,6 +201,7 @@
                         tools:ignore="HardcodedText" />
 
                     <TextView
+                        android:id="@+id/endDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="21/1/11"
@@ -242,6 +237,7 @@
                         tools:ignore="HardcodedText" />
 
                     <TextView
+                        android:id="@+id/startTime"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="11:40 am"
@@ -268,6 +264,7 @@
                         tools:ignore="HardcodedText" />
 
                     <TextView
+                        android:id="@+id/endTime"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="12:00 pm"
