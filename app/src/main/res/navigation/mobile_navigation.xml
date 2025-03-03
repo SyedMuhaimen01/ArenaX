@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_dashboard">
+
+    <fragment
+        android:id="@+id/nav_dashboard"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.dashboard.dashboardFragment"
+        android:label="@string/menu_Dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <fragment
+        android:id="@+id/nav_pagePosts"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.pagePosts.pagePostsFragment"
+        android:label="@string/menu_PagePosts"
+        tools:layout="@layout/fragment_page_posts" />
+
+    <fragment
+        android:id="@+id/nav_inbox"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.inbox.inboxFragment"
+        android:label="@string/menu_inbox"
+        tools:layout="@layout/fragment_inbox" />
+
+    <fragment
+        android:id="@+id/nav_editPage"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.editPage.editPageFragment"
+        android:label="@string/menu_editPage"
+        tools:layout="@layout/fragment_edit_page" />
+
+    <fragment
+        android:id="@+id/nav_jobs"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs.jobsFragment"
+        android:label="@string/menu_jobs"
+        tools:layout="@layout/fragment_jobs" />
+
+    <fragment
+        android:id="@+id/nav_organizationTeams"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Teams.TeamsFragment"
+        android:label="@string/menu_organizationTeams"
+        tools:layout="@layout/fragment_teams" />
+
+    <fragment
+        android:id="@+id/nav_manageEvents"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.manageEvents.manageEventsFragment"
+        android:label="@string/menu_manageEvents"
+        tools:layout="@layout/fragment_manage_events" />
+
+    <fragment
+        android:id="@+id/nav_manageApplications"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.manageApplicationsAndInvites.manageApplicationsAndInvitesFragment"
+        android:label="@string/menu_manageEvents"
+        tools:layout="@layout/fragment_manage_applications_and_invites" />
+
+
+    <fragment
+        android:id="@+id/nav_sponsoredPosts"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.sponsoredPosts.sponsoredPostsFragment"
+        android:label="@string/menu_sponsoredPosts"
+        tools:layout="@layout/fragment_sponsored_posts" />
+
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings.settingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+
+
+</navigation>

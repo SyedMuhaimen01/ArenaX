@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Threads.ChatActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/secondaryColor"
+        android:layout_marginBottom="@dimen/_60sdp"
+        android:layout_marginTop="@dimen/_20sdp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/chat_top_bg"
+            android:padding="15dp"
+            android:gravity="center_vertical"
+            android:paddingBottom="@dimen/_10sdp"
+            tools:ignore="UselessParent">
+            <ImageButton
+                android:id="@+id/backButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/ic_arrow_back"
+                android:contentDescription="Back Button"
+                tools:ignore="HardcodedText" />
+
+            <ImageView
+                android:id="@+id/profilePicture"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/_15sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/circle"
+                tools:ignore="ContentDescription" />
+            <TextView
+                android:id="@+id/gamerTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_3sdp"
+                android:text="Username"
+                android:textStyle="bold"
+                android:textColor="@color/backgroundColor"
+                android:textSize="@dimen/_16sdp"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/fullSizeImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+        <VideoView
+            android:id="@+id/fullSizeVideo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chatsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/_100sdp"/>
+    </LinearLayout>
+    <!-- Bottom Navigation -->
+    <LinearLayout
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/_30sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/navigation_bar_bg"
+        >
+        <ImageButton
+            android:id="@+id/addButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/add_icon_foreground"
+            android:layout_marginLeft="0dp"
+            tools:ignore="ContentDescription" />
+        <ImageButton
+            android:id="@+id/cameraButton"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:background="@mipmap/camera_2_icon"
+            android:layout_gravity="center"
+            tools:ignore="ContentDescription" />
+        <LinearLayout
+            android:layout_width="@dimen/_170sdp"
+            android:layout_gravity="center"
+            android:layout_height="40dp"
+            >
+
+            <EditText
+                android:id="@+id/messageEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/searchbar"
+                android:backgroundTint="@color/secondaryColor"
+                android:hint="Write msg..."
+                android:paddingLeft="10dp"
+                android:paddingTop="0dp"
+                android:textAlignment="viewStart"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_10sdp"></EditText>
+        </LinearLayout>
+        <ImageButton
+            android:id="@+id/sendButton"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:scaleType="centerInside"
+            android:layout_gravity="center"
+            android:background="@mipmap/send_icon"
+            tools:ignore="ContentDescription" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

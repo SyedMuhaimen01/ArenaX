@@ -7,6 +7,10 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaCodec
+import android.media.MediaExtractor
+import android.media.MediaFormat
+import android.media.MediaMuxer
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
@@ -38,7 +42,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.arthenica.mobileffmpeg.FFmpeg
+
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.R
@@ -51,6 +55,7 @@ import com.muhaimen.arenax.userProfile.UserProfile
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
+import java.nio.ByteBuffer
 import java.util.*
 
 class UploadContent : AppCompatActivity() {
@@ -436,55 +441,80 @@ class UploadContent : AppCompatActivity() {
         )
         requestQueue.add(stringRequest)
     }
+    @SuppressLint("WrongConstant")
     fun trimAudio(track: Track) {
         val audioUrl = track.downloadUrl
-        // Set visibility for trimming layout
         trimTrackLayout.visibility = View.VISIBLE
         searchLinearLayout.visibility = View.GONE
 
-        // Calculate the start and end times based on seek bar progress (in milliseconds)
-        val startTime = startSeekBar.progress * 1000 // Convert seconds to milliseconds
-        val endTime = endSeekBar.progress * 1000 // Convert seconds to milliseconds
-        if (endTime <= startTime) { return }
-        val duration = endTime - startTime
+        val startTimeUs = startSeekBar.progress * 1_000_000L // Convert seconds to microseconds
+        val endTimeUs = endSeekBar.progress * 1_000_000L // Convert seconds to microseconds
 
-        // Specify the output file path
-        val outputPath = "${externalCacheDir?.absolutePath}/trimmed_audio.mp3"
+        if (endTimeUs <= startTimeUs) return
+
+        val outputPath = "${externalCacheDir?.absolutePath}/trimmed_audio.aac" // Output file will be AAC
+        trimmedAudioUrl = outputPath // Store trimmed audio URL
+
         Log.d("Output Path", "Output path for trimmed audio: $outputPath")
 
-        // Check if the output file already exists and delete it
         val outputFile = File(outputPath)
         if (outputFile.exists()) {
             outputFile.delete()
             Log.d("Output File", "Existing output file deleted.")
-        } else {
-            Log.d("Output File", "No existing output file found.")
         }
 
-        // Prepare the FFmpeg command
-        val command = arrayOf(
-            "-loglevel", "verbose",
-            "-ss", (startTime / 1000).toString(), // FFmpeg expects seconds, so divide by 1000
-            "-i", audioUrl,
-            "-t", (duration / 1000).toString(), // FFmpeg expects seconds, so divide by 1000
-            "-acodec", "libmp3lame", // Use libmp3lame for MP3 output
-            outputPath
-        )
-        trimmedAudioUrl=outputPath
+        try {
+            val extractor = MediaExtractor()
+            extractor.setDataSource(audioUrl)
 
-        Log.d("FFmpeg Command", "FFmpeg command: ${command.joinToString(" ")}") // Log the full command
+            // Find the audio track index
+            val trackIndex = (0 until extractor.trackCount).firstOrNull {
+                extractor.getTrackFormat(it).getString(MediaFormat.KEY_MIME)?.startsWith("audio/") == true
+            } ?: throw IllegalArgumentException("No audio track found")
 
-        // Execute the FFmpeg command asynchronously
-        FFmpeg.executeAsync(command) { executionId, returnCode ->
-            if (returnCode == 0) {
-                Log.d("FFmpeg", "Trimming completed successfully.")
-                // Play the trimmed audio
-                playTrimmedAudio(outputPath)
-            } else {
-                Log.e("FFmpeg", "Error trimming audio: $returnCode")
+            // Select the audio track
+            extractor.selectTrack(trackIndex)
+            val format = extractor.getTrackFormat(trackIndex)
+
+            // Set up the muxer (using AAC as output format)
+            val muxer = MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            val audioTrackIndex = muxer.addTrack(format)
+            muxer.start()
+
+            val buffer = ByteBuffer.allocate(1024 * 1024) // Buffer size
+            val bufferInfo = MediaCodec.BufferInfo()
+
+            // Seek to the start time
+            extractor.seekTo(startTimeUs, MediaExtractor.SEEK_TO_CLOSEST_SYNC)
+
+            // Read and write audio samples to the output
+            while (true) {
+                bufferInfo.offset = 0
+                bufferInfo.size = extractor.readSampleData(buffer, 0)
+
+                if (bufferInfo.size < 0 || extractor.sampleTime > endTimeUs) break
+
+                bufferInfo.presentationTimeUs = extractor.sampleTime
+                bufferInfo.flags = extractor.sampleFlags
+
+                // Write the sample data to the muxer
+                muxer.writeSampleData(audioTrackIndex, buffer, bufferInfo)
+                extractor.advance()
             }
+
+            // Stop and release resources
+            muxer.stop()
+            muxer.release()
+            extractor.release()
+
+            Log.d("TrimAudio", "Trimming completed successfully.")
+            playTrimmedAudio(outputPath)
+
+        } catch (e: Exception) {
+            Log.e("TrimAudio", "Error trimming audio: ${e.message}")
         }
     }
+
 
     fun playTrimmedAudio(outputPath: String) {
         try {

@@ -18,7 +18,9 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }  // Kotlin DSL uses `url = uri()`
+
     }
+
 }
 
 rootProject.name = "ArenaX"

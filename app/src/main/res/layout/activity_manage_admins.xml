@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".esportsManagement.mangeOrganization.ui.settings.manageAdmins.manageAdmins"
+    android:background="@color/backgroundColor"
+    android:id="@+id/main"
+    >
+    <LinearLayout
+        android:id="@+id/uploadToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/primaryColor"
+        tools:ignore="MissingConstraints"
+        android:padding="@dimen/_8sdp">
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:src="@mipmap/back_white2_icon"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:backgroundTint="@color/backgroundColor"
+            tools:ignore="ContentDescription" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:text="Manage Admins"
+            android:textStyle="bold"
+            android:textColor="@color/backgroundColor"
+            android:background="@color/primaryColor"
+            android:textSize="@dimen/_18sdp"
+            android:layout_marginTop="-3dp"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Super Admin"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:textSize="@dimen/_10sdp"
+        android:textColor="@color/textColor"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/_5sdp"
+        app:cardElevation="@dimen/_4sdp"
+        app:cardCornerRadius="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:background="@color/primaryColor"
+        android:backgroundTint="@color/primaryColor">
+
+            <TextView
+                android:id="@+id/superAdminTextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="John Doe"
+                android:textColor="@color/backgroundColor"
+                android:layout_margin="@dimen/_10sdp"
+                android:textSize="@dimen/_12sdp"
+                android:background="@color/primaryColor"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Admin(s)"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:textSize="@dimen/_10sdp"
+        android:textColor="@color/textColor"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:ignore="UselessLeaf">
+        <LinearLayout
+            android:id="@+id/searchbarLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_35sdp"
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_marginRight="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:background="@drawable/searchbar"
+            android:weightSum="4"
+            android:visibility="gone">
+
+            <!-- AutoCompleteTextView for search -->
+            <AutoCompleteTextView
+                android:id="@+id/searchbar"
+                android:layout_width="0dp"
+                android:layout_marginLeft="@dimen/_15sdp"
+                android:layout_weight="3.9"
+                android:layout_height="@dimen/_32sdp"
+                android:hint="Search ..."
+                android:textColorHint="@color/hinttextColor"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_13sdp"
+                android:background="@color/white"
+                android:padding="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_1sdp"
+                />
+            <!-- Search icon button -->
+            <ImageButton
+                android:id="@+id/searchButton"
+                android:layout_width="@dimen/_40sdp"
+                android:layout_height="@dimen/_35sdp"
+                android:src="@drawable/searchicon_foreground"
+                android:background="@drawable/serachbar_button"
+                android:layout_weight="0.1"
+                tools:ignore="ContentDescription" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/adminsRecyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:visibility="visible">
+        </androidx.recyclerview.widget.RecyclerView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/searchAdminsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:visibility="gone"/>
+
+
+    </LinearLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addAdminButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_input_add"
+        android:tint="@color/backgroundColor"
+        android:backgroundTint="@color/primaryColor"
+        android:layout_gravity="end"
+        android:layout_marginBottom="@dimen/_20sdp"
+        android:layout_marginEnd="@dimen/_20sdp"
+        tools:ignore="ContentDescription" />
+
+
+</LinearLayout>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_profile"
+            android:title="@string/menu_profile" />
+
+        <item
+            android:id="@+id/nav_notifications"
+            android:title="@string/menu_notifications" />
+
+        <item
+            android:id="@+id/nav_organization"
+            android:title="@string/menu_organizations" />
+
+        <item
+            android:id="@+id/nav_team"
+            android:title="@string/menu_team" />
+
+        <item
+            android:id="@+id/nav_findTeam"
+            android:title="@string/menu_findTeam" />
+
+    </group>
+</menu>

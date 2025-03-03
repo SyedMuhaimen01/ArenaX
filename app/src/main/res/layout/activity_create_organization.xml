@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipeRefreshLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".esportsManagement.mangeOrganization.createOrganization.createOrganization">
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="UselessParent">
+    <LinearLayout
+
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="vertical"
+        android:background="@drawable/screenbackground"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_10sdp">
+            <ImageButton
+                android:id="@+id/backButton"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:src="@mipmap/back_white_icon"
+                tools:ignore="ContentDescription" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:text="Create your organization"
+                android:textStyle="bold"
+                android:textColor="@color/backgroundColor"
+                android:textSize="@dimen/_16sdp"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+
+        <ImageView
+            android:layout_marginTop="@dimen/_10sdp"
+            android:id="@+id/organizationLogoImageButton"
+            android:layout_width="@dimen/_60sdp"
+            android:layout_height="@dimen/_60sdp"
+            android:scaleType="centerCrop"
+            android:backgroundTint="@color/white"
+            android:layout_marginStart="@dimen/_120sdp"
+            android:background="@drawable/circle"
+            android:clipToOutline="true"
+            tools:ignore="ContentDescription,UnusedAttribute" />
+        <TextView
+            android:id="@+id/editProfilePictureText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="upload company logo"
+            android:textStyle="bold"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_110sdp"
+            android:textSize="@dimen/_10sdp"
+            android:textColor="@color/white"
+            tools:ignore="HardcodedText" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginTop="@dimen/_10sdp">
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Organization Name"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/organizationNameEditText"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                tools:ignore="Autofill,LabelFor,TextFields" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Organization Location"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/organizationLocationEditText"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                tools:ignore="Autofill,LabelFor,TextFields" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Organization Email"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/organizationEmailEditText"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                android:inputType="textEmailAddress"
+                tools:ignore="Autofill,LabelFor,TextFields" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Organization Phone"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/organizationPhoneEditText"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:inputType="phone"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                tools:ignore="Autofill,LabelFor,TextFields" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Website"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/organizationWebsiteEditText"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:hint="www.company.com"
+                android:textColorHint="@color/hinttextColor"
+                android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Industry"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/organizationIndustryEditText"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Organization Type"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <Spinner
+                android:id="@+id/organizationTypeSpinner"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Organization Size"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+
+            <Spinner
+                android:id="@+id/organizationSizeSpinner"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@android:color/white"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tagline"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/organizationTaglineEditText"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_13ssp"
+                android:maxLength="30"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Organization Description"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_27sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+            <EditText
+                android:id="@+id/organizationDescriptionEditText"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:textSize="@dimen/_13ssp"
+                android:background="@drawable/transparentinput"
+                android:textColor="@color/white"
+                tools:ignore="Autofill,LabelFor,TextFields" />
+
+            <Button
+                android:id="@+id/submitButton"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_23sdp"
+                android:layout_marginEnd="@dimen/_17sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_35sdp"
+                android:background="@drawable/buttonholder2"
+                android:text="Create Organization"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_13ssp"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</ScrollView>
+
+</LinearLayout>

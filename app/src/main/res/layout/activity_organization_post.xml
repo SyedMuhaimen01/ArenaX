@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/main"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/secondaryColor"
+    tools:context=".esportsManagement.mangeOrganization.ui.pagePosts.uploadPosts.organizationPostActivity"
+    >
+
+    <LinearLayout
+        android:id="@+id/uploadToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/primaryColor"
+        tools:ignore="MissingConstraints"
+        android:padding="@dimen/_8sdp">
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:src="@mipmap/back_white2_icon"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:backgroundTint="@color/backgroundColor"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/_5sdp"
+            android:text="New Post"
+            android:textStyle="bold"
+            android:textColor="@color/backgroundColor"
+            android:background="@color/primaryColor"
+            android:textSize="@dimen/_18sdp"
+            android:layout_marginTop="-3dp"/>
+    </LinearLayout>
+
+
+    <!-- In your XML layout file (activity_trim_track.xml) -->
+
+    <!-- Media preview area (Image or Video) -->
+    <ImageView
+        android:id="@+id/previewImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        android:background="@color/ImagePlaceholder"
+        android:contentDescription="Media Preview"
+        app:layout_constraintTop_toBottomOf="@id/uploadToolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.5" />
+
+    <EditText
+        android:id="@+id/articleEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"
+        android:padding="@dimen/_10sdp"
+        android:hint="Write an article..."
+        android:textColorHint="@color/accentColor"
+        android:background="@color/ImagePlaceholder"
+        android:contentDescription="Media Preview"
+        android:textColor="@color/backgroundColor"
+        android:inputType="textMultiLine"
+        android:textSize="@dimen/_11sdp"
+        app:layout_constraintTop_toBottomOf="@id/uploadToolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"
+        app:layout_constraintHeight_percent="0.5" />
+
+    <!-- Caption input field -->
+
+    <!-- Bottom layout with buttons to select media -->
+    <EditText
+        android:id="@+id/captionEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/secondaryColor"
+        android:gravity="top"
+        android:hint="Write a caption..."
+        android:textColorHint="@color/hinttextColor"
+        android:inputType="textMultiLine"
+        android:layout_marginRight="@dimen/_10sdp"
+        android:padding="16dp"
+        android:layout_marginLeft="@dimen/_10sdp"
+        android:textColor="@color/textColor"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@id/bottomButtonsLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/previewImageView"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <LinearLayout
+        android:id="@+id/bottomButtonsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_30sdp"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:padding="1dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        >
+
+        <TextView
+
+            android:id="@+id/galleryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gallery"
+            android:textAlignment="center"
+            android:textSize="@dimen/_12sdp"
+            android:textStyle="bold"
+            android:textColor="@color/primaryColor"
+            android:contentDescription="Select from gallery"
+            android:layout_gravity="center"
+            />
+
+        <TextView
+
+            android:id="@+id/cameraButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Camera"
+            android:layout_marginStart="@dimen/_14sdp"
+            android:textAlignment="center"
+            android:textSize="@dimen/_12sdp"
+            android:textStyle="bold"
+            android:textColor="@color/primaryColor"
+            android:contentDescription="Select from gallery"
+            android:layout_gravity="center"
+            />
+        <TextView
+            android:id="@+id/articleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/_14sdp"
+            android:contentDescription="write Article"
+            android:text="Article"
+            android:textAlignment="center"
+            android:textColor="@color/primaryColor"
+            android:textSize="@dimen/_12sdp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/uploadPostButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_input_add"
+        android:tint="@color/backgroundColor"
+        android:background="@color/primaryColor"
+        android:layout_gravity="bottom|end"
+        android:backgroundTint="@color/primaryColor"
+        tools:ignore="ContentDescription"
+        app:layout_constraintBottom_toTopOf="@id/bottomButtonsLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="@dimen/_20sdp"
+        android:layout_marginEnd="@dimen/_20sdp"
+        />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -61,11 +61,11 @@
         <ImageButton
             android:id="@+id/threadsButton"
             android:layout_width="@dimen/_50sdp"
-            android:layout_height="@dimen/_50sdp"
-            android:src="@mipmap/threads_icon"
-            android:scaleType="centerInside"
-            android:backgroundTint="@color/primaryColor"
+            android:layout_height="44dp"
             android:layout_gravity="center"
+            android:backgroundTint="@color/primaryColor"
+            android:scaleType="centerInside"
+            android:src="@mipmap/threads_icon"
             tools:ignore="ContentDescription" />
     </LinearLayout>
     <!-- Highlights -->
@@ -169,7 +169,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
-            android:background="@drawable/ic_navigation_talent" />
+            android:background="@drawable/ic_change_foreground" />
 
 
         <!-- Add Profile Button -->

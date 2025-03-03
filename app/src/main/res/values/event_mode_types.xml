@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="event_mode_types">
+        <item>Online</item>
+        <item>LAN</item>
+        <item>Hybrid</item>
+        <item>Other</item>
+    </string-array>
+</resources>

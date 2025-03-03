@@ -1,0 +1,43 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginBottom="@dimen/_5sdp"
+    app:cardElevation="@dimen/_4sdp"
+    app:cardCornerRadius="@dimen/_10sdp"
+    android:layout_margin="@dimen/_10sdp"
+    android:background="@color/backgroundColor"
+    android:backgroundTint="@color/backgroundColor">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1">
+        <TextView
+            android:id="@+id/adminNameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="John Doe"
+            android:textColor="@color/textColor"
+            android:layout_margin="@dimen/_10sdp"
+            android:textSize="@dimen/_12sdp"
+            android:background="@color/backgroundColor"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText"
+            android:layout_weight="0.7"/>
+        <Button
+            android:id="@+id/addAdminButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/inputholder"
+            android:text="Add Admin"
+            android:backgroundTint="@color/primaryColor"
+            android:textColor="@color/backgroundColor"
+            android:gravity="center"
+            android:layout_weight="0.3"
+            android:layout_gravity="center"
+            android:layout_marginEnd="@dimen/_10sdp"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

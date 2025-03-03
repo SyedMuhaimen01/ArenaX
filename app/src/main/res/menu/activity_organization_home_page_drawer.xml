@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single"
+        >
+        <item
+            android:id="@+id/nav_dashboard"
+            android:icon="@drawable/ic_dashboard_foreground"
+            android:title="@string/menu_Dashboard" />
+        <item
+            android:id="@+id/nav_pagePosts"
+            android:icon="@drawable/ic_menu_gallery"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_PagePosts"
+            tools:ignore="UnusedAttribute" />
+
+        <item
+            android:id="@+id/nav_inbox"
+            android:icon="@drawable/threads_icon_foreground"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_inbox"
+            tools:ignore="UnusedAttribute" />
+
+
+        <item
+            android:id="@+id/nav_jobs"
+            android:icon="@drawable/ic_work_foreground"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_jobs"
+            tools:ignore="UnusedAttribute" />
+
+        <item
+            android:id="@+id/nav_sponsoredPosts"
+            android:icon="@drawable/ic_premium_foreground"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_sponsoredPosts"
+            tools:ignore="UnusedAttribute" />
+
+        <item
+            android:id="@+id/nav_organizationTeams"
+            android:icon="@drawable/ic_team_foreground"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_organizationTeams"
+            tools:ignore="UnusedAttribute" />
+
+        <item
+            android:id="@+id/nav_manageEvents"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_manageEvents"
+            tools:ignore="UnusedAttribute" />
+
+        <item
+            android:id="@+id/nav_manageApplications"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_manageApplications"
+            tools:ignore="UnusedAttribute" />
+
+
+    </group>
+    <group
+        android:checkableBehavior="single"
+        >
+        <item
+            android:id="@+id/nav_editPage"
+            android:icon="@android:drawable/ic_menu_edit"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_editPage"
+            tools:ignore="UnusedAttribute" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings_foreground"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_settings"
+            tools:ignore="UnusedAttribute" />
+    </group>
+
+    <group
+        android:checkableBehavior="single"
+        >
+        <item
+            android:id="@+id/nav_exit"
+            android:icon="@drawable/logout_icon_foreground"
+            android:iconTint="@color/primaryColor"
+            android:title="@string/menu_exit"
+            tools:ignore="UnusedAttribute" />
+    </group>
+</menu>
