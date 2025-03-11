@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primaryColor"
+    tools:context=".esportsManagement.mangeOrganization.ui.Teams.viewOwnTeams.viewOwnTeam">
+
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:background="@color/primaryColor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:src="@mipmap/back_white_icon"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:text="Team Registration"
+            android:textStyle="bold"
+            android:textColor="@color/backgroundColor"
+            android:textSize="@dimen/_16sdp"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/team_card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_6sdp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="@dimen/_6sdp"
+        app:cardElevation="@dimen/_2sdp"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="@dimen/_4sdp">
+
+            <ImageView
+                android:id="@+id/teamLogo"
+                android:layout_width="@dimen/_60sdp"
+                android:layout_height="@dimen/_60sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:scaleType="centerCrop"
+                android:contentDescription="Game Icon" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <!-- Team Name -->
+                <TextView
+                    android:id="@+id/teamNameTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Team Name"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_16sdp"
+                    android:textColor="@color/textColor"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/gameNameTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Game Name"
+                    android:textColor="@color/textColor"
+                    android:textSize="@dimen/_12sdp"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/teamLocationTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pakistan"
+                    android:textColor="@color/accentColor"
+                    android:textSize="@dimen/_10sdp"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/teamTaglineTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Build,Commect, Compete"
+                    android:textStyle="italic"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/textColor"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/team_info_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_6sdp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="@dimen/_6sdp"
+        app:cardElevation="@dimen/_2sdp"
+        app:layout_constraintTop_toBottomOf="@id/team_card_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Team Captain"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/textColor"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/captainNameTextView"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_12sdp"
+                android:textColor="@color/textColor"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Team Email"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/textColor"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/teamEmailTextView"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp"
+                android:textSize="@dimen/_12sdp"
+                android:textColor="@color/textColor"
+                />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/team_achievements_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_6sdp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="@dimen/_6sdp"
+        app:cardElevation="@dimen/_2sdp"
+        app:layout_constraintTop_toBottomOf="@id/team_info_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        <TextView
+            android:id="@+id/team_achievements_TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/_10sdp"
+            android:layout_margin="@dimen/_10sdp"/>
+    </androidx.cardview.widget.CardView>
+    <androidx.cardview.widget.CardView
+        android:id="@+id/team_details_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_6sdp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="@dimen/_6sdp"
+        app:cardElevation="@dimen/_2sdp"
+        app:layout_constraintTop_toBottomOf="@id/team_achievements_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        <TextView
+            android:id="@+id/team_details_TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/_10sdp"
+            android:layout_margin="@dimen/_10sdp"/>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/team_Players_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_6sdp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="@dimen/_6sdp"
+        app:cardElevation="@dimen/_2sdp"
+        app:layout_constraintTop_toBottomOf="@id/team_achievements_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                tools:ignore="UselessLeaf,UselessParent">
+                <LinearLayout
+                    android:id="@+id/searchLinearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_35sdp"
+                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginRight="@dimen/_10sdp"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:background="@drawable/searchbar"
+                    android:weightSum="4"
+                    android:visibility="gone">
+
+                    <!-- AutoCompleteTextView for search -->
+                    <AutoCompleteTextView
+                        android:id="@+id/searchbar"
+                        android:layout_width="0dp"
+                        android:layout_marginStart="@dimen/_15sdp"
+                        android:layout_weight="3.9"
+                        android:layout_height="@dimen/_32sdp"
+                        android:hint="Search ..."
+                        android:textColorHint="@color/hinttextColor"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_13sdp"
+                        android:background="@color/white"
+                        android:padding="@dimen/_5sdp"
+                        android:layout_marginTop="@dimen/_1sdp"
+                        tools:ignore="HardcodedText" />
+
+                    <!-- Search icon button -->
+                    <ImageButton
+                        android:id="@+id/searchButton"
+                        android:layout_width="@dimen/_40sdp"
+                        android:layout_height="@dimen/_35sdp"
+                        android:src="@drawable/searchicon_foreground"
+                        android:background="@drawable/serachbar_button"
+                        android:layout_weight="0.1"
+                        tools:ignore="ContentDescription" />
+                </LinearLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/playersRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:layout_marginBottom="@dimen/_10sdp"
+                    android:visibility="visible">
+                </androidx.recyclerview.widget.RecyclerView>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/searchUserRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:layout_marginBottom="@dimen/_10sdp"
+                    android:visibility="gone"/>
+
+                <!-- Floating Action Button at the bottom right -->
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/addPlayerButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_input_add"
+                    android:tint="@color/backgroundColor"
+                    android:backgroundTint="@color/primaryColor"
+                    android:layout_gravity="end"
+                    android:layout_marginBottom="@dimen/_20sdp"
+                    android:layout_marginEnd="@dimen/_20sdp"
+                    tools:ignore="ContentDescription" />
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </androidx.cardview.widget.CardView>
+    <!-- Floating Action Button at the bottom right -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
