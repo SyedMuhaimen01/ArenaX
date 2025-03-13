@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipeRefreshLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".esportsManagement.mangeOrganization.ui.Teams.registerTeam">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="UselessParent">
+        <LinearLayout
+
+            android:id="@+id/main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="vertical"
+            android:background="@drawable/screenbackground"
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp">
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:src="@mipmap/back_white_icon"
+                    tools:ignore="ContentDescription" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_5sdp"
+                    android:text="Team Registeration"
+                    android:textStyle="bold"
+                    android:textColor="@color/backgroundColor"
+                    android:textSize="@dimen/_16sdp"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
+
+
+            <ImageView
+                android:id="@+id/teamLogoImageView"
+                android:layout_width="41dp"
+                android:layout_height="@dimen/_60sdp"
+                android:layout_marginStart="@dimen/_120sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:background="@drawable/circle"
+                android:backgroundTint="@color/white"
+                android:clipToOutline="true"
+                android:scaleType="centerCrop"
+                tools:ignore="ContentDescription,UnusedAttribute" />
+            <TextView
+                android:id="@+id/teamLogoTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="upload Team Logo"
+                android:textStyle="bold"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_110sdp"
+                android:textSize="@dimen/_10sdp"
+                android:textColor="@color/white"
+                tools:ignore="HardcodedText" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/_10sdp">
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Team Name"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+                <EditText
+                    android:id="@+id/teamNameEditText"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@color/white"
+                    tools:ignore="Autofill,LabelFor,TextFields" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Game Name"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+                <EditText
+                    android:id="@+id/gameNameEditText"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@color/white"
+                    tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Region/Country"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+                <EditText
+                    android:id="@+id/teamLocationEditText"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@color/white"
+                    tools:ignore="Autofill,LabelFor,TextFields" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Team Email"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+                <EditText
+                    android:id="@+id/teamEmailEditText"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@color/white"
+                    android:inputType="textEmailAddress"
+                    tools:ignore="Autofill,LabelFor,TextFields" />
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Team Captain (gamerTag)"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+                <EditText
+                    android:id="@+id/teamCaptainEditText"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@color/white"
+                    tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tagline"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+                <EditText
+                    android:id="@+id/teamTagLineEditText"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:textSize="@dimen/_13ssp"
+                    android:maxLength="30"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@color/white"
+                    tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Team Details"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+                <EditText
+                    android:id="@+id/teamDetailsEditText"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@color/white"
+                    tools:ignore="Autofill,LabelFor,TextFields" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Team Achievements"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_27sdp"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/white"
+                    tools:ignore="HardcodedText" />
+                <EditText
+                    android:id="@+id/teamAchievementsEditText"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:textSize="@dimen/_13ssp"
+                    android:background="@drawable/transparentinput"
+                    android:textColor="@color/white"
+                    tools:ignore="Autofill,LabelFor,TextFields" />
+
+                <Button
+                    android:id="@+id/registerButton"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginStart="@dimen/_23sdp"
+                    android:layout_marginEnd="@dimen/_17sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_35sdp"
+                    android:background="@drawable/buttonholder2"
+                    android:text="Register"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_13ssp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

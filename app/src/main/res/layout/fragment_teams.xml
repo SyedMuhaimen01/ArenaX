@@ -1,13 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:background="@color/backgroundColor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".esportsManagement.mangeOrganization.ui.Teams.TeamsFragment">
-
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Hello" />
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints,UselessLeaf">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Register Your Own Team"
+            android:textColor="@color/textColor"
+            tools:ignore="HardcodedText,MissingConstraints"
+            android:gravity="center"
+            android:textSize="@dimen/_30sdp"
+            android:textStyle="bold"
+            android:layout_marginTop="@dimen/_50sdp"
+            />
+        <Button
+            android:id="@+id/registerButton"
+            android:layout_width="@dimen/_100sdp"
+            android:layout_height="wrap_content"
+            android:text="Register"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_12sdp"
+            android:textStyle="normal"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:background="@drawable/buttonholder"
+            android:layout_marginTop="@dimen/_10sdp"
+            tools:ignore="HardcodedText" />
 
-</FrameLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="My Rosters(s)"
+            android:textSize="@dimen/_12sdp"
+            android:textColor="@color/textColor"
+            android:textStyle="bold"
+            android:layout_marginTop="@dimen/_30sdp"
+            android:layout_marginStart="@dimen/_10sdp"
+            tools:ignore="HardcodedText" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_300sdp"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            >
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/teamsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                tools:listitem="@layout/organization_item"
+                tools:ignore="MissingConstraints" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
