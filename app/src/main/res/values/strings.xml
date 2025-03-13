@@ -24,7 +24,7 @@
 
     <string name="menu_profile">My Profile</string>
     <string name="menu_organizations">My Organization(s)</string>
-    <string name="menu_notifications">Notifications</string>
+    <string name="menu_notifications">Notifications(s)</string>
     <string name="menu_team">My Team(s)</string>
     <string name="menu_organizationTeams">Roster(s)</string>
     <string name="menu_findTeam">Looking For a Team</string>

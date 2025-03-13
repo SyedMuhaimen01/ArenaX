@@ -14,7 +14,7 @@
     <fragment
         android:id="@+id/nav_notifications"
         android:name="com.muhaimen.arenax.esportsManagement.esportsProfile.ui.notifications.notificationsFragment"
-        android:label="@string/menu_organizations"
+        android:label="@string/menu_notifications"
         tools:layout="@layout/fragment_notifications" />
 
     <fragment
