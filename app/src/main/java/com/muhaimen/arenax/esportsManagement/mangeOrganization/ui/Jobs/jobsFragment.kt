@@ -12,7 +12,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.esportsManagement.exploreEsports.exploreEsportsViewPagerAdapter
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs.jobPosting.jobPosting
 
 class jobsFragment : Fragment() {

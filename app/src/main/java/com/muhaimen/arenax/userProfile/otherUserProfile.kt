@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -52,6 +53,7 @@ import com.muhaimen.arenax.gamesDashboard.otherUserGames
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.uploadStory.viewStory
+import com.muhaimen.arenax.userFeed.UserFeed
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import kotlinx.coroutines.Dispatchers
@@ -100,6 +102,7 @@ class otherUserProfile : AppCompatActivity() {
     private lateinit var rankTextView: TextView
     private lateinit var requestQueue: RequestQueue
     private lateinit var myGamesButton: ImageView
+    private lateinit var homeButton: LinearLayout
     private val client = OkHttpClient()
     private lateinit var activity : String
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
@@ -219,6 +222,12 @@ class otherUserProfile : AppCompatActivity() {
 
         profileImage.setOnClickListener {
             onProfilePictureClick()
+        }
+
+        homeButton = findViewById(R.id.home)
+        homeButton.setOnClickListener {
+            val intent = Intent(this, UserFeed::class.java)
+            startActivity(intent)
         }
 
         //reload Activity's data on page reload

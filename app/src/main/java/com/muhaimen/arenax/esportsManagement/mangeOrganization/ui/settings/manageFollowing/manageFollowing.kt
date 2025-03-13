@@ -9,7 +9,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.synergy.SynerGViewPagerAdapter
 
 class manageFollowing : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout

@@ -1,4 +1,4 @@
-package com.muhaimen.arenax.esportsManagement.manageOrganization.ui.manageEvents
+package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.manageEvents
 
 import android.content.Intent
 import android.view.LayoutInflater
@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Event
-import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.manageEvents.viewEventDetails
 
 class closedEventsAdapter(private val eventsList: List<Event>) :
     RecyclerView.Adapter<closedEventsAdapter.ViewHolder>() {

@@ -396,6 +396,11 @@ class UserFeed : AppCompatActivity() {
         userFeedAdapter.releaseAllPlayers()
     }
 
+    override fun onPause() {
+        super.onPause()
+        userFeedAdapter.releaseAllPlayers()
+    }
+
     override fun onBackPressed() {
         super.onBackPressed()
         userFeedAdapter.releaseAllPlayers()

@@ -18,9 +18,7 @@ data class OrganizationData(
     var organizationTagline: String? = null,
     var organizationOwner: String? = null,
     var organizationMembers: List<String>? = emptyList(),
-    var organizationEvents: List<String>? = emptyList(),
-    var organizationSponsors: List<String>? = emptyList(),
-    var organizationSocialMedia: List<String>? = emptyList()
+    var organizationAdmins: List<String>? = emptyList(),
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -38,9 +36,8 @@ data class OrganizationData(
         organizationTagline = parcel.readString(),
         organizationOwner = parcel.readString(),
         organizationMembers = parcel.createStringArrayList(),
-        organizationEvents = parcel.createStringArrayList(),
-        organizationSponsors = parcel.createStringArrayList(),
-        organizationSocialMedia = parcel.createStringArrayList()
+        organizationAdmins = parcel.createStringArrayList(),
+
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -58,9 +55,7 @@ data class OrganizationData(
         parcel.writeString(organizationTagline)
         parcel.writeString(organizationOwner)
         parcel.writeStringList(organizationMembers)
-        parcel.writeStringList(organizationEvents)
-        parcel.writeStringList(organizationSponsors)
-        parcel.writeStringList(organizationSocialMedia)
+        parcel.writeStringList(organizationAdmins)
     }
 
     override fun describeContents(): Int {

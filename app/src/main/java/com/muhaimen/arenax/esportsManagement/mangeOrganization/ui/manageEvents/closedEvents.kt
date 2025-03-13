@@ -10,8 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.esportsManagement.manageOrganization.ui.manageEvents.closedEventsAdapter
-import com.muhaimen.arenax.esportsManagement.manageOrganization.ui.manageEvents.searchEventsAdapter
 
 class closedEvents : Fragment() {
     private lateinit var closedEventsAdapter: closedEventsAdapter
