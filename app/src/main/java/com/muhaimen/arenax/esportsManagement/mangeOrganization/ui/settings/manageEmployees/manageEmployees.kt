@@ -7,7 +7,6 @@ import android.view.View.VISIBLE
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -16,8 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings.manageAdmins.ManageAdminsAdapter
-import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings.manageAdmins.SearchAdminsAdapter
 
 class manageEmployees : AppCompatActivity() {
     private lateinit var employeesRecyclerView: RecyclerView

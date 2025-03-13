@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.synergy.FollowersAdapter
 
 
 class organizationFollowersList : Fragment() {

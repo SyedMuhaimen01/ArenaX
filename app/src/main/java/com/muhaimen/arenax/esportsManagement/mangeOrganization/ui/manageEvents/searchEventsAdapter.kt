@@ -1,4 +1,4 @@
-package com.muhaimen.arenax.esportsManagement.manageOrganization.ui.manageEvents
+package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.manageEvents
 
 import android.view.LayoutInflater
 import android.view.View

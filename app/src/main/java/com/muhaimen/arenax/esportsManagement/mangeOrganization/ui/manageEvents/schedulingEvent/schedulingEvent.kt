@@ -13,8 +13,6 @@ import android.widget.Spinner
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Event

@@ -116,11 +116,12 @@ class UserFeedPostsAdapter(private val recyclerView: RecyclerView,
         private var alreadyLikedButton:ImageButton=itemView.findViewById(R.id.likeFilledButton)
 
         fun playContent() {
-            exoPlayer?.playWhenReady = true // Resume playback
+            exoPlayer?.playWhenReady = true
+            addPlayer(exoPlayer!!)
         }
 
         fun stopContent() {
-            exoPlayer?.playWhenReady = false // Pause playback
+            exoPlayer?.playWhenReady = false
         }
 
         fun releaseContent() {

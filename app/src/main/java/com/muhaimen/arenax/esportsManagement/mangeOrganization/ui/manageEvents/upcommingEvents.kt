@@ -10,8 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.esportsManagement.manageOrganization.ui.manageEvents.searchEventsAdapter
-import com.muhaimen.arenax.esportsManagement.manageOrganization.ui.manageEvents.upcomingEventsAdapter
 
 
 class upcommingEvents : Fragment() {

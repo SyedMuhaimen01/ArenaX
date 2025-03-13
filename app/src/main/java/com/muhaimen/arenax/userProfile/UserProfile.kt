@@ -36,13 +36,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.android.volley.AuthFailureError
-import com.android.volley.NetworkError
-import com.android.volley.NoConnectionError
 import com.android.volley.Request
 import com.android.volley.RequestQueue
-import com.android.volley.ServerError
-import com.android.volley.TimeoutError
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
@@ -69,8 +64,6 @@ import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.editProfile.editProfile
-import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
-import com.muhaimen.arenax.esportsManagement.mangeOrganization.createOrganization.createOrganization
 import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.explore.ExplorePage

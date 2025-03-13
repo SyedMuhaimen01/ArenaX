@@ -8,12 +8,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.OrganizationData
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.createOrganization.createOrganization
+import com.muhaimen.arenax.utils.Constants
+import org.json.JSONArray
+import org.json.JSONObject
 
 class myOrganizationsFragment : Fragment() {
 
     private lateinit var createOrganizationButton: Button
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: MyOrganizationsAdapter
+    private lateinit var database: FirebaseDatabase
+    private lateinit var auth: FirebaseAuth
+    private lateinit var userId:String
+    private val organizationList = mutableListOf<OrganizationData>()
+
     companion object {
         fun newInstance() = myOrganizationsFragment()
     }
@@ -22,7 +40,6 @@ class myOrganizationsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         // TODO: Use the ViewModel
     }
 
@@ -37,9 +54,62 @@ class myOrganizationsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         createOrganizationButton = view.findViewById(R.id.createOrganizationButton)
+        recyclerView = view.findViewById(R.id.organizationRecyclerView)
+
+        database= FirebaseDatabase.getInstance()
+        auth= FirebaseAuth.getInstance()
+        userId=auth.currentUser?.uid.toString()
+        // Set up RecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        adapter = MyOrganizationsAdapter(organizationList)
+        recyclerView.adapter = adapter
+
         createOrganizationButton.setOnClickListener {
-            val intent= Intent(activity, createOrganization::class.java)
+            val intent = Intent(activity, createOrganization::class.java)
             startActivity(intent)
         }
+
+        // Fetch organizations from backend
+        fetchOrganizations()
+    }
+
+    private fun fetchOrganizations() {
+        val url = "${Constants.SERVER_URL}registerOrganization/user/${userId}/organizations"
+        val requestQueue = Volley.newRequestQueue(requireContext())
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET, url, null,
+            { response: JSONObject ->
+                organizationList.clear() // Clear old data
+
+                val organizationsArray = response.optJSONArray("organizations") ?: JSONArray()
+                for (i in 0 until organizationsArray.length()) {
+                    val orgObject = organizationsArray.getJSONObject(i)
+                    val organization = OrganizationData(
+                        organizationId = orgObject.getString("organization_id"),
+                        organizationName = orgObject.getString("organization_name"),
+                        organizationLogo = orgObject.optString("organization_logo", null),
+                        organizationLocation = orgObject.optString("organization_location", null)
+                    )
+                    organizationList.add(organization)
+                }
+
+                adapter.notifyDataSetChanged()
+            },
+            { error ->
+                //Toast.makeText(requireContext(), "Failed to fetch data: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        )
+
+        requestQueue.add(jsonObjectRequest)
+    }
+
+
+    private fun jsonArrayToList(jsonArray: JSONArray): List<String> {
+        val list = mutableListOf<String>()
+        for (i in 0 until jsonArray.length()) {
+            list.add(jsonArray.getString(i))
+        }
+        return list
     }
 }

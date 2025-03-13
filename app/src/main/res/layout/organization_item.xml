@@ -20,7 +20,7 @@
 
         <!-- Organization Logo -->
         <ImageView
-            android:id="@+id/game_icon"
+            android:id="@+id/company_logo"
             android:layout_width="@dimen/_50sdp"
             android:layout_height="@dimen/_50sdp"
             android:layout_marginEnd="@dimen/_10sdp"
