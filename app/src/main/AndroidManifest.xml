@@ -50,7 +50,7 @@
         <activity
             android:name=".esportsManagement.mangeOrganization.ui.Teams.registerTeam"
             android:exported="false" />
-        <activity
+          <activity
             android:name=".esportsManagement.mangeOrganization.ui.settings.manageFollowing.manageFollowing"
             android:exported="false" />
         <activity

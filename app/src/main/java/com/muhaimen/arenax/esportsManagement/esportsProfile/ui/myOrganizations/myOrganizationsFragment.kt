@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
@@ -74,13 +75,18 @@ class myOrganizationsFragment : Fragment() {
     }
 
     private fun fetchOrganizations() {
-        val url = "${Constants.SERVER_URL}registerOrganization/user/${userId}/organizations"
+        val url = "${Constants.SERVER_URL}registerOrganization/user/organizations"
         val requestQueue = Volley.newRequestQueue(requireContext())
 
+        // Create JSON body
+        val requestBody = JSONObject().apply {
+            put("firebaseUid", userId) // Send firebaseUid in the body
+        }
+
         val jsonObjectRequest = JsonObjectRequest(
-            Request.Method.GET, url, null,
+            Request.Method.POST, url, requestBody,
             { response: JSONObject ->
-                organizationList.clear() // Clear old data
+                organizationList.clear() // Clear previous data
 
                 val organizationsArray = response.optJSONArray("organizations") ?: JSONArray()
                 for (i in 0 until organizationsArray.length()) {
@@ -94,15 +100,16 @@ class myOrganizationsFragment : Fragment() {
                     organizationList.add(organization)
                 }
 
-                adapter.notifyDataSetChanged()
+                adapter.notifyDataSetChanged() // Refresh RecyclerView
             },
             { error ->
-                //Toast.makeText(requireContext(), "Failed to fetch data: ${error.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Failed to fetch data: ${error.message}", Toast.LENGTH_LONG).show()
             }
         )
 
         requestQueue.add(jsonObjectRequest)
     }
+
 
 
     private fun jsonArrayToList(jsonArray: JSONArray): List<String> {
