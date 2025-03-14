@@ -21,9 +21,15 @@ class TeamsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Retrieve organization name from arguments
+        val organizationName = arguments?.getString("organization_name")
+
         registerTeamButton = view.findViewById(R.id.registerButton)
         registerTeamButton.setOnClickListener {
-            val intent= Intent(activity, registerTeam::class.java)
+            val intent = Intent(activity, registerTeam::class.java).apply {
+                putExtra("organization_name", organizationName) // Pass organization name
+            }
             startActivity(intent)
         }
     }
