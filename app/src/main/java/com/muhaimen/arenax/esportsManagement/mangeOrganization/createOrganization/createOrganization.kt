@@ -2,8 +2,10 @@ package com.muhaimen.arenax.esportsManagement.mangeOrganization.createOrganizati
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,8 +17,11 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.OrganizationData
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONObject
 
@@ -36,9 +41,11 @@ class createOrganization : AppCompatActivity() {
     private lateinit var submitButton: Button
     private lateinit var requestQueue: RequestQueue
     private lateinit var database: FirebaseDatabase
+    private lateinit var storageReference: StorageReference
     private lateinit var auth: FirebaseAuth
     private lateinit var user: String
-
+    var imageUrl: String = ""
+    var imageUri: Uri? = null
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +64,8 @@ class createOrganization : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         user = auth.currentUser?.uid ?: ""
 
+
+
         organizationNameEditText = findViewById(R.id.organizationNameEditText)
         organizationLocation = findViewById(R.id.organizationLocationEditText)
         organizationEmail = findViewById(R.id.organizationEmailEditText)
@@ -69,6 +78,7 @@ class createOrganization : AppCompatActivity() {
         organizationTagline = findViewById(R.id.organizationTaglineEditText)
         organizationDescription = findViewById(R.id.organizationDescriptionEditText)
         organizationLogo = findViewById(R.id.organizationLogoImage)
+        organizationLogo.setImageURI(null)
         submitButton = findViewById(R.id.submitButton)
         ArrayAdapter.createFromResource(
             this, R.array.organization_types, android.R.layout.simple_spinner_item
@@ -93,20 +103,24 @@ class createOrganization : AppCompatActivity() {
         submitButton.setOnClickListener {
             val organizationData = getOrganizationDataFromInputs()
             if (organizationData != null) {
-                sendOrganizationDataToServer(organizationData)
+                saveOrganizationToFirebase(organizationData)
+
             }
         }
     }
 
+    @SuppressLint("IntentReset")
     private fun selectImage() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        intent.type = "image/*" //
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
-            val imageUri = data.data
+            imageUri = data.data
             organizationLogo.setImageURI(imageUri)
             organizationLogo.clipToOutline = true
         }
@@ -126,11 +140,14 @@ class createOrganization : AppCompatActivity() {
         val type = organizationType.selectedItem?.toString()?.trim()
         val size = organizationSize.selectedItem?.toString()?.trim()
         val description = organizationDescription.text.toString().trim()
-
         // Check for empty fields
         if (name.isEmpty()) {
             organizationNameEditText.error = "Organization name is required"
             organizationNameEditText.requestFocus()
+            return null
+        }
+        if(imageUri == null) {
+            Toast.makeText(this, "Please select an organization logo", Toast.LENGTH_SHORT).show()
             return null
         }
         if (location.isEmpty()) {
@@ -143,7 +160,7 @@ class createOrganization : AppCompatActivity() {
             organizationEmail.requestFocus()
             return null
         }
-        if (phone.isEmpty()) {
+        if (phone.isEmpty() || (phone.length != 11 && phone.length != 9) ) {
             organizationPhone.error = "Phone number is required"
             organizationPhone.requestFocus()
             return null
@@ -177,10 +194,85 @@ class createOrganization : AppCompatActivity() {
         )
     }
 
+    private fun uploadImageToFirebase(organizationId: String) {
+        storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/organizationProfilePictures/$organizationId")
+
+        if (imageUri != null) {
+            // Generate a unique filename for the image to avoid overwriting
+            val fileName = "organizationProfile_${organizationId}.jpg"
+            val fileReference: StorageReference = storageReference.child(fileName)
+
+            // Upload the image file to Firebase Storage
+            fileReference.putFile(imageUri!!)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Image uploaded successfully", Toast.LENGTH_SHORT).show()
+                    // Optionally, you can get the download URL after upload
+                    fileReference.downloadUrl.addOnSuccessListener { uri ->
+                        imageUrl = uri.toString()
+
+                        // Save the image URL to the database
+                        val databaseRef = FirebaseDatabase.getInstance().getReference("organizationsData")
+                        databaseRef.child(organizationId).child("organizationLogo").setValue(imageUrl)
+                            .addOnSuccessListener {
+                                println("Image URL saved successfully")
+                            }
+                            .addOnFailureListener { e ->
+                                println("Failed to save image URL: ${'$'}{e.message}")
+                            }
+
+
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Failed to upload image: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show()
+        }
+
+
+    }
+
+
+    fun saveOrganizationToFirebase(organization: OrganizationData){
+        val databaseRef = FirebaseDatabase.getInstance().getReference("organizationsData")
+        val organizationId = databaseRef.push().key ?: return // Generate unique ID
+        organization.organizationLogo = imageUrl
+        Log.d("imageUrl",imageUrl)
+        val organizationObject = OrganizationData(
+            organizationId = organizationId,
+            organizationName = organization.organizationName,
+            organizationLocation = organization.organizationLocation,
+            organizationEmail = organization.organizationEmail,
+            organizationPhone = organization.organizationPhone,
+            organizationWebsite = organization.organizationWebsite,
+            organizationIndustry = organization.organizationIndustry,
+            organizationType = organization.organizationType,
+            organizationSize = organization.organizationSize,
+            organizationTagline = organization.organizationTagline,
+            organizationDescription = organization.organizationDescription,
+            organizationLogo = organization.organizationLogo
+        )
+
+        databaseRef.child(organizationId).setValue(organizationObject)
+            .addOnSuccessListener {
+                println("Organization saved successfully")
+            }
+            .addOnFailureListener { e ->
+                println("Failed to save organization: ${'$'}{e.message}")
+            }
+
+        uploadImageToFirebase(organizationId)
+
+        sendOrganizationDataToServer(organization)
+        val intent=Intent(this, OrganizationHomePageActivity::class.java)
+        startActivity(intent)
+    }
+
 
     private fun sendOrganizationDataToServer(organization: OrganizationData) {
         val url = "${Constants.SERVER_URL}registerOrganization/user/${user}/register"
-
+        organization.organizationLogo = imageUrl
         val jsonObject = JSONObject().apply {
             put("organizationName", organization.organizationName)
             put("organizationLogo", organization.organizationLogo)
@@ -220,6 +312,8 @@ class createOrganization : AppCompatActivity() {
         )
 
         requestQueue.add(request)
+
+
     }
 
 }
