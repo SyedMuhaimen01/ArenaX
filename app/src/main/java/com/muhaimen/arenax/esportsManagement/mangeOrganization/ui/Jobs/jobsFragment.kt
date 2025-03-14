@@ -18,7 +18,8 @@ class jobsFragment : Fragment() {
 
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
-    private lateinit var postJobButton:FloatingActionButton
+    private lateinit var postJobButton: FloatingActionButton
+
     companion object {
         fun newInstance() = jobsFragment()
     }
@@ -27,8 +28,6 @@ class jobsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // TODO: Use the ViewModel
     }
 
     override fun onCreateView(
@@ -41,25 +40,32 @@ class jobsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Retrieve organization name from arguments
+        val organizationName = arguments?.getString("organization_name") ?: ""
+
         // Initialize TabLayout and ViewPager2
         tabLayout = view.findViewById(R.id.tabLayout)
         viewPager = view.findViewById(R.id.viewPager)
         viewPager.isUserInputEnabled = true
-        // Set up ViewPager2 with an adapter (replace with your adapter)
-        viewPager.adapter = jobsViewPagerAdapter(requireActivity())
+
+        // Pass organizationName to ViewPager Adapter
+        val adapter = jobsViewPagerAdapter(requireActivity(), organizationName)
+        viewPager.adapter = adapter
+
         // Attach TabLayout with ViewPager2 using TabLayoutMediator
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {
-                0 -> "open "
-                1 -> "closed "
+                0 -> "Open"
+                1 -> "Closed"
                 else -> null
-
             }
         }.attach()
 
         postJobButton = view.findViewById(R.id.postButton)
         postJobButton.setOnClickListener {
-            val intent=Intent(context, jobPosting::class.java)
+            val intent = Intent(context, jobPosting::class.java).apply {
+                putExtra("organization_name", organizationName)
+            }
             startActivity(intent)
         }
     }
