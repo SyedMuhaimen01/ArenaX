@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -19,6 +21,7 @@ import androidx.navigation.NavOptions
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
@@ -38,7 +41,6 @@ class OrganizationHomePageActivity : AppCompatActivity(), NavigationView.OnNavig
     private lateinit var user: String
     private var source: String? = null
     private var organizationName: String? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -52,6 +54,35 @@ class OrganizationHomePageActivity : AppCompatActivity(), NavigationView.OnNavig
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
+        val headerView= binding.navView.getHeaderView(0)
+
+        val profileImage = headerView.findViewById<ImageView>(R.id.imageView)
+        val name = headerView.findViewById<TextView>(R.id.organizationNameTextView)
+        val email = headerView.findViewById<TextView>(R.id.textView)
+        organizationName = intent.getStringExtra("organization_name")
+        name.text = organizationName
+        val databaseRef = FirebaseDatabase.getInstance().getReference("organizationsData")
+        val query = databaseRef.orderByChild("organizationName").equalTo(organizationName)
+
+        query.get().addOnSuccessListener { snapshot ->
+            for (data in snapshot.children) {
+                val organization = data.getValue(OrganizationData::class.java)
+                // Assuming email is a TextView and profileImage is an ImageView
+                email.text = organization?.organizationEmail
+
+                val logo = organization?.organizationLogo
+                if (!logo.isNullOrEmpty() && logo != "null") {
+                    Glide.with(this).load(logo).into(profileImage)
+                } else {
+                    Glide.with(this).load(R.drawable.battlegrounds_icon_background).into(profileImage)
+                }
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("FirebaseError", "Error fetching organization data", exception)
+        }
+
+
+
         navController = findNavController(R.id.nav_host_fragment_content_organization_home_page)
 
         appBarConfiguration = AppBarConfiguration(

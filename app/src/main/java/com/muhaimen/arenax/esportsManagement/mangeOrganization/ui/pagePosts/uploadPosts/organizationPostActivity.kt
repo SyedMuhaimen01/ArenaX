@@ -27,11 +27,15 @@ import androidx.core.view.WindowInsetsCompat
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.OrganizationData
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONArray
 import org.json.JSONObject
@@ -52,11 +56,12 @@ class organizationPostActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var userId:String
     private var mediaUri: Uri? = null
+    private var mediaUrl: String = ""
     private lateinit var organizationName: String
     private var organizationLogo: String? = null
     private var city: String? = null
     private var country: String? = null
-
+    var organizationId:String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -101,7 +106,11 @@ class organizationPostActivity : AppCompatActivity() {
         }
 
         backButton.setOnClickListener { onBackPressed() }
-        postButton.setOnClickListener { uploadPost() }
+        postButton.setOnClickListener { uploadMediaToFirebase()
+            val intent = Intent(this, OrganizationHomePageActivity::class.java)
+            intent.putExtra("organization_name", organizationName)
+            startActivity(intent)
+        }
     }
 
     private fun openGallery() {
@@ -178,10 +187,39 @@ class organizationPostActivity : AppCompatActivity() {
         backButton = findViewById(R.id.backButton)
     }
 
-    private fun uploadPost() {
+    private fun uploadMediaToFirebase() {
+        val databaseRef = FirebaseDatabase.getInstance().getReference("organizationsData")
+        val query = databaseRef.orderByChild("organizationName").equalTo(organizationName)
+
+        query.get().addOnSuccessListener { snapshot ->
+            for (data in snapshot.children) {
+                val organization = data.getValue(OrganizationData::class.java)
+                // Assuming email is a TextView and profileImage is an ImageView
+                organizationId = organization?.organizationId
+                val storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/$organizationId/PagePosts")
+                mediaUri?.let { uri ->
+                    val uploadTask = storageReference.putFile(uri)
+
+                    uploadTask.addOnSuccessListener {
+                        storageReference.downloadUrl.addOnSuccessListener { downloadUri ->
+                            uploadPost(downloadUri.toString())
+                        }
+                    }.addOnFailureListener {}
+                }
+            }
+
+
+        }.addOnFailureListener { exception ->
+            Log.e("FirebaseError", "Error fetching organization data", exception)
+        }
+
+
+
+    }
+
+    private fun uploadPost(mediaUrl:String) {
         val caption = captionEditText.text.toString().trim()
         val article = articleTextView.text.toString().trim()
-        val mediaUrl = mediaUri?.toString() ?: ""
         val createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
         val requestBody = JSONObject().apply {
