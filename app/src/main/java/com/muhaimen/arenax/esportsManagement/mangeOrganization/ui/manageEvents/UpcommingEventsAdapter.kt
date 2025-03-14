@@ -26,7 +26,7 @@ class upcomingEventsAdapter(private val eventsList: List<Event>) :
             eventLocation.text = event.location
             eventMode.text = event.eventMode
             platform.text = event.platform
-            if(event.eventBanner.isNotEmpty()) {
+            if(event.eventBanner?.isNotEmpty() == true) {
                 Glide.with(itemView.context)
                     .load(eventBanner)
                     .placeholder(R.drawable.battlegrounds_icon_background)
