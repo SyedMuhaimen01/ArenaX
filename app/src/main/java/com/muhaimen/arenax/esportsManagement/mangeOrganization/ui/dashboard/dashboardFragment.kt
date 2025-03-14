@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.dashboard
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -32,6 +33,10 @@ class dashboardFragment : Fragment() {
     private var organizationDescriptionTextView: TextView? = null
     private var organizationLogoImageView: ImageView? = null
 
+    private var followersCountTextView: TextView? = null
+    private var followingCountTextView: TextView? = null
+    private var postCountTextView: TextView? = null
+
     private lateinit var requestQueue: RequestQueue
 
     override fun onCreateView(
@@ -43,14 +48,12 @@ class dashboardFragment : Fragment() {
 
         requestQueue = Volley.newRequestQueue(requireContext())
 
-        // Fetch organization name from arguments
         val organizationName = arguments?.getString("organization_name")
         Log.d("DashboardFragment", "Organization name: $organizationName")
 
         if (!organizationName.isNullOrEmpty()) {
             fetchOrganizationDetails(organizationName)
-        } else {
-            //Toast.makeText(requireContext(), "Organization name is missing", Toast.LENGTH_SHORT).show()
+            getOrganizationPostCount(organizationName)
         }
 
         return view
@@ -68,6 +71,10 @@ class dashboardFragment : Fragment() {
         organizationTaglineTextView = view.findViewById(R.id.organizationTaglineTextView)
         organizationDescriptionTextView = view.findViewById(R.id.organizationDescriptionTextView)
         organizationLogoImageView = view.findViewById(R.id.organizationLogoImageView)
+
+        followersCountTextView = view.findViewById(R.id.followersCountTextView)
+        followingCountTextView = view.findViewById(R.id.followingCountTextView)
+        postCountTextView = view.findViewById(R.id.postsCountTextView)
     }
 
     private fun fetchOrganizationDetails(orgName: String) {
@@ -82,7 +89,6 @@ class dashboardFragment : Fragment() {
             Request.Method.POST, url, requestBody,
             { response ->
                 try {
-                    // Check if view is available before modifying it
                     organizationNameTextView?.text = response.optString("organization_name", "N/A")
                     organizationLocationTextView?.text = response.optString("organization_location", "N/A")
                     organizationEmailTextView?.text = response.optString("organization_email", "N/A")
@@ -94,9 +100,11 @@ class dashboardFragment : Fragment() {
                     organizationTaglineTextView?.text = response.optString("organization_tagline", "N/A")
                     organizationDescriptionTextView?.text = response.optString("organization_description", "N/A")
 
-                    // Load organization logo using Glide
+                    followersCountTextView?.text = response.optInt("followers", 0).toString()
+                    followingCountTextView?.text = response.optInt("following", 0).toString()
+
                     val logoUrl =
-                        "https://firebasestorage.googleapis.com/v0/b/arenax-e1289.appspot.com/o/profileImages%2FPV5rfHtJqkcQvWMy5SYhQzEVEuK2%2Fprofile.jpg?alt=media&token=d010b921-fb9d-4a93-a7ed-94648ff081e9"
+                        Uri.parse("https://firebasestorage.googleapis.com/v0/b/arenax-e1289.appspot.com/o/profileImages%2FPV5rfHtJqkcQvWMy5SYhQzEVEuK2%2Fprofile.jpg?alt=media&token=d010b921-fb9d-4a93-a7ed-94648ff081e9")
 
                     organizationLogoImageView?.let {
                         Glide.with(requireContext())
@@ -116,5 +124,28 @@ class dashboardFragment : Fragment() {
             })
 
         requestQueue.add(jsonObjectRequest)
+    }
+
+    private fun getOrganizationPostCount(organizationName: String) {
+        val url = "${Constants.SERVER_URL}organizationPosts/postCount"
+
+        val jsonBody = JSONObject().apply {
+            put("organization_name", organizationName)
+        }
+
+        val request = JsonObjectRequest(
+            Request.Method.POST,
+            url,
+            jsonBody,
+            { response ->
+                val postCount = response.optInt("postCount", 0)
+                postCountTextView?.text = postCount.toString()
+            },
+            { error ->
+                Toast.makeText(context, "Failed to fetch post count: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        )
+
+        requestQueue.add(request)
     }
 }
