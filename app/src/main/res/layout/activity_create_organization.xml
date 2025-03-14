@@ -8,6 +8,7 @@
 <ScrollView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+
     tools:ignore="UselessParent">
     <LinearLayout
 
@@ -69,6 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
+            android:paddingBottom="@dimen/_100sdp"
             android:layout_marginTop="@dimen/_10sdp">
 
 
@@ -301,6 +303,7 @@
                 android:textColor="@color/white"
                 android:textSize="@dimen/_13ssp"
                 tools:ignore="HardcodedText" />
+
 
         </LinearLayout>
 

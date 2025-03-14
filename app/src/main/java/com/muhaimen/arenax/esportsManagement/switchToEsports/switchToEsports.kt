@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.airbnb.lottie.LottieAnimationView
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.esportsManagement.esportsProfile.esportsProfile
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
 import com.muhaimen.arenax.userProfile.UserProfile
 
@@ -65,7 +66,7 @@ class switchToEsports : AppCompatActivity() {
         // Delay transition to next activity
         Handler(Looper.getMainLooper()).postDelayed({
             val intent = if (isEsportsProfile) {
-                Intent(this, OrganizationHomePageActivity::class.java)
+                Intent(this, esportsProfile::class.java)
             } else {
                 Intent(this, UserProfile::class.java)
             }

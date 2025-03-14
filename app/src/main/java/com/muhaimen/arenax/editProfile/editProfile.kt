@@ -47,7 +47,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 
-@Suppress("NAME_SHADOWING")
 class editProfile : AppCompatActivity() {
     private lateinit var genderSpinner: Spinner
     private lateinit var auth: FirebaseAuth
