@@ -14,7 +14,15 @@ import androidx.fragment.app.Fragment
 import com.android.volley.*
 import com.android.volley.toolbox.*
 import com.bumptech.glide.Glide
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.OrganizationData
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONObject
 
@@ -35,7 +43,8 @@ class editPageFragment : Fragment() {
     private var organizationName: String = ""
     private var originalData: JSONObject = JSONObject()
     private var selectedImageUri: Uri? = null
-
+    private var imageUrl:String=""
+    private lateinit var storageReference: StorageReference
     companion object {
         fun newInstance(organizationName: String): editPageFragment {
             return editPageFragment().apply {
@@ -65,7 +74,7 @@ class editPageFragment : Fragment() {
         fetchOrganizationData(organizationName)
 
         organizationLogo.setOnClickListener { selectImage() }
-        updateButton.setOnClickListener { updateOrganizationData() }
+        updateButton.setOnClickListener { updateOrganizationOnFirebase() }
     }
 
     private fun initializeViews(view: View) {
@@ -123,6 +132,7 @@ class editPageFragment : Fragment() {
         }
 
         val logoUrl = response.optString("organization_logo", "").takeIf { it.isNotBlank() }
+        imageUrl= logoUrl.toString()
         if (!logoUrl.isNullOrEmpty()) {
             Glide.with(this).load(logoUrl).into(organizationLogo)
             organizationLogo.tag = logoUrl
@@ -132,10 +142,138 @@ class editPageFragment : Fragment() {
             organizationLogo.tag = ""
         }
     }
+    private fun uploadImageToFirebase(organizationId: String) {
+        storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/organizationProfilePictures/$organizationId")
 
-    private fun updateOrganizationData() {
+        if (selectedImageUri != null) {
+            // Generate a unique filename for the image to avoid overwriting
+            val fileName = "organizationProfile_${organizationId}.jpg"
+            val fileReference: StorageReference = storageReference.child(fileName)
+
+            // Upload the image file to Firebase Storage
+            fileReference.putFile(selectedImageUri!!)
+                .addOnSuccessListener {
+                    // Optionally, you can get the download URL after upload
+                    fileReference.downloadUrl.addOnSuccessListener { uri ->
+                        imageUrl = uri.toString()
+                        // Save the image URL to the database
+                        val databaseRef = FirebaseDatabase.getInstance().getReference("organizationsData")
+                        databaseRef.child(organizationId).child("organizationLogo").setValue(imageUrl)
+                            .addOnSuccessListener {
+
+                                updateOrganizationData(imageUrl)
+                            }
+                            .addOnFailureListener { e ->
+                                println("Failed to save image URL: ${'$'}{e.message}")
+                            }
+
+
+                    }
+                }
+                .addOnFailureListener {
+                }
+        } else {
+        }
+
+
+    }
+
+    fun updateOrganizationOnFirebase() {
+        val databaseRef = FirebaseDatabase.getInstance().getReference("organizationsData")
+
+        // Get organization details from UI
+        val name = organizationNameEditText.text.toString()
+        val location = organizationLocation.text.toString()
+        val email = organizationEmail.text.toString()
+        val phone = organizationPhone.text.toString()
+        val website = organizationWebsite.text.toString()
+        val industry = organizationIndustry.text.toString()
+        val type = organizationType.selectedItem.toString()
+        val size = organizationSize.selectedItem.toString()
+        val tagline = organizationTagline.text.toString()
+        val description = organizationDescription.text.toString()
+
+        // Query to find the organization node with matching organizationName
+        val query = databaseRef.orderByChild("organizationName").equalTo(name)
+
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    // Iterate through the results (there could be multiple matches)
+                    for (organizationSnapshot in snapshot.children) {
+                        val organizationId = organizationSnapshot.key // Get the existing organization ID
+
+                        // Create an updated organization object
+                        val updatedOrganization = OrganizationData(
+                            organizationId = organizationId!!,
+                            organizationName = name,
+                            organizationLocation = location,
+                            organizationEmail = email,
+                            organizationPhone = phone,
+                            organizationWebsite = website,
+                            organizationIndustry = industry,
+                            organizationType = type,
+                            organizationSize = size,
+                            organizationTagline = tagline,
+                            organizationDescription = description,
+                            organizationLogo = imageUrl
+                        )
+
+                        // Update the existing organization node in Firebase
+                        databaseRef.child(organizationId).setValue(updatedOrganization)
+                            .addOnSuccessListener {
+                                println("Organization updated successfully")
+
+                                // Upload the image to Firebase after updating the details
+                                uploadImageToFirebase(organizationId)
+
+                                // Navigate to the organization home page
+                                val intent = Intent(requireContext(), OrganizationHomePageActivity::class.java)
+                                startActivity(intent)
+                            }
+                            .addOnFailureListener { e ->
+                                println("Failed to update organization: ${e.message}")
+                            }
+
+                        break // If you find a match, break the loop
+                    }
+                } else {
+                    // Organization with the provided name doesn't exist
+                    println("No organization found with that name.")
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                println("Database query failed: ${error.message}")
+            }
+        })
+    }
+
+
+    private fun updateOrganizationData(imageUrl:String) {
+        val name = organizationNameEditText.text.toString()
+        val location = organizationLocation.text.toString()
+        val email = organizationEmail.text.toString()
+        val phone = organizationPhone.text.toString()
+        val website = organizationWebsite.text.toString()
+        val industry = organizationIndustry.text.toString()
+        val type = organizationType.selectedItem.toString()
+        val size = organizationSize.selectedItem.toString()
+        val tagline = organizationTagline.text.toString()
+        val description = organizationDescription.text.toString()
         val updatedData = JSONObject()
-        updatedData.put("organizationName", organizationName)
+        updatedData.put("organizationName", name)
+        updatedData.put("organizationLocation",location)
+        updatedData.put("organizationEmail",email)
+        updatedData.put("organizationPhone", phone)
+        updatedData.put("organizationWebsite",website)
+        updatedData.put("organizationIndustry", industry)
+        updatedData.put("organizationTagline", tagline)
+        updatedData.put("organizationDescription", description)
+        updatedData.put("organizationType", type)
+        updatedData.put("organizationSize", size)
+        updatedData.put("organizationLogo",imageUrl )
+     /*   updatedData.put("organizationName", organizationName)
         updatedData.put("organizationLocation", getTextOrDefault(organizationLocation, "organization_location"))
         updatedData.put("organizationEmail", getTextOrDefault(organizationEmail, "organization_email"))
         updatedData.put("organizationPhone", getTextOrDefault(organizationPhone, "organization_phone"))
@@ -145,10 +283,8 @@ class editPageFragment : Fragment() {
         updatedData.put("organizationDescription", getTextOrDefault(organizationDescription, "organization_description"))
         updatedData.put("organizationType", getSpinnerOrDefault(organizationType, "organization_type"))
         updatedData.put("organizationSize", getSpinnerOrDefault(organizationSize, "organization_size"))
-
-        val existingLogoUrl = organizationLogo.tag as? String ?: ""
-        updatedData.put("organizationLogo", selectedImageUri?.toString() ?: existingLogoUrl)
-
+        updatedData.put("organizationLogo",imageUrl )
+*/
         val request = JsonObjectRequest(
             Request.Method.POST, "${Constants.SERVER_URL}registerOrganization/update", updatedData,
             { response ->

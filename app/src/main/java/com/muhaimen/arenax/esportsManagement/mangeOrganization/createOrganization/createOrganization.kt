@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -44,7 +43,8 @@ class createOrganization : AppCompatActivity() {
     private lateinit var storageReference: StorageReference
     private lateinit var auth: FirebaseAuth
     private lateinit var user: String
-    var imageUrl: String = ""
+    var imageUrl: String? = null
+    var imageUrl2: String = ""
     var imageUri: Uri? = null
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,7 +104,6 @@ class createOrganization : AppCompatActivity() {
             val organizationData = getOrganizationDataFromInputs()
             if (organizationData != null) {
                 saveOrganizationToFirebase(organizationData)
-
             }
         }
     }
@@ -190,11 +189,11 @@ class createOrganization : AppCompatActivity() {
             organizationSize = size,
             organizationTagline = organizationTagline.text.toString().trim(),
             organizationDescription = description,
-            organizationLogo = organizationLogo.toString()
+            organizationLogo = imageUri.toString()
         )
     }
 
-    private fun uploadImageToFirebase(organizationId: String) {
+    private fun uploadImageToFirebase(organizationId: String,organization: OrganizationData) {
         storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/organizationProfilePictures/$organizationId")
 
         if (imageUri != null) {
@@ -209,12 +208,13 @@ class createOrganization : AppCompatActivity() {
                     // Optionally, you can get the download URL after upload
                     fileReference.downloadUrl.addOnSuccessListener { uri ->
                         imageUrl = uri.toString()
-
                         // Save the image URL to the database
                         val databaseRef = FirebaseDatabase.getInstance().getReference("organizationsData")
                         databaseRef.child(organizationId).child("organizationLogo").setValue(imageUrl)
                             .addOnSuccessListener {
-                                println("Image URL saved successfully")
+
+                                organization.organizationLogo = imageUrl
+                                sendOrganizationDataToServer(organization)
                             }
                             .addOnFailureListener { e ->
                                 println("Failed to save image URL: ${'$'}{e.message}")
@@ -233,12 +233,10 @@ class createOrganization : AppCompatActivity() {
 
     }
 
-
     fun saveOrganizationToFirebase(organization: OrganizationData){
         val databaseRef = FirebaseDatabase.getInstance().getReference("organizationsData")
         val organizationId = databaseRef.push().key ?: return // Generate unique ID
-        organization.organizationLogo = imageUrl
-        Log.d("imageUrl",imageUrl)
+
         val organizationObject = OrganizationData(
             organizationId = organizationId,
             organizationName = organization.organizationName,
@@ -262,20 +260,18 @@ class createOrganization : AppCompatActivity() {
                 println("Failed to save organization: ${'$'}{e.message}")
             }
 
-        uploadImageToFirebase(organizationId)
-
-        sendOrganizationDataToServer(organization)
+        uploadImageToFirebase(organizationId,organization)
         val intent=Intent(this, OrganizationHomePageActivity::class.java)
+        intent.putExtra("organization_name",organization.organizationName)
         startActivity(intent)
     }
 
 
     private fun sendOrganizationDataToServer(organization: OrganizationData) {
         val url = "${Constants.SERVER_URL}registerOrganization/user/${user}/register"
-        organization.organizationLogo = imageUrl
         val jsonObject = JSONObject().apply {
             put("organizationName", organization.organizationName)
-            put("organizationLogo", organization.organizationLogo)
+            put("organizationLogo", imageUrl)
             put("organizationDescription", organization.organizationDescription)
             put("organizationLocation", organization.organizationLocation)
             put("organizationEmail", organization.organizationEmail)
