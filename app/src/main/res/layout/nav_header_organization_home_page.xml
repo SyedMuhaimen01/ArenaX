@@ -25,7 +25,7 @@
         tools:ignore="UnusedAttribute" />
 
     <TextView
-        android:id="@+id/companyNameTextView"
+        android:id="@+id/organizationNameTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"

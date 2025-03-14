@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.dashboard
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -70,13 +71,14 @@ class dashboardFragment : Fragment() {
         organizationSizeTextView = view.findViewById(R.id.organizationSizeTextView)
         organizationTaglineTextView = view.findViewById(R.id.organizationTaglineTextView)
         organizationDescriptionTextView = view.findViewById(R.id.organizationDescriptionTextView)
-        organizationLogoImageView = view.findViewById(R.id.organizationLogoImageView)
+        organizationLogoImageView = view.findViewById(R.id.profilePicture)
 
         followersCountTextView = view.findViewById(R.id.followersCountTextView)
         followingCountTextView = view.findViewById(R.id.followingCountTextView)
         postCountTextView = view.findViewById(R.id.postsCountTextView)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun fetchOrganizationDetails(orgName: String) {
         Log.d("DashboardFragment", "Fetching organization details for: $orgName")
         val url = "${Constants.SERVER_URL}registerOrganization/organizationDetails"
@@ -103,12 +105,11 @@ class dashboardFragment : Fragment() {
                     followersCountTextView?.text = response.optInt("followers", 0).toString()
                     followingCountTextView?.text = response.optInt("following", 0).toString()
 
-                    val logoUrl =
-                        Uri.parse("https://firebasestorage.googleapis.com/v0/b/arenax-e1289.appspot.com/o/profileImages%2FPV5rfHtJqkcQvWMy5SYhQzEVEuK2%2Fprofile.jpg?alt=media&token=d010b921-fb9d-4a93-a7ed-94648ff081e9")
+                    val logoUrl = response.optString("organization_logo", "").takeIf { it.isNotBlank() }
 
                     organizationLogoImageView?.let {
                         Glide.with(requireContext())
-                            .load(logoUrl)
+                            .load(logoUrl ?: R.drawable.add_icon_foreground)
                             .placeholder(R.drawable.add_icon_foreground)
                             .into(it)
                     }
