@@ -1,20 +1,24 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.editPage
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.Fragment
+import com.android.volley.*
+import com.android.volley.toolbox.*
+import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.dataClasses.OrganizationData
+import com.muhaimen.arenax.utils.Constants
+import org.json.JSONObject
 
 class editPageFragment : Fragment() {
-
     private lateinit var organizationNameEditText: EditText
     private lateinit var organizationLocation: EditText
     private lateinit var organizationEmail: EditText
@@ -27,11 +31,20 @@ class editPageFragment : Fragment() {
     private lateinit var organizationDescription: EditText
     private lateinit var organizationLogo: ImageView
     private lateinit var updateButton: Button
-
-    private val viewModel: EditPageViewModel by viewModels()
+    private lateinit var requestQueue: RequestQueue
+    private var organizationName: String = ""
+    private var originalData: JSONObject = JSONObject()
+    private var selectedImageUri: Uri? = null
 
     companion object {
-        fun newInstance() = editPageFragment()
+        fun newInstance(organizationName: String): editPageFragment {
+            return editPageFragment().apply {
+                arguments = Bundle().apply {
+                    putString("organization_name", organizationName)
+                }
+            }
+        }
+
         private const val PICK_IMAGE_REQUEST = 1
     }
 
@@ -45,53 +58,15 @@ class editPageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeViews(view)
+        requestQueue = Volley.newRequestQueue(requireContext())
+        populateSpinners()
 
+        organizationName = arguments?.getString("organization_name") ?: ""
+        fetchOrganizationData(organizationName)
 
-        // Set up image selection for logo
         organizationLogo.setOnClickListener { selectImage() }
-
-        // Set up submit button
-        updateButton.setOnClickListener {
-            val name = organizationNameEditText.text.toString()
-            val location = organizationLocation.text.toString()
-            val email = organizationEmail.text.toString()
-            val phone = organizationPhone.text.toString()
-            val website = organizationWebsite.text.toString()
-            val industry = organizationIndustry.text.toString()
-            val type = organizationType.selectedItem.toString()
-            val size = organizationSize.selectedItem.toString()
-            val tagline = organizationTagline.text.toString()
-            val description = organizationDescription.text.toString()
-
-            // Get logo URI (optional, assuming it's set somewhere)
-            val logoUri = organizationLogo.tag as? String ?: ""
-
-            // Validate input before submitting
-            if (name.isBlank() || email.isBlank() || phone.isBlank()) {
-                Toast.makeText(requireContext(), "Name, Email, and Phone are required", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // Create organization object
-            val updatedData = OrganizationData(
-               organizationName = name,
-                organizationLocation = location,
-                organizationEmail = email,
-                organizationPhone = phone,
-                organizationWebsite = website,
-                organizationIndustry = industry,
-                organizationType = type,
-                organizationSize = size,
-                organizationTagline = tagline,
-                organizationDescription = description,
-                organizationLogo = logoUri // Store logo URL
-            )
-            val orgId = "organizationId" // Replace with actual organization ID
-            // Call ViewModel to update data
-            viewModel.updateOrganization(orgId, updatedData)
-        }
+        updateButton.setOnClickListener { updateOrganizationData() }
     }
-
 
     private fun initializeViews(view: View) {
         organizationNameEditText = view.findViewById(R.id.organizationNameEditText)
@@ -107,16 +82,93 @@ class editPageFragment : Fragment() {
         organizationLogo = view.findViewById(R.id.organizationLogoImageView)
         updateButton = view.findViewById(R.id.updateButton)
 
-        // Populate spinners
         populateSpinners()
     }
 
-    private fun setupListeners() {
-        // Handle logo selection
-        organizationLogo.setOnClickListener {
-            selectImage()
+    private fun fetchOrganizationData(orgName: String) {
+        val url = "${Constants.SERVER_URL}registerOrganization/organizationDetails"
+
+        val requestBody = JSONObject().apply {
+            put("organizationName", orgName)
         }
 
+        val request = JsonObjectRequest(
+            Request.Method.POST, url, requestBody,
+            { response ->
+                originalData = response
+                fillOrganizationData(response)
+            },
+            { error ->
+                Log.e("VolleyError", "Error fetching organization data: ${error.message}")
+                Toast.makeText(requireContext(), "Failed to fetch organization data", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        requestQueue.add(request)
+    }
+
+    private fun fillOrganizationData(response: JSONObject) {
+        organizationNameEditText.setText(response.optString("organization_name", ""))
+        organizationLocation.setText(response.optString("organization_location", ""))
+        organizationEmail.setText(response.optString("organization_email", ""))
+        organizationPhone.setText(response.optString("organization_phone", ""))
+        organizationWebsite.setText(response.optString("organization_website", ""))
+        organizationIndustry.setText(response.optString("organization_industry", ""))
+        organizationTagline.setText(response.optString("organization_tagline", ""))
+        organizationDescription.setText(response.optString("organization_description", ""))
+
+        view?.post {
+            setSpinnerValue(organizationType, response.optString("organization_type", ""))
+            setSpinnerValue(organizationSize, response.optString("organization_size", ""))
+        }
+
+        val logoUrl = response.optString("organization_logo", "").takeIf { it.isNotBlank() }
+        if (!logoUrl.isNullOrEmpty()) {
+            Glide.with(this).load(logoUrl).into(organizationLogo)
+            organizationLogo.tag = logoUrl
+        } else {
+            Glide.with(this).clear(organizationLogo)
+            organizationLogo.setImageResource(R.drawable.add_icon_foreground)
+            organizationLogo.tag = ""
+        }
+    }
+
+    private fun updateOrganizationData() {
+        val updatedData = JSONObject()
+        updatedData.put("organizationName", organizationName)
+        updatedData.put("organizationLocation", getTextOrDefault(organizationLocation, "organization_location"))
+        updatedData.put("organizationEmail", getTextOrDefault(organizationEmail, "organization_email"))
+        updatedData.put("organizationPhone", getTextOrDefault(organizationPhone, "organization_phone"))
+        updatedData.put("organizationWebsite", getTextOrDefault(organizationWebsite, "organization_website"))
+        updatedData.put("organizationIndustry", getTextOrDefault(organizationIndustry, "organization_industry"))
+        updatedData.put("organizationTagline", getTextOrDefault(organizationTagline, "organization_tagline"))
+        updatedData.put("organizationDescription", getTextOrDefault(organizationDescription, "organization_description"))
+        updatedData.put("organizationType", getSpinnerOrDefault(organizationType, "organization_type"))
+        updatedData.put("organizationSize", getSpinnerOrDefault(organizationSize, "organization_size"))
+
+        val existingLogoUrl = organizationLogo.tag as? String ?: ""
+        updatedData.put("organizationLogo", selectedImageUri?.toString() ?: existingLogoUrl)
+
+        val request = JsonObjectRequest(
+            Request.Method.POST, "${Constants.SERVER_URL}registerOrganization/update", updatedData,
+            { response ->
+                Toast.makeText(requireContext(), "Organization Updated Successfully", Toast.LENGTH_SHORT).show()
+                Log.d("UpdateSuccess", "Response: $response")
+            },
+            { error ->
+                Log.e("VolleyError", "Failed to update organization: ${error.networkResponse?.statusCode} - ${error.message}")
+                Toast.makeText(requireContext(), "Failed to update organization details", Toast.LENGTH_SHORT).show()
+            }
+        )
+        requestQueue.add(request)
+    }
+
+    private fun getTextOrDefault(editText: EditText, key: String): String {
+        return editText.text.toString().trim().ifEmpty { originalData.optString(key, "") }
+    }
+
+    private fun getSpinnerOrDefault(spinner: Spinner, key: String): String {
+        return spinner.selectedItem?.toString()?.trim()?.ifEmpty { originalData.optString(key, "") } ?: originalData.optString(key, "")
     }
 
     private fun selectImage() {
@@ -124,31 +176,37 @@ class editPageFragment : Fragment() {
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
-    @Deprecated("Use registerForActivityResult() instead for better compatibility.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == AppCompatActivity.RESULT_OK && data != null) {
-            val imageUri = data.data
-            organizationLogo.setImageURI(imageUri)
-            organizationLogo.clipToOutline = true
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            selectedImageUri = data.data
+            Glide.with(this).load(selectedImageUri).into(organizationLogo)
         }
     }
 
     private fun populateSpinners() {
-        context?.let {
-            ArrayAdapter.createFromResource(
-                it, R.array.organization_types, android.R.layout.simple_spinner_item
-            ).also { adapter ->
+        context?.let { ctx ->
+            ArrayAdapter.createFromResource(ctx, R.array.organization_types, android.R.layout.simple_spinner_item).also { adapter ->
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 organizationType.adapter = adapter
             }
 
-            ArrayAdapter.createFromResource(
-                it, R.array.organization_sizes, android.R.layout.simple_spinner_item
-            ).also { adapter ->
+            ArrayAdapter.createFromResource(ctx, R.array.organization_sizes, android.R.layout.simple_spinner_item).also { adapter ->
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 organizationSize.adapter = adapter
             }
+        }
+    }
+
+    private fun setSpinnerValue(spinner: Spinner, value: String) {
+        val adapter = spinner.adapter
+        if (adapter is ArrayAdapter<*>) {
+            val position = (adapter as ArrayAdapter<String>).getPosition(value)
+            if (position >= 0) {
+                spinner.setSelection(position)
+            }
+        } else {
+            Log.e("EditPageFragment", "Spinner adapter is null or not an ArrayAdapter")
         }
     }
 }
