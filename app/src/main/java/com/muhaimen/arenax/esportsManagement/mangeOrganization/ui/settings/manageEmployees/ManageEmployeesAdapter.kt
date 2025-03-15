@@ -3,54 +3,71 @@ package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings.mana
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.firebase.database.*
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.organizationAdmins
+import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.dataClasses.organizationEmployee
 
 class ManageEmployeesAdapter(
-    private var employeesList: List<organizationEmployee>
-) : RecyclerView.Adapter<ManageEmployeesAdapter.SearchViewHolder>() {
+    private var employeesList: List<organizationEmployee>,
+    private val onRemoveAdminClick: (String) -> Unit
+) : RecyclerView.Adapter<ManageEmployeesAdapter.ViewHolder>() {
 
-    private val databaseReference: DatabaseReference =
-        FirebaseDatabase.getInstance().getReference("userData") // Reference to userData node
+    private val databaseRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("userData")
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.admin_item, parent, false)
-        return SearchViewHolder(view)
+        return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
-        val admin = employeesList[position]
-        holder.bind(admin)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val employee = employeesList[position]
+        holder.bind(employee)
     }
 
     override fun getItemCount(): Int = employeesList.size
 
     // ViewHolder class
-    inner class SearchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val employeeNameTextView: TextView = itemView.findViewById(R.id.adminNameTextView)
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val adminNameTextView: TextView = itemView.findViewById(R.id.fullname)
+        private val gamerTagTextView: TextView = itemView.findViewById(R.id.gamerTag)
+        private val profilePicture: ImageView = itemView.findViewById(R.id.profilePicture)
+        private val removeAdminButton: TextView = itemView.findViewById(R.id.removeAdminButton)
 
-        fun bind(admin: organizationEmployee) {
-            val employeeId = admin.employeeId
+        fun bind(employee: organizationEmployee) {
 
-            // Query Firebase to get the full name
-            databaseReference.child(employeeId).child("fullname").addListenerForSingleValueEvent(object : ValueEventListener {
+
+            // Fetch user details from Firebase
+            databaseRef.child(employee.employeeId).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        val fullName = snapshot.getValue(String::class.java) ?: "Unknown"
-                        employeeNameTextView.text = fullName
-                    } else {
-                        employeeNameTextView.text = "User not found"
+                    val user = snapshot.getValue(UserData::class.java)
+                    if (user != null) {
+                        adminNameTextView.text = user.fullname
+                        gamerTagTextView.text = user.gamerTag ?: "N/A"
+                        Glide.with(itemView.context)
+                            .load(user.profilePicture ?: R.drawable.battlegrounds_icon_background)
+                            .placeholder(R.drawable.battlegrounds_icon_background)
+                            .error(R.drawable.battlegrounds_icon_background)
+                            .circleCrop()
+                            .into(profilePicture)
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    employeeNameTextView.text = "Error loading"
+                    // Handle error if necessary
                 }
             })
+
+            // Handle remove admin button click
+            removeAdminButton.setOnClickListener {
+                onRemoveAdminClick(employee.employeeId)
+            }
         }
     }
 }

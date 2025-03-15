@@ -1,20 +1,20 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings.manageEmployees
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.database.*
+import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.dataClasses.organizationEmployee
+import com.muhaimen.arenax.dataClasses.UserData
 
 class SearchEmployeesAdapter(
-    private var employeesList: List<organizationEmployee>
+    private var employeesList: List<UserData>,
+    private val onAddEmployeeClick: (UserData) -> Unit // Callback for adding admin
 ) : RecyclerView.Adapter<SearchEmployeesAdapter.SearchViewHolder>() {
-
-    private val databaseReference: DatabaseReference =
-        FirebaseDatabase.getInstance().getReference("userData") // Reference to userData node
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -31,26 +31,33 @@ class SearchEmployeesAdapter(
 
     // ViewHolder class
     inner class SearchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val employeeNameTextView: TextView = itemView.findViewById(R.id.adminNameTextView)
+        private val adminNameTextView: TextView = itemView.findViewById(R.id.fullname)
+        private val gamerTagTextView: TextView = itemView.findViewById(R.id.gamerTag)
+        private val profilePicture: ImageView = itemView.findViewById(R.id.profilePicture)
+        private val addEmployeeButton: TextView = itemView.findViewById(R.id.addAdminButton)
 
-        fun bind(admin: organizationEmployee) {
-            val employeeId = admin.employeeId
+        fun bind(employee: UserData) {
+            adminNameTextView.text = employee.fullname
+            gamerTagTextView.text = employee.gamerTag
 
-            // Query Firebase to get the full name
-            databaseReference.child(employeeId).child("fullname").addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        val fullName = snapshot.getValue(String::class.java) ?: "Unknown"
-                        employeeNameTextView.text = fullName
-                    } else {
-                        employeeNameTextView.text = "User not found"
-                    }
-                }
+            // Load profile picture using Glide (handles URLs and placeholders)
+            Glide.with(itemView.context)
+                .load(employee.profilePicture ?: R.drawable.battlegrounds_icon_background) // Use a default profile picture if null
+                .placeholder(R.drawable.battlegrounds_icon_background)
+                .error(R.drawable.battlegrounds_icon_background)
+                .circleCrop()
+                .into(profilePicture)
 
-                override fun onCancelled(error: DatabaseError) {
-                    employeeNameTextView.text = "Error loading"
-                }
-            })
+            // Handle button click to add admin
+            addEmployeeButton.setOnClickListener {
+                onAddEmployeeClick(employee)
+            }
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateEmployeesList(newUserList: List<UserData>) {
+        employeesList = newUserList
+        notifyDataSetChanged() // Refresh the entire list
     }
 }
