@@ -58,25 +58,75 @@ class ViewAllChatsAdapter(
             val userRef = database.getReference("userData").child(receiverId)
 
             userRef.get().addOnSuccessListener { dataSnapshot ->
-                if (dataSnapshot.exists()) {
-                    val profileImageUrl = dataSnapshot.child("profilePicture").value?.toString() ?: ""
-                    val fullname = dataSnapshot.child("fullname").value?.toString() ?: "Unknown User"
-                    val gamerTag = dataSnapshot.child("gamerTag").value?.toString() ?: "Unknown GamerTag"
+                if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                    // Found user in userData
+                    val profileImageUrl = dataSnapshot.child("profilePicture").value?.toString().orEmpty()
+                    val fullname = dataSnapshot.child("fullname").value?.toString().orEmpty()
+                    val gamerTag = dataSnapshot.child("gamerTag").value?.toString().orEmpty()
 
-                    val intent = Intent(itemView.context, ChatActivity::class.java).apply {
-                        putExtra("userId", receiverId)
-                        putExtra("fullname", fullname)
-                        putExtra("gamerTag", gamerTag)
-                        putExtra("profilePicture", profileImageUrl)
-                        putExtra("gamerRank", "00")
+                    if (fullname.isNotEmpty()) {
+                        startChat(receiverId, fullname, gamerTag, profileImageUrl, "00","user")
+                    } else {
+                        Log.e("Chat", "User data is missing fields. Checking organizations...")
+                        fetchOrganizationDataAndStartChat(receiverId)
                     }
-                    itemView.context.startActivity(intent)
+                } else {
+                    // If userData doesn't exist or is empty, check organizationData
+                    fetchOrganizationDataAndStartChat(receiverId)
                 }
-            }.addOnFailureListener {}
+            }.addOnFailureListener {
+                Log.e("Chat", "Failed to fetch user data: ${it.message}")
+                fetchOrganizationDataAndStartChat(receiverId) // Fallback in case of failure
+            }
+        }
+
+        private fun fetchOrganizationDataAndStartChat(receiverId: String) {
+            val database = FirebaseManager.getDatabseInstance()
+            val orgRef = database.getReference("organizationsData").child(receiverId)
+
+            orgRef.get().addOnSuccessListener { dataSnapshot ->
+                if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                    // Found organization in organizationData
+                    val profileImageUrl = dataSnapshot.child("organizationLogo").value?.toString().orEmpty()
+                    val orgName = dataSnapshot.child("organizationName").value?.toString().orEmpty()
+                    Log.d("organizationName", orgName)
+
+                    if (orgName.isNotEmpty()) {
+                        startChat(receiverId, orgName, "", profileImageUrl, "00","organization")
+                    } else {
+                        Log.e("Chat", "Organization data is missing fields.")
+                    }
+                } else {
+                    Log.d("Chat", "Receiver ID not found in userData or organizationData")
+                }
+            }.addOnFailureListener {
+                Log.e("Chat", "Failed to fetch organization data: ${it.message}")
+            }
+        }
+
+
+        // Function to start the chat activity
+        private fun startChat(
+            userId: String,
+            fullname: String,
+            gamerTag: String,
+            profilePicture: String,
+            gamerRank: String,
+            dataType:String
+        ) {
+            val intent = Intent(itemView.context, ChatActivity::class.java).apply {
+                putExtra("userId", userId)
+                putExtra("fullname", fullname)
+                putExtra("gamerTag", gamerTag)
+                putExtra("profilePicture", profilePicture)
+                putExtra("gamerRank", gamerRank)
+                putExtra("dataType",dataType)
+            }
+            itemView.context.startActivity(intent)
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.view_all_chats_card, parent, false)
         return ChatViewHolder(itemView)
@@ -96,23 +146,18 @@ class ViewAllChatsAdapter(
         val userRef = database.getReference("userData").child(otherUserId)
 
         userRef.get().addOnSuccessListener { dataSnapshot ->
-            if (dataSnapshot.exists()) {
-                val profileImageUrl = dataSnapshot.child("profilePicture").value?.toString() ?: ""
-                holder.usernameTextView.text = dataSnapshot.child("fullname").value?.toString() ?: "Unknown User"
+            if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                // Found user in userData
+                val profileImageUrl = dataSnapshot.child("profilePicture").value?.toString().orEmpty()
+                val fullname = dataSnapshot.child("fullname").value?.toString().orEmpty()
 
-                Glide.with(holder.profileImage.context)
-                    .load(profileImageUrl)
-                    .placeholder(R.drawable.game_icon_foreground)
-                    .error(R.drawable.game_icon_foreground)
-                    .circleCrop()
-                    .into(holder.profileImage)
+                updateChatUI(holder, fullname, profileImageUrl)
             } else {
-                holder.usernameTextView.text = "Unknown User"
-                holder.profileImage.setImageResource(R.drawable.game_icon_foreground)
+                // If not found in userData, check organizationsData
+                fetchOrganizationDataAndUpdateUI(holder, otherUserId)
             }
         }.addOnFailureListener {
-            holder.usernameTextView.text = "Unknown User"
-            holder.profileImage.setImageResource(R.drawable.game_icon_foreground)
+            fetchOrganizationDataAndUpdateUI(holder, otherUserId) // Fallback in case of failure
         }
 
         val formattedDate = convertTimestampToDateWithAmPm(chatItem.time)
@@ -124,6 +169,37 @@ class ViewAllChatsAdapter(
         } else {
             View.GONE
         }
+    }
+
+    private fun fetchOrganizationDataAndUpdateUI(holder: ChatViewHolder, organizationId: String) {
+        val database = FirebaseManager.getDatabseInstance()
+        val orgRef = database.getReference("organizationsData").child(organizationId)
+
+        orgRef.get().addOnSuccessListener { dataSnapshot ->
+            if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                // Found organization in organizationsData
+                val profileImageUrl = dataSnapshot.child("organizationLogo").value?.toString().orEmpty()
+                val orgName = dataSnapshot.child("organizationName").value?.toString().orEmpty()
+
+                updateChatUI(holder, orgName, profileImageUrl)
+            } else {
+                // Neither user nor organization found, set defaults
+                updateChatUI(holder, "Unknown User", "")
+            }
+        }.addOnFailureListener {
+            updateChatUI(holder, "Unknown User", "")
+        }
+    }
+
+    private fun updateChatUI(holder: ChatViewHolder, name: String, profileImageUrl: String) {
+        holder.usernameTextView.text = name.ifEmpty { "Unknown User" }
+
+        Glide.with(holder.profileImage.context)
+            .load(profileImageUrl.ifEmpty { null })
+            .placeholder(R.drawable.game_icon_foreground)
+            .error(R.drawable.game_icon_foreground)
+            .circleCrop()
+            .into(holder.profileImage)
     }
 
     override fun getItemCount(): Int = chatList.size

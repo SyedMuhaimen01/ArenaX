@@ -62,6 +62,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var receiverFullName: String
     private lateinit var receiverGamerTag: String
     private lateinit var receiverProfilePicture: String
+    private lateinit var dataType: String
 
     private var currentPhotoUri: Uri? = null
 
@@ -91,8 +92,16 @@ class ChatActivity : AppCompatActivity() {
         receiverFullName = intent.getStringExtra("fullname") ?: ""
         receiverGamerTag = intent.getStringExtra("gamerTag") ?: ""
         receiverProfilePicture = intent.getStringExtra("profilePicture") ?: ""
+        dataType = intent.getStringExtra("dataType") ?: ""
+        Log.d("ChatActivity", receiverFullName)
 
-        textViewGamerTag.text = receiverGamerTag
+        if(receiverGamerTag.isNotEmpty()){
+            textViewGamerTag.text = receiverGamerTag
+        }
+        else{
+            textViewGamerTag.text = receiverFullName
+        }
+
         if (receiverProfilePicture.isNotEmpty()) {
             Glide.with(this)
                 .load(receiverProfilePicture)
@@ -114,7 +123,12 @@ class ChatActivity : AppCompatActivity() {
         sendButton.setOnClickListener {
             val messageText = messageEditText.text.toString().trim()
             if (messageText.isNotEmpty()) {
-                sendMessage(messageText, ChatItem.ContentType.TEXT)
+                if (dataType=="user"){
+                    sendUserMessage(messageText, ChatItem.ContentType.TEXT)
+                }else{
+                    sendOrganizationMessage(messageText, ChatItem.ContentType.TEXT)
+                }
+
             }
         }
 
@@ -145,7 +159,7 @@ class ChatActivity : AppCompatActivity() {
         })
     }
 
-    private fun sendMessage(content: String, contentType: ChatItem.ContentType, attachmentUrl: String? = null) {
+    private fun sendUserMessage(content: String, contentType: ChatItem.ContentType, attachmentUrl: String? = null) {
         val chatId = generateChatId(senderId, receiverId)
         val messageId = database.child(senderId).child("chats").child(chatId).push().key ?: return
         val timestamp = System.currentTimeMillis()
@@ -175,13 +189,48 @@ class ChatActivity : AppCompatActivity() {
         //sendNotificationToBackend(senderId, receiverId)
     }
 
+    private fun sendOrganizationMessage(content: String, contentType: ChatItem.ContentType, attachmentUrl: String? = null) {
+        val chatId = generateChatId(senderId, receiverId)
+        val messageId = FirebaseDatabase.getInstance().getReference("organizationsData").child(senderId).child("chats").child(chatId).push().key ?: return
+        val timestamp = System.currentTimeMillis()
+
+        val chatItem = ChatItem(
+            chatId = messageId,
+            senderId = senderId,
+            receiverId = receiverId,
+            message = content,
+            time = timestamp,
+            contentType = contentType,
+            contentUri = attachmentUrl,
+            isRead = false
+        )
+
+        val senderChatRef = database.child(senderId).child("chats").child(chatId).child(messageId)
+        val receiverChatRef = FirebaseDatabase.getInstance().getReference("organizationsData").child(receiverId).child("chats").child(chatId).child(messageId)
+
+        senderChatRef.setValue(chatItem).addOnSuccessListener {
+            receiverChatRef.setValue(chatItem)
+            messageEditText.text.clear()
+        }.addOnFailureListener {
+            Toast.makeText(this, "Failed to send message: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
+
+        //Below function not implemented in the current app logic
+        //sendNotificationToBackend(senderId, receiverId)
+    }
+
     private fun sendMedia(uri: Uri, type: String) {
         val chatId = generateChatId(senderId, receiverId)
         val mediaRef = storage.reference.child("chat_media/${System.currentTimeMillis()}_${uri.lastPathSegment}")
 
         mediaRef.putFile(uri).addOnSuccessListener {
             mediaRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                sendMessage(downloadUri.toString(), if (type == "image") ChatItem.ContentType.IMAGE else ChatItem.ContentType.VIDEO, downloadUri.toString())
+                if(dataType=="user"){
+                    sendUserMessage(downloadUri.toString(), if (type == "image") ChatItem.ContentType.IMAGE else ChatItem.ContentType.VIDEO, downloadUri.toString())
+                }else{
+                    sendOrganizationMessage(downloadUri.toString(), if (type == "image") ChatItem.ContentType.IMAGE else ChatItem.ContentType.VIDEO, downloadUri.toString())
+                }
+
             }
         }.addOnFailureListener {
             Toast.makeText(this, "Failed to upload media: ${it.message}", Toast.LENGTH_SHORT).show()
