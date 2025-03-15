@@ -316,8 +316,6 @@
             </LinearLayout>
 
         </FrameLayout>
-
     </androidx.cardview.widget.CardView>
-    <!-- Floating Action Button at the bottom right -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

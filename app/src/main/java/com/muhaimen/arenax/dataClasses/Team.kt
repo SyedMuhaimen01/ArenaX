@@ -14,3 +14,4 @@ data class Team(
 ) {
     constructor() : this("", "", "", "", "", "", "", "", "", null)
 }
+

@@ -10,6 +10,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +18,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.DataSnapshot
@@ -25,9 +30,13 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.Team
 import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
+import org.json.JSONException
 import org.json.JSONObject
+import java.nio.charset.Charset
 
 class viewOwnTeam : AppCompatActivity() {
     private lateinit var teamLogoImageView:ImageView
@@ -49,6 +58,8 @@ class viewOwnTeam : AppCompatActivity() {
     private lateinit var searchBar: EditText
     private lateinit var database: DatabaseReference
     private lateinit var searchbarLinearLayout: LinearLayout
+    private lateinit var organizationName: String
+    private lateinit var teamName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +74,10 @@ class viewOwnTeam : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.primaryColor)
 
         initializeUI()
+        organizationName = intent.getStringExtra("organizationName") ?: ""
+        teamName = intent.getStringExtra("teamName") ?: ""
+
+        //fetchTeamDetails()
         // Initialize Firebase Database Reference
         database = FirebaseDatabase.getInstance().reference.child("userData")
 
@@ -152,25 +167,135 @@ class viewOwnTeam : AppCompatActivity() {
 
     }
 
-
-    private fun fillTeamData(response: JSONObject) {
-        teamNameTextView.text = response.getString("teamName")
-        gameNameTextView.text = response.getString("gameName")
-        locationTextView.text = response.getString("teamLocation")
-        taglineTextView.text = response.getString("teamTagLine")
-        teamCaptainTextView.text = response.getString("teamCaptain")
-        teamEmailTextView.text = response.getString("teamEmail")
-        teamAchievementsTextView.text = response.getString("teamAchievements")
-        teamDetailsTextView.text = response.getString("teamDetails")
-
-        // Load team logo with Glide
-        Glide.with(this)
-            .load(response.getString("teamLogo")) // Firebase URL
-            .placeholder(R.drawable.battlegrounds_icon_background)
-            .error(R.drawable.battlegrounds_icon_background)
-            .into(teamLogoImageView)
-    }
-
+//    private fun fetchTeamDetails() {
+//        val url = "${Constants.SERVER_URL}manageTeams/getTeamDetails"
+//        val requestBody = JSONObject().apply {
+//            put("teamName", teamName) // Ensure this matches the backend
+//        }
+//
+//        val stringRequest = object : StringRequest(
+//            Method.POST, url,
+//            Response.Listener { response ->
+//                try {
+//                    val jsonResponse = JSONObject(response)
+//                    if (jsonResponse.has("teamDetails")) {
+//                        val teamDetails = jsonResponse.getJSONObject("teamDetails")
+//
+//                        // Extract data from the response
+//                        val teamName = teamDetails.getString("teamName")
+//                        val gameName = teamDetails.getString("gameName")
+//                        val teamDetailsText = teamDetails.getString("teamDetails")
+//                        val teamLocation = teamDetails.getString("teamLocation")
+//                        val teamEmail = teamDetails.getString("teamEmail")
+//                        val teamCaptain = teamDetails.getString("teamCaptain")
+//                        val teamTagLine = teamDetails.getString("teamTagLine")
+//                        val teamAchievements = teamDetails.getString("teamAchievements")
+//                        val teamLogo = teamDetails.getString("teamLogo")
+//                        val teamMembers = teamDetails.getJSONArray("teamMembers")
+//
+//                        // Handle the retrieved team details as needed
+//                        // Fill in the data for the UI using the fillTeamData function
+//                        val teamData = JSONObject().apply {
+//                            put("teamName", teamName)
+//                            put("gameName", gameName)
+//                            put("teamDetails", teamDetailsText)
+//                            put("teamLocation", teamLocation)
+//                            put("teamEmail", teamEmail)
+//                            put("teamCaptain", teamCaptain)
+//                            put("teamTagLine", teamTagLine)
+//                            put("teamAchievements", teamAchievements)
+//                            put("teamLogo", teamLogo)
+//                        }
+//                        fillTeamData(teamData)
+//
+//                        // Update the adapter with team members (captain + members)
+//                        val membersList = mutableListOf<TeamMember>()
+//                        val captainMember = TeamMember(
+//                            userId = teamCaptain,
+//                            fullname = "", // Initially empty, to be filled later
+//                            gamerTag = null, // Initially empty, to be filled later
+//                            profilePicture = null // Initially empty, to be filled later
+//                        )
+//                        membersList.add(captainMember)
+//
+//                        // Get the details of team members
+//                        for (i in 0 until teamMembers.length()) {
+//                            val member = teamMembers.getJSONObject(i)
+//                            val teamMember = TeamMember(
+//                                userId = member.getString("userId"),
+//                                fullname = member.getString("fullname"),
+//                                gamerTag = member.getString("gamerTag"),
+//                                profilePicture = member.getString("profilePicture")
+//                            )
+//                            membersList.add(teamMember)
+//                        }
+//
+//                        val team = Team(
+//                            teamName = teamName,
+//                            gameName = gameName,
+//                            teamDetails = teamDetailsText,
+//                            teamLocation = teamLocation,
+//                            teamEmail = teamEmail,
+//                            teamCaptain = teamCaptain,
+//                            teamTagLine = teamTagLine,
+//                            teamAchievements = teamAchievements,
+//                            teamLogo = teamLogo,
+//                            teamMembers = membersList
+//                        )
+//                        managePlayersAdapter.updateTeamMembers(team)
+//
+//                    } else {
+//                        // Handle error if teamDetails not found in the response
+//                        Toast.makeText(this, "Team details not found", Toast.LENGTH_SHORT).show()
+//                    }
+//                } catch (e: JSONException) {
+//                    // Handle JSON parsing error
+//                    e.printStackTrace()
+//                    Toast.makeText(this, "Error parsing team details", Toast.LENGTH_SHORT).show()
+//                }
+//            },
+//            Response.ErrorListener { error ->
+//                // Handle error from the request
+//                error.printStackTrace()
+//                Toast.makeText(this, "Error fetching team details", Toast.LENGTH_SHORT).show()
+//            }
+//        ) {
+//            override fun getBody(): ByteArray {
+//                return requestBody.toString().toByteArray(Charset.forName("utf-8"))
+//            }
+//
+//            override fun getHeaders(): MutableMap<String, String> {
+//                val headers = HashMap<String, String>()
+//                headers["Content-Type"] = "application/json"
+//                return headers
+//            }
+//        }
+//
+//        // Add the request to the request queue (Assuming you have a RequestQueue instance)
+//        Volley.newRequestQueue(this).add(stringRequest)
+//    }
+//
+//
+//
+//    private fun fillTeamData(response: JSONObject) {
+//        teamNameTextView.text = response.getString("teamName")
+//        gameNameTextView.text = response.getString("gameName")
+//        locationTextView.text = response.getString("teamLocation")
+//        taglineTextView.text = response.getString("teamTagLine")
+//        teamCaptainTextView.text = response.getString("teamCaptain")
+//        teamEmailTextView.text = response.getString("teamEmail")
+//        teamAchievementsTextView.text = response.getString("teamAchievements")
+//        teamDetailsTextView.text = response.getString("teamDetails")
+//
+//        // Load team logo with Glide
+//        Glide.with(this)
+//            .load(response.getString("teamLogo")) // Firebase URL
+//            .placeholder(R.drawable.battlegrounds_icon_background)
+//            .error(R.drawable.battlegrounds_icon_background)
+//            .into(teamLogoImageView)
+//    }
+//
+//
     private fun searchUsers(query: String) {
         val usersList = mutableListOf<UserData>()
 
@@ -215,7 +340,7 @@ class viewOwnTeam : AppCompatActivity() {
         backButton = findViewById(R.id.backButton)
         addPlayerButton = findViewById(R.id.addPlayerButton)
         searchBar = findViewById(R.id.searchbar)
-        searchbarLinearLayout = findViewById(R.id.searchbarLinearLayout)
+        searchbarLinearLayout = findViewById(R.id.searchLinearLayout)
         playersRecyclerView.layoutManager = LinearLayoutManager(this)
         searchUserRecyclerView.layoutManager = LinearLayoutManager(this)
     }
