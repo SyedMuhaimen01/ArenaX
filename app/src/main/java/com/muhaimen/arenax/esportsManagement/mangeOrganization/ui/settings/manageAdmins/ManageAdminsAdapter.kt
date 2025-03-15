@@ -40,13 +40,14 @@ class ManageAdminsAdapter(
         private val removeAdminButton: TextView = itemView.findViewById(R.id.removeAdminButton)
 
         fun bind(admin: organizationAdmins) {
-            adminNameTextView.text = admin.adminName
+
 
             // Fetch user details from Firebase
             databaseRef.child(admin.adminId).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val user = snapshot.getValue(UserData::class.java)
                     if (user != null) {
+                        adminNameTextView.text = user.fullname
                         gamerTagTextView.text = user.gamerTag ?: "N/A"
                         Glide.with(itemView.context)
                             .load(user.profilePicture ?: R.drawable.battlegrounds_icon_background)
