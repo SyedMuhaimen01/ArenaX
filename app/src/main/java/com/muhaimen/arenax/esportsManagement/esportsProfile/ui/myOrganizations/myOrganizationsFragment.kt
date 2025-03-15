@@ -61,7 +61,7 @@ class myOrganizationsFragment : Fragment() {
         auth= FirebaseAuth.getInstance()
         userId=auth.currentUser?.uid.toString()
         // Set up RecyclerView
-        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         adapter = MyOrganizationsAdapter(organizationList)
         recyclerView.adapter = adapter
 

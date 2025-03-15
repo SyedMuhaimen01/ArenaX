@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_5sdp"
-            android:text="Team Registration"
+            android:text="Team "
             android:textStyle="bold"
             android:textColor="@color/backgroundColor"
             android:textSize="@dimen/_16sdp"
@@ -137,16 +137,30 @@
                 android:textSize="@dimen/_10sdp"
                 android:textColor="@color/textColor"
                 tools:ignore="HardcodedText" />
-            <TextView
-                android:id="@+id/captainNameTextView"
-                android:layout_marginTop="@dimen/_2sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_40sdp"
-                android:textSize="@dimen/_12sdp"
-                android:textColor="@color/textColor"
-                />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/teamCaptainProfilePicture"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_40sdp"
+                    android:background="@drawable/circle"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    tools:ignore="ContentDescription"
+                    android:layout_gravity="center"/>
+                <TextView
+                    android:id="@+id/captainNameTextView"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/textColor"
+                    />
+            </LinearLayout>
+
 
             <TextView
                 android:layout_width="match_parent"
