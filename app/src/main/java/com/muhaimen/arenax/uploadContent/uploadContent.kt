@@ -341,6 +341,7 @@ class UploadContent : AppCompatActivity() {
 
     // Function to upload media to Firebase Storage
     private fun uploadToFirebaseStorage(userId: String, caption: String) {
+
         val mediaRef = firebaseStorage.reference.child("uploads/${UUID.randomUUID()}")
 
         mediaUri?.let { uri ->

@@ -17,9 +17,12 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Event
+import com.muhaimen.arenax.dataClasses.OrganizationData
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -41,6 +44,7 @@ class schedulingEvent : AppCompatActivity() {
     private lateinit var galleryButton: FloatingActionButton
     private lateinit var auth: FirebaseAuth
     private lateinit var organizationName: String
+    private  var organizationId: String? =null
     private lateinit var userId: String
     private var mediaUri: Uri? = null
 
@@ -75,7 +79,9 @@ class schedulingEvent : AppCompatActivity() {
     }
 
     private fun openGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).apply {
+            type = "image/*"
+        }
         galleryActivityResultLauncher.launch(intent)
     }
 
@@ -83,9 +89,12 @@ class schedulingEvent : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK && result.data != null) {
                 mediaUri = result.data?.data
-                eventBanner.setImageURI(mediaUri)
+                mediaUri?.let {
+                    eventBanner.setImageURI(it)
+                }
             }
         }
+
 
     private fun initializeViews() {
         eventBanner = findViewById(R.id.previewImageView)
@@ -171,22 +180,39 @@ class schedulingEvent : AppCompatActivity() {
     }
 
     private fun uploadImageAndSendEvent(event: Event) {
-        val storageRef = FirebaseStorage.getInstance().reference
-        val fileRef = storageRef.child("event_banners/${UUID.randomUUID()}.jpg")
+        val databaseRef = FirebaseDatabase.getInstance().getReference("organizationsData")
+        val query = databaseRef.orderByChild("organizationName").equalTo(organizationName)
 
-        mediaUri?.let { uri ->
-            fileRef.putFile(uri)
-                .addOnSuccessListener {
-                    fileRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                        sendEventToBackend(event, downloadUri.toString())
+        query.get().addOnSuccessListener { snapshot ->
+            for (data in snapshot.children) {
+                val organization = data.getValue(OrganizationData::class.java)
+                // Assuming email is a TextView and profileImage is an ImageView
+                organizationId = organization?.organizationId
+                val storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/$organizationId/eventBanners/${UUID.randomUUID()}.jpg")
+                mediaUri?.let { uri ->
+                    val uploadTask = storageReference.putFile(uri)
+
+                    uploadTask.addOnSuccessListener {
+                        storageReference.downloadUrl.addOnSuccessListener { downloadUri ->
+                            sendEventToBackend(event, downloadUri.toString())
+                        }
+                    }.addOnFailureListener { exception ->
+                        Log.e("FirebaseError", "Error uploading image", exception)
                     }
                 }
-                .addOnFailureListener {
-                    Log.e("FirebaseStorage", "Failed to upload image: ${it.message}")
-                    sendEventToBackend(event, null)
-                }
+            }
+
+
+        }.addOnFailureListener { exception ->
+            Log.e("FirebaseError", "Error fetching organization data", exception)
         }
+
+        val intent = Intent(this, OrganizationHomePageActivity::class.java)
+        intent.putExtra("organization_name", organizationName)
+        startActivity(intent)
+
     }
+
 
     private fun sendEventToBackend(event: Event, imageUrl: String?) {
         val requestBody = JSONObject().apply {
