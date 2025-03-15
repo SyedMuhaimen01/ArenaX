@@ -8,7 +8,7 @@ data class pagePost(
     val postContent: String?,
     val caption: String?,
     val sponsored: Boolean,
-    val likes: Int,
+    var likes: Int,
     val comments: Int,
     val shares: Int,
     val clicks: Int,

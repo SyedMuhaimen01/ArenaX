@@ -435,6 +435,7 @@ class ViewPost : AppCompatActivity() {
         requestQueue.add(postRequest)
     }
 
+
     private fun notifyPostReload(){
         val intent = Intent("NEW_POST_ADDED ")
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)

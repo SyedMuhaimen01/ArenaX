@@ -295,21 +295,21 @@ class createOrganization : AppCompatActivity() {
                 if (success) {
                     Toast.makeText(this, "Organization Created Successfully!", Toast.LENGTH_SHORT).show()
                 } else {
-                    if (message.contains("Organization name already exists", ignoreCase = true)) {
+                    val errorMessage = response.optString("error", "Unknown error occurred.")
+                    if (errorMessage.contains("Organization name already exists", ignoreCase = true)) {
                         Toast.makeText(this, "Error: Organization name already exists. Please choose a unique name.", Toast.LENGTH_LONG).show()
                     } else {
-                        Toast.makeText(this, "Error: $message", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, "Error: $errorMessage", Toast.LENGTH_LONG).show()
                     }
                 }
             },
             { error ->
-                Toast.makeText(this, "Network Error: ${error.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "🌐 Network Error: ${error.message}", Toast.LENGTH_LONG).show()
             }
         )
 
         requestQueue.add(request)
-
-
     }
+
 
 }
