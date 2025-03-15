@@ -14,7 +14,7 @@ import com.muhaimen.arenax.dataClasses.UserData
 
 class SearchPlayerAdapter(
     private var playersList: List<UserData>,
-    private val onAddPlayerClick: (UserData) -> Unit // Callback for adding admin
+    private val onAddPlayerClick: (UserData) -> Unit
 ) : RecyclerView.Adapter<SearchPlayerAdapter.SearchViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
@@ -48,8 +48,6 @@ class SearchPlayerAdapter(
                 .error(R.drawable.battlegrounds_icon_background)
                 .circleCrop()
                 .into(profilePicture)
-
-            // Handle button click to add admin
             addPlayerButton.setOnClickListener {
                 onAddPlayerClick(admin)
             }
@@ -59,6 +57,6 @@ class SearchPlayerAdapter(
     @SuppressLint("NotifyDataSetChanged")
     fun updatePlayersList(newUserList: List<UserData>) {
         playersList = newUserList
-        notifyDataSetChanged() // Refresh the entire list
+        notifyDataSetChanged()
     }
 }

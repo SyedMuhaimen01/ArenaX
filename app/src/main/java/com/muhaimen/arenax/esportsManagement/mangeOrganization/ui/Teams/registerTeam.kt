@@ -206,7 +206,7 @@ class registerTeam : AppCompatActivity() {
             put("teamCaptain", team.teamCaptain)
             put("teamTagLine", team.teamTagLine)
             put("teamAchievements", team.teamAchievements)
-            put("teamLogo", team.teamLogo) // Adding Firebase URL to request body
+            put("teamLogo", team.teamLogo)
         }
 
         val url = "${Constants.SERVER_URL}manageTeams/addTeam"
