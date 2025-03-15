@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
@@ -15,6 +16,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.*
 import com.muhaimen.arenax.R
@@ -24,6 +26,7 @@ import com.muhaimen.arenax.utils.FirebaseManager
 class manageAdmins : AppCompatActivity() {
     private lateinit var adminsRecyclerView: RecyclerView
     private lateinit var superAdminTextView: TextView
+    private lateinit var superAdminProfilePicture: ImageView
     private lateinit var manageAdminsAdapter: ManageAdminsAdapter
     private lateinit var searchAdminsAdapter: SearchAdminsAdapter
     private lateinit var searchRecyclerView: RecyclerView
@@ -53,6 +56,7 @@ class manageAdmins : AppCompatActivity() {
         // Initialize views
         adminsRecyclerView = findViewById(R.id.adminsRecyclerview)
         superAdminTextView = findViewById(R.id.superAdminTextView)
+        superAdminProfilePicture = findViewById(R.id.superAdminProfilePicture)
         searchRecyclerView = findViewById(R.id.searchAdminsRecyclerView)
         searchBar = findViewById(R.id.searchbar)
         searchbarLinearLayout = findViewById(R.id.searchbarLinearLayout)
@@ -72,6 +76,7 @@ class manageAdmins : AppCompatActivity() {
             // Add admin to organization logic here
         }
 
+        // Set Adapters
         adminsRecyclerView.adapter = manageAdminsAdapter
         searchRecyclerView.adapter = searchAdminsAdapter
 
@@ -127,6 +132,28 @@ class manageAdmins : AppCompatActivity() {
                 }
             }
         })
+
+        val databaseRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("userData")
+        FirebaseManager.getCurrentUserId()?.let {
+            databaseRef.child(it).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val user = snapshot.getValue(UserData::class.java)
+                    if (user != null) {
+                        superAdminTextView.text = user.fullname
+                        Glide.with(this@manageAdmins)
+                            .load(user.profilePicture ?: R.drawable.battlegrounds_icon_background)
+                            .placeholder(R.drawable.battlegrounds_icon_background)
+                            .error(R.drawable.battlegrounds_icon_background)
+                            .circleCrop()
+                            .into(superAdminProfilePicture)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    // Handle error if necessary
+                }
+            })
+        }
     }
 
     private fun searchUsers(query: String) {

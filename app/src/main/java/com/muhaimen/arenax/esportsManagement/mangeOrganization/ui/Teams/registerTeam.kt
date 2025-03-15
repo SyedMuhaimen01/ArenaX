@@ -13,11 +13,17 @@ import androidx.core.view.WindowInsetsCompat
 import com.android.volley.*
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Team
+import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONObject
 import java.util.*
@@ -29,7 +35,7 @@ class registerTeam : AppCompatActivity() {
     private lateinit var teamDetailsEditText: EditText
     private lateinit var teamLocationEditText: EditText
     private lateinit var teamEmailEditText: EditText
-    private lateinit var teamCaptainEditText: EditText
+    private lateinit var teamCaptainEditText: AutoCompleteTextView
     private lateinit var teamTagLineEditText: EditText
     private lateinit var teamAchievementsEditText: EditText
     private lateinit var registerButton: Button
@@ -39,7 +45,7 @@ class registerTeam : AppCompatActivity() {
     private lateinit var userId: String
     private var organizationName: String? = null
     private var teamLogoUri: Uri? = null // Store selected logo URI
-
+    private val userMap = mutableSetOf<String>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -61,7 +67,7 @@ class registerTeam : AppCompatActivity() {
         organizationName = intent.getStringExtra("organization_name")
 
         initializeViews()
-
+        setupCaptainAutoComplete()
         // Select Team Logo
         teamLogoImageView.setOnClickListener {
             pickImage()
@@ -73,7 +79,11 @@ class registerTeam : AppCompatActivity() {
             } else {
                 sendTeamToBackend("")
             }
+            val intent=Intent(this, OrganizationHomePageActivity::class.java)
+            startActivity(intent)
         }
+
+
     }
 
     private fun initializeViews() {
@@ -98,7 +108,10 @@ class registerTeam : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == IMAGE_PICK_CODE && resultCode == Activity.RESULT_OK && data != null) {
             teamLogoUri = data.data
-            teamLogoImageView.setImageURI(teamLogoUri)
+                Glide.with(this)
+                    .load(teamLogoUri)
+                    .circleCrop()
+                    .into(teamLogoImageView)
         }
     }
 
@@ -120,14 +133,59 @@ class registerTeam : AppCompatActivity() {
         }
     }
 
+    private fun setupCaptainAutoComplete() {
+        val databaseRef = FirebaseDatabase.getInstance().getReference("userData")
+        val gamerTags = mutableListOf<String>()
+
+        // Fetch gamer tags from Firebase
+        databaseRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (childSnapshot in snapshot.children) {
+                    val user = childSnapshot.getValue(UserData::class.java)
+                    user?.gamerTag?.let {
+                        gamerTags.add(it)
+                        userMap.add(it) // Store gamerTag for validation
+                    }
+                }
+
+                // Set up AutoCompleteTextView adapter
+                val adapter = ArrayAdapter(this@registerTeam, android.R.layout.simple_dropdown_item_1line, gamerTags)
+                teamCaptainEditText.setAdapter(adapter)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error
+            }
+        })
+
+        // Validate gamer tag when text changes
+        teamCaptainEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) { // When the user exits the field
+                val enteredGamerTag = teamCaptainEditText.text.toString()
+                if (enteredGamerTag.isNotEmpty() && !userMap.contains(enteredGamerTag)) {
+                    teamCaptainEditText.error = "Gamer tag does not exist!"
+                }
+            }
+        }
+    }
+
+    // Modify getTeamData to store gamerTag as teamCaptain
     private fun getTeamData(logoUrl: String): Team {
+        val enteredGamerTag = teamCaptainEditText.text.toString()
+
+        // Validate before creating the Team object
+        if (!userMap.contains(enteredGamerTag)) {
+            teamCaptainEditText.error = "Invalid gamer tag! Please select from suggestions."
+            return Team() // Return an empty team to avoid incorrect submission
+        }
+
         return Team(
             teamName = teamNameEditText.text.toString(),
             gameName = gameNameEditText.text.toString(),
             teamDetails = teamDetailsEditText.text.toString(),
             teamLocation = teamLocationEditText.text.toString(),
             teamEmail = teamEmailEditText.text.toString(),
-            teamCaptain = teamCaptainEditText.text.toString(),
+            teamCaptain = enteredGamerTag, // Store gamerTag instead of userId
             teamTagLine = teamTagLineEditText.text.toString(),
             teamAchievements = teamAchievementsEditText.text.toString(),
             teamLogo = logoUrl
