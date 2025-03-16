@@ -13,7 +13,10 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Team
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Teams.viewOwnTeams.viewOwnTeam
 
-class TeamsAdapter(private val teams: List<Team>) : RecyclerView.Adapter<TeamsAdapter.TeamViewHolder>() {
+class TeamsAdapter(
+    private val teams: List<Team>,
+    private val organizationName: String? // Add the organizationName parameter
+) : RecyclerView.Adapter<TeamsAdapter.TeamViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TeamViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.organization_item, parent, false)
@@ -34,7 +37,7 @@ class TeamsAdapter(private val teams: List<Team>) : RecyclerView.Adapter<TeamsAd
         holder.cardView.setOnClickListener {
             val context = holder.itemView.context
             val intent = Intent(context, viewOwnTeam::class.java)
-            intent.putExtra("organizationName", team.teamLocation)
+            intent.putExtra("organizationName", organizationName) // Pass the organization name
             intent.putExtra("teamName", team.teamName)
             context.startActivity(intent)
         }
@@ -45,9 +48,9 @@ class TeamsAdapter(private val teams: List<Team>) : RecyclerView.Adapter<TeamsAd
     }
 
     class TeamViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val teamName: TextView = itemView.findViewById(R.id.companyName) // Company Name
-        val gameName: TextView = itemView.findViewById(R.id.organizationName) // Organization Name (Game Name)
-        val logoImageView: ImageView = itemView.findViewById(R.id.company_logo) // Company Logo (Team Logo)
+        val teamName: TextView = itemView.findViewById(R.id.companyName) // Team Name
+        val gameName: TextView = itemView.findViewById(R.id.organizationName) // Game Name (Organization)
+        val logoImageView: ImageView = itemView.findViewById(R.id.company_logo) // Team Logo
         val cardView: CardView = itemView.findViewById(R.id.analytics_card_view) // CardView
     }
 }

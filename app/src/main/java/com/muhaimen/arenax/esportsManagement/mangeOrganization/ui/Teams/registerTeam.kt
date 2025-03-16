@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -196,34 +197,45 @@ class registerTeam : AppCompatActivity() {
         val team = getTeamData(logoUrl)
 
         val requestBody = JSONObject().apply {
-            put("userId", userId)
-            put("organizationName", organizationName ?: "")
-            put("teamName", team.teamName)
-            put("gameName", team.gameName)
-            put("teamDetails", team.teamDetails)
-            put("teamLocation", team.teamLocation)
-            put("teamEmail", team.teamEmail)
-            put("teamCaptain", team.teamCaptain)
-            put("teamTagLine", team.teamTagLine)
-            put("teamAchievements", team.teamAchievements)
-            put("teamLogo", team.teamLogo)
+            put("userId", userId)  // Ensure this is not null or empty
+            put("organizationName", organizationName ?: "")  // Ensure this is not null or empty
+            put("teamName", team.teamName )  // Ensure this is not null or empty
+            put("gameName", team.gameName )  // Ensure this is not null or empty
+            put("teamDetails", team.teamDetails )
+            put("teamLocation", team.teamLocation )
+            put("teamEmail", team.teamEmail )
+            put("teamCaptain", team.teamCaptain )  // Ensure this is not null or empty
+            put("teamTagLine", team.teamTagLine )
+            put("teamAchievements", team.teamAchievements )
+            put("teamLogo", team.teamLogo )  // Ensure this is not null or empty
         }
 
         val url = "${Constants.SERVER_URL}manageTeams/addTeam"
 
-        val jsonObjectRequest = JsonObjectRequest(
+        val jsonObjectRequest = object : JsonObjectRequest(
             Request.Method.POST, url, requestBody,
             { response ->
+                // Success response
                 Toast.makeText(this, "Team Registered Successfully!", Toast.LENGTH_LONG).show()
                 finish()
             },
             { error ->
-                Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
+                // Error response
+                val errorMsg = String(error.networkResponse.data)
+                Log.e("TeamRegistrationError", "Error: ${error.message}, Response: $errorMsg")
+                Toast.makeText(this, "Error: $errorMsg", Toast.LENGTH_LONG).show()
             }
-        )
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = mutableMapOf<String, String>()
+                headers["Content-Type"] = "application/json"  // Set the content type to JSON
+                return headers
+            }
+        }
 
         requestQueue.add(jsonObjectRequest)
     }
+
 
     companion object {
         private const val IMAGE_PICK_CODE = 1001
