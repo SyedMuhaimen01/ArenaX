@@ -65,6 +65,12 @@ class pagePostsFragment : Fragment() {
 
         // Fetch organization posts
         fetchOrganizationPosts()
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                pagePostsAdapter.handlePlayerVisibility()
+            }
+        })
     }
 
     private fun fetchOrganizationPosts() {
@@ -145,6 +151,20 @@ class pagePostsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         requestQueue.cancelAll("fetchOrganizationPosts")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        pagePostsAdapter.releaseAllPlayers()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        pagePostsAdapter.releaseAllPlayers()
+    }
+
+    fun onBackPressed() {
+        pagePostsAdapter.releaseAllPlayers()
     }
 }
 

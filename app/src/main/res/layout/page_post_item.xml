@@ -39,6 +39,16 @@
                     android:contentDescription="Media Preview"
                     android:layout_marginTop="-20dp"
                     android:visibility="gone"/>
+                <com.google.android.exoplayer2.ui.PlayerView
+                    android:id="@+id/videoPlayerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_340sdp"
+                    android:layout_weight="1"
+                    android:scaleType="centerInside"
+                    android:contentDescription="Media Preview"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:visibility="gone"
+                    tools:ignore="HardcodedText" />
                 <TextView
                     android:id="@+id/articleTextView"
                     android:layout_width="match_parent"
