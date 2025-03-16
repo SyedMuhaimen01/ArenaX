@@ -13,6 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
+import com.android.volley.RequestQueue
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -42,6 +43,7 @@ class schedulingEvent : AppCompatActivity() {
     private lateinit var eventLink: EditText
     private lateinit var scheduleButton: Button
     private lateinit var galleryButton: FloatingActionButton
+    private lateinit var gameName:EditText
     private lateinit var auth: FirebaseAuth
     private lateinit var organizationName: String
     private  var organizationId: String? =null
@@ -110,6 +112,7 @@ class schedulingEvent : AppCompatActivity() {
         eventLink = findViewById(R.id.eventLinkEditText)
         scheduleButton = findViewById(R.id.scheduleButton)
         galleryButton = findViewById(R.id.galleryButton)
+        gameName=findViewById(R.id.gameNameEditText)
 
         populateSpinners()
     }
@@ -166,6 +169,7 @@ class schedulingEvent : AppCompatActivity() {
             eventId = "",
             organizationId = organizationName,
             eventName = eventName.text.toString().trim(),
+            gameName = gameName.text.toString().trim(),
             eventMode = eventMode.selectedItem?.toString() ?: "Default Mode",
             platform = platform.selectedItem?.toString() ?: "Default Platform",
             location = location.text?.toString()?.takeIf { it.isNotEmpty() },
@@ -214,11 +218,27 @@ class schedulingEvent : AppCompatActivity() {
     }
 
 
+    private var isSendingEvent = false  // Flag to prevent duplicate requests
+    private lateinit var requestQueue: RequestQueue  // Use a single request queue
+    private val REQUEST_TAG = "sendEventRequest"  // Unique tag for request cancellation
+
     private fun sendEventToBackend(event: Event, imageUrl: String?) {
+        if (!::requestQueue.isInitialized) {
+            requestQueue = Volley.newRequestQueue(this)  // Initialize only once
+        }
+
+        if (isSendingEvent) {
+            Log.d("sendEventToBackend", "Request already in progress, skipping duplicate request.")
+            return
+        }
+
+        isSendingEvent = true  // Set flag to indicate request in progress
+
         val requestBody = JSONObject().apply {
             put("userId", userId)
             put("organization_name", event.organizationId)
             put("eventName", event.eventName)
+            put("gameName", event.gameName)
             put("eventMode", event.eventMode)
             put("platform", event.platform)
             put("location", event.location ?: JSONObject.NULL)
@@ -231,8 +251,29 @@ class schedulingEvent : AppCompatActivity() {
             put("eventBanner", imageUrl ?: JSONObject.NULL)
         }
 
-        Volley.newRequestQueue(this).add(
-            JsonObjectRequest(Request.Method.POST, "${Constants.SERVER_URL}manageEvents/addEvent", requestBody, {}, {})
-        )
+        Log.d("Request", requestBody.toString())
+
+        // Cancel any previous request with the same tag
+        requestQueue.cancelAll(REQUEST_TAG)
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.POST, "${Constants.SERVER_URL}manageEvents/addEvent", requestBody,
+            { response ->
+                Log.d("sendEventToBackend", "Event successfully sent: $response")
+                isSendingEvent = false  // Reset flag after success
+            },
+            { error ->
+                Log.e("sendEventToBackend", "Error sending event: ${error.message}")
+                Toast.makeText(this, "Error sending event: ${error.message}", Toast.LENGTH_SHORT).show()
+                isSendingEvent = false  // Reset flag on failure
+            }
+        ).apply {
+            tag = REQUEST_TAG  // Assign a tag to identify/cancel the request
+        }
+
+        requestQueue.add(jsonObjectRequest)  // Add request to queue
     }
+
+
+
 }

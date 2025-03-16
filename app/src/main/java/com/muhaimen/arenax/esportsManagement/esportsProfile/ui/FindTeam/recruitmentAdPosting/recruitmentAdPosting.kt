@@ -1,17 +1,20 @@
 package com.muhaimen.arenax.esportsManagement.esportsProfile.ui.FindTeam.recruitmentAdPosting
 
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.Spinner
+import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import com.google.firebase.auth.FirebaseAuth
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Job
+import com.muhaimen.arenax.utils.Constants
+import org.json.JSONArray
+import org.json.JSONObject
 
 class recruitmentAdPosting : AppCompatActivity() {
     private lateinit var backButton: ImageButton
@@ -26,10 +29,15 @@ class recruitmentAdPosting : AppCompatActivity() {
     private lateinit var jobTag4: EditText
     private lateinit var postJobButton: Button
     private lateinit var jobItem: Job
+    private lateinit var auth: FirebaseAuth
+    private lateinit var userId: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_recruitment_ad_posting)
+
+        // Handle system bar padding
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -38,30 +46,24 @@ class recruitmentAdPosting : AppCompatActivity() {
         window.navigationBarColor = resources.getColor(R.color.primaryColor, theme)
         window.statusBarColor = resources.getColor(R.color.primaryColor, theme)
 
-        initializeViews()
-        jobItem = Job("", "", "", "", "", "", "", listOf())
-        jobItem.jobTitle = jobTitle.text.toString()
-        jobItem.jobType = jobType.selectedItem.toString()
-        jobItem.jobLocation = jobLocation.text.toString()
-        jobItem.jobDescription = jobDescription.text.toString()
-        jobItem.workplaceType = workplaceType.selectedItem.toString()
-        val tag1 = jobTag1.text.toString()
-        val tag2 = jobTag2.text.toString()
-        val tag3 = jobTag3.text.toString()
-        val tag4 = jobTag4.text.toString()
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
+        userId = auth.currentUser?.uid ?: ""
 
-        jobItem.tags = listOf(tag1, tag2, tag3, tag4)
+        initializeViews()
 
         postJobButton.setOnClickListener {
-            // Post job to database
+            collectJobDetails()
+            postJobToBackend()
         }
+
         backButton.setOnClickListener {
             onBackPressed()
             finish()
         }
     }
 
-    fun initializeViews() {
+    private fun initializeViews() {
         jobTitle = findViewById(R.id.jobTitleEditText)
         jobType = findViewById(R.id.jobTypeSpinner)
         jobLocation = findViewById(R.id.jobLocationEditText)
@@ -76,8 +78,9 @@ class recruitmentAdPosting : AppCompatActivity() {
 
         populateSpinners()
     }
+
     private fun populateSpinners() {
-        // Set adapter for Organization Type
+        // Set adapter for Job Type
         ArrayAdapter.createFromResource(
             this,
             R.array.job_types,
@@ -87,7 +90,7 @@ class recruitmentAdPosting : AppCompatActivity() {
             jobType.adapter = adapter
         }
 
-        // Set adapter for Organization Size
+        // Set adapter for Workplace Type
         ArrayAdapter.createFromResource(
             this,
             R.array.workplace_types,
@@ -96,5 +99,51 @@ class recruitmentAdPosting : AppCompatActivity() {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             workplaceType.adapter = adapter
         }
+    }
+
+    private fun collectJobDetails() {
+        jobItem = Job(
+            jobId = "",
+            organizationId = "",
+            jobTitle = jobTitle.text.toString(),
+            jobType = jobType.selectedItem.toString(),
+            jobLocation = jobLocation.text.toString(),
+            jobDescription = jobDescription.text.toString(),
+            workplaceType = workplaceType.selectedItem.toString(),
+            tags = listOf(
+                jobTag1.text.toString(),
+                jobTag2.text.toString(),
+                jobTag3.text.toString(),
+                jobTag4.text.toString()
+            )
+        )
+    }
+
+    private fun postJobToBackend() {
+        val requestBody = JSONObject().apply {
+            put("userId", userId)
+            put("jobTitle", jobItem.jobTitle)
+            put("jobType", jobItem.jobType)
+            put("jobLocation", jobItem.jobLocation)
+            put("jobDescription", jobItem.jobDescription)
+            put("workplaceType", jobItem.workplaceType)
+            put("tags", JSONArray(jobItem.tags))
+        }
+
+        val request = JsonObjectRequest(
+            Request.Method.POST,
+            "${Constants.SERVER_URL}manageUserJobs/addRecruitmentAd",
+            requestBody,
+            { response ->
+                Toast.makeText(this, "Recruitment Ad Posted Successfully!", Toast.LENGTH_SHORT).show()
+                finish()
+            },
+            { error ->
+                Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        )
+
+        // Add request to Volley queue
+        Volley.newRequestQueue(this).add(request)
     }
 }
