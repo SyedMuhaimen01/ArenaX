@@ -109,14 +109,4 @@ class myOrganizationsFragment : Fragment() {
 
         requestQueue.add(jsonObjectRequest)
     }
-
-
-
-    private fun jsonArrayToList(jsonArray: JSONArray): List<String> {
-        val list = mutableListOf<String>()
-        for (i in 0 until jsonArray.length()) {
-            list.add(jsonArray.getString(i))
-        }
-        return list
-    }
 }

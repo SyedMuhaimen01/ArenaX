@@ -22,8 +22,8 @@ class TeamsAdapter(private val teams: List<Team>) : RecyclerView.Adapter<TeamsAd
 
     override fun onBindViewHolder(holder: TeamViewHolder, position: Int) {
         val team = teams[position]
-        holder.teamName.text = team.teamName // Populate with team name
-        holder.gameName.text = team.gameName // Populate with game name
+        holder.teamName.text = team.teamName
+        holder.gameName.text = team.gameName
 
         // Load the team logo into the ImageView using Glide
         Glide.with(holder.itemView.context)
@@ -34,8 +34,8 @@ class TeamsAdapter(private val teams: List<Team>) : RecyclerView.Adapter<TeamsAd
         holder.cardView.setOnClickListener {
             val context = holder.itemView.context
             val intent = Intent(context, viewOwnTeam::class.java)
-            intent.putExtra("organizationName", team.teamLocation) // Pass the team location or organization name
-            intent.putExtra("teamName", team.teamName) // Pass the team name
+            intent.putExtra("organizationName", team.teamLocation)
+            intent.putExtra("teamName", team.teamName)
             context.startActivity(intent)
         }
     }
