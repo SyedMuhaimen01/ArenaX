@@ -7,6 +7,7 @@ data class Event(
     var eventId: String,
     var organizationId: String,
     var eventName: String,
+    var gameName: String,
     var eventMode: String,
     var platform: String,
     var location: String? = null,
@@ -23,6 +24,7 @@ data class Event(
         parcel.writeString(eventId)
         parcel.writeString(organizationId)
         parcel.writeString(eventName)
+        parcel.writeString(gameName)  // Added gameName
         parcel.writeString(eventMode)
         parcel.writeString(platform)
         parcel.writeString(location)
@@ -43,6 +45,7 @@ data class Event(
                 eventId = parcel.readString() ?: "",
                 organizationId = parcel.readString() ?: "",
                 eventName = parcel.readString() ?: "",
+                gameName = parcel.readString() ?: "",  // Added gameName
                 eventMode = parcel.readString() ?: "",
                 platform = parcel.readString() ?: "",
                 location = parcel.readString(),
