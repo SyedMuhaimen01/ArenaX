@@ -7,22 +7,17 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.google.firebase.database.*
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.dataClasses.Team
 import com.muhaimen.arenax.dataClasses.UserData
 
 class ManagePlayerAdapter(
-    private var teamList: List<Team>,
-    private val onRemovePlayerClick: (String) -> Unit
+    private var teamMembersData: MutableList<UserData>, // List of team members
+    private val onRemovePlayerClick: (String) -> Unit // Callback for remove player action
 ) : RecyclerView.Adapter<ManagePlayerAdapter.ViewHolder>() {
-
-    private val databaseRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("userData")
-    private val teamMembersData = mutableListOf<UserData>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.admin_item, parent, false)
+            .inflate(R.layout.admin_item, parent, false) // Use the appropriate layout
         return ViewHolder(view)
     }
 
@@ -33,26 +28,14 @@ class ManagePlayerAdapter(
 
     override fun getItemCount(): Int = teamMembersData.size
 
-    fun updateTeamMembers(team: Team) {
+    // This function updates the list of team members when new data is fetched
+    fun updateTeamMembers(newMembersList: List<UserData>) {
         teamMembersData.clear()
-        team.teamMembers?.forEach { memberId ->
-            databaseRef.child(memberId).addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val user = snapshot.getValue(UserData::class.java)
-                    user?.let {
-                        teamMembersData.add(it)
-                        notifyDataSetChanged()
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    // Handle database error
-                }
-            })
-        }
+        teamMembersData.addAll(newMembersList)
+        notifyDataSetChanged() // Refresh the adapter with new data
     }
 
-    // ViewHolder class
+    // ViewHolder class to bind the player data to the UI
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val adminNameTextView: TextView = itemView.findViewById(R.id.fullname)
         private val gamerTagTextView: TextView = itemView.findViewById(R.id.gamerTag)
@@ -69,9 +52,11 @@ class ManagePlayerAdapter(
                 .circleCrop()
                 .into(profilePicture)
 
+            // When the remove button is clicked, call the callback function
             removeAdminButton.setOnClickListener {
                 onRemovePlayerClick(user.userId)
             }
         }
     }
+
 }

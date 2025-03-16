@@ -41,10 +41,18 @@ class TeamsFragment : Fragment() {
         // Retrieve organization name from arguments
         val organizationName = arguments?.getString("organization_name")
 
+        // Ensure organization name is not null
+        if (organizationName == null) {
+            Toast.makeText(requireContext(), "Organization name is missing", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         // Initialize RecyclerView
         teamsRecyclerView = view.findViewById(R.id.teamsRecyclerView)
         teamsRecyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-        teamsAdapter = TeamsAdapter(teamsList)
+
+        // Pass organizationName to the adapter
+        teamsAdapter = TeamsAdapter(teamsList, organizationName)
         teamsRecyclerView.adapter = teamsAdapter
 
         // Fetch teams for the given organization
@@ -60,12 +68,7 @@ class TeamsFragment : Fragment() {
         }
     }
 
-    private fun fetchTeams(organizationName: String?) {
-        if (organizationName == null) {
-            Toast.makeText(requireContext(), "Organization name is missing", Toast.LENGTH_SHORT).show()
-            return
-        }
-
+    private fun fetchTeams(organizationName: String) {
         val queue = Volley.newRequestQueue(requireContext())
         val url = "${Constants.SERVER_URL}manageTeams/teams"
 
@@ -129,19 +132,16 @@ class TeamsFragment : Fragment() {
 
                 } catch (e: Exception) {
                     Log.e("TeamsFragment", "Error parsing teams response", e)
-                    //Toast.makeText(requireContext(), "Failed to parse teams data", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
                 Log.e("TeamsFragment", "Error fetching teams: $error")
-                //Toast.makeText(requireContext(), "Failed to fetch teams", Toast.LENGTH_SHORT).show()
             }
         )
 
         // Add the request to the request queue
         queue.add(jsonObjectRequest)
     }
-
 
     private fun getTeamMembers(teamMembersArray: JSONArray): List<String> {
         val membersList = mutableListOf<String>()
@@ -151,3 +151,4 @@ class TeamsFragment : Fragment() {
         return membersList
     }
 }
+
