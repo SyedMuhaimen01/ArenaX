@@ -1,4 +1,4 @@
-package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.pagePosts
+package com.muhaimen.arenax.esportsManagement.OtherOrganization
 
 import android.net.Uri
 import android.util.Log
@@ -18,16 +18,15 @@ import com.bumptech.glide.Glide
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.ui.PlayerView
-import com.muhaimen.arenax.R
-import com.muhaimen.arenax.dataClasses.Comment
-import com.muhaimen.arenax.dataClasses.pagePost
-import com.muhaimen.arenax.userFeed.commentsAdapter
-import com.muhaimen.arenax.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.Comment
 import com.muhaimen.arenax.dataClasses.OrganizationData
-import com.muhaimen.arenax.userFeed.UserFeedPostsAdapter
+import com.muhaimen.arenax.dataClasses.pagePost
+import com.muhaimen.arenax.userFeed.commentsAdapter
+import com.muhaimen.arenax.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,25 +35,30 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import org.json.JSONObject
 
-class pagePostsAdapter(
-private val recyclerView: RecyclerView,
-private val posts: List<pagePost>,
-private val organizationName: String // Pass organization name to adapter
-) : RecyclerView.Adapter<pagePostsAdapter.PostViewHolder>() {
+class otherPagePostsAdapter(
+    private val recyclerView: RecyclerView,
+    private val posts: List<pagePost>,
+    private val organizationName: String // Pass organization name to adapter
+) : RecyclerView.Adapter<otherPagePostsAdapter.PostViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.page_post_item, parent, false)
+        val rootLayout = view.findViewById<View>(R.id.main)
+        val layoutParams = rootLayout.layoutParams as ViewGroup.MarginLayoutParams
+        layoutParams.setMargins(10, 10, 10, 10)
+        rootLayout.layoutParams = layoutParams
         return PostViewHolder(view)
-    }
-    override fun onViewRecycled(holder: PostViewHolder) {
-        holder.releaseContent()
-        super.onViewRecycled(holder)
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
         holder.bind(post, organizationName) // Pass organizationName to bind method
+    }
+
+    override fun onViewRecycled(holder:PostViewHolder) {
+        holder.releaseContent()
+        super.onViewRecycled(holder)
     }
 
     override fun getItemCount(): Int = posts.size
@@ -75,17 +79,19 @@ private val organizationName: String // Pass organization name to adapter
 
     fun handlePlayerVisibility() {
         val layoutManager = recyclerView.layoutManager as? LinearLayoutManager
-        if (layoutManager != null) {
-            val firstVisible = layoutManager.findFirstCompletelyVisibleItemPosition()
-            val lastVisible = layoutManager.findLastCompletelyVisibleItemPosition()
+        layoutManager?.let {
+            // Find the first and last completely visible item positions
+            val firstVisible = it.findFirstCompletelyVisibleItemPosition()
+            val lastVisible = it.findLastCompletelyVisibleItemPosition()
 
+            // Iterate through all items in the adapter
             for (i in 0 until itemCount) {
-                val viewHolder = recyclerView.findViewHolderForAdapterPosition(i) as? pagePostsAdapter.PostViewHolder
-                if (viewHolder != null) {
+                val viewHolder = recyclerView.findViewHolderForAdapterPosition(i) as? otherPagePostsAdapter.PostViewHolder
+                viewHolder?.let { holder ->
                     if (i in firstVisible..lastVisible) {
-                        viewHolder.playContent() // Start playing if completely visible
+                        holder.playContent() // Start playing if the item is completely visible
                     } else {
-                        viewHolder.stopContent() // Stop playing if not completely visible
+                        holder.stopContent() // Stop playing if the item is not completely visible
                     }
                 }
             }
@@ -93,8 +99,8 @@ private val organizationName: String // Pass organization name to adapter
     }
 
 
-
     inner class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
         private val requestQueue = Volley.newRequestQueue(itemView.context)
         private val imageView: ImageView = itemView.findViewById(R.id.ImageView)
         private val playerView: PlayerView = itemView.findViewById(R.id.videoPlayerView)
@@ -120,78 +126,6 @@ private val organizationName: String // Pass organization name to adapter
 
         private val storageReference = FirebaseStorage.getInstance().reference
 
-        fun playContent() {
-            if (exoPlayer == null) {
-                Log.e("PlayContent", "ExoPlayer is not initialized")
-                return
-            }
-            exoPlayer?.playWhenReady = true
-            addPlayer(exoPlayer!!)
-        }
-
-        fun releaseContent() {
-            exoPlayer?.release()
-            exoPlayer = null
-        }
-
-        fun stopContent() {
-            exoPlayer?.playWhenReady = false
-        }
-
-        private suspend fun getMediaType(mediaUrl: String): String? {
-            val request = okhttp3.Request.Builder()
-                .url(mediaUrl)
-                .head()
-                .build()
-
-            return try {
-                val response: Response = client.newCall(request).execute()
-                response.header("Content-Type").also {
-                    Log.d("ViewPost", "Media type retrieved: $it")
-                }
-            } catch (e: Exception) {
-                Log.e("ViewPost", "Error retrieving media type: ${e.message}")
-                null
-            }
-        }
-
-        private fun setImage(imageUrl: String) {
-            Glide.with(itemView.context)
-                .load(Uri.parse(imageUrl))
-                .thumbnail(0.1f)
-                .error(R.mipmap.appicon2)
-                .into(imageView)
-        }
-
-        private fun playVideo(videoPath: String) {
-            val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
-            exoPlayer = ExoPlayer.Builder(itemView.context).build().apply {
-                setMediaItem(mediaItem)
-                prepare()
-                playWhenReady = true
-            }
-            playerView.player = exoPlayer
-            addPlayer(exoPlayer!!)
-        }
-
-        private fun playTrimmedAudio(outputPath: String) {
-            val audioUri = Uri.parse(outputPath)
-            val audioMediaItem = MediaItem.fromUri(audioUri)
-            exoPlayer = ExoPlayer.Builder(itemView.context).build().apply {
-                setMediaItem(audioMediaItem)
-                prepare()
-                playWhenReady = true
-            }
-            addPlayer(exoPlayer!!)
-        }
-
-        fun stopTrimmedAudio() {
-            exoPlayer?.let { player ->
-                player.stop()
-                player.release()
-                exoPlayer = null
-            }
-        }
         // Bind data to the views in the ViewHolder
         fun bind(post: pagePost, organizationName: String) {
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
@@ -343,7 +277,78 @@ private val organizationName: String // Pass organization name to adapter
                 }
             }
         }
+        fun playContent() {
+            if (exoPlayer == null) {
+                Log.e("PlayContent", "ExoPlayer is not initialized")
+                return
+            }
+            exoPlayer?.playWhenReady = true
+            addPlayer(exoPlayer!!)
+        }
 
+        fun releaseContent() {
+            exoPlayer?.release()
+            exoPlayer = null
+        }
+
+        fun stopContent() {
+            exoPlayer?.playWhenReady = false
+        }
+
+        private suspend fun getMediaType(mediaUrl: String): String? {
+            val request = okhttp3.Request.Builder()
+                .url(mediaUrl)
+                .head()
+                .build()
+
+            return try {
+                val response: Response = client.newCall(request).execute()
+                response.header("Content-Type").also {
+                    Log.d("ViewPost", "Media type retrieved: $it")
+                }
+            } catch (e: Exception) {
+                Log.e("ViewPost", "Error retrieving media type: ${e.message}")
+                null
+            }
+        }
+
+        private fun setImage(imageUrl: String) {
+            Glide.with(itemView.context)
+                .load(Uri.parse(imageUrl))
+                .thumbnail(0.1f)
+                .error(R.mipmap.appicon2)
+                .into(imageView)
+        }
+
+        private fun playVideo(videoPath: String) {
+            val mediaItem = MediaItem.fromUri(Uri.parse(videoPath))
+            exoPlayer = ExoPlayer.Builder(itemView.context).build().apply {
+                setMediaItem(mediaItem)
+                prepare()
+                playWhenReady = true
+            }
+            playerView.player = exoPlayer
+            addPlayer(exoPlayer!!)
+        }
+
+        private fun playTrimmedAudio(outputPath: String) {
+            val audioUri = Uri.parse(outputPath)
+            val audioMediaItem = MediaItem.fromUri(audioUri)
+            exoPlayer = ExoPlayer.Builder(itemView.context).build().apply {
+                setMediaItem(audioMediaItem)
+                prepare()
+                playWhenReady = true
+            }
+            addPlayer(exoPlayer!!)
+        }
+
+        fun stopTrimmedAudio() {
+            exoPlayer?.let { player ->
+                player.stop()
+                player.release()
+                exoPlayer = null
+            }
+        }
 
 
         private fun saveCommentToServer(
