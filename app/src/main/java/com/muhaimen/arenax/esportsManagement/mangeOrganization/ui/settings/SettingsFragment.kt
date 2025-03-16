@@ -119,15 +119,33 @@ class settingsFragment : Fragment() {
                 requireActivity().finish()
             },
             { error ->
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to delete organization: ${error.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                val responseCode = error.networkResponse?.statusCode
+                val errorMessage = error.networkResponse?.data?.let { String(it) } ?: "Unknown error"
+
+                when (responseCode) {
+                    403 -> {
+                        if (errorMessage.contains("Admins do not have the power")) {
+                            Toast.makeText(
+                                requireContext(),
+                                "You are an admin. Only the organization owner can delete this organization.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "Unauthorized: You do not have permission to delete this organization.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                    404 -> Toast.makeText(requireContext(), "Organization not found!", Toast.LENGTH_LONG).show()
+                    else -> Toast.makeText(requireContext(), "Failed to delete organization: $errorMessage", Toast.LENGTH_LONG).show()
+                }
             }
         )
 
         Volley.newRequestQueue(requireContext()).add(request)
     }
+
 
 }

@@ -1,6 +1,7 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings.manageAdmins
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +13,8 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.UserData
 
 class SearchAdminsAdapter(
-    private var adminsList: List<UserData>,
-    private val onAddAdminClick: (UserData) -> Unit // Callback for adding admin
+    private var adminsList: MutableList<UserData>,
+    private val onAddAdminClick: (String) -> Unit // Pass only userId
 ) : RecyclerView.Adapter<SearchAdminsAdapter.SearchViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
@@ -29,7 +30,6 @@ class SearchAdminsAdapter(
 
     override fun getItemCount(): Int = adminsList.size
 
-    // ViewHolder class
     inner class SearchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val adminNameTextView: TextView = itemView.findViewById(R.id.fullname)
         private val gamerTagTextView: TextView = itemView.findViewById(R.id.gamerTag)
@@ -40,24 +40,26 @@ class SearchAdminsAdapter(
             adminNameTextView.text = admin.fullname
             gamerTagTextView.text = admin.gamerTag
 
-            // Load profile picture using Glide (handles URLs and placeholders)
             Glide.with(itemView.context)
-                .load(admin.profilePicture ?: R.drawable.battlegrounds_icon_background) // Use a default profile picture if null
+                .load(admin.profilePicture ?: R.drawable.battlegrounds_icon_background)
                 .placeholder(R.drawable.battlegrounds_icon_background)
                 .error(R.drawable.battlegrounds_icon_background)
                 .circleCrop()
                 .into(profilePicture)
 
-            // Handle button click to add admin
             addAdminButton.setOnClickListener {
-                onAddAdminClick(admin)
+                Log.d("SearchAdminsAdapter", "Button clicked for userId: ${admin.userId}")
+                admin.userId?.let { userId ->
+                    onAddAdminClick(userId)
+                }
             }
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateAdminsList(newUserList: List<UserData>) {
-        adminsList = newUserList
-        notifyDataSetChanged() // Refresh the entire list
+        adminsList.clear()
+        adminsList.addAll(newUserList)
+        notifyDataSetChanged()
     }
 }
