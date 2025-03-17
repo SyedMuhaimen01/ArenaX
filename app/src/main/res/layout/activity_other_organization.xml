@@ -37,11 +37,11 @@
             <!-- Profile picture -->
             <ImageView
                 android:id="@+id/profilePicture"
-                android:layout_width="@dimen/_60sdp"
-                android:layout_height="@dimen/_60sdp"
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_80sdp"
                 android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_10sdp"
                 android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_gravity="center"
                 android:background="@drawable/circle"
                 android:clipToOutline="true"
                 android:contentDescription="@string/nav_header_desc"
@@ -118,12 +118,12 @@
 
                 <TextView
                     android:id="@+id/organizationTaglineTextView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="148dp"
                     android:layout_height="wrap_content"
                     android:text="Build, Connect, Compete"
-                    android:textStyle="bold"
-                    android:textSize="@dimen/_12sdp"
                     android:textColor="@color/textColor"
+                    android:textSize="@dimen/_12sdp"
+                    android:textStyle="bold"
                     tools:ignore="HardcodedText" />
 
 

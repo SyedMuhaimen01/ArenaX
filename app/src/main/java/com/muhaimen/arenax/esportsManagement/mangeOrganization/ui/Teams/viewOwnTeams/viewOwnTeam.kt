@@ -56,7 +56,6 @@ class viewOwnTeam : AppCompatActivity() {
     private lateinit var searchUserRecyclerView: RecyclerView
     private lateinit var searchUserAdapter: SearchPlayerAdapter
     private lateinit var managePlayersAdapter: ManagePlayerAdapter
-    private lateinit var backButton:ImageButton
     private lateinit var addPlayerButton:FloatingActionButton
     private lateinit var searchBar: EditText
     private lateinit var database: DatabaseReference
@@ -130,13 +129,6 @@ class viewOwnTeam : AppCompatActivity() {
             }
         }
 
-        // Back Button Handling
-        backButton.setOnClickListener {
-            val intent = Intent(this, OrganizationHomePageActivity::class.java)
-            intent.putExtra("organization_name", organizationName)
-            startActivity(intent)
-
-        }
 
         // Handle system back press
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -186,7 +178,6 @@ class viewOwnTeam : AppCompatActivity() {
         teamDetailsTextView = findViewById(R.id.team_details_TextView)
         playersRecyclerView = findViewById(R.id.playersRecyclerView)
         searchUserRecyclerView = findViewById(R.id.searchUserRecyclerView)
-        backButton = findViewById(R.id.backButton)
         addPlayerButton = findViewById(R.id.addPlayerButton)
         searchBar = findViewById(R.id.searchbar)
         searchbarLinearLayout = findViewById(R.id.searchLinearLayout)
@@ -522,5 +513,7 @@ class viewOwnTeam : AppCompatActivity() {
         Volley.newRequestQueue(context).add(request)
     }
 
-
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
 }

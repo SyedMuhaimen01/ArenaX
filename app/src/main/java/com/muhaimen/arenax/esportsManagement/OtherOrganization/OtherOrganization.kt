@@ -15,11 +15,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.RequestQueue
+import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Comment
+import com.muhaimen.arenax.dataClasses.Event
 import com.muhaimen.arenax.dataClasses.pagePost
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.pagePosts.pagePostsAdapter
 import com.muhaimen.arenax.utils.Constants
@@ -46,6 +48,8 @@ class OtherOrganization : AppCompatActivity() {
     private var organizationName: String? = null
     private var organizationId: String? = null
     private lateinit var otherPagePostsAdapter: otherPagePostsAdapter
+    private lateinit var eventsAdapter: otherOrganizationEventsAdapter
+    private var eventList: MutableList<Event> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,9 +73,14 @@ class OtherOrganization : AppCompatActivity() {
         otherPagePostsAdapter = otherPagePostsAdapter(postsRecyclerView,postsList, organizationName.toString())
         postsRecyclerView.adapter = otherPagePostsAdapter
 
+        eventsRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        eventsAdapter = otherOrganizationEventsAdapter(eventList)
+        eventsRecyclerView.adapter = eventsAdapter
+
         if (!organizationName.isNullOrEmpty()) {
             fetchOrganizationDetails(organizationName!!)
             fetchOrganizationPosts()
+            fetchUpcomingEvents()
         }
 
         postsRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -205,6 +214,70 @@ class OtherOrganization : AppCompatActivity() {
         requestQueue.add(jsonObjectRequest)
     }
 
+
+    private fun fetchUpcomingEvents() {
+        if (organizationName.isNullOrEmpty()) {
+            Toast.makeText(this, "Organization not found!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val url = "${Constants.SERVER_URL}manageEvents/fetchUpcomingOrganizationEvents"
+
+        val requestQueue = Volley.newRequestQueue(this)
+
+        val requestBody = JSONObject().apply {
+            put("organization_name", organizationName)
+        }
+
+        val jsonRequest = object : JsonObjectRequest(
+            Request.Method.POST,
+            url,
+            requestBody,
+            Response.Listener { response ->
+                val eventsArray = response.optJSONArray("events")
+                Log.d("Events111", "Raw JSON Response: $response")
+                if (eventsArray != null) {
+                    eventList = parseEventResponse(eventsArray)
+                    eventsAdapter.updateData(eventList)
+                } else {
+                    Toast.makeText(this, "No events found!", Toast.LENGTH_SHORT).show()
+                }
+            },
+            Response.ErrorListener { error ->
+                Toast.makeText(this, "Failed to load events: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                return hashMapOf("Content-Type" to "application/json")
+            }
+        }
+
+        requestQueue.add(jsonRequest)
+    }
+    private fun parseEventResponse(response: JSONArray): MutableList<Event> {
+        val events = mutableListOf<Event>()
+        for (i in 0 until response.length()) {
+            val obj = response.getJSONObject(i)
+            val event = Event(
+                eventId = obj.getString("event_id"),
+                organizationId = obj.getString("organization_id"),
+                eventName = obj.getString("event_name"),
+                gameName = obj.getString("game_name"),
+                eventMode = obj.getString("event_mode"),
+                platform = obj.getString("platform"),
+                location = obj.optString("location", ""),
+                eventDescription = obj.optString("event_description", ""),
+                startDate = obj.optString("start_date", ""),
+                endDate = obj.optString("end_date", ""),
+                startTime = obj.optString("start_time", ""),
+                endTime = obj.optString("end_time", ""),
+                eventLink = obj.optString("event_link", ""),
+                eventBanner = obj.optString("event_banner", "")
+            )
+            events.add(event)
+        }
+        return events
+    }
 
     private fun initializeViews() {
         organizationNameTextView = findViewById(R.id.organizationNameTextView)
