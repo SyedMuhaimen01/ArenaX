@@ -1,20 +1,26 @@
 package com.muhaimen.arenax.esportsManagement.talentExchange
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.Gender
 import com.muhaimen.arenax.dataClasses.Job
+import com.muhaimen.arenax.dataClasses.JobWithUserDetails
+import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
@@ -24,82 +30,130 @@ class EmployeesFragment : Fragment() {
 
     private lateinit var employeesAdapter: EmployeesAdapter
     private lateinit var recyclerView: RecyclerView
-    private val jobList: MutableList<Job> = mutableListOf()
+    private lateinit var searchRecyclerView: RecyclerView
+    private val jobList: MutableList<JobWithUserDetails> = mutableListOf()
     private lateinit var firebaseUid: String
+    private lateinit var searchBar: AutoCompleteTextView
+    private lateinit var searchButton: ImageButton
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        val rootView = inflater.inflate(R.layout.fragment_employees, container, false)
+        val view = inflater.inflate(R.layout.fragment_employees, container, false)
 
-        // Set up RecyclerView and Adapter
-        recyclerView = rootView.findViewById(R.id.employees_recyclerview)
-        recyclerView.visibility = View.VISIBLE
+        // Initialize RecyclerViews
+        recyclerView = view.findViewById(R.id.employees_recyclerview)
         recyclerView.layoutManager = LinearLayoutManager(activity)
+        searchRecyclerView = view.findViewById(R.id.searchEmployeesRecyclerView)
+        searchRecyclerView.layoutManager = LinearLayoutManager(activity)
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
+
+        // Initialize the adapter with an empty list
         employeesAdapter = EmployeesAdapter(jobList)
         recyclerView.adapter = employeesAdapter
-        firebaseUid = FirebaseManager.getCurrentUserId().toString()
-        // Fetch job availability data
-        fetchJobAvailabilityData(firebaseUid)
+        searchRecyclerView.adapter = employeesAdapter
 
-        return rootView
+        // Initialize search bar and button
+        searchBar = view.findViewById(R.id.searchbar)
+        searchButton = view.findViewById(R.id.searchButton)
+
+        // Fetch initial data
+        firebaseUid = FirebaseManager.getCurrentUserId().toString()
+        fetchJobAvailabilityData()
+
+        // Set up search button click listener
+        searchButton.setOnClickListener {
+            val searchText = searchBar.text.toString().trim()
+            if (searchText.isNotEmpty()) {
+                searchJobsData(searchText) // Perform search if text is not empty
+            } else {
+                fetchJobAvailabilityData()
+            }
+        }
+
+        // Clear search when the search bar is cleared
+        searchBar.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus && searchBar.text.toString().trim().isEmpty()) {
+                fetchJobAvailabilityData() // Repopulate with original data
+                searchRecyclerView.visibility = View.GONE
+                recyclerView.visibility = View.VISIBLE
+            }
+        }
+
+        searchBar.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (s.isNullOrEmpty()) {
+                    fetchJobAvailabilityData()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        swipeRefreshLayout.setOnRefreshListener {
+            fetchJobAvailabilityData()
+            swipeRefreshLayout.isRefreshing = false
+        }
+
+        return view
     }
 
-    private fun fetchJobAvailabilityData(firebaseUid: String) {
-        val url = "${Constants.SERVER_URL}manageTalentXchange/fetchJobAvailability/$firebaseUid"
+    private fun fetchJobAvailabilityData() {
+        val url = "${Constants.SERVER_URL}manageTalentXchange/fetchJobAvailability"
 
-        // Create a Volley request queue
-        val requestQueue = Volley.newRequestQueue(requireContext())
-
-        // Create a JSON array request
-        val jsonArrayRequest = JsonArrayRequest(
-            Request.Method.GET, url, null,
+        // Create a Volley request to fetch job availability data
+        val request = JsonArrayRequest(
+            Request.Method.GET,
+            url,
+            null,  // No body needed for GET request
             { response ->
-                // Parse the response and populate the job list
-                parseJobAvailabilityResponse(response)
-                Log.d("EmployeesFragment", "Job data $response")
-            },
+                // Handle the response
+                Log.d("Volley", "Response: $response")
+                parseJobAvailabilityResponse(response)            },
             { error ->
-                Log.e("EmployeesFragment", "Error fetching job data: $error")
-                Toast.makeText(activity, "Error fetching job data", Toast.LENGTH_SHORT).show()
+                // Handle error
+                Log.e("Volley", "Error fetching job availability data: ${error.message}")
+                Toast.makeText(context, "Error fetching job availability data", Toast.LENGTH_SHORT).show()
             }
         )
 
-        // Add the request to the request queue
-        requestQueue.add(jsonArrayRequest)
+        // Add the request to the Volley request queue
+        Volley.newRequestQueue(context).add(request)
     }
 
     private fun searchJobsData(searchText: String) {
         val url = "${Constants.SERVER_URL}manageTalentXchange/searchUserJobAvailability"
 
-        // Create a JSONObject with the search text as body for the POST request
-        val requestBody = JSONObject()
-        requestBody.put("searchText", searchText)
+        // Create a JSON object with the search text
+        val jsonBody = JSONObject().apply {
+            put("searchText", searchText)
+        }
 
-        // Create a Volley request to search jobs
+        // Use JsonObjectRequest to send a POST request with the JSON body
         val request = JsonObjectRequest(
             Request.Method.POST,
             url,
-            requestBody,  // Request body with search text
+            jsonBody, // Pass the JSON body here
             { response ->
-                // Handle the response
-                if (response.has("error")) {
-                    // Handle error message from the response
-                    Log.e("Volley", "Error: ${response.getString("error")}")
-                    Toast.makeText(context, "Error: ${response.getString("error")}", Toast.LENGTH_SHORT).show()
-                } else {
-                    // Process the job data returned in the response
-                    val jobs = response.getJSONArray("jobs")
-                    Log.d("EmployeesFragment 1122", "Job data $jobs")
-                    parseJobAvailabilityResponse(jobs)
+                try {
+                    // Extract the jobs array from the response
+                    val jobsArray = response.getJSONArray("jobs")
+                    parseJobAvailabilityResponse(jobsArray)
+
+                    // Show search results RecyclerView and hide the original one
+                    searchRecyclerView.visibility = View.VISIBLE
+                    recyclerView.visibility = View.GONE
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(context, "Error parsing search results", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
-                Log.e("EmployeesFragment", "Error fetching job data: ${error.message}")
-                Log.e("EmployeesFragment", "Error details: ${error.cause}")
-                Toast.makeText(activity, "Error fetching job data: ${error.message}", Toast.LENGTH_SHORT).show()
+                Log.e("Volley", "Error searching jobs: ${error.message}")
+                Toast.makeText(context, "Error searching jobs", Toast.LENGTH_SHORT).show()
             }
         )
 
@@ -108,46 +162,73 @@ class EmployeesFragment : Fragment() {
     }
 
     private fun parseJobAvailabilityResponse(response: JSONArray) {
-        jobList.clear() // Clear existing jobs
+        try {
+            // Clear the existing list of jobs
+            jobList.clear()
 
-        for (i in 0 until response.length()) {
-            val jobObject = response.getJSONObject(i)
+            // Loop through the JSON array and parse each job
+            for (i in 0 until response.length()) {
+                val jobObject = response.getJSONObject(i)
 
-            // Safely parse job fields with default values if missing
-            val jobId = jobObject.optString("jobId", "Unknown")  // Default to "Unknown" if jobId is missing
-            val organizationId = jobObject.optString("organizationId", "Unknown")
-            val jobTitle = jobObject.optString("jobTitle", "Unknown")
-            val jobType = jobObject.optString("jobType", "Unknown")
-            val jobLocation = jobObject.optString("jobLocation", "Unknown")
-            val jobDescription = jobObject.optString("jobDescription", "No description available")
-            val workplaceType = jobObject.optString("workplaceType", "Unknown")
+                // Parse Job data
+                val jobId = jobObject.optString("availability_id", "Unknown") // Backend uses "availability_id"
+                val userId = jobObject.optString("user_id", "Unknown")
+                val jobTitle = jobObject.optString("job_title", "Unknown")
+                val jobType = jobObject.optString("job_type", "Unknown")
+                val jobLocation = jobObject.optString("job_location", "Unknown")
+                val jobDescription = jobObject.optString("job_description", "No description available")
+                val workplaceType = jobObject.optString("workplace_type", "Unknown")
+                val tags = jobObject.optJSONArray("tags")?.let { tagArray ->
+                    (0 until tagArray.length()).map { tagArray.getString(it) }
+                } ?: emptyList()
 
-            // Parse tags
-            val tags = mutableListOf<String>()
-            val tagsArray = jobObject.optJSONArray("tags") ?: JSONArray()  // Avoid null pointer if tags are missing
-            for (j in 0 until tagsArray.length()) {
-                tags.add(tagsArray.getString(j))
+                // Create a Job object
+                val job = Job(
+                    jobId = jobId,
+                    organizationId = "", // Not used in this context
+                    jobTitle = jobTitle,
+                    jobType = jobType,
+                    jobLocation = jobLocation,
+                    jobDescription = jobDescription,
+                    workplaceType = workplaceType,
+                    tags = tags
+                )
+
+                // Parse User Details
+                val userDetailsObject = jobObject.optJSONObject("user_details")
+                val fullName = userDetailsObject?.optString("full_name", "Unknown User") // Backend uses "full_name"
+                val gamerTag = userDetailsObject?.optString("gamer_tag", "No Gamer Tag") // Backend uses "gamer_tag"
+                val profilePictureUrl = userDetailsObject?.optString("profile_picture_url", null)
+
+                // Create a UserData object
+                val userData = UserData(
+                    userId = userId,
+                    fullname = fullName?: "Unknown User",
+                    email = "", // Not provided in the response
+                    dOB = "", // Not provided in the response
+                    gamerTag = gamerTag?: "No Gamer Tag",
+                    profilePicture = profilePictureUrl,
+                    gender = Gender.PreferNotToSay, // Default value
+                    bio = null, // Not provided in the response
+                    location = null, // Not provided in the response
+                    accountVerified = false, // Default value
+                    playerId = null, // Not provided in the response
+                    rank = null // Not provided in the response
+                )
+
+                // Combine Job and UserData into a JobWithUserDetails object
+                val jobWithUserDetails = JobWithUserDetails(job, userData)
+
+                // Add job to the list
+                jobList.add(jobWithUserDetails)
             }
 
-            // Create a Job object
-            val job = Job(
-                jobId = jobId,
-                organizationId = organizationId,
-                jobTitle = jobTitle,
-                jobType = jobType,
-                jobLocation = jobLocation,
-                jobDescription = jobDescription,
-                workplaceType = workplaceType,
-                tags = tags
-            )
-            // Add job to the list
-            jobList.add(job)
-
+            // Notify the adapter of the data change
+            employeesAdapter.updateJobList(jobList)
+            Log.d("Volley", "Job list updated")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
         }
-
-        // Notify the adapter that the data has changed
-        employeesAdapter.updateJobList(jobList)
-        employeesAdapter.notifyDataSetChanged()
     }
 }
-

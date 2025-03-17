@@ -10,20 +10,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Job
+import com.muhaimen.arenax.dataClasses.JobWithOrganization
+import com.muhaimen.arenax.dataClasses.OrganizationData
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs.viewJobDetails
 
-class OrganizationsAdapter(private var jobsList: MutableList<Job>) :
+class OrganizationsAdapter(private var jobWithOrgList: MutableList<JobWithOrganization>) :
     RecyclerView.Adapter<OrganizationsAdapter.ViewHolder>() {
-
-    private var organizationName: String? = null
-    private var organizationLogoUrl: String? = null
-
-    // Method to update organization data
-    fun setOrganizationData(name: String, logoUrl: String) {
-        organizationName = name
-        organizationLogoUrl = logoUrl
-        notifyDataSetChanged()  // Ensure UI updates when organization data is set
-    }
 
     // ViewHolder class for binding job data to views
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -38,17 +30,21 @@ class OrganizationsAdapter(private var jobsList: MutableList<Job>) :
         val tag3: TextView = itemView.findViewById(R.id.tag3)
         val tag4: TextView = itemView.findViewById(R.id.tag4)
 
-        fun bind(job: Job) {
+        fun bind(jobWithOrg: JobWithOrganization) {
+            val job = jobWithOrg.job
+            val organization = jobWithOrg.organization
+
+            // Bind job data
             jobTitle.text = job.jobTitle
             jobLocation.text = job.jobLocation
             jobType.text = job.jobType
-            organizationNameTextView.text = organizationName ?: "Unknown Organization"
             workplaceType.text = job.workplaceType
 
-            // Load Organization Logo Only If URL Exists
-            if (!organizationLogoUrl.isNullOrEmpty()) {
+            // Bind organization data
+            organizationNameTextView.text = organization.organizationName
+            if (!organization.organizationLogo.isNullOrEmpty()) {
                 Glide.with(itemView.context)
-                    .load(organizationLogoUrl)
+                    .load(organization.organizationLogo)
                     .circleCrop()
                     .placeholder(R.drawable.battlegrounds_icon_background)
                     .into(organizationLogo)
@@ -56,22 +52,28 @@ class OrganizationsAdapter(private var jobsList: MutableList<Job>) :
                 organizationLogo.setImageResource(R.drawable.battlegrounds_icon_background)
             }
 
+            // Bind tags
             val tags = job.tags
             tag1.text = tags.getOrNull(0) ?: ""
             tag2.text = tags.getOrNull(1) ?: ""
             tag3.text = tags.getOrNull(2) ?: ""
             tag4.text = tags.getOrNull(3) ?: ""
 
+            // Set up click listener to open job details
             itemView.setOnClickListener {
                 val intent = Intent(itemView.context, viewJobDetails::class.java).apply {
+                    // Pass Job attributes
+                    putExtra("JobId", job.jobId)
                     putExtra("JobTitle", job.jobTitle)
                     putExtra("JobLocation", job.jobLocation)
                     putExtra("JobType", job.jobType)
-                    putExtra("OrganizationName", organizationName)
-                    putExtra("OrganizationLogoUrl", organizationLogoUrl)
                     putExtra("WorkplaceType", job.workplaceType)
                     putExtra("JobDescription", job.jobDescription)
                     putStringArrayListExtra("JobTags", ArrayList(job.tags))
+                    putExtra("OrganizationId", job.organizationId)
+                    putExtra("OrganizationName", organization.organizationName)
+                    putExtra("OrganizationLogo", organization.organizationLogo)
+                    putExtra("OrganizationLocation", organization.organizationLocation)
                 }
                 itemView.context.startActivity(intent)
             }
@@ -87,17 +89,17 @@ class OrganizationsAdapter(private var jobsList: MutableList<Job>) :
 
     // Binds job data to each ViewHolder
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(jobsList[position])
+        holder.bind(jobWithOrgList[position])
     }
 
     // Returns the number of job items in the list
     override fun getItemCount(): Int {
-        return jobsList.size
+        return jobWithOrgList.size
     }
 
     // Method to update the list of jobs when new data is fetched
-    fun updateJobsList(newJobsList: MutableList<Job>) {
-        jobsList = newJobsList
+    fun updateJobWithOrgList(newJobWithOrgList: MutableList<JobWithOrganization>) {
+        jobWithOrgList = newJobWithOrgList
         notifyDataSetChanged()
     }
 }
