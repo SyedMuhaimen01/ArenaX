@@ -12,8 +12,7 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Job
 import com.muhaimen.arenax.esportsManagement.esportsProfile.ui.FindTeam.recruitmentAdPosting.viewRecruitmentDetails
 
-class EmployeesAdapter (private val jobsList: List<Job>) :
-    RecyclerView.Adapter<EmployeesAdapter.ViewHolder>() {
+class EmployeesAdapter(private var jobsList: MutableList<Job>) : RecyclerView.Adapter<EmployeesAdapter.ViewHolder>() {
 
     private var organizationName: String? = null
     private var organizationLogoUrl: String? = null
@@ -24,11 +23,18 @@ class EmployeesAdapter (private val jobsList: List<Job>) :
         notifyDataSetChanged()  // Ensure UI updates when organization data is set
     }
 
+    // Function to update job list and notify adapter
+    fun updateJobList(newJobs: List<Job>) {
+        jobsList.clear()
+        jobsList.addAll(newJobs)
+        notifyDataSetChanged()  // Refresh the RecyclerView
+    }
+
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val jobTitle: TextView = itemView.findViewById(R.id.jobTitleTextView)
         val jobLocation: TextView = itemView.findViewById(R.id.locationTextView)
         val jobType: TextView = itemView.findViewById(R.id.jobTypeTextView)
-        val EmployeeProfilePicture: ImageView = itemView.findViewById(R.id.profilePicture)
+        val employeeProfilePicture: ImageView = itemView.findViewById(R.id.profilePicture)
         val workplaceType: TextView = itemView.findViewById(R.id.workplaceTypeTextView)
         val tag1: TextView = itemView.findViewById(R.id.tag1)
         val tag2: TextView = itemView.findViewById(R.id.tag2)
@@ -47,9 +53,9 @@ class EmployeesAdapter (private val jobsList: List<Job>) :
                     .load(organizationLogoUrl)
                     .circleCrop()
                     .placeholder(R.drawable.battlegrounds_icon_background)
-                    .into(EmployeeProfilePicture)
+                    .into(employeeProfilePicture)
             } else {
-                EmployeeProfilePicture.setImageResource(R.drawable.battlegrounds_icon_background)
+                employeeProfilePicture.setImageResource(R.drawable.battlegrounds_icon_background)
             }
 
             val tags = job.tags
@@ -57,7 +63,6 @@ class EmployeesAdapter (private val jobsList: List<Job>) :
             tag2.text = tags.getOrNull(1) ?: ""
             tag3.text = tags.getOrNull(2) ?: ""
             tag4.text = tags.getOrNull(3) ?: ""
-
 
             itemView.setOnClickListener {
                 val intent = Intent(itemView.context, viewRecruitmentDetails::class.java).apply {

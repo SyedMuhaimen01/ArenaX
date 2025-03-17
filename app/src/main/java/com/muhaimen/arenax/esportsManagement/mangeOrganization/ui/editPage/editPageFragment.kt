@@ -22,6 +22,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.OrganizationData
+import com.muhaimen.arenax.esportsManagement.esportsProfile.esportsProfile
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONObject
@@ -45,6 +46,7 @@ class editPageFragment : Fragment() {
     private var selectedImageUri: Uri? = null
     private var imageUrl:String=""
     private lateinit var storageReference: StorageReference
+    private var newOrgName:String=""
     companion object {
         fun newInstance(organizationName: String): editPageFragment {
             return editPageFragment().apply {
@@ -72,7 +74,6 @@ class editPageFragment : Fragment() {
 
         organizationName = arguments?.getString("organization_name") ?: ""
         fetchOrganizationData(organizationName)
-
         organizationLogo.setOnClickListener { selectImage() }
         updateButton.setOnClickListener { updateOrganizationOnFirebase() }
     }
@@ -142,6 +143,7 @@ class editPageFragment : Fragment() {
             organizationLogo.tag = ""
         }
     }
+
     private fun uploadImageToFirebase(organizationId: String) {
         storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/$organizationId/organizationProfilePictures")
 
@@ -192,9 +194,9 @@ class editPageFragment : Fragment() {
         val size = organizationSize.selectedItem.toString()
         val tagline = organizationTagline.text.toString()
         val description = organizationDescription.text.toString()
-
+        newOrgName=name
         // Query to find the organization node with matching organizationName
-        val query = databaseRef.orderByChild("organizationName").equalTo(name)
+        val query = databaseRef.orderByChild("organizationName").equalTo(organizationName)
 
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -223,13 +225,8 @@ class editPageFragment : Fragment() {
                         databaseRef.child(organizationId).setValue(updatedOrganization)
                             .addOnSuccessListener {
                                 println("Organization updated successfully")
-
-                                // Upload the image to Firebase after updating the details
                                 uploadImageToFirebase(organizationId)
-
-                                // Navigate to the organization home page
-                                val intent = Intent(requireContext(), OrganizationHomePageActivity::class.java)
-                                startActivity(intent)
+                                updateOrganizationData(imageUrl)
                             }
                             .addOnFailureListener { e ->
                                 println("Failed to update organization: ${e.message}")
@@ -249,7 +246,6 @@ class editPageFragment : Fragment() {
         })
     }
 
-
     private fun updateOrganizationData(imageUrl:String) {
         val name = organizationNameEditText.text.toString()
         val location = organizationLocation.text.toString()
@@ -262,6 +258,7 @@ class editPageFragment : Fragment() {
         val tagline = organizationTagline.text.toString()
         val description = organizationDescription.text.toString()
         val updatedData = JSONObject()
+        updatedData.put("originalOrganizationName",organizationName)
         updatedData.put("organizationName", name)
         updatedData.put("organizationLocation",location)
         updatedData.put("organizationEmail",email)
@@ -273,23 +270,15 @@ class editPageFragment : Fragment() {
         updatedData.put("organizationType", type)
         updatedData.put("organizationSize", size)
         updatedData.put("organizationLogo",imageUrl )
-     /*   updatedData.put("organizationName", organizationName)
-        updatedData.put("organizationLocation", getTextOrDefault(organizationLocation, "organization_location"))
-        updatedData.put("organizationEmail", getTextOrDefault(organizationEmail, "organization_email"))
-        updatedData.put("organizationPhone", getTextOrDefault(organizationPhone, "organization_phone"))
-        updatedData.put("organizationWebsite", getTextOrDefault(organizationWebsite, "organization_website"))
-        updatedData.put("organizationIndustry", getTextOrDefault(organizationIndustry, "organization_industry"))
-        updatedData.put("organizationTagline", getTextOrDefault(organizationTagline, "organization_tagline"))
-        updatedData.put("organizationDescription", getTextOrDefault(organizationDescription, "organization_description"))
-        updatedData.put("organizationType", getSpinnerOrDefault(organizationType, "organization_type"))
-        updatedData.put("organizationSize", getSpinnerOrDefault(organizationSize, "organization_size"))
-        updatedData.put("organizationLogo",imageUrl )
-*/
+        Log.d("UpdateData", "Data: $updatedData")
         val request = JsonObjectRequest(
             Request.Method.POST, "${Constants.SERVER_URL}registerOrganization/update", updatedData,
             { response ->
                 Toast.makeText(requireContext(), "Organization Updated Successfully", Toast.LENGTH_SHORT).show()
                 Log.d("UpdateSuccess", "Response: $response")
+                val intent = Intent(requireContext(), esportsProfile::class.java)
+                intent.putExtra("organizationName", name)
+                startActivity(intent)
             },
             { error ->
                 Log.e("VolleyError", "Failed to update organization: ${error.networkResponse?.statusCode} - ${error.message}")
@@ -297,14 +286,6 @@ class editPageFragment : Fragment() {
             }
         )
         requestQueue.add(request)
-    }
-
-    private fun getTextOrDefault(editText: EditText, key: String): String {
-        return editText.text.toString().trim().ifEmpty { originalData.optString(key, "") }
-    }
-
-    private fun getSpinnerOrDefault(spinner: Spinner, key: String): String {
-        return spinner.selectedItem?.toString()?.trim()?.ifEmpty { originalData.optString(key, "") } ?: originalData.optString(key, "")
     }
 
     private fun selectImage() {
