@@ -1,4 +1,4 @@
-package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.sponsoredPosts
+package com.muhaimen.arenax.esportsManagement.OtherOrganization
 
 import android.content.Intent
 import android.view.LayoutInflater
@@ -12,8 +12,8 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Event
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.manageEvents.viewEventDetails
 
-class SponsoredEventsAdapter(private var eventsList: MutableList<Event>) :
-    RecyclerView.Adapter<SponsoredEventsAdapter.ViewHolder>() {
+class otherOrganizationEventsAdapter(private var eventsList: MutableList<Event>) :
+    RecyclerView.Adapter<otherOrganizationEventsAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val eventBanner: ImageView = itemView.findViewById(R.id.eventBanner)
@@ -21,7 +21,7 @@ class SponsoredEventsAdapter(private var eventsList: MutableList<Event>) :
         val eventLocation: TextView = itemView.findViewById(R.id.eventLocationTextView)
         val eventMode: TextView = itemView.findViewById(R.id.eventModeTextView)
         val platform: TextView = itemView.findViewById(R.id.eventPlatformTextView)
-        val gameName:TextView = itemView.findViewById(R.id.eventGameTextView)
+        val gameName: TextView = itemView.findViewById(R.id.eventGameTextView)
 
         fun bind(event: Event) {
             eventTitle.text = event.eventName
@@ -65,7 +65,7 @@ class SponsoredEventsAdapter(private var eventsList: MutableList<Event>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.sponsor_event_item, parent, false)
+            .inflate(R.layout.event_card, parent, false)
         return ViewHolder(view)
     }
 
