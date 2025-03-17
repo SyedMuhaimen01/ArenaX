@@ -15,7 +15,6 @@ import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.dataClasses.Event
 import com.muhaimen.arenax.dataClasses.Job
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager

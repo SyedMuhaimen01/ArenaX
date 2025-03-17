@@ -27,7 +27,7 @@ class EmployeesAdapter(private var jobsList: MutableList<Job>) : RecyclerView.Ad
     fun updateJobList(newJobs: List<Job>) {
         jobsList.clear()
         jobsList.addAll(newJobs)
-        notifyDataSetChanged()  // Refresh the RecyclerView
+        notifyDataSetChanged() // Refresh the RecyclerView
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

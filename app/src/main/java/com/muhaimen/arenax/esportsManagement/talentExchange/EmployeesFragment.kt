@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -37,10 +36,10 @@ class EmployeesFragment : Fragment() {
 
         // Set up RecyclerView and Adapter
         recyclerView = rootView.findViewById(R.id.employees_recyclerview)
+        recyclerView.visibility = View.VISIBLE
         recyclerView.layoutManager = LinearLayoutManager(activity)
         employeesAdapter = EmployeesAdapter(jobList)
         recyclerView.adapter = employeesAdapter
-        recyclerView
         firebaseUid = FirebaseManager.getCurrentUserId().toString()
         // Fetch job availability data
         fetchJobAvailabilityData(firebaseUid)
@@ -92,14 +91,15 @@ class EmployeesFragment : Fragment() {
                     Toast.makeText(context, "Error: ${response.getString("error")}", Toast.LENGTH_SHORT).show()
                 } else {
                     // Process the job data returned in the response
-                    val jobs = response.getJSONArray("jobs") // Assuming "jobs" is the key in response
+                    val jobs = response.getJSONArray("jobs")
+                    Log.d("EmployeesFragment 1122", "Job data $jobs")
                     parseJobAvailabilityResponse(jobs)
                 }
             },
             { error ->
-                // Handle error
-                Log.e("Volley", "Error searching jobs data: ${error.message}")
-                Toast.makeText(context, "Error searching jobs data", Toast.LENGTH_SHORT).show()
+                Log.e("EmployeesFragment", "Error fetching job data: ${error.message}")
+                Log.e("EmployeesFragment", "Error details: ${error.cause}")
+                Toast.makeText(activity, "Error fetching job data: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         )
 
@@ -140,14 +140,14 @@ class EmployeesFragment : Fragment() {
                 workplaceType = workplaceType,
                 tags = tags
             )
-
             // Add job to the list
             jobList.add(job)
+
         }
 
         // Notify the adapter that the data has changed
         employeesAdapter.updateJobList(jobList)
-        employeesAdapter.notifyDataSetChanged()  // Notify the adapter to refresh the view
+        employeesAdapter.notifyDataSetChanged()
     }
 }
 
