@@ -80,8 +80,6 @@ class registerTeam : AppCompatActivity() {
             } else {
                 sendTeamToBackend("")
             }
-            val intent=Intent(this, OrganizationHomePageActivity::class.java)
-            startActivity(intent)
         }
 
 
@@ -226,7 +224,9 @@ class registerTeam : AppCompatActivity() {
             { response ->
                 // Success response
                 Toast.makeText(this, "Team Registered Successfully!", Toast.LENGTH_LONG).show()
-                finish()
+                val intent=Intent(this, OrganizationHomePageActivity::class.java)
+                intent.putExtra("organization_name", organizationName)
+                startActivity(intent)
             },
             { error ->
                 // Error response
