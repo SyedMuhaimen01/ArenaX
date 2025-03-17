@@ -12,18 +12,20 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Job
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs.viewJobDetails
 
-class OrganizationsAdapter (private val jobsList: List<Job>) :
+class OrganizationsAdapter(private var jobsList: MutableList<Job>) :
     RecyclerView.Adapter<OrganizationsAdapter.ViewHolder>() {
 
     private var organizationName: String? = null
     private var organizationLogoUrl: String? = null
 
+    // Method to update organization data
     fun setOrganizationData(name: String, logoUrl: String) {
         organizationName = name
         organizationLogoUrl = logoUrl
         notifyDataSetChanged()  // Ensure UI updates when organization data is set
     }
 
+    // ViewHolder class for binding job data to views
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val jobTitle: TextView = itemView.findViewById(R.id.jobTitleTextView)
         val jobLocation: TextView = itemView.findViewById(R.id.locationTextView)
@@ -43,7 +45,7 @@ class OrganizationsAdapter (private val jobsList: List<Job>) :
             organizationNameTextView.text = organizationName ?: "Unknown Organization"
             workplaceType.text = job.workplaceType
 
-            // ✅ Load Organization Logo Only If URL Exists
+            // Load Organization Logo Only If URL Exists
             if (!organizationLogoUrl.isNullOrEmpty()) {
                 Glide.with(itemView.context)
                     .load(organizationLogoUrl)
@@ -59,7 +61,6 @@ class OrganizationsAdapter (private val jobsList: List<Job>) :
             tag2.text = tags.getOrNull(1) ?: ""
             tag3.text = tags.getOrNull(2) ?: ""
             tag4.text = tags.getOrNull(3) ?: ""
-
 
             itemView.setOnClickListener {
                 val intent = Intent(itemView.context, viewJobDetails::class.java).apply {
@@ -77,17 +78,26 @@ class OrganizationsAdapter (private val jobsList: List<Job>) :
         }
     }
 
+    // Creates new ViewHolder instances for the RecyclerView
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.organization_job_posting_item, parent, false)
         return ViewHolder(view)
     }
 
+    // Binds job data to each ViewHolder
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(jobsList[position])
     }
 
+    // Returns the number of job items in the list
     override fun getItemCount(): Int {
         return jobsList.size
+    }
+
+    // Method to update the list of jobs when new data is fetched
+    fun updateJobsList(newJobsList: MutableList<Job>) {
+        jobsList = newJobsList
+        notifyDataSetChanged()
     }
 }
