@@ -39,12 +39,12 @@
                 android:id="@+id/profilePicture"
                 android:layout_width="@dimen/_60sdp"
                 android:layout_height="@dimen/_60sdp"
-                android:background="@drawable/circle"
                 android:layout_marginStart="@dimen/_10sdp"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:layout_marginEnd="@dimen/_10sdp"
-                android:contentDescription="@string/nav_header_desc"
+                android:background="@drawable/circle"
                 android:clipToOutline="true"
+                android:contentDescription="@string/nav_header_desc"
                 tools:ignore="UnusedAttribute" />
 
             <LinearLayout

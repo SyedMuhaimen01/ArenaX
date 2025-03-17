@@ -192,7 +192,7 @@
                 android:textSize="@dimen/_10sdp"
                 android:textColor="@color/white"
                 tools:ignore="HardcodedText" />
-            <EditText
+            <Spinner
                 android:id="@+id/organizationIndustryEditText"
                 android:layout_marginTop="@dimen/_2sdp"
                 android:layout_marginStart="@dimen/_23sdp"

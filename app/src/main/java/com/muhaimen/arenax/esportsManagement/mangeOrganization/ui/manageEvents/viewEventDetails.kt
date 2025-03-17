@@ -18,11 +18,18 @@ import android.util.Log
 import android.widget.Toast
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class viewEventDetails : AppCompatActivity() {
-    private lateinit var organizationLogo: ImageView
-    private lateinit var organizationName: TextView
-    private lateinit var organizationLocation: TextView
+    private lateinit var organizationNameTextView: TextView
+    private lateinit var organizationLocationTextView: TextView
+    private lateinit var organizationWebsiteTextView: TextView
+    private lateinit var organizationIndustryTextView: TextView
+    private lateinit var organizationTypeTextView: TextView
+    private lateinit var organizationSizeTextView: TextView
+    private lateinit var organizationTaglineTextView: TextView
+    private lateinit var organizationLogoImageView: ImageView
     private lateinit var eventBanner: ImageView
     private lateinit var eventName: TextView
     private lateinit var eventMode: TextView
@@ -75,9 +82,6 @@ class viewEventDetails : AppCompatActivity() {
     }
 
     private fun initializeViews() {
-        organizationLogo = findViewById(R.id.profilePicture)
-        organizationName = findViewById(R.id.organizationNameTextView)
-        organizationLocation = findViewById(R.id.locationTextView)
         eventBanner = findViewById(R.id.bannerImageView)
         eventName = findViewById(R.id.eventNameTextView)
         gameName = findViewById(R.id.eventGameTextView)
@@ -91,6 +95,36 @@ class viewEventDetails : AppCompatActivity() {
         endTime = findViewById(R.id.endTime)
         eventLink = findViewById(R.id.eventLinkTextView)
         showInterestButton = findViewById(R.id.showInterestButton)
+
+        organizationNameTextView = findViewById(R.id.organizationNameTextView)
+        organizationLocationTextView = findViewById(R.id.organizationLocationTextView)
+        organizationIndustryTextView = findViewById(R.id.organizationIndustryTextView)
+        organizationWebsiteTextView = findViewById(R.id.organizationWebsiteTextView)
+        organizationTypeTextView = findViewById(R.id.organizationTypeTextView)
+        organizationSizeTextView = findViewById(R.id.organizationSizeTextView)
+        organizationTaglineTextView = findViewById(R.id.organizationTaglineTextView)
+        organizationLogoImageView = findViewById(R.id.profilePicture)
+    }
+
+    private fun formatDate(inputDate: String): String {
+        return try {
+            // Define the input date format (ISO 8601 format)
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            inputFormat.isLenient = false
+
+            // Parse the input date string into a Date object
+            val date = inputFormat.parse(inputDate)
+
+            // Define the output date format (day/month/year)
+            val outputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+            // Format the Date object into the desired output format
+            outputFormat.format(date ?: return "N/A")
+        } catch (e: Exception) {
+            // Handle parsing errors and return "N/A" if something goes wrong
+            e.printStackTrace()
+            "N/A"
+        }
     }
 
     private fun setEventDetailsFromIntent() {
@@ -102,8 +136,12 @@ class viewEventDetails : AppCompatActivity() {
         eventMode.text = intent.getStringExtra("eventMode") ?: "N/A"
         platform.text = intent.getStringExtra("eventPlatform") ?: "N/A"
         eventDescription.text = intent.getStringExtra("eventDetails") ?: "No description available"
-        startDate.text = intent.getStringExtra("startDate") ?: "N/A"
-        endDate.text = intent.getStringExtra("endDate") ?: "N/A"
+        val start = intent.getStringExtra("startDate") ?: "N/A"
+        val end = intent.getStringExtra("endDate") ?: "N/A"
+        val formattedStartDate = formatDate(start)
+        val formattedEndDate = formatDate(end)
+        startDate.text = formattedStartDate
+        endDate.text = formattedEndDate
         startTime.text = intent.getStringExtra("startTime") ?: "N/A"
         endTime.text = intent.getStringExtra("endTime") ?: "N/A"
         eventLink.text = intent.getStringExtra("eventLink") ?: "N/A"
@@ -129,15 +167,20 @@ class viewEventDetails : AppCompatActivity() {
                 val orgName = response.optString("organization_name", "N/A")
                 val orgLocation = response.optString("organization_location", "Unknown")
                 val orgLogo = response.optString("organization_logo", "")
-
                 Log.d("Organization", "Name: $orgName, Location: $orgLocation, Logo: $orgLogo")
 
-                organizationName.text = orgName
-                organizationLocation.text = orgLocation
-                if (orgLogo.isNotEmpty()) {
-                    Glide.with(this).load(orgLogo).placeholder(R.drawable.battlegrounds_icon_background).into(organizationLogo)
+                organizationNameTextView.text = orgName
+                organizationLocationTextView.text = orgLocation
+                organizationWebsiteTextView?.text = response.optString("organization_website", "N/A")
+                organizationIndustryTextView?.text = response.optString("organization_industry", "N/A")
+                organizationTypeTextView?.text = response.optString("organization_type", "N/A")
+                organizationSizeTextView?.text = response.optString("organization_size", "N/A")
+                organizationTaglineTextView?.text = response.optString("organization_tagline", "N/A")
+
+                    if (orgLogo.isNotEmpty()) {
+                    Glide.with(this).load(orgLogo).placeholder(R.drawable.battlegrounds_icon_background).into(organizationLogoImageView)
                 } else {
-                    organizationLogo.setImageResource(R.drawable.battlegrounds_icon_background)
+                    organizationLogoImageView.setImageResource(R.drawable.battlegrounds_icon_background)
                 }
             },
             { error ->
@@ -146,4 +189,6 @@ class viewEventDetails : AppCompatActivity() {
 
         requestQueue.add(jsonObjectRequest)
     }
+
+
 }

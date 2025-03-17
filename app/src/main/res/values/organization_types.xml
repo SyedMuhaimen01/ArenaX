@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="organization_types">
-        <!-- General Organization Types -->
         <item>Private Organization</item>
         <item>Public Organization</item>
         <item>Privately Held</item>
@@ -10,13 +9,6 @@
         <item>Government Owned</item>
         <item>Other</item>
 
-        <!-- Gaming & Esports-Specific Types -->
-        <item>Esports Team</item>
-        <item>Esports Organization</item>
-        <item>Game Development Studio</item>
-        <item>Game Publishing Company</item>
-        <item>Gaming Community</item>
-        <item>Esports Training Academy</item>
-        <item>Gaming Talent Management</item>
+
     </string-array>
 </resources>

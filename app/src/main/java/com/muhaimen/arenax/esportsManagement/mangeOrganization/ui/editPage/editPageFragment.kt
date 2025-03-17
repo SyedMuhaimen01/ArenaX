@@ -32,7 +32,7 @@ class editPageFragment : Fragment() {
     private lateinit var organizationEmail: EditText
     private lateinit var organizationPhone: EditText
     private lateinit var organizationWebsite: EditText
-    private lateinit var organizationIndustry: EditText
+    private lateinit var organizationIndustry: Spinner
     private lateinit var organizationType: Spinner
     private lateinit var organizationSize: Spinner
     private lateinit var organizationTagline: EditText
@@ -122,11 +122,11 @@ class editPageFragment : Fragment() {
         organizationEmail.setText(response.optString("organization_email", ""))
         organizationPhone.setText(response.optString("organization_phone", ""))
         organizationWebsite.setText(response.optString("organization_website", ""))
-        organizationIndustry.setText(response.optString("organization_industry", ""))
         organizationTagline.setText(response.optString("organization_tagline", ""))
         organizationDescription.setText(response.optString("organization_description", ""))
 
         view?.post {
+            setSpinnerValue(organizationIndustry, response.optString("organization_industry", ""))
             setSpinnerValue(organizationType, response.optString("organization_type", ""))
             setSpinnerValue(organizationSize, response.optString("organization_size", ""))
         }
@@ -187,7 +187,7 @@ class editPageFragment : Fragment() {
         val email = organizationEmail.text.toString()
         val phone = organizationPhone.text.toString()
         val website = organizationWebsite.text.toString()
-        val industry = organizationIndustry.text.toString()
+        val industry = organizationIndustry.selectedItem.toString()
         val type = organizationType.selectedItem.toString()
         val size = organizationSize.selectedItem.toString()
         val tagline = organizationTagline.text.toString()
@@ -256,7 +256,7 @@ class editPageFragment : Fragment() {
         val email = organizationEmail.text.toString()
         val phone = organizationPhone.text.toString()
         val website = organizationWebsite.text.toString()
-        val industry = organizationIndustry.text.toString()
+        val industry = organizationIndustry.selectedItem.toString()
         val type = organizationType.selectedItem.toString()
         val size = organizationSize.selectedItem.toString()
         val tagline = organizationTagline.text.toString()
@@ -322,6 +322,11 @@ class editPageFragment : Fragment() {
 
     private fun populateSpinners() {
         context?.let { ctx ->
+            ArrayAdapter.createFromResource(ctx, R.array.organization_industry_types, android.R.layout.simple_spinner_item).also { adapter ->
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                organizationIndustry.adapter = adapter
+            }
+
             ArrayAdapter.createFromResource(ctx, R.array.organization_types, android.R.layout.simple_spinner_item).also { adapter ->
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 organizationType.adapter = adapter
@@ -331,6 +336,7 @@ class editPageFragment : Fragment() {
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 organizationSize.adapter = adapter
             }
+
         }
     }
 
