@@ -7,6 +7,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -17,7 +18,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.RequestQueue
+import com.android.volley.Response
 import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -32,6 +35,7 @@ import com.muhaimen.arenax.esportsManagement.talentExchange.talentExchange
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 
 class battlegrounds : AppCompatActivity() {
     private lateinit var talentExchangeButton: ImageView
@@ -47,9 +51,10 @@ class battlegrounds : AppCompatActivity() {
     private lateinit var requestQueue: RequestQueue
     private lateinit var database: FirebaseDatabase
     private lateinit var auth: FirebaseAuth
-    private lateinit var userId:String
+    private lateinit var userId: String
     private var eventList: MutableList<Event> = mutableListOf()
     private var searchEventList: List<Event> = listOf()
+    private lateinit var searchButton: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,9 +68,10 @@ class battlegrounds : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
 
-        database=FirebaseDatabase.getInstance()
-        auth=FirebaseAuth.getInstance()
-        userId=auth.currentUser?.uid.toString()
+        database = FirebaseDatabase.getInstance()
+        auth = FirebaseAuth.getInstance()
+        userId = auth.currentUser?.uid.toString()
+
         // Initialize Views
         talentExchangeButton = findViewById(R.id.talentExchangeButton)
         battlegroundsButton = findViewById(R.id.battlegroundsButton)
@@ -75,6 +81,7 @@ class battlegrounds : AppCompatActivity() {
         eventsRecyclerView = findViewById(R.id.events_recyclerview)
         searchRecyclerView = findViewById(R.id.searchEventsRecyclerView)
         searchbar = findViewById(R.id.searchbar)
+        searchButton = findViewById(R.id.searchButton)
 
         // Set RecyclerView Adapters
         battlegroundsAdapter = BattlegroundsAdapter(eventList)
@@ -88,28 +95,41 @@ class battlegrounds : AppCompatActivity() {
         // Initialize Volley RequestQueue
         requestQueue = Volley.newRequestQueue(this)
 
-        // Fetch events from backend
+        // Fetch events from backend (default view)
         fetchEvents()
 
-        // Handle search bar focus
-        searchbar.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                eventsRecyclerView.visibility = View.GONE
-                searchRecyclerView.visibility = View.VISIBLE
-            }
-        }
-
-        // Handle search text input
+        // Handle search bar text change
         searchbar.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (s.isNullOrEmpty()) {
+                    // If search is empty, show main event list and fetch all events
+                    searchRecyclerView.visibility = View.GONE
+                    eventsRecyclerView.visibility = View.VISIBLE
+                    fetchEvents()
+                } else {
+                    // Show search results while typing
+                    searchRecyclerView.visibility = View.VISIBLE
+                    eventsRecyclerView.visibility = View.GONE
+                }
+            }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val searchText = s?.toString()?.trim() ?: ""
-                filterSearchResults(searchText)
-            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
+
+        // Handle search button click
+        searchButton.setOnClickListener {
+            val eventName = searchbar.text.toString().trim()
+            if (eventName.isEmpty()) {
+                searchRecyclerView.visibility = View.GONE
+                eventsRecyclerView.visibility = View.VISIBLE
+                fetchEvents()
+            }else{
+                searchRecyclerView.visibility = View.GONE
+                eventsRecyclerView.visibility = View.VISIBLE
+                fetchEventsByName(eventName)
+            }
+        }
 
         // Set Button Click Listeners
         talentExchangeButton.setOnClickListener {
@@ -132,6 +152,7 @@ class battlegrounds : AppCompatActivity() {
             startActivity(Intent(this, esportsProfile::class.java))
         }
     }
+
 
     private fun fetchEvents() {
         val url = "${Constants.SERVER_URL}manageBattleGrounds/fetchEvents/${userId}"
@@ -160,6 +181,48 @@ class battlegrounds : AppCompatActivity() {
             })
 
         requestQueue.add(jsonArrayRequest)
+    }
+
+    private fun fetchEventsByName(eventName: String) {
+        val url = "${Constants.SERVER_URL}manageBattleGrounds/fetchEventsByName"
+
+        val requestBody = JSONObject().apply {
+            put("event_name", eventName)
+        }
+
+        val jsonRequest = object : JsonObjectRequest(
+            Request.Method.POST,
+            url,
+            requestBody,
+            Response.Listener { response ->
+                val eventsArray = response.optJSONArray("events")
+                Log.d("EventsAPIBYNAME", "Raw JSON Response: $response")
+
+                if (eventsArray != null) {
+                    val parsedEvents = parseEvents(eventsArray)
+
+                    runOnUiThread {
+                        eventList.clear()
+                        eventList.addAll(parsedEvents)
+                        battlegroundsAdapter.updateEvents(eventList)
+                        battlegroundsAdapter.notifyDataSetChanged()
+                    }
+
+                    Log.d("Events", "Updated Adapter with ${parsedEvents.size} search events")
+                } else {
+                    Toast.makeText(this, "No matching events found!", Toast.LENGTH_SHORT).show()
+                }
+            },
+            Response.ErrorListener { error ->
+                Toast.makeText(this, "Failed to load search results: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                return hashMapOf("Content-Type" to "application/json")
+            }
+        }
+
+        requestQueue.add(jsonRequest)
     }
 
     private fun parseEvents(response: JSONArray): MutableList<Event> {
