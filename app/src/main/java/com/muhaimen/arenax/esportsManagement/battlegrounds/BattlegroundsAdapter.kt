@@ -79,6 +79,6 @@ class BattlegroundsAdapter(private var eventsList: MutableList<Event>) :
     fun updateEvents(newEvents: List<Event>) {
         eventsList.clear()
         eventsList.addAll(newEvents)
-        notifyDataSetChanged() // Refresh RecyclerView
+        notifyDataSetChanged()
     }
 }

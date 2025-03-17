@@ -153,6 +153,7 @@ class viewEventDetails : AppCompatActivity() {
             .into(eventBanner)
     }
 
+
     private fun fetchOrganizationDetails(organizationId: String) {
         val url = "${Constants.SERVER_URL}manageEvents/fetchOrganization"
 
@@ -177,7 +178,7 @@ class viewEventDetails : AppCompatActivity() {
                 organizationSizeTextView?.text = response.optString("organization_size", "N/A")
                 organizationTaglineTextView?.text = response.optString("organization_tagline", "N/A")
 
-                    if (orgLogo.isNotEmpty()) {
+                if (orgLogo.isNotEmpty()) {
                     Glide.with(this).load(orgLogo).placeholder(R.drawable.battlegrounds_icon_background).into(organizationLogoImageView)
                 } else {
                     organizationLogoImageView.setImageResource(R.drawable.battlegrounds_icon_background)
@@ -189,6 +190,5 @@ class viewEventDetails : AppCompatActivity() {
 
         requestQueue.add(jsonObjectRequest)
     }
-
 
 }
