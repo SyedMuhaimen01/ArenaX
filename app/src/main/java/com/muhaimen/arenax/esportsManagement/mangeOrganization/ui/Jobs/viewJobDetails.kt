@@ -24,11 +24,13 @@ class viewJobDetails : AppCompatActivity() {
     private lateinit var tag4: TextView
     private lateinit var organizationLogo: ImageView
     private lateinit var applyButton: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_view_job_details)
 
+        // Handle edge-to-edge display
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -37,35 +39,51 @@ class viewJobDetails : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.primaryColor, theme)
         window.navigationBarColor = resources.getColor(R.color.primaryColor, theme)
 
+        // Initialize views
         initializeViews()
 
+        // Retrieve data from intent extras
+        val jobId = intent.getStringExtra("JobId") ?: "N/A"
+        val jobTitle = intent.getStringExtra("JobTitle") ?: "N/A"
+        val jobLocation = intent.getStringExtra("JobLocation") ?: "Location not specified"
+        val jobType = intent.getStringExtra("JobType") ?: "Not specified"
+        val workplaceType = intent.getStringExtra("WorkplaceType") ?: "Not specified"
+        val jobDescription = intent.getStringExtra("JobDescription") ?: "No description available"
+        val jobTags = intent.getStringArrayListExtra("JobTags") ?: arrayListOf()
+        val organizationId = intent.getStringExtra("OrganizationId") ?: "N/A"
+        val organizationName = intent.getStringExtra("OrganizationName") ?: "Unknown Organization"
+        val organizationLogoUrl = intent.getStringExtra("OrganizationLogo")
+        val organizationLocation = intent.getStringExtra("OrganizationLocation") ?: "Location not specified"
 
-        organizationNameTextView.text = intent.getStringExtra("OrganizationName") ?: "Unknown"
-        jobTitleTextView.text = intent.getStringExtra("JobTitle") ?: "N/A"
-        jobDescriptionTextView.text = intent.getStringExtra("JobDescription") ?: "No description available"
-        jobLocationTextView.text = intent.getStringExtra("JobLocation") ?: "Location not specified"
-        workplaceTypeTextView.text = intent.getStringExtra("WorkplaceType") ?: "Not specified"
-        jobTypeTextView.text = intent.getStringExtra("JobType") ?: "Not specified"
+        // Populate views with retrieved data
+        organizationNameTextView.text = organizationName
+        jobTitleTextView.text = jobTitle
+        jobDescriptionTextView.text = jobDescription
+        jobLocationTextView.text = jobLocation
+        workplaceTypeTextView.text = workplaceType
+        jobTypeTextView.text = jobType
 
-        val logoUrl = intent.getStringExtra("OrganizationLogoUrl")
-        if (!logoUrl.isNullOrEmpty()) {
+        // Load organization logo using Glide
+        if (!organizationLogoUrl.isNullOrEmpty()) {
             Glide.with(this)
-                .load(logoUrl)
+                .load(organizationLogoUrl)
                 .circleCrop()
-                .placeholder(R.drawable.battlegrounds_icon_background) // Placeholder image
+                .placeholder(R.drawable.battlegrounds_icon_background)
                 .into(organizationLogo)
         } else {
             organizationLogo.setImageResource(R.drawable.battlegrounds_icon_background)
         }
 
-        val jobTags = intent.getStringArrayListExtra("JobTags") ?: arrayListOf()
+        // Populate tags
         tag1.text = jobTags.getOrNull(0) ?: ""
         tag2.text = jobTags.getOrNull(1) ?: ""
         tag3.text = jobTags.getOrNull(2) ?: ""
         tag4.text = jobTags.getOrNull(3) ?: ""
 
+        // Set up apply button click listener
         applyButton.setOnClickListener {
             // Implement job application logic here
+            // For example, you can use the jobId or organizationId to track the application
         }
     }
 
