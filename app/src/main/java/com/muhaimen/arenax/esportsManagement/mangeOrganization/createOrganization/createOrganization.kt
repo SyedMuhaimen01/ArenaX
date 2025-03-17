@@ -31,7 +31,7 @@ class createOrganization : AppCompatActivity() {
     private lateinit var organizationEmail: EditText
     private lateinit var organizationPhone: EditText
     private lateinit var organizationWebsite: EditText
-    private lateinit var organizationIndustry: EditText
+    private lateinit var industryType: Spinner
     private lateinit var organizationType: Spinner
     private lateinit var organizationSize: Spinner
     private lateinit var organizationTagline: EditText
@@ -69,7 +69,7 @@ class createOrganization : AppCompatActivity() {
         organizationNameEditText = findViewById(R.id.organizationNameEditText)
         organizationLocation = findViewById(R.id.organizationLocationEditText)
         organizationEmail = findViewById(R.id.organizationEmailEditText)
-        organizationIndustry = findViewById(R.id.organizationIndustryEditText)
+        industryType = findViewById(R.id.organizationIndustryEditText)
         organizationWebsite = findViewById(R.id.organizationWebsiteEditText)
         organizationPhone = findViewById(R.id.organizationPhoneEditText)
         organizationEmail = findViewById(R.id.organizationEmailEditText)
@@ -85,6 +85,12 @@ class createOrganization : AppCompatActivity() {
         ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             organizationType.adapter = adapter
+        }
+        ArrayAdapter.createFromResource(
+            this, R.array.organization_industry_types, android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            industryType.adapter = adapter
         }
 
         ArrayAdapter.createFromResource(
@@ -135,7 +141,7 @@ class createOrganization : AppCompatActivity() {
         val location = organizationLocation.text.toString().trim()
         val email = organizationEmail.text.toString().trim()
         val phone = organizationPhone.text.toString().trim()
-        val industry = organizationIndustry.text.toString().trim()
+        val industry = industryType.selectedItem.toString().trim()
         val type = organizationType.selectedItem?.toString()?.trim()
         val size = organizationSize.selectedItem?.toString()?.trim()
         val description = organizationDescription.text.toString().trim()
@@ -164,11 +170,7 @@ class createOrganization : AppCompatActivity() {
             organizationPhone.requestFocus()
             return null
         }
-        if (industry.isEmpty()) {
-            organizationIndustry.error = "Industry is required"
-            organizationIndustry.requestFocus()
-            return null
-        }
+
         if (type.isNullOrEmpty()) {
             Toast.makeText(this, "Please select an organization type", Toast.LENGTH_SHORT).show()
             return null

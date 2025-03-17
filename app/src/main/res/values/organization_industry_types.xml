@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="organization_industry_types">
+    <item>Esports Organization</item>
+    <item>Game Development Studio</item>
+    <item>Game Publishing Company</item>
+    <item>Gaming Community</item>
+    <item>Esports Training Academy</item>
+    <item>Gaming Talent Management</item>
+    <item>Other</item>
+    </string-array>
+</resources>

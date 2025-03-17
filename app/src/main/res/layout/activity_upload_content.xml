@@ -24,7 +24,7 @@
             android:src="@mipmap/back_white2_icon"
             android:layout_marginStart="@dimen/_10sdp"
             android:layout_marginEnd="@dimen/_5sdp"
-            android:backgroundTint="@color/backgroundColor"></ImageButton>
+            android:backgroundTint="@color/backgroundColor"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
             android:textColor="@color/backgroundColor"
             android:background="@color/primaryColor"
             android:textSize="@dimen/_18sdp"
-            android:layout_marginTop="-3dp"></TextView>
+            android:layout_marginTop="-3dp"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/searchLinearLayout"
