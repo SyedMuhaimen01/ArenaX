@@ -8,15 +8,18 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.RequestQueue
+import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Comment
+import com.muhaimen.arenax.dataClasses.Event
 import com.muhaimen.arenax.dataClasses.pagePost
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONArray
@@ -25,12 +28,14 @@ import org.json.JSONObject
 class SponsoredPostsFragment : Fragment() {
 
     private lateinit var sponsoredPostsAdapter: SponsoredPostsAdapter
+    private lateinit var SponsoredEventsAdapter: SponsoredEventsAdapter
     private lateinit var mediaTypeDropdownSpinner:Spinner
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var eventsRecyclerView: RecyclerView
     private lateinit var jobsRecyclerView: RecyclerView
     private lateinit var requestQueue: RequestQueue
-    private val postsList = mutableListOf<pagePost>()
+    private var postsList = mutableListOf<pagePost>()
+    private var eventsList = mutableListOf<Event>()
     private var organizationName: String? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,9 +64,14 @@ class SponsoredPostsFragment : Fragment() {
         sponsoredPostsAdapter= SponsoredPostsAdapter(postsRecyclerView,postsList, organizationName.toString())
         postsRecyclerView.adapter = sponsoredPostsAdapter
 
+        eventsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        SponsoredEventsAdapter= SponsoredEventsAdapter(eventsList)
+        eventsRecyclerView.adapter = SponsoredEventsAdapter
+
 
         if (!organizationName.isNullOrEmpty()) {
             fetchOrganizationPosts()
+            fetchUpcomingEvents()
         }
         postsRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -147,24 +157,8 @@ class SponsoredPostsFragment : Fragment() {
         requestQueue.add(jsonObjectRequest)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        requestQueue.cancelAll("fetchOrganizationPosts")
-    }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        sponsoredPostsAdapter.releaseAllPlayers()
-    }
 
-    override fun onPause() {
-        super.onPause()
-        sponsoredPostsAdapter.releaseAllPlayers()
-    }
-
-    fun onBackPressed() {
-        sponsoredPostsAdapter.releaseAllPlayers()
-    }
     private fun setupDropdownMenu() {
         // Define dropdown options
         val options = listOf("Posts", "Events", "Jobs")
@@ -198,6 +192,71 @@ class SponsoredPostsFragment : Fragment() {
         }
     }
 
+    private fun fetchUpcomingEvents() {
+        if (organizationName.isNullOrEmpty()) {
+            Toast.makeText(context, "Organization not found!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val url = "${Constants.SERVER_URL}manageEvents/fetchUpcomingOrganizationEvents"
+
+        val requestQueue = Volley.newRequestQueue(requireContext())
+
+        val requestBody = JSONObject().apply {
+            put("organization_name", organizationName)
+        }
+
+        val jsonRequest = object : JsonObjectRequest(
+            Request.Method.POST,
+            url,
+            requestBody,
+            Response.Listener { response ->
+                val eventsArray = response.optJSONArray("events")
+                Log.d("Events111", "Raw JSON Response: $response")
+                if (eventsArray != null) {
+                    eventsList = parseEventResponse(eventsArray)
+                    SponsoredEventsAdapter.updateData(eventsList)
+                } else {
+                    Toast.makeText(context, "No events found!", Toast.LENGTH_SHORT).show()
+                }
+            },
+            Response.ErrorListener { error ->
+                Toast.makeText(context, "Failed to load events: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                return hashMapOf("Content-Type" to "application/json")
+            }
+        }
+
+        requestQueue.add(jsonRequest)
+    }
+
+    private fun parseEventResponse(response: JSONArray): MutableList<Event> {
+        val events = mutableListOf<Event>()
+        for (i in 0 until response.length()) {
+            val obj = response.getJSONObject(i)
+            val event = Event(
+                eventId = obj.getString("event_id"),
+                organizationId = obj.getString("organization_id"),
+                eventName = obj.getString("event_name"),
+                gameName = obj.getString("game_name"),
+                eventMode = obj.getString("event_mode"),
+                platform = obj.getString("platform"),
+                location = obj.optString("location", ""),
+                eventDescription = obj.optString("event_description", ""),
+                startDate = obj.optString("start_date", ""),
+                endDate = obj.optString("end_date", ""),
+                startTime = obj.optString("start_time", ""),
+                endTime = obj.optString("end_time", ""),
+                eventLink = obj.optString("event_link", ""),
+                eventBanner = obj.optString("event_banner", "")
+            )
+            events.add(event)
+        }
+        return events
+    }
+
     private fun initializeViews(view: View) {
         mediaTypeDropdownSpinner = view.findViewById(R.id.mediaTypeDropdownSpinner)
         postsRecyclerView = view.findViewById(R.id.postsRecyclerView)
@@ -205,5 +264,39 @@ class SponsoredPostsFragment : Fragment() {
         jobsRecyclerView = view.findViewById(R.id.jobsRecyclerView)
     }
 
+   fun onBackPressed() {
+        sponsoredPostsAdapter.releaseAllPlayers()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sponsoredPostsAdapter.handlePlayerVisibility()
+    }
+    override fun onStart() {
+        super.onStart()
+        sponsoredPostsAdapter.handlePlayerVisibility()
+    }
+    override fun onStop() {
+        super.onStop()
+        sponsoredPostsAdapter.releaseAllPlayers()
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sponsoredPostsAdapter.releaseAllPlayers()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sponsoredPostsAdapter.releaseAllPlayers()
+    }
+
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requestQueue.cancelAll("fetchOrganizationPosts")
+    }
 
 }

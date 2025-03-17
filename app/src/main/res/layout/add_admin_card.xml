@@ -27,6 +27,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_10sdp"
+            android:layout_gravity="center"
             android:orientation="vertical"
             android:layout_weight="1">
 
@@ -53,11 +54,10 @@
 
         <Button
             android:id="@+id/addAdminButton"
-            android:layout_width="@dimen/_60sdp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/inputholder"
-            android:backgroundTint="@color/primaryColor"
-            android:text="Add"
+            android:layout_width="@dimen/_20sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:background="@android:drawable/ic_input_add"
+            android:backgroundTint="@android:color/holo_green_light"
             android:textColor="@color/white"
             android:gravity="center"
             android:layout_gravity="center"

@@ -101,18 +101,27 @@ class registerTeam : AppCompatActivity() {
     }
 
     private fun pickImage() {
+        // Create an intent to pick an image from the gallery
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+
+        // Set the MIME type to filter only images
+        intent.type = "image/*"
+
+        // Start the activity for result
         startActivityForResult(intent, IMAGE_PICK_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == IMAGE_PICK_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            // Get the selected image URI
             teamLogoUri = data.data
-                Glide.with(this)
-                    .load(teamLogoUri)
-                    .circleCrop()
-                    .into(teamLogoImageView)
+
+            // Load the selected image into the ImageView using Glide
+            Glide.with(this)
+                .load(teamLogoUri)
+                .circleCrop()
+                .into(teamLogoImageView)
         }
     }
 

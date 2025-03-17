@@ -308,18 +308,28 @@ class editPageFragment : Fragment() {
     }
 
     private fun selectImage() {
+        // Create an intent to pick an image from the gallery
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+
+        // Set the MIME type to filter only images
+        intent.type = "image/*"
+
+        // Start the activity for result
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            // Get the selected image URI
             selectedImageUri = data.data
-            Glide.with(this).load(selectedImageUri).into(organizationLogo)
+
+            // Load the selected image into the ImageView using Glide
+            Glide.with(this)
+                .load(selectedImageUri)
+                .into(organizationLogo)
         }
     }
-
     private fun populateSpinners() {
         context?.let { ctx ->
             ArrayAdapter.createFromResource(ctx, R.array.organization_industry_types, android.R.layout.simple_spinner_item).also { adapter ->
