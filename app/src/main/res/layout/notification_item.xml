@@ -18,7 +18,7 @@
         android:padding="@dimen/_4sdp">
 
         <ImageView
-            android:id="@+id/teamLogo"
+            android:id="@+id/userPicture"
             android:layout_width="@dimen/_50sdp"
             android:layout_height="@dimen/_50sdp"
             android:layout_marginEnd="@dimen/_10sdp"
@@ -43,7 +43,7 @@
                 tools:ignore="HardcodedText"
                 android:layout_weight="0.8"/>
             <Button
-                android:id="@+id/removeAdminButton"
+                android:id="@+id/deleteNotificationButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="@android:drawable/ic_delete"

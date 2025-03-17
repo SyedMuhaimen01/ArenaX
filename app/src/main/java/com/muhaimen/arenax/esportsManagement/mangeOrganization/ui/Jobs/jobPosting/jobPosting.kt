@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Job
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONArray
 import org.json.JSONObject
@@ -65,6 +66,9 @@ class jobPosting : AppCompatActivity() {
 
             // Send data to backend
             postJobToBackend()
+            val intent=Intent(this,OrganizationHomePageActivity::class.java)
+            intent.putExtra("organization_name",organizationName)
+            startActivity(intent)
         }
 
         backButton.setOnClickListener {

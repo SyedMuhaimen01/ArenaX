@@ -15,6 +15,7 @@ import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import org.json.JSONObject
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
@@ -43,6 +44,7 @@ class viewEventDetails : AppCompatActivity() {
     private lateinit var eventLink: TextView
     private lateinit var showInterestButton: Button
     private lateinit var gameName: TextView
+    private lateinit var loadedFromStatus:String
 
     private lateinit var requestQueue: RequestQueue
     private var eventId: String? = null
@@ -145,7 +147,10 @@ class viewEventDetails : AppCompatActivity() {
         startTime.text = intent.getStringExtra("startTime") ?: "N/A"
         endTime.text = intent.getStringExtra("endTime") ?: "N/A"
         eventLink.text = intent.getStringExtra("eventLink") ?: "N/A"
-
+        loadedFromStatus = intent.getStringExtra("loadedFrom") ?: "N/A"
+        if(loadedFromStatus == "ownOrganization"){
+            showInterestButton.visibility = View.GONE
+        }
         // Load event banner image
         Glide.with(this)
             .load(bannerUrl)
@@ -172,11 +177,11 @@ class viewEventDetails : AppCompatActivity() {
 
                 organizationNameTextView.text = orgName
                 organizationLocationTextView.text = orgLocation
-                organizationWebsiteTextView?.text = response.optString("organization_website", "N/A")
-                organizationIndustryTextView?.text = response.optString("organization_industry", "N/A")
-                organizationTypeTextView?.text = response.optString("organization_type", "N/A")
-                organizationSizeTextView?.text = response.optString("organization_size", "N/A")
-                organizationTaglineTextView?.text = response.optString("organization_tagline", "N/A")
+                organizationWebsiteTextView.text = response.optString("organization_website", "N/A")
+                organizationIndustryTextView.text = response.optString("organization_industry", "N/A")
+                organizationTypeTextView.text = response.optString("organization_type", "N/A")
+                organizationSizeTextView.text = response.optString("organization_size", "N/A")
+                organizationTaglineTextView.text = response.optString("organization_tagline", "N/A")
 
                 if (orgLogo.isNotEmpty()) {
                     Glide.with(this).load(orgLogo).placeholder(R.drawable.battlegrounds_icon_background).into(organizationLogoImageView)

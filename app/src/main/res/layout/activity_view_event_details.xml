@@ -46,11 +46,11 @@
                         <!-- Profile picture -->
                         <ImageView
                             android:id="@+id/profilePicture"
-                            android:layout_width="@dimen/_60sdp"
-                            android:layout_height="@dimen/_60sdp"
+                            android:layout_width="@dimen/_80sdp"
+                            android:layout_height="@dimen/_80sdp"
                             android:background="@drawable/circle"
+                            android:layout_gravity="center"
                             android:layout_marginStart="@dimen/_10sdp"
-                            android:layout_marginTop="@dimen/_10sdp"
                             android:layout_marginEnd="@dimen/_10sdp"
                             android:contentDescription="@string/nav_header_desc"
                             android:clipToOutline="true"
