@@ -132,24 +132,92 @@
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+        <androidx.cardview.widget.CardView
+            android:id="@+id/SettingsCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:background="@color/primaryColor"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/white"
+            android:layout_marginBottom="@dimen/_10sdp"
+            app:cardUseCompatPadding="true"
+            app:cardPreventCornerOverlap="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/InfoCard"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints">
+            <!-- Settings Buttons -->
+            <LinearLayout
+                android:id="@+id/settingsBoard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/requestAllianceButton"
+                    android:text="Request Alliance"
+                    android:layout_width="@dimen/_15sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:textAlignment="center"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:textSize="@dimen/_9sdp"
+                    android:layout_weight="1"
+                    android:textColor="@color/textColor"
+                    android:backgroundTint="@color/secondaryColor"
+                    android:background="@drawable/curved_rectangle"
+                    android:layout_marginEnd="@dimen/_8sdp" />
+
+                <Button
+                    android:id="@+id/messageButton"
+                    android:text="Message"
+                    android:layout_width="@dimen/_15sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:textAlignment="center"
+                    android:textSize="@dimen/_9sdp"
+                    android:layout_weight="1"
+                    android:textColor="@color/textColor"
+                    android:backgroundTint="@color/secondaryColor"
+                    android:background="@drawable/curved_rectangle"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    tools:ignore="HardcodedText" />
+
+                <ImageButton
+                    android:src="@drawable/share_icon_foreground"
+                    android:layout_width="@dimen/_24sdp"
+                    android:layout_height="@dimen/_22sdp"
+                    android:scaleType="centerInside"
+                    android:adjustViewBounds="true"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:backgroundTint="@color/secondaryColor"
+                    android:background="?android:selectableItemBackgroundBorderless" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/DescriptionCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_5sdp"
+
         android:background="@color/primaryColor"
         app:cardElevation="4dp"
         app:cardBackgroundColor="@color/white"
         app:cardUseCompatPadding="true"
         app:cardPreventCornerOverlap="true"
-        app:layout_constraintTop_toBottomOf="@id/InfoCard"
-        app:layout_constraintStart_toStartOf="@id/InfoCard"
-        app:layout_constraintEnd_toEndOf="@id/InfoCard"
+        app:layout_constraintTop_toBottomOf="@id/SettingsCard"
+        app:layout_constraintStart_toStartOf="@id/SettingsCard"
+        app:layout_constraintEnd_toEndOf="@id/SettingsCard"
         tools:ignore="MissingConstraints">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/_10sdp"
+        android:paddingTop="@dimen/_10sdp"
         android:layout_marginEnd="@dimen/_10sdp"
         android:layout_marginStart="@dimen/_10sdp"
         android:orientation="vertical">

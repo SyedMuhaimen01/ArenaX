@@ -107,11 +107,15 @@ class dashboardFragment : Fragment() {
 
                     val logoUrl = response.optString("organization_logo", "").takeIf { it.isNotBlank() }
 
-                    organizationLogoImageView?.let {
+                    organizationLogoImageView?.let { imageView ->
+                        // Set clipToOutline on the ImageView
+                        imageView.clipToOutline = true
+
+                        // Load the image using Glide
                         Glide.with(requireContext())
                             .load(logoUrl ?: R.drawable.add_icon_foreground)
                             .placeholder(R.drawable.add_icon_foreground)
-                            .into(it)
+                            .into(imageView)
                     }
 
                 } catch (e: Exception) {

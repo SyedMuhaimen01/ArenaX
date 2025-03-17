@@ -1,9 +1,11 @@
 package com.muhaimen.arenax.esportsManagement.OtherOrganization
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -20,11 +22,13 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.Comment
 import com.muhaimen.arenax.dataClasses.Event
 import com.muhaimen.arenax.dataClasses.pagePost
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.pagePosts.pagePostsAdapter
 import com.muhaimen.arenax.utils.Constants
+import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -40,6 +44,7 @@ class OtherOrganization : AppCompatActivity() {
     private lateinit var organizationTaglineTextView: TextView
     private lateinit var organizationDescriptionTextView: TextView
     private lateinit var organizationLogoImageView: ImageView
+    private lateinit var messageButton: Button
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var eventsRecyclerView: RecyclerView
     private lateinit var jobsRecyclerView: RecyclerView
@@ -68,6 +73,12 @@ class OtherOrganization : AppCompatActivity() {
         organizationName = intent.getStringExtra("organization_name")
         organizationId = intent.getStringExtra("organizationId")
         Log.d("DashboardFragment", "Organization name: $organizationName")
+
+        messageButton=findViewById(R.id.messageButton)
+        messageButton.setOnClickListener {
+            Log.d("UserProfile", "Message button clicked")
+            fetchOrganizationDataAndStartChat(organizationId!!)
+        }
 
         postsRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
         otherPagePostsAdapter = otherPagePostsAdapter(postsRecyclerView,postsList, organizationName.toString())
@@ -139,6 +150,48 @@ class OtherOrganization : AppCompatActivity() {
         requestQueue.add(jsonObjectRequest)
     }
 
+    private fun fetchOrganizationDataAndStartChat(receiverId: String) {
+        val database = FirebaseManager.getDatabseInstance()
+        val orgRef = database.getReference("organizationsData").child(receiverId)
+
+        orgRef.get().addOnSuccessListener { dataSnapshot ->
+            if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                // Found organization in organizationData
+                val profileImageUrl = dataSnapshot.child("organizationLogo").value?.toString().orEmpty()
+                val orgName = dataSnapshot.child("organizationName").value?.toString().orEmpty()
+                Log.d("organizationName", orgName)
+
+                if (orgName.isNotEmpty()) {
+                    startChat(receiverId, orgName, "", profileImageUrl, "00","organization")
+                } else {
+                    Log.e("Chat", "Organization data is missing fields.")
+                }
+            } else {
+                Log.d("Chat", "Receiver ID not found in userData or organizationData")
+            }
+        }.addOnFailureListener {
+            Log.e("Chat", "Failed to fetch organization data: ${it.message}")
+        }
+    }
+
+    private fun startChat(
+        userId: String,
+        fullname: String,
+        gamerTag: String,
+        profilePicture: String,
+        gamerRank: String,
+        dataType:String
+    ) {
+        val intent = Intent(this, ChatActivity::class.java).apply {
+            putExtra("userId", userId)
+            putExtra("fullname", fullname)
+            putExtra("gamerTag", gamerTag)
+            putExtra("profilePicture", profilePicture)
+            putExtra("gamerRank", gamerRank)
+            putExtra("dataType",dataType)
+        }
+        startActivity(intent)
+    }
     private fun fetchOrganizationPosts() {
         if (organizationName.isNullOrEmpty()) {
             Log.e("pagePostsFragment", "Organization name is null or empty.")
