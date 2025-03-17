@@ -6,7 +6,7 @@
     android:background="@color/backgroundColor"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".esportsManagement.OtherOrganization.OtherOrganization">
+    tools:context=".esportsManagement.mangeOrganization.ui.sponsoredPosts.SponsoredPostsFragment">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -20,7 +20,6 @@
             android:orientation="vertical"
             tools:ignore="MissingConstraints">
 
-
             <!-- Dropdown Spinner -->
             <TextView
                 android:layout_width="wrap_content"
@@ -32,8 +31,9 @@
                 android:layout_marginTop="@dimen/_10sdp"
                 android:layout_marginEnd="@dimen/_10sdp"
                 android:textSize="@dimen/_12sdp"/>
+
             <Spinner
-                android:id="@+id/dropdownSpinner"
+                android:id="@+id/mediaTypeDropdownSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_10sdp"
@@ -43,7 +43,7 @@
                 android:backgroundTint="@color/backgroundGrey"
                 android:entries="@array/sponsor_dropdown_options" />
 
-
+            <!-- RecyclerViews -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/postsRecyclerView"
                 android:layout_width="match_parent"
@@ -55,7 +55,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:visibility="gone"/>
-
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/eventsRecyclerView"
@@ -69,7 +68,6 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:visibility="gone"/>
 
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/jobsRecyclerView"
                 android:layout_width="match_parent"
@@ -81,6 +79,109 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:visibility="gone"/>
+
+            <!-- Additional Dropdowns Inside a View -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/primaryColor"
+                android:layout_marginTop="@dimen/_10sdp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/_10sdp">
+
+                <!-- Reach Percentage Dropdown -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reach Percentage"
+                    tools:ignore="HardcodedText"
+                    android:textColor="@color/textColor"
+                    android:textSize="@dimen/_12sdp"
+                    android:layout_marginBottom="@dimen/_5sdp"/>
+
+                <Spinner
+                    android:id="@+id/reachPercentageSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/inputholder"
+                    android:backgroundTint="@color/backgroundGrey"
+                    android:entries="@array/reach_percentage_options" />
+
+                <!-- Audience Targeting Dropdown -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Audience Targeting"
+                    tools:ignore="HardcodedText"
+                    android:textColor="@color/textColor"
+                    android:textSize="@dimen/_12sdp"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginBottom="@dimen/_5sdp"/>
+
+                <Spinner
+                    android:id="@+id/audienceTargetingSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/inputholder"
+                    android:backgroundTint="@color/backgroundGrey"
+                    android:entries="@array/audience_targeting_options" />
+            </LinearLayout>
+
+            <!-- Billing Details Section -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/primaryColor"
+                android:layout_marginTop="@dimen/_10sdp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/_10sdp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Billing Details"
+                    tools:ignore="HardcodedText"
+                    android:textColor="@color/textColor"
+                    android:textSize="@dimen/_14sdp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="@dimen/_10sdp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Amount: $50.00"
+                    tools:ignore="HardcodedText"
+                    android:textColor="@color/textColor"
+                    android:textSize="@dimen/_12sdp"
+                    android:layout_marginBottom="@dimen/_5sdp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Payment Method: Credit Card"
+                    tools:ignore="HardcodedText"
+                    android:textColor="@color/textColor"
+                    android:textSize="@dimen/_12sdp"/>
+            </LinearLayout>
+
+            <!-- Sponsor Button -->
+            <Button
+                android:id="@+id/sponsorButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_10sdp"
+                android:background="@drawable/buttonholder2"
+                android:text="Sponsor"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_14sdp"/>
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -56,7 +56,7 @@
 
     <fragment
         android:id="@+id/nav_sponsoredPosts"
-        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.sponsoredPosts.sponsoredPostsFragment"
+        android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.sponsoredPosts.SponsoredPostsFragment"
         android:label="@string/menu_sponsoredPosts"
         tools:layout="@layout/fragment_sponsored_posts" />
 

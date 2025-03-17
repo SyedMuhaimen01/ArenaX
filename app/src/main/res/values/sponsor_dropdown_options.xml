@@ -5,4 +5,17 @@
         <item>Event</item>
         <item>Job</item>
     </string-array>
+
+    <string-array name="reach_percentage_options">
+        <item>25%</item>
+        <item>50%</item>
+        <item>75%</item>
+        <item>100%</item>
+    </string-array>
+
+    <string-array name="audience_targeting_options">
+        <item>Location-Based</item>
+        <item>Interest-Based</item>
+        <item>Both</item>
+    </string-array>
 </resources>
