@@ -1,4 +1,4 @@
-package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.manageApplicationsAndInvites
+package com.muhaimen.arenax.esportsManagement.esportsProfile.ui.notifications
 
 import android.content.Context
 import android.content.Intent
@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
@@ -21,9 +22,11 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.esportsNotificationData
+import com.muhaimen.arenax.esportsManagement.OtherOrganization.OtherOrganization
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.inbox.Threads.organizationChatActivity
 import com.muhaimen.arenax.userProfile.otherUserProfile
 import com.muhaimen.arenax.utils.Constants
+import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONObject
 
 class ApplicationsAdapter(
@@ -75,7 +78,11 @@ class ApplicationsAdapter(
     // Inflate the layout and return the ViewHolder
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApplicationsViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.notification_item, parent, false) // Replace with your layout file name
+            .inflate(
+                R.layout.notification_item,
+                parent,
+                false
+            ) // Replace with your layout file name
         return ApplicationsViewHolder(view)
     }
 
@@ -105,7 +112,8 @@ class ApplicationsAdapter(
 
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val userProfilePictureUrl = snapshot.child("profilePicture").getValue(String::class.java)
+                val userProfilePictureUrl =
+                    snapshot.child("profilePicture").getValue(String::class.java)
                 if (!userProfilePictureUrl.isNullOrEmpty()) {
                     // Load the profile picture using Glide
                     Glide.with(imageView.context)
@@ -130,7 +138,7 @@ class ApplicationsAdapter(
             }
         })
     }
-    private fun getOrganizationDetails(userId: String) {
+    private fun getOrganizationDetails() {
         // Reference to the organizationsData node in Firebase
         val organizationsRef = FirebaseDatabase.getInstance().getReference("organizationsData")
 
@@ -148,7 +156,7 @@ class ApplicationsAdapter(
 
                         // Fetch notifications for this organization
                         if (!orgId.isNullOrEmpty()) {
-                            fetchUserDataAndStartChat(userId, orgId)
+                            fetchOrganizationDataAndStartChat(orgId)
 
                         } else {
                             println("Organization ID is null or empty")
@@ -166,25 +174,85 @@ class ApplicationsAdapter(
             }
         })
     }
-    private fun fetchUserDataAndStartChat(userId: String,orgId:String) {
 
-        FirebaseDatabase.getInstance().getReference("userData").child(userId).get()
-            .addOnSuccessListener { dataSnapshot: DataSnapshot ->
-                if (dataSnapshot.exists()) {
-                    val profileImageUrl = dataSnapshot.child("profilePicture").getValue(String::class.java)
-                    val fullname = dataSnapshot.child("fullname").getValue(String::class.java)
-                    val gamerTag = dataSnapshot.child("gamerTag").getValue(String::class.java)
+    private fun getOrganizationDetails2() {
+        // Reference to the organizationsData node in Firebase
+        val organizationsRef = FirebaseDatabase.getInstance().getReference("organizationsData")
 
-                    val intent = Intent(context, organizationChatActivity::class.java).apply {
-                        putExtra("userId", userId)
-                        putExtra("fullname", fullname)
-                        putExtra("gamerTag", gamerTag)
-                        putExtra("profilePicture", profileImageUrl)
-                        putExtra("organizationId", orgId)
+        // Query to find the organization by its name
+        val orgQuery = organizationsRef.orderByChild("organizationName").equalTo(organizationName)
+
+        // Execute the query to find the organization
+        orgQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    // Iterate through the results (though there should only be one match)
+                    for (orgSnapshot in snapshot.children) {
+                        // Retrieve the organization ID
+                        val orgId = orgSnapshot.key
+
+                        // Fetch notifications for this organization
+                        if (!orgId.isNullOrEmpty()) {
+                            viewOrganizationProfile(organizationName,orgId)
+
+                        } else {
+                            println("Organization ID is null or empty")
+                        }
                     }
-                    context.startActivity(intent)
+                } else {
+                    // Handle the case where no organization is found with the given name
+                    println("No organization found with the name: $organizationName")
                 }
             }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle errors when fetching data
+                println("Database error: ${error.message}")
+            }
+        })
+    }
+
+    private fun fetchOrganizationDataAndStartChat(receiverId: String) {
+        val database = FirebaseManager.getDatabseInstance()
+        val orgRef = database.getReference("organizationsData").child(receiverId)
+
+        orgRef.get().addOnSuccessListener { dataSnapshot ->
+            if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                // Found organization in organizationData
+                val profileImageUrl = dataSnapshot.child("organizationLogo").value?.toString().orEmpty()
+                val orgName = dataSnapshot.child("organizationName").value?.toString().orEmpty()
+                Log.d("organizationName", orgName)
+
+                if (orgName.isNotEmpty()) {
+                    startChat(receiverId, orgName, "", profileImageUrl, "00","organization")
+                } else {
+                    Log.e("Chat", "Organization data is missing fields.")
+                }
+            } else {
+                Log.d("Chat", "Receiver ID not found in userData or organizationData")
+            }
+        }.addOnFailureListener {
+            Log.e("Chat", "Failed to fetch organization data: ${it.message}")
+        }
+    }
+
+    private fun startChat(
+        userId: String,
+        fullname: String,
+        gamerTag: String,
+        profilePicture: String,
+        gamerRank: String,
+        dataType:String
+    ) {
+        val intent = Intent(context, organizationChatActivity::class.java).apply {
+            putExtra("userId", userId)
+            putExtra("fullname", fullname)
+            putExtra("gamerTag", gamerTag)
+            putExtra("profilePicture", profilePicture)
+            putExtra("gamerRank", gamerRank)
+            putExtra("dataType",dataType)
+        }
+        startActivity(context, intent, null)
     }
 
     private fun fetchOrganizationDetails(orgName: String) {
@@ -214,7 +282,8 @@ class ApplicationsAdapter(
                     followingCount = response.optInt("following", 0).toString()
 
                     organizationLogo =
-                        response.optString("organization_logo", "").takeIf { it.isNotBlank() }.toString()
+                        response.optString("organization_logo", "").takeIf { it.isNotBlank() }
+                            .toString()
 
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -235,25 +304,25 @@ class ApplicationsAdapter(
 
     // Show dialog with options: View User Profile and Start Chat
     private fun showOptionsDialog(userId: String) {
-        val options = arrayOf("View User Profile", "Start Chat")
+        val options = arrayOf("View Organization Profile", "Start Chat")
 
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Select an Option")
         builder.setItems(options) { _, which ->
             when (which) {
-                0 -> viewUserProfile(userId) // Call the function to view user profile
-                1 -> getOrganizationDetails(userId)// Call the function to start chat
+                0 ->  getOrganizationDetails2()// Call the function to view user profile
+                1 -> getOrganizationDetails() // Call the function to start chat
             }
         }
         builder.show()
     }
 
     // Placeholder function for viewing user profile
-    private fun viewUserProfile(userId: String) {
-        val intent = Intent(context, otherUserProfile::class.java)
-        intent.putExtra("userId", userId)
+    private fun viewOrganizationProfile(organizationName: String, organizationId: String) {
+        val intent = Intent(context, OtherOrganization::class.java)
+        intent.putExtra("organizationId", organizationId)
+        intent.putExtra("organization_name", organizationName)
         context.startActivity(intent)
         // Implement this function to handle viewing the user profile
-        Log.d("ApplicationsAdapter", "View User Profile clicked for user ID: $userId")
     }
 }

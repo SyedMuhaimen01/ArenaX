@@ -54,6 +54,7 @@ import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.uploadStory.viewStory
 import com.muhaimen.arenax.userFeed.UserFeed
+import com.muhaimen.arenax.userProfile.otherUserEsportsProfile.OtherUsersEsportsProfile
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import kotlinx.coroutines.Dispatchers
@@ -109,6 +110,7 @@ class otherUserProfile : AppCompatActivity() {
     private lateinit var receivedUserId: String
     private lateinit var picture:String
     private lateinit var currentUserId: String
+    private lateinit var otherUserEsportsProfileButton:LinearLayout
     @SuppressLint("MissingInflatedId", "SetTextI18n", "CutPasteId", "SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -133,6 +135,7 @@ class otherUserProfile : AppCompatActivity() {
         myGamesListAdapter = gamesDashboardAdapter(emptyList(), receivedUserId)
         myGamesListRecyclerView.adapter = myGamesListAdapter
         rankTextView = findViewById(R.id.rankTextView)
+        otherUserEsportsProfileButton=findViewById(R.id.esportsProfileButton)
 
         highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -159,6 +162,13 @@ class otherUserProfile : AppCompatActivity() {
         leaderboardButton = findViewById(R.id.leaderboardButton)
         leaderboardButton.setOnClickListener {
             val intent = Intent(this, overallLeaderboard::class.java)
+            startActivity(intent)
+        }
+
+        otherUserEsportsProfileButton.setOnClickListener {
+            val intent = Intent(this, OtherUsersEsportsProfile::class.java).apply {
+                putExtra("userId", receivedUserId)
+            }
             startActivity(intent)
         }
 

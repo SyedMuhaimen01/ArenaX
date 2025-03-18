@@ -1,4 +1,4 @@
-package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Teams.viewOwnTeams
+package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Teams.viewOtherTeam
 
 import android.content.Context
 import android.content.Intent
@@ -8,7 +8,6 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -21,7 +20,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
@@ -32,16 +30,14 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.muhaimen.arenax.R
-import com.muhaimen.arenax.dataClasses.Team
 import com.muhaimen.arenax.dataClasses.UserData
-import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONException
 import org.json.JSONObject
 import java.nio.charset.Charset
 
-class viewOwnTeam : AppCompatActivity() {
+class viewOtherTeam : AppCompatActivity() {
     private lateinit var teamLogoImageView:ImageView
     private lateinit var teamNameTextView:TextView
     private lateinit var gameNameTextView:TextView
@@ -53,20 +49,15 @@ class viewOwnTeam : AppCompatActivity() {
     private lateinit var teamEmailTextView:TextView
     private lateinit var teamAchievementsTextView:TextView
     private lateinit var playersRecyclerView: RecyclerView
-    private lateinit var searchUserRecyclerView: RecyclerView
-    private lateinit var searchUserAdapter: SearchPlayerAdapter
-    private lateinit var managePlayersAdapter: ManagePlayerAdapter
-    private lateinit var addPlayerButton:FloatingActionButton
-    private lateinit var searchBar: EditText
+    private lateinit var managePlayersAdapter: playerAdapter
     private lateinit var database: DatabaseReference
-    private lateinit var searchbarLinearLayout: LinearLayout
     private lateinit var organizationName: String
     private lateinit var teamName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_view_own_team)
+        setContentView(R.layout.activity_view_other_team)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -83,72 +74,21 @@ class viewOwnTeam : AppCompatActivity() {
         // Initialize Firebase Database Reference
         database = FirebaseDatabase.getInstance().reference.child("userData")
 
-        searchUserAdapter = SearchPlayerAdapter(mutableListOf()) { userId ->
-            addPlayer(userId)
-        }
 
-        managePlayersAdapter = ManagePlayerAdapter(mutableListOf()) { playerId ->
-            removePlayer(playerId)
-        }
+
+        managePlayersAdapter = playerAdapter(mutableListOf())
 
         // Set Adapters
         playersRecyclerView.adapter = managePlayersAdapter
-        searchUserRecyclerView.adapter = searchUserAdapter
 
         // Search Bar Focus Handling
-        searchBar.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                playersRecyclerView.visibility = View.GONE
-                searchUserRecyclerView.visibility = View.VISIBLE
-            }
-        }
 
-        searchBar.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {}
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val searchText = s?.toString()?.trim() ?: ""
-                if (searchText.isNotEmpty()) {
-                    searchUsers(searchText)
-                } else {
-                    searchUserAdapter.updatePlayersList(emptyList())
-                }
-            }
-        })
-
-        // Floating Button Click Handling
-        addPlayerButton.setOnClickListener {
-            if (searchbarLinearLayout.visibility == View.VISIBLE) {
-                searchbarLinearLayout.visibility = View.GONE
-                searchUserRecyclerView.visibility = View.GONE
-                playersRecyclerView.visibility = View.VISIBLE
-            } else {
-                searchbarLinearLayout.visibility = View.VISIBLE
-                searchUserRecyclerView.visibility = View.VISIBLE
-                playersRecyclerView.visibility = View.GONE
-            }
-        }
-
-
-        // Handle system back press
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (searchUserRecyclerView.visibility == View.VISIBLE) {
-                    searchUserRecyclerView.visibility = View.GONE
-                    playersRecyclerView.visibility = View.VISIBLE
-                    searchBar.text.clear()
-                } else {
-                    isEnabled = false
-                    onBackPressedDispatcher.onBackPressed()
-                }
-            }
-        })
 
         teamCaptainTextView.text?.toString()?.takeIf { it.isNotEmpty() }?.let { captainId ->
             database.child(captainId).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     snapshot.getValue(UserData::class.java)?.let { user ->
-                        Glide.with(this@viewOwnTeam)
+                        Glide.with(this@viewOtherTeam)
                             .load(user.profilePicture ?: R.drawable.battlegrounds_icon_background)
                             .placeholder(R.drawable.battlegrounds_icon_background)
                             .error(R.drawable.battlegrounds_icon_background)
@@ -177,12 +117,8 @@ class viewOwnTeam : AppCompatActivity() {
         teamAchievementsTextView = findViewById(R.id.team_achievements_TextView)
         teamDetailsTextView = findViewById(R.id.team_details_TextView)
         playersRecyclerView = findViewById(R.id.playersRecyclerView)
-        searchUserRecyclerView = findViewById(R.id.searchUserRecyclerView)
-        addPlayerButton = findViewById(R.id.addPlayerButton)
-        searchBar = findViewById(R.id.searchbar)
-        searchbarLinearLayout = findViewById(R.id.searchLinearLayout)
+
         playersRecyclerView.layoutManager = LinearLayoutManager(this)
-        searchUserRecyclerView.layoutManager = LinearLayoutManager(this)
     }
 
     private fun fetchTeamDetails() {
@@ -339,7 +275,7 @@ class viewOwnTeam : AppCompatActivity() {
                     if (user != null) {
                         // Populate team captain's details in the UI
                         teamCaptainTextView.text = user.fullname
-                        Glide.with(this@viewOwnTeam)
+                        Glide.with(this@viewOtherTeam)
                             .load(user.profilePicture ?: R.drawable.battlegrounds_icon_background)
                             .placeholder(R.drawable.battlegrounds_icon_background)
                             .error(R.drawable.battlegrounds_icon_background)
@@ -353,164 +289,6 @@ class viewOwnTeam : AppCompatActivity() {
                 }
             })
         }
-    }
-
-    private fun searchUsers(query: String) {
-        val usersList = mutableListOf<UserData>()
-
-        database.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                usersList.clear()
-                for (userSnapshot in snapshot.children) {
-                    val user = userSnapshot.getValue(UserData::class.java)
-                    if (user != null ) {
-                        if (user.fullname.contains(query, ignoreCase = true) ||
-                            user.gamerTag.contains(query, ignoreCase = true)
-                        ) {
-                            if (!usersList.any { it.userId == user.userId }) {
-                                usersList.add(user)
-                            }
-                        }
-                    }
-                }
-                searchUserAdapter.updatePlayersList(usersList)
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("ManageAdmins", "Search error: ${error.message}")
-            }
-        })
-    }
-
-    private fun addPlayer(userId: String) {
-        val context: Context = this
-        val currentUser = FirebaseManager.getCurrentUserId()
-        Log.d("AddPlayer", "Adding player: $userId, current user: $currentUser")
-        Log.d("AddPlayer", "Organization: $organizationName, Team: $teamName")
-        val url = "${Constants.SERVER_URL}manageTeams/addPlayer"
-
-        val requestBody = JSONObject().apply {
-            put("organizationName", organizationName)
-            put("teamName", teamName)
-            put("currentUserId", currentUser)
-            put("playerId", userId)
-        }
-
-        val request = object : StringRequest(
-            Method.POST, url,
-            Response.Listener {
-                Log.d("AddPlayer", "Player added successfully")
-                Toast.makeText(context, "Player added successfully", Toast.LENGTH_SHORT).show()
-                val intent = Intent(context, viewOwnTeam::class.java)
-                intent.putExtra("organizationName", organizationName)
-                intent.putExtra("teamName", teamName)
-                startActivity(intent)
-            },
-            Response.ErrorListener { error ->
-                error.networkResponse?.let { response ->
-                    val responseData = String(response.data, Charsets.UTF_8)
-                    try {
-                        val jsonResponse = JSONObject(responseData)
-                        val errorMessage = jsonResponse.optString("error", "An unknown error occurred")
-
-                        when (errorMessage) {
-                            "Player is already in the team" ->
-                                Toast.makeText(context, "This player is already in the team", Toast.LENGTH_LONG).show()
-                            "Player is already in another team for this game" ->
-                                Toast.makeText(context, "This player is already in another team for the same game", Toast.LENGTH_LONG).show()
-                            "Current user not found" ->
-                                Toast.makeText(context, "Your account is not recognized. Please log in again.", Toast.LENGTH_LONG).show()
-                            "Player user not found" ->
-                                Toast.makeText(context, "The selected player does not exist.", Toast.LENGTH_LONG).show()
-                            "Team not found" ->
-                                Toast.makeText(context, "Team not found. Please check the name.", Toast.LENGTH_LONG).show()
-                            else ->
-                                Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
-                        }
-
-                        Log.e("AddPlayer", "Error: $errorMessage")
-                    } catch (e: Exception) {
-                        Log.e("AddPlayer", "Error parsing response: ${e.message}")
-                        Toast.makeText(context, "Failed to add player. Please try again.", Toast.LENGTH_LONG).show()
-                    }
-                } ?: run {
-                    Log.e("AddPlayer", "Unknown error: ${error.message}")
-                    Toast.makeText(context, "An error occurred. Please try again.", Toast.LENGTH_LONG).show()
-                }
-            }
-        ) {
-            override fun getBody() = requestBody.toString().toByteArray(Charsets.UTF_8)
-            override fun getHeaders() = mutableMapOf("Content-Type" to "application/json")
-        }
-
-        Volley.newRequestQueue(context).add(request)
-    }
-
-    private fun removePlayer(userId: String) {
-        val context: Context = this
-        val currentUser = FirebaseManager.getCurrentUserId()
-        Log.d("RemovePlayer", "Removing player: $userId, Current User: $currentUser")
-
-        val url = "${Constants.SERVER_URL}manageTeams/removePlayer"
-
-        val requestBody = JSONObject().apply {
-            put("organizationName", organizationName)
-            put("teamName", teamName)
-            put("currentUserId", currentUser)
-            put("playerId", userId)
-        }
-
-        val request = object : StringRequest(
-            Method.POST, url,
-            Response.Listener { response ->
-                try {
-                    val jsonResponse = JSONObject(response)
-                    val message = jsonResponse.optString("message", "Success")
-
-                    if (message == "Player removed successfully") {
-                        Log.d("RemovePlayer", "Success: $message")
-                        Toast.makeText(context, "Player removed successfully", Toast.LENGTH_SHORT).show()
-
-                        // Refresh UI
-                        val intent = Intent(context, viewOwnTeam::class.java).apply {
-                            putExtra("organizationName", organizationName)
-                            putExtra("teamName", teamName)
-                        }
-                        startActivity(intent)
-                    } else {
-                        Log.e("RemovePlayer", "Unexpected response: $response")
-                        Toast.makeText(context, "Unexpected response. Try again.", Toast.LENGTH_LONG).show()
-                    }
-                } catch (e: Exception) {
-                    Log.e("RemovePlayer", "Error parsing success response: ${e.message}")
-                    Toast.makeText(context, "An error occurred. Please try again.", Toast.LENGTH_LONG).show()
-                }
-            },
-            Response.ErrorListener { error ->
-                error.networkResponse?.let { response ->
-                    val responseData = String(response.data, Charsets.UTF_8)
-                    try {
-                        val jsonResponse = JSONObject(responseData)
-                        val errorMessage = jsonResponse.optString("error", "An unknown error occurred")
-
-                        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
-                        Log.e("RemovePlayer", "Error: $errorMessage")
-
-                    } catch (e: Exception) {
-                        Log.e("RemovePlayer", "Error parsing error response: ${e.message}")
-                        Toast.makeText(context, "Failed to remove player. Please try again.", Toast.LENGTH_LONG).show()
-                    }
-                } ?: run {
-                    Log.e("RemovePlayer", "Unknown error: ${error.message}")
-                    Toast.makeText(context, "An error occurred. Please try again.", Toast.LENGTH_LONG).show()
-                }
-            }
-        ) {
-            override fun getBody() = requestBody.toString().toByteArray(Charsets.UTF_8)
-            override fun getHeaders() = mutableMapOf("Content-Type" to "application/json")
-        }
-
-        Volley.newRequestQueue(context).add(request)
     }
 
     override fun onBackPressed() {
