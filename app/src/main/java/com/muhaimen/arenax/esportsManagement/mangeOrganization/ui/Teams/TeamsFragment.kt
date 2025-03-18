@@ -49,7 +49,7 @@ class TeamsFragment : Fragment() {
 
         // Initialize RecyclerView
         teamsRecyclerView = view.findViewById(R.id.teamsRecyclerView)
-        teamsRecyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+        teamsRecyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 
         // Pass organizationName to the adapter
         teamsAdapter = TeamsAdapter(teamsList, organizationName)

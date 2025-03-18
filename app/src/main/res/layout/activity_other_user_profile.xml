@@ -316,6 +316,27 @@
                         android:background="?android:selectableItemBackgroundBorderless" />
 
                 </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/esportsProfileButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:background="@drawable/inputholder"
+                android:backgroundTint="@color/LogoBackground"
+                android:layout_marginTop="@dimen/_10sdp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="View Esports Profile"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textColor="@color/backgroundColor"
+                    android:textSize="@dimen/_12sdp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
                 <!-- Analytics Section -->
                 <LinearLayout
                     android:id="@+id/analyticsBoard"

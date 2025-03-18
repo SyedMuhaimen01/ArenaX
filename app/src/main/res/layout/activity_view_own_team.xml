@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/backgroundColor"
     tools:context=".esportsManagement.mangeOrganization.ui.Teams.viewOwnTeams.viewOwnTeam">
 <ScrollView
@@ -243,12 +243,12 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             >
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 tools:ignore="UselessLeaf,UselessParent">
                 <LinearLayout
@@ -288,10 +288,19 @@
                         android:layout_weight="0.1"
                         tools:ignore="ContentDescription" />
                 </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:text="Players"
+                    android:textSize="@dimen/_12sdp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textColor"
+                    tools:ignore="HardcodedText" />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/playersRecyclerView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_10sdp"
                     android:layout_marginEnd="@dimen/_10sdp"
                     android:layout_marginStart="@dimen/_10sdp"

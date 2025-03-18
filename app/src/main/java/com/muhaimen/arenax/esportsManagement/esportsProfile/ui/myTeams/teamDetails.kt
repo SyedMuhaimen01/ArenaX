@@ -116,7 +116,7 @@ class teamDetails : AppCompatActivity() {
         teamAchievementsTextView = findViewById(R.id.team_achievements_TextView)
         teamDetailsTextView = findViewById(R.id.team_details_TextView)
         playersRecyclerView = findViewById(R.id.playersRecyclerView)
-        playersRecyclerView.layoutManager = LinearLayoutManager(this)
+        playersRecyclerView.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
     }
 
     private fun fetchTeamDetails() {

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:id="@+id/main"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:background="@color/backgroundColor"
-tools:context=".esportsManagement.esportsProfile.ui.myTeams.teamDetails">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/backgroundColor"
+    tools:context=".esportsManagement.mangeOrganization.ui.Teams.viewOwnTeams.viewOwnTeam">
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -237,15 +237,18 @@ tools:context=".esportsManagement.esportsProfile.ui.myTeams.teamDetails">
                 app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="@dimen/_6sdp"
                 app:cardElevation="@dimen/_2sdp"
-                app:layout_constraintTop_toBottomOf="@id/team_details_view"
+                app:layout_constraintTop_toBottomOf="@id/team_achievements_view"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingBottom="@dimen/_80sdp"
                         android:orientation="vertical"
                         tools:ignore="UselessLeaf,UselessParent">
                         <TextView
@@ -263,13 +266,15 @@ tools:context=".esportsManagement.esportsProfile.ui.myTeams.teamDetails">
                             android:layout_height="match_parent"
                             android:layout_marginTop="@dimen/_10sdp"
                             android:layout_marginEnd="@dimen/_10sdp"
-
                             android:layout_marginStart="@dimen/_10sdp"
                             android:layout_marginBottom="@dimen/_10sdp"
                             android:visibility="visible">
                         </androidx.recyclerview.widget.RecyclerView>
 
+
                     </LinearLayout>
+
+                </FrameLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
