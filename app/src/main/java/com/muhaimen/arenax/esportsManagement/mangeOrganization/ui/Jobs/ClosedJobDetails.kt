@@ -3,7 +3,6 @@ package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -14,7 +13,7 @@ import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
 
-class viewJobDetails : AppCompatActivity() {
+class ClosedJobDetails : AppCompatActivity() {
     private lateinit var organizationNameTextView: TextView
     private lateinit var jobTitleTextView: TextView
     private lateinit var jobDescriptionTextView: TextView
@@ -26,12 +25,12 @@ class viewJobDetails : AppCompatActivity() {
     private lateinit var tag3: TextView
     private lateinit var tag4: TextView
     private lateinit var organizationLogo: ImageView
-    private lateinit var applyButton: Button
+    private lateinit var organizationName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_view_job_details)
+        setContentView(R.layout.activity_closed_job_details)
 
         // Handle edge-to-edge display
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -54,7 +53,7 @@ class viewJobDetails : AppCompatActivity() {
         val jobDescription = intent.getStringExtra("JobDescription") ?: "No description available"
         val jobTags = intent.getStringArrayListExtra("JobTags") ?: arrayListOf()
         val organizationId = intent.getStringExtra("OrganizationId") ?: "N/A"
-        val organizationName = intent.getStringExtra("OrganizationName") ?: "Unknown Organization"
+        organizationName = intent.getStringExtra("OrganizationName") ?: "Unknown Organization"
         val organizationLogoUrl = intent.getStringExtra("OrganizationLogo")
         val organizationLocation = intent.getStringExtra("OrganizationLocation") ?: "Location not specified"
 
@@ -83,11 +82,6 @@ class viewJobDetails : AppCompatActivity() {
         tag3.text = jobTags.getOrNull(2) ?: ""
         tag4.text = jobTags.getOrNull(3) ?: ""
 
-        // Set up apply button click listener
-        applyButton.setOnClickListener {
-            // Implement job application logic here
-            // For example, you can use the jobId or organizationId to track the application
-        }
     }
 
     private fun initializeViews() {
@@ -102,10 +96,12 @@ class viewJobDetails : AppCompatActivity() {
         tag3 = findViewById(R.id.tag3)
         tag4 = findViewById(R.id.tag4)
         organizationLogo = findViewById(R.id.organizationLogo)
-        applyButton = findViewById(R.id.applyButton)
     }
 
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
+        val intent = Intent(this, OrganizationHomePageActivity::class.java)
+        intent.putExtra("organization_name", organizationName)
+        startActivity(intent)
     }
 }
