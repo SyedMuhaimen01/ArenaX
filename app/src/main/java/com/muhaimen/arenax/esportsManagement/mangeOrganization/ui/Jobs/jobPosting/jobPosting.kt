@@ -7,8 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.Response
+import com.android.volley.RetryPolicy
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.auth.FirebaseAuth
@@ -66,9 +68,6 @@ class jobPosting : AppCompatActivity() {
 
             // Send data to backend
             postJobToBackend()
-            val intent=Intent(this,OrganizationHomePageActivity::class.java)
-            intent.putExtra("organization_name",organizationName)
-            startActivity(intent)
         }
 
         backButton.setOnClickListener {
@@ -134,7 +133,7 @@ class jobPosting : AppCompatActivity() {
     }
 
     private fun postJobToBackend() {
-
+        // Create the request body
         val requestBody = JSONObject().apply {
             put("userId", userId)
             put("organization_name", organizationName)
@@ -146,20 +145,36 @@ class jobPosting : AppCompatActivity() {
             put("tags", JSONArray(jobItem.tags))
         }
 
-        val request = JsonObjectRequest(
+        // Create the Volley request
+        val request = object : JsonObjectRequest(
             Request.Method.POST,
             "${Constants.SERVER_URL}manageJobs/addJob",
             requestBody,
             { response ->
+                // Handle successful response
                 Toast.makeText(this, "Job Posted Successfully!", Toast.LENGTH_SHORT).show()
-                finish()
+
+                // Navigate to the OrganizationHomePageActivity
+                val intent = Intent(this, OrganizationHomePageActivity::class.java)
+                intent.putExtra("organization_name", organizationName)
+                startActivity(intent)
             },
             { error ->
+                // Handle error response
                 Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
-            })
+            }
+        ) {
+            // Extend the timeout duration and disable retries
+            override fun getRetryPolicy(): RetryPolicy {
+                return DefaultRetryPolicy(
+                    15000, // Timeout in milliseconds (15 seconds)
+                    0,     // Disable retries (0 means no retry)
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+                )
+            }
+        }
 
-        // Add request to Volley queue
+        // Add the request to the Volley queue
         Volley.newRequestQueue(this).add(request)
     }
-
 }

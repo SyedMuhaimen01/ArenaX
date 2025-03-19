@@ -30,8 +30,7 @@ class EmployeesFragment : Fragment() {
 
     private lateinit var employeesAdapter: EmployeesAdapter
     private lateinit var recyclerView: RecyclerView
-    private lateinit var searchRecyclerView: RecyclerView
-    private val jobList: MutableList<JobWithUserDetails> = mutableListOf()
+    private var jobList: MutableList<JobWithUserDetails> = mutableListOf()
     private lateinit var firebaseUid: String
     private lateinit var searchBar: AutoCompleteTextView
     private lateinit var searchButton: ImageButton
@@ -46,14 +45,11 @@ class EmployeesFragment : Fragment() {
         // Initialize RecyclerViews
         recyclerView = view.findViewById(R.id.employees_recyclerview)
         recyclerView.layoutManager = LinearLayoutManager(activity)
-        searchRecyclerView = view.findViewById(R.id.searchEmployeesRecyclerView)
-        searchRecyclerView.layoutManager = LinearLayoutManager(activity)
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
 
         // Initialize the adapter with an empty list
         employeesAdapter = EmployeesAdapter(jobList)
         recyclerView.adapter = employeesAdapter
-        searchRecyclerView.adapter = employeesAdapter
 
         // Initialize search bar and button
         searchBar = view.findViewById(R.id.searchbar)
@@ -77,7 +73,7 @@ class EmployeesFragment : Fragment() {
         searchBar.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus && searchBar.text.toString().trim().isEmpty()) {
                 fetchJobAvailabilityData() // Repopulate with original data
-                searchRecyclerView.visibility = View.GONE
+
                 recyclerView.visibility = View.VISIBLE
             }
         }
@@ -102,7 +98,7 @@ class EmployeesFragment : Fragment() {
     }
 
     private fun fetchJobAvailabilityData() {
-        val url = "${Constants.SERVER_URL}manageTalentXchange/fetchJobAvailability"
+        val url = "${Constants.SERVER_URL}manageTalentXchange/fetchJobAvailability/$firebaseUid"
 
         // Create a Volley request to fetch job availability data
         val request = JsonArrayRequest(
@@ -130,6 +126,7 @@ class EmployeesFragment : Fragment() {
         // Create a JSON object with the search text
         val jsonBody = JSONObject().apply {
             put("searchText", searchText)
+            put("firebaseUid", firebaseUid)
         }
 
         // Use JsonObjectRequest to send a POST request with the JSON body
@@ -143,8 +140,7 @@ class EmployeesFragment : Fragment() {
                     val jobsArray = response.getJSONArray("jobs")
                     parseJobAvailabilityResponse(jobsArray)
 
-                    // Show search results RecyclerView and hide the original one
-                    searchRecyclerView.visibility = View.VISIBLE
+
                     recyclerView.visibility = View.GONE
                 } catch (e: Exception) {
                     e.printStackTrace()
