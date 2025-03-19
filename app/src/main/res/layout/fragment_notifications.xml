@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sent Invite(s)"
+            android:text="Sent Application(s)"
             android:textSize="@dimen/_12sdp"
             android:textColor="@color/textColor"
             android:textStyle="bold"
@@ -21,7 +21,7 @@
             android:layout_marginStart="@dimen/_10sdp"
             tools:ignore="HardcodedText" />
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/invitesRecyclerView"
+            android:id="@+id/applicationsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="10dp"
@@ -33,7 +33,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Received Application(s)"
+            android:text="Received Invites(s)"
             android:textSize="@dimen/_12sdp"
             android:textColor="@color/textColor"
             android:textStyle="bold"
@@ -41,7 +41,7 @@
             android:layout_marginStart="@dimen/_10sdp"
             tools:ignore="HardcodedText" />
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/applicationsRecyclerView"
+            android:id="@+id/invitesRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="10dp"

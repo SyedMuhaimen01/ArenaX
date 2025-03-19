@@ -2,6 +2,7 @@ package com.muhaimen.arenax.esportsManagement.OtherOrganization
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -13,6 +14,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
@@ -21,6 +23,10 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.Comment
@@ -31,10 +37,14 @@ import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Teams.TeamsAda
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.pagePosts.pagePostsAdapter
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
+@Suppress("NAME_SHADOWING")
 class OtherOrganization : AppCompatActivity() {
     private lateinit var organizationNameTextView: TextView
     private lateinit var organizationLocationTextView: TextView
@@ -61,6 +71,10 @@ class OtherOrganization : AppCompatActivity() {
     private lateinit var teamsRecyclerView: RecyclerView
     private lateinit var teamsAdapter: otherTeamsAdapter
     private val teamsList = mutableListOf<Team>()
+    private lateinit var requestAllianceButton: Button
+    private var followersCountTextView: TextView? = null
+    private var followingCountTextView: TextView? = null
+    private var postCountTextView: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,8 +117,10 @@ class OtherOrganization : AppCompatActivity() {
 
         if (!organizationName.isNullOrEmpty()) {
             fetchOrganizationDetails(organizationName!!)
+            getOrganizationPostCount(organizationName!!)
             fetchOrganizationPosts()
             fetchUpcomingEvents()
+            fetchAndSetCounts(organizationId!!)
             // Fetch teams for the given organization
             fetchTeams(organizationName!!)
         }
@@ -115,8 +131,183 @@ class OtherOrganization : AppCompatActivity() {
                 otherPagePostsAdapter.handlePlayerVisibility()
             }
         })
+        val currentUserId = FirebaseManager.getCurrentUserId()
+        requestAllianceButton = findViewById(R.id.requestAllianceButton)
+        if (currentUserId  != null && organizationId != null) {
+            Log.d("UserProfile", "Current User ID: $currentUserId, Received User ID: $organizationId")
+            // Check alliance status on activity load
+            lifecycleScope.launch(Dispatchers.Main) {
+                val allianceStatus = checkIfAlliance(currentUserId, organizationId!!)
+                updateButtonState(requestAllianceButton, allianceStatus)
+            }
+            requestAllianceButton.setOnClickListener {
+                handleButtonClick(requestAllianceButton, currentUserId, organizationId!!)
+            }
+        }
+
+        organizationEmailTextView.setOnClickListener {
+            val emailAddress =
+                organizationEmailTextView.text
+
+            // Create an intent to send an email
+            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:")
+                putExtra(Intent.EXTRA_EMAIL, arrayOf(emailAddress))
+
+            }
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+            } else {
+            }
+
+            organizationPhoneTextView.setOnClickListener {
+                val phoneNumber = organizationPhoneTextView.text
+
+                // Create an intent to open the dialer
+                val intent = Intent(Intent.ACTION_DIAL).apply {
+                    data = Uri.parse("tel:$phoneNumber")
+                }
+
+                // Check if there is an app available to handle the intent
+                if (intent.resolveActivity(packageManager) != null) {
+                    startActivity(intent)
+                } else {
+                    Log.d("DashboardFragment", "No app available to handle the intent")
+                }
+            }
+        }
 
     }
+
+    @SuppressLint("SetTextI18n")
+    private fun updateButtonState(button: Button, allianceStatus: String) {
+        when (allianceStatus) {
+            "accepted" -> {
+                button.setBackgroundColor(resources.getColor(R.color.secondaryColor))
+                button.text = "Alliance Established"
+                button.setTextColor(resources.getColor(R.color.textColor))
+                button.isEnabled = false // Disable button for established alliance
+                button.background = resources.getDrawable(R.drawable.searchbar)
+            }
+            "false" -> {
+                button.setBackgroundColor(resources.getColor(R.color.primaryColor))
+                button.text = "Request Alliance"
+                button.setTextColor(resources.getColor(R.color.textColor))
+                button.isEnabled = true // Enable button for new alliance request
+                button.background = resources.getDrawable(R.drawable.searchbar)
+            }
+        }
+    }
+
+    // Handles Connection's button click logic
+    @SuppressLint("RestrictedApi")
+    private fun handleButtonClick(button: Button, currentUserId: String, receiverId: String) {
+        val database = FirebaseDatabase.getInstance()
+        val userRef = database.getReference("userData")
+        val organizationsRef = database.getReference("organizationsData")
+
+        when (button.text) {
+            "Request Alliance" -> {
+                // Update button UI to reflect the alliance status
+                button.setBackgroundColor(resources.getColor(R.color.hinttextColor))
+                button.text = "Alliance Established"
+                button.setTextColor(resources.getColor(R.color.textColor))
+                button.background = resources.getDrawable(R.drawable.searchbar)
+                button.isEnabled = false
+
+                // Create the alliance object
+                val allianceEntry = mapOf(
+                    "status" to "accepted",
+                    "receiverId" to receiverId
+                )
+
+                val followerEntry = mapOf(
+                    "status" to "accepted",
+                    "followerId" to currentUserId
+                )
+
+                // Update current user's following node
+                val currentUserFollowingRef = userRef.child(currentUserId).child("synerG").child("following").child(receiverId)
+                // Update organization's followers node
+                val receiverFollowersRef = organizationsRef.child(receiverId).child("synerG").child("followers").child(currentUserId)
+
+                // Perform both updates simultaneously
+                val updates = mapOf(
+                    currentUserFollowingRef.path.toString() to allianceEntry,
+                    receiverFollowersRef.path.toString() to followerEntry
+                )
+
+                database.reference.updateChildren(updates)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("Alliance", "Alliance created with $receiverId and added to both nodes")
+                        } else {
+                            Log.e("Alliance", "Failed to create alliance: ${task.exception?.message}")
+                            // Revert button state in case of failure
+                            button.text = "Request Alliance"
+                            button.setBackgroundColor(resources.getColor(R.color.primaryColor))
+                            button.isEnabled = true
+                        }
+                    }
+            }
+            "Alliance Established" -> {
+                // Update button UI to reflect the removal of the alliance
+                button.setBackgroundColor(resources.getColor(R.color.primaryColor))
+                button.text = "Request Alliance"
+                button.setTextColor(resources.getColor(R.color.textColor))
+                button.background = resources.getDrawable(R.drawable.searchbar)
+                button.isEnabled = true
+
+                // Remove entries from both following and followers nodes
+                val currentUserFollowingRef = userRef.child(currentUserId).child("synerG").child("following").child(receiverId)
+                val receiverFollowersRef = organizationsRef.child(receiverId).child("synerG").child("followers").child(currentUserId)
+
+                // Perform both deletions simultaneously
+                val deletions = mapOf(
+                    currentUserFollowingRef.path.toString() to null,
+                    receiverFollowersRef.path.toString() to null
+                )
+
+                database.reference.updateChildren(deletions)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("Alliance", "Alliance removed for $receiverId and removed from both nodes")
+                        } else {
+                            Log.e("Alliance", "Failed to remove alliance: ${task.exception?.message}")
+                            // Revert button state in case of failure
+                            button.text = "Allied"
+                            button.setBackgroundColor(resources.getColor(R.color.hinttextColor))
+                            button.isEnabled = false
+                        }
+                    }
+            }
+        }
+    }
+
+    suspend fun checkIfAlliance(currentUserId: String, organizationId: String): String {
+        val database = FirebaseDatabase.getInstance()
+        val userRef = database.getReference("userData")
+
+        return try {
+            val dataSnapshot = userRef.child(currentUserId)
+                .child("synerG")
+                .child("following")
+                .child(organizationId)
+                .get()
+                .await()
+
+            if (dataSnapshot.exists()) {
+                val status = dataSnapshot.child("status").value?.toString() ?: "false"
+                status // Return "accepted", "pending", or unexpected values directly
+            } else {
+                "false" // No alliance exists
+            }
+        } catch (e: Exception) {
+            Log.e("AllianceCheck", "Failed to check alliance: ${e.message}")
+            "false"
+        }
+    }
+
 
     @SuppressLint("SetTextI18n")
     private fun fetchOrganizationDetails(orgName: String) {
@@ -430,6 +621,63 @@ class OtherOrganization : AppCompatActivity() {
         return membersList
     }
 
+    private fun getOrganizationPostCount(organizationName: String) {
+        val url = "${Constants.SERVER_URL}organizationPosts/postCount"
+
+        val jsonBody = JSONObject().apply {
+            put("organization_name", organizationName)
+        }
+
+        val request = JsonObjectRequest(
+            Request.Method.POST,
+            url,
+            jsonBody,
+            { response ->
+                val postCount = response.optInt("postCount", 0)
+                postCountTextView?.text = postCount.toString()
+            },
+            { error ->
+                Toast.makeText(this, "Failed to fetch post count: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        )
+
+        requestQueue.add(request)
+    }
+
+    private fun fetchAndSetCounts(orgId: String) {
+        val followersRef = FirebaseDatabase.getInstance().getReference("organizationsData/$orgId/synerG/followers")
+        val followingRef = FirebaseDatabase.getInstance().getReference("organizationsData/$orgId/synerG/following")
+
+
+        // Fetch and count followers with status "accepted"
+        followersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val acceptedFollowersCount = snapshot.children.count {
+                    it.child("status").value?.toString() == "accepted"
+                }
+                followersCountTextView?.text = acceptedFollowersCount.toString()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ProfileActivity", "Error fetching followers: ${error.message}")
+            }
+        })
+
+        // Fetch and count following with status "accepted"
+        followingRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val acceptedFollowingCount = snapshot.children.count {
+                    it.child("status").value?.toString() == "accepted"
+                }
+                followingCountTextView?.text   = acceptedFollowingCount.toString()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ProfileActivity", "Error fetching following: ${error.message}")
+            }
+        })
+    }
+
     private fun initializeViews() {
         organizationNameTextView = findViewById(R.id.organizationNameTextView)
         organizationLocationTextView = findViewById(R.id.organizationLocationTextView)
@@ -445,6 +693,9 @@ class OtherOrganization : AppCompatActivity() {
         postsRecyclerView = findViewById(R.id.postsRecyclerView)
         eventsRecyclerView = findViewById(R.id.eventsRecyclerView)
         jobsRecyclerView = findViewById(R.id.jobsRecyclerView)
+        followersCountTextView = findViewById(R.id.followersCountTextView)
+        followingCountTextView = findViewById(R.id.followingCountTextView)
+        postCountTextView = findViewById(R.id.postsCountTextView)
 
     }
 

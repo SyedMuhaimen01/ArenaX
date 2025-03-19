@@ -1,15 +1,25 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.esportsNotificationData
+import com.muhaimen.arenax.esportsManagement.battlegrounds.battlegrounds
+import com.muhaimen.arenax.utils.FirebaseManager
 
 class viewJobDetails : AppCompatActivity() {
     private lateinit var organizationNameTextView: TextView
@@ -54,6 +64,10 @@ class viewJobDetails : AppCompatActivity() {
         val organizationName = intent.getStringExtra("OrganizationName") ?: "Unknown Organization"
         val organizationLogoUrl = intent.getStringExtra("OrganizationLogo")
         val organizationLocation = intent.getStringExtra("OrganizationLocation") ?: "Location not specified"
+        val loadedFromStatus = intent.getStringExtra("loadedFrom") ?: "N/A"
+        if(loadedFromStatus == "ownOrganization"){
+            applyButton.visibility = View.GONE
+        }
 
         // Populate views with retrieved data
         organizationNameTextView.text = organizationName
@@ -82,8 +96,179 @@ class viewJobDetails : AppCompatActivity() {
 
         // Set up apply button click listener
         applyButton.setOnClickListener {
-            // Implement job application logic here
-            // For example, you can use the jobId or organizationId to track the application
+            // Step 1: Get the current user's ID
+            val currentUserId = FirebaseManager.getCurrentUserId()
+            if (currentUserId.isNullOrEmpty()) {
+                Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Step 2: Fetch the user's name from Firebase
+            val databaseReference = FirebaseDatabase.getInstance().reference
+            databaseReference.child("userData").child(currentUserId).child("gamerTag")
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(userSnapshot: DataSnapshot) {
+                        val userName = userSnapshot.getValue(String::class.java)
+                        if (userName.isNullOrEmpty()) {
+                            return
+                        }
+
+                        // Step 3: Prepare the job details
+                        val job = jobTitleTextView.text.toString()
+                        val orgName = organizationNameTextView.text.toString()
+
+                        // Step 4: Check if the user has already shown interest in this event
+                        val userNotificationsRef = FirebaseDatabase.getInstance().getReference("userData")
+                            .child(currentUserId)
+                            .child("esportsNotifications")
+                            .child("applications")
+
+                        val organizationsRef = FirebaseDatabase.getInstance().getReference("organizationsData")
+                        val orgQuery = organizationsRef.orderByChild("organizationName").equalTo(orgName)
+                        val userNotificationId = userNotificationsRef.push().key ?: return
+                        val orgNotificationId = organizationsRef.push().key ?: return
+                        val query = userNotificationsRef.orderByChild("eventId").equalTo(jobId)
+
+                        query.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                var alreadyApplied = false
+
+                                // Iterate through the existing notifications
+                                for (notificationSnapshot in snapshot.children) {
+                                    val notification = notificationSnapshot.getValue(
+                                        esportsNotificationData::class.java)
+                                    if (notification != null &&
+                                        notification.userId == currentUserId &&
+                                        notification.organizationName == orgName &&
+                                        notification.eventId == jobId
+                                    ) {
+                                        alreadyApplied = true
+                                        break
+                                    }
+                                }
+
+                                if (alreadyApplied) {
+                                    // Step 5a: If already applied, show a message and navigate to battlegrounds
+                                    Toast.makeText(
+                                        this@viewJobDetails,
+                                        "You have already shown interest in this event",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    val intent = Intent(this@viewJobDetails, battlegrounds::class.java)
+                                    startActivity(intent)
+                                } else {
+                                    // Step 5b: If not applied, construct the notification content dynamically
+                                    val notificationContent = "$userName showed interest in Job: $job"
+
+                                    // Step 6: Create the notification object
+                                    val notificationObject1 = esportsNotificationData(
+                                        notificationId = userNotificationId ,
+                                        userId = currentUserId,
+                                        content = notificationContent,
+                                        organizationName = orgName,
+                                        eventId = jobId ?: ""
+                                    )
+                                    val notificationObject2 = esportsNotificationData(
+                                        notificationId = orgNotificationId,
+                                        userId = currentUserId,
+                                        content = notificationContent,
+                                        organizationName = orgName,
+                                        eventId = jobId ?: ""
+                                    )
+
+                                    // Step 7: Save the notification to Firebase (userData node)
+                                    userNotificationsRef.child(userNotificationId).setValue(notificationObject1)
+                                        .addOnSuccessListener {
+                                            // Step 8: Query the organizationsData node to find the orgId
+                                            orgQuery.addListenerForSingleValueEvent(object :
+                                                ValueEventListener {
+                                                override fun onDataChange(orgSnapshot: DataSnapshot) {
+                                                    var orgId: String? = null
+
+                                                    // Find the orgId based on the organizationName
+                                                    for (org in orgSnapshot.children) {
+                                                        orgId = org.key
+                                                        break // Assuming organization names are unique
+                                                    }
+
+                                                    if (orgId.isNullOrEmpty()) {
+                                                        Toast.makeText(
+                                                            this@viewJobDetails,
+                                                            "Organization not found",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                        return
+                                                    }
+
+                                                    // Construct the reference to the organizationsData node
+                                                    val organizationNotificationsRef = FirebaseDatabase.getInstance()
+                                                        .getReference("organizationsData")
+                                                        .child(orgId)
+                                                        .child("esportsNotifications")
+                                                        .child("applications")
+
+                                                    // Save the notification in the organizationsData node
+                                                    organizationNotificationsRef.child(orgNotificationId)
+                                                        .setValue(notificationObject2)
+                                                        .addOnSuccessListener {
+                                                            // Show success toast
+                                                            Toast.makeText(
+                                                                this@viewJobDetails,
+                                                                "Interest shown successfully",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+
+                                                            // Navigate to battlegrounds activity
+                                                            val intent = Intent(
+                                                                this@viewJobDetails,
+                                                                battlegrounds::class.java
+                                                            )
+                                                            startActivity(intent)
+                                                        }
+                                                        .addOnFailureListener { error ->
+                                                            Toast.makeText(
+                                                                this@viewJobDetails,
+                                                                "Failed to save notification for organization: ${error.message}",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+                                                        }
+                                                }
+
+                                                override fun onCancelled(error: DatabaseError) {
+                                                    Toast.makeText(
+                                                        this@viewJobDetails,
+                                                        "Database error while fetching organization data: ${error.message}",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            })
+                                        }
+                                        .addOnFailureListener { error ->
+                                            Toast.makeText(
+                                                this@viewJobDetails,
+                                                "Failed to save notification for user: ${error.message}",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                }
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                Toast.makeText(
+                                    this@viewJobDetails,
+                                    "Database error while checking existing notifications: ${error.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        })
+
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        // Handle errors when fetching user data
+
+                    }
+                })
         }
     }
 

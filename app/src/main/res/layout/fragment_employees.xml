@@ -3,25 +3,56 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/swipeRefreshLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/backgroundColor"
     tools:context=".esportsManagement.talentExchange.EmployeesFragment">
-
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         >
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
+
+            android:paddingStart="@dimen/_10sdp"
+            android:paddingEnd="@dimen/_10sdp"
             tools:ignore="UselessLeaf">
+
+            <!-- Recruit For Label and Drop-Down -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/_10sdp">
+
+                <!-- Label -->
+                <TextView
+                    android:id="@+id/recruitForLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Recruit For"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_12sdp"
+                    android:textStyle="bold"
+                    android:paddingBottom="@dimen/_5sdp" />
+
+                <!-- Drop-Down (Spinner) -->
+                <Spinner
+                    android:id="@+id/recruitForSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/primaryColor"
+                    android:popupBackground="@color/white"
+                    android:spinnerMode="dropdown" />
+            </LinearLayout>
+
+            <!-- Search Bar -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
-                android:layout_marginLeft="@dimen/_10sdp"
-                android:layout_marginRight="@dimen/_10sdp"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:background="@drawable/searchbar"
                 android:weightSum="4">
@@ -30,7 +61,6 @@
                 <AutoCompleteTextView
                     android:id="@+id/searchbar"
                     android:layout_width="0dp"
-                    android:layout_marginLeft="@dimen/_15sdp"
                     android:layout_weight="3.9"
                     android:layout_height="@dimen/_32sdp"
                     android:hint="Search ..."
@@ -39,7 +69,9 @@
                     android:textSize="@dimen/_13sdp"
                     android:background="@color/white"
                     android:padding="@dimen/_5sdp"
-                    android:layout_marginTop="@dimen/_1sdp"/>
+                    android:layout_marginLeft="@dimen/_15sdp"
+                    android:layout_marginTop="@dimen/_1sdp" />
+
                 <!-- Search icon button -->
                 <ImageButton
                     android:id="@+id/searchButton"
@@ -50,26 +82,24 @@
                     android:layout_weight="0.1"
                     tools:ignore="ContentDescription" />
             </LinearLayout>
+
+            <!-- Tags RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tags_recyclerview"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/_40sdp"
                 android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
                 android:backgroundTint="@color/backgroundColor"
-                android:visibility="visible"/>
+                android:visibility="visible" />
 
+            <!-- Employees RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/employees_recyclerview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/_80sdp"
                 android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:visibility="visible">
-            </androidx.recyclerview.widget.RecyclerView>
-
+                android:visibility="visible" />
         </LinearLayout>
     </FrameLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

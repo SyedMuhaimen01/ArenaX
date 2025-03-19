@@ -20,6 +20,7 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Gender
 import com.muhaimen.arenax.dataClasses.Job
 import com.muhaimen.arenax.dataClasses.JobWithUserDetails
+import com.muhaimen.arenax.dataClasses.OrganizationData
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
@@ -35,6 +36,9 @@ class EmployeesFragment : Fragment() {
     private lateinit var searchBar: AutoCompleteTextView
     private lateinit var searchButton: ImageButton
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var recruitForSpinner: Spinner
+    private val organizationList: MutableList<OrganizationData> = mutableListOf()
+    private var selectedOrganization: OrganizationData? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,8 +51,13 @@ class EmployeesFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(activity)
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
 
+        // Initialize Spinner
+        recruitForSpinner = view.findViewById(R.id.recruitForSpinner)
+
+        // Fetch organizations and populate the Spinner
+        fetchOrganizations(recruitForSpinner)
         // Initialize the adapter with an empty list
-        employeesAdapter = EmployeesAdapter(jobList)
+        employeesAdapter = EmployeesAdapter(jobList,selectedOrganization)
         recyclerView.adapter = employeesAdapter
 
         // Initialize search bar and button
@@ -226,5 +235,62 @@ class EmployeesFragment : Fragment() {
             e.printStackTrace()
             Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun fetchOrganizations(recruitForSpinner: Spinner) {
+        val url = "${Constants.SERVER_URL}registerOrganization/user/organizations"
+        val requestQueue = Volley.newRequestQueue(requireContext())
+
+        // Create JSON body
+        val requestBody = JSONObject().apply {
+            put("firebaseUid", FirebaseManager.getCurrentUserId())
+        }
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.POST, url, requestBody,
+            { response: JSONObject ->
+                organizationList.clear() // Clear previous data
+
+                val organizationsArray = response.optJSONArray("organizations") ?: JSONArray()
+                for (i in 0 until organizationsArray.length()) {
+                    val orgObject = organizationsArray.getJSONObject(i)
+                    val organization = OrganizationData(
+                        organizationId = orgObject.getString("organization_id"),
+                        organizationName = orgObject.getString("organization_name"),
+                        organizationLogo = orgObject.optString("organization_logo", null),
+                        organizationLocation = orgObject.optString("organization_location", null)
+                    )
+                    organizationList.add(organization)
+                }
+
+                // Set the custom adapter to the Spinner
+                val adapter = OrganizationSpinnerAdapter(requireContext(), organizationList)
+                recruitForSpinner.adapter = adapter
+
+                // Set the onItemSelectedListener
+                recruitForSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                        selectedOrganization = organizationList[position]
+                        Toast.makeText(
+                            requireContext(),
+                            "Selected Organization: ${selectedOrganization?.organizationName}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        // Update the adapter with the selected organization
+                        employeesAdapter.updateOrganization(selectedOrganization)
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>) {
+                        // Do nothing
+                    }
+                }
+            },
+            { error ->
+                Toast.makeText(requireContext(), "Failed to fetch data: ${error.message}", Toast.LENGTH_LONG).show()
+            }
+        )
+
+        requestQueue.add(jsonObjectRequest)
     }
 }

@@ -24,8 +24,6 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.esportsNotificationData
 import com.muhaimen.arenax.esportsManagement.OtherOrganization.OtherOrganization
-import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.inbox.Threads.organizationChatActivity
-import com.muhaimen.arenax.userProfile.otherUserProfile
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONObject
@@ -92,12 +90,12 @@ class InvitesAdapter(
         val notification = notificationList[position]
 
         // Fetch and load the user's profile picture from Firebase
-        notification.userId.let { fetchUserProfilePicture(it, holder.userPicture) }
+
 
         fetchOrganizationDetails(notification.organizationName)
         // Set the notification text
         holder.notificationTextView.text = notification.content
-
+        getOrganizationDetails3(holder.userPicture,notification.organizationName)
         // Set click listener for the delete button
         holder.deleteNotificationButton.setOnClickListener {
             onDeleteClickListener(notification.notificationId) // Trigger the callback with the clicked item
@@ -109,12 +107,12 @@ class InvitesAdapter(
 
 
     private fun fetchUserProfilePicture(userId: String, imageView: ImageView) {
-        val databaseReference = FirebaseDatabase.getInstance().getReference("userData/$userId")
+        val databaseReference = FirebaseDatabase.getInstance().getReference("organizationsData/$userId")
 
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val userProfilePictureUrl =
-                    snapshot.child("profilePicture").getValue(String::class.java)
+                    snapshot.child("organizationLogo").getValue(String::class.java)
                 if (!userProfilePictureUrl.isNullOrEmpty()) {
                     // Load the profile picture using Glide
                     Glide.with(imageView.context)
@@ -195,6 +193,43 @@ class InvitesAdapter(
                         // Fetch notifications for this organization
                         if (!orgId.isNullOrEmpty()) {
                             viewOrganizationProfile(organizationName,orgId)
+
+                        } else {
+                            println("Organization ID is null or empty")
+                        }
+                    }
+                } else {
+                    // Handle the case where no organization is found with the given name
+                    println("No organization found with the name: $organizationName")
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle errors when fetching data
+                println("Database error: ${error.message}")
+            }
+        })
+    }
+
+    private fun getOrganizationDetails3(imageView: ImageView,orgName:String) {
+        // Reference to the organizationsData node in Firebase
+        val organizationsRef = FirebaseDatabase.getInstance().getReference("organizationsData")
+
+        // Query to find the organization by its name
+        val orgQuery = organizationsRef.orderByChild("organizationName").equalTo(orgName)
+
+        // Execute the query to find the organization
+        orgQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    // Iterate through the results (though there should only be one match)
+                    for (orgSnapshot in snapshot.children) {
+                        // Retrieve the organization ID
+                        val orgId = orgSnapshot.key
+
+                        // Fetch notifications for this organization
+                        if (!orgId.isNullOrEmpty()) {
+                            fetchUserProfilePicture(orgId, imageView)
 
                         } else {
                             println("Organization ID is null or empty")

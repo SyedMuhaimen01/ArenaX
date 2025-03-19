@@ -118,10 +118,9 @@
                     android:layout_height="@dimen/_30sdp"
                     android:layout_gravity="center"
                     android:layout_marginEnd="@dimen/_16sdp"
-                    android:background="@drawable/searchbar"
-                    android:backgroundTint="@color/accentColor"
+                    android:background="@color/backgroundGrey"
                     android:maxLength="15"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColor"
                     android:gravity="center"
                     android:textSize="@dimen/_11ssp"
                     tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
@@ -134,9 +133,9 @@
                     android:layout_height="@dimen/_30sdp"
                     android:textSize="@dimen/_11ssp"
                     android:maxLength="15"
-                    android:backgroundTint="@color/accentColor"
-                    android:background="@drawable/searchbar"
-                    android:textColor="@color/white"
+                    android:background="@color/backgroundGrey"
+
+                    android:textColor="@color/textColor"
                     tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
 
             </LinearLayout>
@@ -157,9 +156,8 @@
                     android:textSize="@dimen/_11ssp"
                     android:maxLength="15"
                     android:gravity="center"
-                    android:background="@drawable/searchbar"
-                    android:backgroundTint="@color/accentColor"
-                    android:textColor="@color/white"
+                    android:background="@color/backgroundGrey"
+                    android:textColor="@color/textColor"
                     tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
                 <TextView
                     android:id="@+id/tag4"
@@ -169,10 +167,10 @@
                     android:textSize="@dimen/_11ssp"
                     android:maxLength="15"
                     android:gravity="center"
-                    android:background="@drawable/searchbar"
-                    android:backgroundTint="@color/accentColor"
+
+                    android:background="@color/backgroundGrey"
                     android:layout_gravity="center"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColor"
                     tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
 
             </LinearLayout>

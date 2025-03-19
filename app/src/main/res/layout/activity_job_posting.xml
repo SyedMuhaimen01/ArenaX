@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/swipeRefreshLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@drawable/screenbackground"
     tools:context=".esportsManagement.mangeOrganization.createOrganization.createOrganization">
     <ScrollView
@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/_100sdp"
+            android:background="@drawable/screenbackground"
             android:orientation="vertical"
 
             >
@@ -47,6 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:paddingBottom="@dimen/_100sdp"
                 android:layout_marginTop="@dimen/_10sdp">
 
                 <TextView
