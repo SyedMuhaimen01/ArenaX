@@ -56,6 +56,7 @@ class upcomingEventsAdapter(private var eventsList: MutableList<Event>) :
                     putExtra("eventID", event.eventId)
                     putExtra("organizationId", event.organizationId)
                     putExtra("eventLink", event.eventLink)
+                    putExtra("loadedFrom", "ownOrganization")
                 }
                 itemView.context.startActivity(intent)
             }

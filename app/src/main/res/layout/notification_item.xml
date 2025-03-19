@@ -18,45 +18,46 @@
         android:padding="@dimen/_4sdp">
 
         <ImageView
-            android:id="@+id/teamLogo"
+            android:id="@+id/userPicture"
             android:layout_width="@dimen/_50sdp"
             android:layout_height="@dimen/_50sdp"
             android:layout_marginEnd="@dimen/_10sdp"
+            android:layout_gravity="center"
             android:scaleType="centerCrop"
             android:contentDescription="Game Icon" />
+
+
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:orientation="vertical"
             android:layout_weight="1">
-
 
             <TextView
                 android:id="@+id/notificationTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="John Doe is interested"
-                android:textSize="@dimen/_12ssp"
+                android:text="Full Name"
                 android:textColor="@color/textColor"
-                android:layout_gravity="center"
-                tools:ignore="HardcodedText"
-                android:layout_weight="0.8"/>
-            <Button
-                android:id="@+id/removeAdminButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:background="@android:drawable/ic_delete"
-                android:text="Remove"
-                android:textColor="@color/red"
-                android:gravity="center"
-                android:layout_weight="0.2"
-                android:layout_gravity="center"
-                android:layout_marginEnd="@dimen/_10sdp"
-                tools:ignore="HardcodedText"
-                />
+                android:textSize="@dimen/_12sdp"
+                tools:ignore="HardcodedText" />
+
 
         </LinearLayout>
+
+        <Button
+            android:id="@+id/deleteNotificationButton"
+            android:layout_width="@dimen/_20sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:background="@android:drawable/ic_delete"
+            android:textColor="@color/red"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_marginEnd="@dimen/_10sdp"
+            tools:ignore="HardcodedText" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

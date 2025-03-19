@@ -1,16 +1,13 @@
-package com.muhaimen.arenax.esportsManagement.esportsProfile.ui.profile
+package com.muhaimen.arenax.userProfile.otherUserEsportsProfile
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import androidx.fragment.app.viewModels
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
@@ -19,107 +16,56 @@ import com.android.volley.toolbox.Volley
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.OrganizationData
 import com.muhaimen.arenax.dataClasses.Team
-import com.muhaimen.arenax.esportsManagement.battlegrounds.battlegrounds
-import com.muhaimen.arenax.esportsManagement.esportsProfile.esportsProfile
 import com.muhaimen.arenax.esportsManagement.esportsProfile.ui.myOrganizations.MyOrganizationsAdapter
 import com.muhaimen.arenax.esportsManagement.esportsProfile.ui.myTeams.MyTeamsAdapter
-import com.muhaimen.arenax.esportsManagement.exploreEsports.exploreEsports
-import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
-import com.muhaimen.arenax.esportsManagement.talentExchange.talentExchange
-import com.muhaimen.arenax.userProfile.UserProfile
 import com.muhaimen.arenax.utils.Constants
-import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
 import org.json.JSONObject
 
-class esportsProfileFragment : Fragment() {
-
-    private lateinit var talentExchangeButton : ImageView
-    private lateinit var battlegroundsButton : ImageView
-    private lateinit var switchButton : ImageView
-    private lateinit var exploreButton : ImageView
-    private lateinit var profileButton : ImageView
+class OtherUsersEsportsProfile : AppCompatActivity() {
     private lateinit var teamsRecyclerView: RecyclerView
-    private lateinit var teamsAdapter: MyTeamsAdapter
+    private lateinit var teamsAdapter: otherUserTeamsAdapter
     private lateinit var organizationsRecyclerView: RecyclerView
-    private lateinit var organizationsAdapter: MyOrganizationsAdapter
+    private lateinit var organizationsAdapter: otherUserOrganizationsAdapter
     private var teamsList: MutableList<Team> = mutableListOf()
     private val organizationList = mutableListOf<OrganizationData>()
-    private lateinit var currentUserId:String
-    companion object {
-        fun newInstance() = esportsProfileFragment()
-    }
-
-    private val viewModel: EsportsProfileViewModel by viewModels()
-
+    private lateinit var userId:String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_other_users_esports_profile)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
 
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return inflater.inflate(R.layout.fragment_esports_profile, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        userId = intent.getStringExtra("userId").toString()
 
         // button listeners initialization
-        talentExchangeButton =view.findViewById(R.id.talentExchangeButton)
-        battlegroundsButton = view.findViewById(R.id.battlegroundsButton)
-        switchButton = view.findViewById(R.id.switchButton)
-        exploreButton = view.findViewById(R.id.exploreButton)
-        profileButton = view.findViewById(R.id.profileButton)
 
-        teamsRecyclerView = view.findViewById(R.id.teamsRecyclerView)
-        teamsRecyclerView.layoutManager = LinearLayoutManager(context)
-        teamsAdapter = MyTeamsAdapter(teamsList)
+        teamsRecyclerView = findViewById(R.id.teamsRecyclerView)
+        teamsRecyclerView.layoutManager = LinearLayoutManager(this)
+        teamsAdapter = otherUserTeamsAdapter(teamsList)
         teamsRecyclerView.adapter = teamsAdapter
 
-        organizationsRecyclerView = view.findViewById(R.id.organizationsRecyclerView)
-        organizationsRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        organizationsAdapter = MyOrganizationsAdapter(organizationList)
+        organizationsRecyclerView = findViewById(R.id.organizationsRecyclerView)
+        organizationsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        organizationsAdapter = otherUserOrganizationsAdapter(organizationList)
         organizationsRecyclerView.adapter = organizationsAdapter
 
-        currentUserId=FirebaseManager.getCurrentUserId().toString()
 
-        val firebaseUid = FirebaseManager.getCurrentUserId().toString()
-        fetchTeams(firebaseUid)
+
+        fetchTeams(userId)
         fetchOrganizations()
 
-        talentExchangeButton.setOnClickListener {
-            val intent = Intent(context, talentExchange::class.java)
-            startActivity(intent)
-        }
-
-        battlegroundsButton.setOnClickListener {
-            val intent = Intent(context, battlegrounds::class.java)
-            startActivity(intent)
-        }
-
-        switchButton.setOnClickListener {
-            val intent = Intent(context, switchToEsports::class.java)
-            intent.putExtra("loadedFromActivity", "esports")
-            startActivity(intent)
-        }
-
-        exploreButton.setOnClickListener {
-            val intent = Intent(context, exploreEsports::class.java)
-            startActivity(intent)
-        }
-
-        profileButton.setOnClickListener {
-            val intent = Intent(context, esportsProfile::class.java)
-            startActivity(intent)
-        }
     }
 
     private fun fetchTeams(firebaseUid: String) {
         val url = "${Constants.SERVER_URL}manageTeams/myTeams/$firebaseUid"
-        val requestQueue = Volley.newRequestQueue(requireContext())
+        val requestQueue = Volley.newRequestQueue(this)
 
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.GET, url, null,
@@ -163,11 +109,11 @@ class esportsProfileFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     private fun fetchOrganizations() {
         val url = "${Constants.SERVER_URL}registerOrganization/user/organizations"
-        val requestQueue = Volley.newRequestQueue(requireContext())
+        val requestQueue = Volley.newRequestQueue(this)
 
         // Create JSON body
         val requestBody = JSONObject().apply {
-            put("firebaseUid", currentUserId) // Send firebaseUid in the body
+            put("firebaseUid", userId) // Send firebaseUid in the body
         }
 
         val jsonObjectRequest = JsonObjectRequest(
@@ -190,7 +136,7 @@ class esportsProfileFragment : Fragment() {
                 organizationsAdapter.notifyDataSetChanged() // Refresh RecyclerView
             },
             { error ->
-                Toast.makeText(requireContext(), "Failed to fetch data: ${error.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Failed to fetch data: ${error.message}", Toast.LENGTH_LONG).show()
             }
         )
 

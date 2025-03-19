@@ -20,6 +20,7 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.OrganizationData
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.createOrganization.createOrganization
 import com.muhaimen.arenax.utils.Constants
+import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -59,7 +60,7 @@ class myOrganizationsFragment : Fragment() {
 
         database= FirebaseDatabase.getInstance()
         auth= FirebaseAuth.getInstance()
-        userId=auth.currentUser?.uid.toString()
+        userId=FirebaseManager.getCurrentUserId().toString()
         // Set up RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         adapter = MyOrganizationsAdapter(organizationList)

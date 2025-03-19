@@ -1,9 +1,11 @@
 package com.muhaimen.arenax.esportsManagement.OtherOrganization
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -20,12 +22,17 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.Comment
 import com.muhaimen.arenax.dataClasses.Event
+import com.muhaimen.arenax.dataClasses.Team
 import com.muhaimen.arenax.dataClasses.pagePost
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Teams.TeamsAdapter
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.pagePosts.pagePostsAdapter
 import com.muhaimen.arenax.utils.Constants
+import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 class OtherOrganization : AppCompatActivity() {
@@ -40,6 +47,7 @@ class OtherOrganization : AppCompatActivity() {
     private lateinit var organizationTaglineTextView: TextView
     private lateinit var organizationDescriptionTextView: TextView
     private lateinit var organizationLogoImageView: ImageView
+    private lateinit var messageButton: Button
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var eventsRecyclerView: RecyclerView
     private lateinit var jobsRecyclerView: RecyclerView
@@ -50,6 +58,9 @@ class OtherOrganization : AppCompatActivity() {
     private lateinit var otherPagePostsAdapter: otherPagePostsAdapter
     private lateinit var eventsAdapter: otherOrganizationEventsAdapter
     private var eventList: MutableList<Event> = mutableListOf()
+    private lateinit var teamsRecyclerView: RecyclerView
+    private lateinit var teamsAdapter: otherTeamsAdapter
+    private val teamsList = mutableListOf<Team>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +80,12 @@ class OtherOrganization : AppCompatActivity() {
         organizationId = intent.getStringExtra("organizationId")
         Log.d("DashboardFragment", "Organization name: $organizationName")
 
+        messageButton=findViewById(R.id.messageButton)
+        messageButton.setOnClickListener {
+            Log.d("UserProfile", "Message button clicked")
+            fetchOrganizationDataAndStartChat(organizationId!!)
+        }
+
         postsRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
         otherPagePostsAdapter = otherPagePostsAdapter(postsRecyclerView,postsList, organizationName.toString())
         postsRecyclerView.adapter = otherPagePostsAdapter
@@ -77,10 +94,19 @@ class OtherOrganization : AppCompatActivity() {
         eventsAdapter = otherOrganizationEventsAdapter(eventList)
         eventsRecyclerView.adapter = eventsAdapter
 
+        teamsRecyclerView = findViewById(R.id.teamsRecyclerView)
+        teamsRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+
+        // Pass organizationName to the adapter
+        teamsAdapter = otherTeamsAdapter(teamsList, organizationName)
+        teamsRecyclerView.adapter = teamsAdapter
+
         if (!organizationName.isNullOrEmpty()) {
             fetchOrganizationDetails(organizationName!!)
             fetchOrganizationPosts()
             fetchUpcomingEvents()
+            // Fetch teams for the given organization
+            fetchTeams(organizationName!!)
         }
 
         postsRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -139,6 +165,48 @@ class OtherOrganization : AppCompatActivity() {
         requestQueue.add(jsonObjectRequest)
     }
 
+    private fun fetchOrganizationDataAndStartChat(receiverId: String) {
+        val database = FirebaseManager.getDatabseInstance()
+        val orgRef = database.getReference("organizationsData").child(receiverId)
+
+        orgRef.get().addOnSuccessListener { dataSnapshot ->
+            if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                // Found organization in organizationData
+                val profileImageUrl = dataSnapshot.child("organizationLogo").value?.toString().orEmpty()
+                val orgName = dataSnapshot.child("organizationName").value?.toString().orEmpty()
+                Log.d("organizationName", orgName)
+
+                if (orgName.isNotEmpty()) {
+                    startChat(receiverId, orgName, "", profileImageUrl, "00","organization")
+                } else {
+                    Log.e("Chat", "Organization data is missing fields.")
+                }
+            } else {
+                Log.d("Chat", "Receiver ID not found in userData or organizationData")
+            }
+        }.addOnFailureListener {
+            Log.e("Chat", "Failed to fetch organization data: ${it.message}")
+        }
+    }
+
+    private fun startChat(
+        userId: String,
+        fullname: String,
+        gamerTag: String,
+        profilePicture: String,
+        gamerRank: String,
+        dataType:String
+    ) {
+        val intent = Intent(this, ChatActivity::class.java).apply {
+            putExtra("userId", userId)
+            putExtra("fullname", fullname)
+            putExtra("gamerTag", gamerTag)
+            putExtra("profilePicture", profilePicture)
+            putExtra("gamerRank", gamerRank)
+            putExtra("dataType",dataType)
+        }
+        startActivity(intent)
+    }
     private fun fetchOrganizationPosts() {
         if (organizationName.isNullOrEmpty()) {
             Log.e("pagePostsFragment", "Organization name is null or empty.")
@@ -277,6 +345,89 @@ class OtherOrganization : AppCompatActivity() {
             events.add(event)
         }
         return events
+    }
+
+    private fun fetchTeams(organizationName: String) {
+        val queue = Volley.newRequestQueue(this)
+        val url = "${Constants.SERVER_URL}manageTeams/teams"
+
+        // Create a JSON object with the organization name to send in the request body
+        val requestBody = JSONObject()
+        try {
+            requestBody.put("organizationName", organizationName)
+        } catch (e: JSONException) {
+            Log.e("TeamsFragment", "Error creating JSON request body", e)
+            Toast.makeText(this, "Failed to create request body", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.POST, url, requestBody,
+            { response ->
+                try {
+                    val teamsArray = response.optJSONArray("teams") ?: JSONArray()  // Avoid null exception
+                    // Clear the list before adding new data
+                    teamsList.clear()
+
+                    for (i in 0 until teamsArray.length()) {
+                        val teamObject = teamsArray.optJSONObject(i) ?: JSONObject()  // Ensure it's a valid JSON object
+                        Log.d("TeamsFragment", "Team object: $teamObject")
+
+                        // Ensure non-null values and extract them properly
+                        val teamName = teamObject.optString("team_name", "Unknown Team Name")
+                        val gameName = teamObject.optString("game_name", "Unknown Game")
+                        val teamDetails = teamObject.optString("team_details", "No Details Available")
+                        val teamLocation = teamObject.optString("team_location", "Unknown Location")
+                        val teamEmail = teamObject.optString("team_email", "No Email")
+                        val teamCaptain = teamObject.optString("team_captain", "No Captain")
+                        val teamTagLine = teamObject.optString("team_tagline", "No Tagline")
+                        val teamAchievements = teamObject.optString("team_achievements", "No Achievements")
+                        val teamLogo = teamObject.optString("team_logo", "")
+
+                        // Ensure teamMembers are handled properly
+                        val teamMembers = getTeamMembers(teamObject.optJSONArray("team_members") ?: JSONArray()) // Safely handle missing members
+
+                        // Create the Team object
+                        val team = Team(
+                            teamName = teamName,
+                            gameName = gameName,
+                            teamDetails = teamDetails,
+                            teamLocation = teamLocation,
+                            teamEmail = teamEmail,
+                            teamCaptain = teamCaptain,
+                            teamTagLine = teamTagLine,
+                            teamAchievements = teamAchievements,
+                            teamLogo = teamLogo,
+                            teamMembers = teamMembers
+                        )
+
+                        // Add the team to the list
+                        teamsList.add(team)
+                        Log.d("TeamsFragment", "Team: ${team.teamName}, ${team.gameName}, ${team.teamLogo}")
+                    }
+
+                    // Notify the adapter of changes
+                    teamsAdapter.notifyDataSetChanged()
+
+                } catch (e: Exception) {
+                    Log.e("TeamsFragment", "Error parsing teams response", e)
+                }
+            },
+            { error ->
+                Log.e("TeamsFragment", "Error fetching teams: $error")
+            }
+        )
+
+        // Add the request to the request queue
+        queue.add(jsonObjectRequest)
+    }
+
+    private fun getTeamMembers(teamMembersArray: JSONArray): List<String> {
+        val membersList = mutableListOf<String>()
+        for (i in 0 until teamMembersArray.length()) {
+            membersList.add(teamMembersArray.optString(i, ""))
+        }
+        return membersList
     }
 
     private fun initializeViews() {
