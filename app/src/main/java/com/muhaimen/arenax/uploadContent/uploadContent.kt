@@ -36,9 +36,11 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.Response
+import com.android.volley.RetryPolicy
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -357,7 +359,8 @@ class UploadContent : AppCompatActivity() {
 
     private fun savePostDetailsToServer(userId: String, mediaUrl: String, caption: String) {
         val requestQueue = Volley.newRequestQueue(this)
-        //Fetch user location details from the backend
+
+        // Fetch user location details from the backend
         fetchUserLocation(
             context = this,
             firebaseUid = userId,
@@ -376,23 +379,34 @@ class UploadContent : AppCompatActivity() {
                     put("trimmed_audio_url", trimmedAudioUrl)
                 }
 
-                val postRequest = JsonObjectRequest(
+                // Create the POST request
+                val postRequest = object : JsonObjectRequest(
                     Request.Method.POST,
                     "${Constants.SERVER_URL}uploads/uploadPost",
                     jsonRequest,
                     { _ ->
-                        Toast.makeText(this, "Post uploaded successfully", Toast.LENGTH_SHORT).show()
+                        // Success response
+                        Toast.makeText(this@UploadContent, "Post uploaded successfully", Toast.LENGTH_SHORT).show()
                         val intent = Intent("NEW_POST_ADDED")
-                        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+                        LocalBroadcastManager.getInstance(this@UploadContent).sendBroadcast(intent)
                     },
                     { error ->
-                        Toast.makeText(this, "Failed to upload post: ${error.message}", Toast.LENGTH_SHORT).show()
+                        // Error response
+                       // Toast.makeText(this@UploadContent, "Failed to upload post: ${error.message}", Toast.LENGTH_SHORT).show()
                     }
-                )
+                ) {
+                }
+
+                // Add the request to the queue
                 requestQueue.add(postRequest)
             },
-            onError = { error -> }
+            onError = { error ->
+                // Handle location fetch error
+                Toast.makeText(this@UploadContent, "Failed to fetch location: $error", Toast.LENGTH_SHORT).show()
+            }
         )
+
+        // Release media player resources
         releaseMediaPlayer()
     }
 

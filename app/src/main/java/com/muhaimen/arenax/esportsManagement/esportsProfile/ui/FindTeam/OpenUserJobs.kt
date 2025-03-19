@@ -1,4 +1,4 @@
-package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs
+package com.muhaimen.arenax.esportsManagement.esportsProfile.ui.FindTeam
 
 import android.os.Bundle
 import android.text.Editable
@@ -18,23 +18,25 @@ import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.dataClasses.Gender
 import com.muhaimen.arenax.dataClasses.Job
-import com.muhaimen.arenax.dataClasses.JobWithOrganization
-import com.muhaimen.arenax.dataClasses.OrganizationData
-import com.muhaimen.arenax.esportsManagement.talentExchange.OrganizationsAdapter
+import com.muhaimen.arenax.dataClasses.JobWithUserDetails
+import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs.OpenUserJobsAdapter
 import com.muhaimen.arenax.utils.Constants
+import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
 import org.json.JSONObject
 
-class OpenJobs : Fragment() {
+class OpenUserJobs : Fragment() {
 
     private lateinit var openJobsRecyclerView: RecyclerView
-    private lateinit var openJobsAdapter: OpenJobsAdapter
+    private lateinit var openJobsAdapter: OpenUserJobsAdapter
     private lateinit var searchBar: EditText
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var searchButton: ImageButton
-    private var jobWithOrgList: MutableList<JobWithOrganization> = mutableListOf()
-    private lateinit var organizationName: String
+    private var jobWithUserDetailsList: MutableList<JobWithUserDetails> = mutableListOf()
+    private lateinit var firebaseUid: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,20 +50,19 @@ class OpenJobs : Fragment() {
         searchBar = view.findViewById(R.id.searchbar)
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
         searchButton = view.findViewById(R.id.searchButton)
-        organizationName = arguments?.getString("organization_name") ?: ""
 
         // Set up RecyclerViews
         openJobsRecyclerView.layoutManager = LinearLayoutManager(context)
-        openJobsAdapter = OpenJobsAdapter(jobWithOrgList)
+        openJobsAdapter = OpenUserJobsAdapter(jobWithUserDetailsList)
         openJobsRecyclerView.adapter = openJobsAdapter
 
-        // Fetch initial data
+        firebaseUid=FirebaseManager.getCurrentUserId().toString()
         fetchOpenJobs()
 
         // Set up search functionality
         searchBar.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus && searchBar.text.toString().trim().isEmpty()) {
-               fetchOpenJobs() // Repopulate with original data
+                fetchOpenJobs() // Repopulate with original data
                 openJobsRecyclerView.visibility = View.VISIBLE
             }
         }
@@ -81,7 +82,7 @@ class OpenJobs : Fragment() {
             val searchText = searchBar.text.toString().trim()
             if (searchText.isNotEmpty()) {
                 searchOpenJobs(searchText)
-            }else{
+            } else {
                 fetchOpenJobs()
             }
         }
@@ -97,18 +98,14 @@ class OpenJobs : Fragment() {
 
     private fun fetchOpenJobs() {
         val queue = Volley.newRequestQueue(context)
-        val url = "${Constants.SERVER_URL}manageJobs/getOpenJobs"
+        val url = "${Constants.SERVER_URL}manageUserJobs/openRecruitmentAds/$firebaseUid"
 
-        val requestBody = JSONObject().apply {
-            put("organization_name", organizationName)
-        }
-
-        val request = object : JsonObjectRequest(
-            Request.Method.POST, url, requestBody,
+        val request = JsonObjectRequest(
+            Request.Method.GET, url, null,
             { response ->
                 try {
                     Log.d("Volley", "Response: $response")
-                    val jobsArray = response.getJSONArray("jobs")
+                    val jobsArray = response.getJSONArray("jobAds")
                     clearAndPopulateAdapter(jobsArray)
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -119,24 +116,18 @@ class OpenJobs : Fragment() {
                 Log.e("Volley", "Error fetching open jobs: ${error.message}")
                 Toast.makeText(context, "Error fetching open jobs", Toast.LENGTH_SHORT).show()
             }
-        ) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers["Content-Type"] = "application/json"
-                return headers
-            }
-        }
+        )
 
         queue.add(request)
     }
 
     private fun searchOpenJobs(searchText: String) {
         val queue = Volley.newRequestQueue(context)
-        val url = "${Constants.SERVER_URL}manageJobs/searchOpenJobsByOrganization"
+        val url = "${Constants.SERVER_URL}manageUserJobs/searchUserOpenJobs"
 
         val requestBody = JSONObject().apply {
             put("searchText", searchText)
-            put("organizationName", organizationName)
+            put("firebaseUid", firebaseUid)
         }
 
         val request = object : JsonObjectRequest(
@@ -167,15 +158,13 @@ class OpenJobs : Fragment() {
     }
 
     private fun clearAndPopulateAdapter(response: JSONArray) {
-
-        jobWithOrgList.clear()
+        jobWithUserDetailsList.clear()
 
         // Parse the response and populate the list
         parseAndPopulateJobs(response)
 
-        // Notify the appropriate adapter of the data change
-        openJobsAdapter.updateData(jobWithOrgList)
-
+        // Notify the adapter of the data change
+        openJobsAdapter.updateData(jobWithUserDetailsList)
     }
 
     private fun parseAndPopulateJobs(response: JSONArray) {
@@ -184,13 +173,13 @@ class OpenJobs : Fragment() {
                 val jobObject = response.getJSONObject(i)
 
                 // Parse Job data
-                val jobId = jobObject.optString("job_id", "")
-                val organizationId = jobObject.optString("organization_id", "")
-                val jobTitle = jobObject.optString("job_title", "")
-                val jobType = jobObject.optString("job_type", "")
-                val jobLocation = jobObject.optString("job_location", "")
-                val jobDescription = jobObject.optString("job_description", "")
-                val workplaceType = jobObject.optString("workplace_type", "")
+                val jobId = jobObject.optString("jobTitle", "")
+                val organizationId = jobObject.optString("userId", "") // Assuming userId maps to organizationId
+                val jobTitle = jobObject.optString("jobTitle", "")
+                val jobType = jobObject.optString("jobType", "")
+                val jobLocation = jobObject.optString("jobLocation", "")
+                val jobDescription = jobObject.optString("jobDescription", "")
+                val workplaceType = jobObject.optString("workplaceType", "")
                 val tags = jobObject.getJSONArray("tags").let { tagArray ->
                     List(tagArray.length()) { index -> tagArray.optString(index, "") }
                 }
@@ -206,28 +195,43 @@ class OpenJobs : Fragment() {
                     tags = tags
                 )
 
-                // Parse Organization data (if available)
-                val organizationObject = jobObject.optJSONObject("organization")
-                val organization = if (organizationObject != null) {
-                    OrganizationData(
-                        organizationId = organizationObject.optString("organization_id", ""),
-                        organizationName = organizationObject.optString("organization_name", "Unknown Organization"),
-                        organizationLogo = organizationObject.optString("organization_logo", null),
-                        organizationLocation = organizationObject.optString("organization_location", null)
+                // Parse User data
+                val userDetailsObject = jobObject.optJSONObject("user_details")
+                val user = if (userDetailsObject != null) {
+                    UserData(
+                        userId = userDetailsObject.optString("full_name", ""),
+                        fullname = userDetailsObject.optString("full_name", "Unknown User"),
+                        email = "", // Not provided in the API response
+                        dOB = "", // Not provided in the API response
+                        gamerTag = userDetailsObject.optString("gamer_tag", "No Gamer Tag"),
+                        profilePicture = userDetailsObject.optString("profile_picture_url", null),
+                        gender = Gender.PreferNotToSay, // Not provided in the API response
+                        bio = "", // Not provided in the API response
+                        location = "", // Not provided in the API response
+                        accountVerified = false, // Not provided in the API response
+                        playerId = "", // Not provided in the API response
+                        rank = "" // Not provided in the API response
                     )
                 } else {
-                    OrganizationData(
-                        organizationId = organizationId,
-                        organizationName = "Unknown Organization",
-                        organizationLogo = null,
-                        organizationLocation = null
+                    UserData(
+                        userId = "",
+                        fullname = "Unknown User",
+                        email = "",
+                        dOB = "",
+                        gamerTag = "No Gamer Tag",
+                        profilePicture = null,
+                        gender = Gender.PreferNotToSay,
+                        bio = "",
+                        location = "",
+                        accountVerified = false,
+                        playerId = "",
+                        rank = ""
                     )
                 }
 
-                // Combine Job and Organization into a wrapper object
-                val jobWithOrg = JobWithOrganization(job, organization)
-                jobWithOrgList.add(jobWithOrg)
-
+                // Combine Job and User into a wrapper object
+                val jobWithUserDetails = JobWithUserDetails(job, user)
+                jobWithUserDetailsList.add(jobWithUserDetails)
             }
         } catch (e: Exception) {
             e.printStackTrace()

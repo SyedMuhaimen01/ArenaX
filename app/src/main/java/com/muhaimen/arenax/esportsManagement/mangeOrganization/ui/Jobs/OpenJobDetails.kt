@@ -6,15 +6,21 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
+import com.muhaimen.arenax.utils.Constants
+import org.json.JSONObject
 
-class viewJobDetails : AppCompatActivity() {
+class OpenJobDetails : AppCompatActivity() {
     private lateinit var organizationNameTextView: TextView
     private lateinit var jobTitleTextView: TextView
     private lateinit var jobDescriptionTextView: TextView
@@ -26,12 +32,13 @@ class viewJobDetails : AppCompatActivity() {
     private lateinit var tag3: TextView
     private lateinit var tag4: TextView
     private lateinit var organizationLogo: ImageView
-    private lateinit var applyButton: Button
+    private lateinit var closeButton: Button
+    private lateinit var organizationName:String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_view_job_details)
+        setContentView(R.layout.activity_open_job_details)
 
         // Handle edge-to-edge display
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -54,9 +61,10 @@ class viewJobDetails : AppCompatActivity() {
         val jobDescription = intent.getStringExtra("JobDescription") ?: "No description available"
         val jobTags = intent.getStringArrayListExtra("JobTags") ?: arrayListOf()
         val organizationId = intent.getStringExtra("OrganizationId") ?: "N/A"
-        val organizationName = intent.getStringExtra("OrganizationName") ?: "Unknown Organization"
+        organizationName = intent.getStringExtra("OrganizationName") ?: "Unknown Organization"
         val organizationLogoUrl = intent.getStringExtra("OrganizationLogo")
-        val organizationLocation = intent.getStringExtra("OrganizationLocation") ?: "Location not specified"
+        val organizationLocation =
+            intent.getStringExtra("OrganizationLocation") ?: "Location not specified"
 
         // Populate views with retrieved data
         organizationNameTextView.text = organizationName
@@ -83,10 +91,9 @@ class viewJobDetails : AppCompatActivity() {
         tag3.text = jobTags.getOrNull(2) ?: ""
         tag4.text = jobTags.getOrNull(3) ?: ""
 
-        // Set up apply button click listener
-        applyButton.setOnClickListener {
-            // Implement job application logic here
-            // For example, you can use the jobId or organizationId to track the application
+        // Set up close button click listener
+        closeButton.setOnClickListener {
+            closeJob(jobId)
         }
     }
 
@@ -102,10 +109,45 @@ class viewJobDetails : AppCompatActivity() {
         tag3 = findViewById(R.id.tag3)
         tag4 = findViewById(R.id.tag4)
         organizationLogo = findViewById(R.id.organizationLogo)
-        applyButton = findViewById(R.id.applyButton)
+        closeButton = findViewById(R.id.closeButton)
+    }
+
+    private fun closeJob(jobId: String) {
+        // Step 1: Initialize Volley request queue
+        val queue = Volley.newRequestQueue(this)
+        val url = "${Constants.SERVER_URL}manageJobs/closeJob"
+
+        // Step 2: Create JSON payload for the request
+        val jsonBody = JSONObject().apply {
+            put("job_id", jobId)
+        }
+
+        // Step 3: Create POST request
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.POST,
+            url,
+            jsonBody,
+            { response ->
+                // Handle success response
+                Toast.makeText(this, "Job successfully closed", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, OrganizationHomePageActivity::class.java)
+                intent.putExtra("organization_name", organizationName)
+                startActivity(intent)
+            },
+            { error ->
+                // Handle error response
+                Toast.makeText(this, "Failed to close job: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Step 4: Add the request to the queue
+        queue.add(jsonObjectRequest)
     }
 
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
+        val intent = Intent(this, OrganizationHomePageActivity::class.java)
+        intent.putExtra("organization_name", organizationName)
+        startActivity(intent)
     }
 }
