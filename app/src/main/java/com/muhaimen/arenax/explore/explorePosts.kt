@@ -19,6 +19,7 @@ import com.muhaimen.arenax.utils.Constants
 import kotlinx.coroutines.*
 import okhttp3.*
 import org.json.JSONArray
+import java.util.concurrent.TimeUnit
 
 class explorePosts : Fragment() {
 
@@ -51,7 +52,11 @@ class explorePosts : Fragment() {
         val userId = auth.currentUser?.uid ?: return
         val url = "${Constants.SERVER_URL}explorePosts/user/$userId/fetchPosts" // Replace with your backend API endpoint
 
-        val client = OkHttpClient()
+        val client = OkHttpClient.Builder()
+            .connectTimeout(60, TimeUnit.SECONDS) // Timeout for establishing a connection
+            .readTimeout(60, TimeUnit.SECONDS)    // Timeout for reading data from the server
+            .writeTimeout(60, TimeUnit.SECONDS)   // Timeout for writing data to the server
+            .build()
         val request = Request.Builder()
             .url(url)
             .build()

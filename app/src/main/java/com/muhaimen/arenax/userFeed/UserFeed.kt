@@ -41,6 +41,7 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class UserFeed : AppCompatActivity() {
     private lateinit var userFeedAdapter: UserFeedPostsAdapter
@@ -133,7 +134,11 @@ class UserFeed : AppCompatActivity() {
             .addOnSuccessListener { snapshot ->
                 val followingUids = snapshot.children.mapNotNull { it.key }
                 val url = "${Constants.SERVER_URL}explorePosts/user/$userId/fetchFeedPosts"
-                val client = OkHttpClient()
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(60, TimeUnit.SECONDS) // Timeout for establishing a connection
+                    .readTimeout(60, TimeUnit.SECONDS)    // Timeout for reading data from the server
+                    .writeTimeout(60, TimeUnit.SECONDS)   // Timeout for writing data to the server
+                    .build()
                 val requestBody = JSONObject().apply {
                     put("followingIds", JSONArray(followingUids))
                 }.toString().toRequestBody("application/json".toMediaType())
