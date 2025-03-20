@@ -1,6 +1,7 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.dashboard
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +17,10 @@ import com.android.volley.RequestQueue
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONObject
@@ -55,9 +60,110 @@ class dashboardFragment : Fragment() {
         if (!organizationName.isNullOrEmpty()) {
             fetchOrganizationDetails(organizationName)
             getOrganizationPostCount(organizationName)
+            getOrganizationDetails(organizationName)
         }
 
-        return view
+        organizationEmailTextView?.setOnClickListener {
+            val emailAddress =
+                organizationEmailTextView?.text
+
+            // Create an intent to send an email
+            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:")
+                putExtra(Intent.EXTRA_EMAIL, arrayOf(emailAddress))
+
+            }
+            if (intent.resolveActivity(requireContext().packageManager) != null) {
+                startActivity(intent)
+            } else {
+            }
+
+            organizationPhoneTextView?.setOnClickListener {
+                val phoneNumber = organizationPhoneTextView!!.text
+
+                // Create an intent to open the dialer
+                val intent = Intent(Intent.ACTION_DIAL).apply {
+                    data = Uri.parse("tel:$phoneNumber")
+                }
+
+                // Check if there is an app available to handle the intent
+                if (intent.resolveActivity(requireContext().packageManager) != null) {
+                    startActivity(intent)
+                } else {
+                    Log.d("DashboardFragment", "No app available to handle the intent")
+                }
+            }
+        }
+            return view
+    }
+    private fun getOrganizationDetails(organizationName: String) {
+        // Reference to the organizationsData node in Firebase
+        val organizationsRef = FirebaseDatabase.getInstance().getReference("organizationsData")
+
+        // Query to find the organization by its name
+        val orgQuery = organizationsRef.orderByChild("organizationName").equalTo(organizationName)
+
+        // Execute the query to find the organization
+        orgQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    // Iterate through the results (though there should only be one match)
+                    for (orgSnapshot in snapshot.children) {
+                        // Retrieve the organization ID
+                        val orgId = orgSnapshot.key
+
+                        // Fetch notifications for this organization
+                        if (!orgId.isNullOrEmpty()) {
+                            fetchAndSetCounts(orgId)
+
+                        } else {
+                            println("Organization ID is null or empty")
+                        }
+                    }
+                } else {
+                    // Handle the case where no organization is found with the given name
+                    println("No organization found with the name: $organizationName")
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle errors when fetching data
+                println("Database error: ${error.message}")
+            }
+        })
+    }
+    private fun fetchAndSetCounts(orgId: String) {
+        val followersRef = FirebaseDatabase.getInstance().getReference("organizationsData/$orgId/synerG/followers")
+        val followingRef = FirebaseDatabase.getInstance().getReference("organizationsData/$orgId/synerG/following")
+
+
+        // Fetch and count followers with status "accepted"
+        followersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val acceptedFollowersCount = snapshot.children.count {
+                    it.child("status").value?.toString() == "accepted"
+                }
+                followersCountTextView?.text = acceptedFollowersCount.toString()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ProfileActivity", "Error fetching followers: ${error.message}")
+            }
+        })
+
+        // Fetch and count following with status "accepted"
+        followingRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val acceptedFollowingCount = snapshot.children.count {
+                    it.child("status").value?.toString() == "accepted"
+                }
+                followingCountTextView?.text   = acceptedFollowingCount.toString()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ProfileActivity", "Error fetching following: ${error.message}")
+            }
+        })
     }
 
     private fun initializeViews(view: View) {

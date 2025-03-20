@@ -260,18 +260,21 @@ class otherUserProfile : AppCompatActivity() {
                 button.text = "Alliance Established"
                 button.setTextColor(resources.getColor(R.color.textColor))
                 button.isEnabled = false // Disable button for established alliance
+                button.background = resources.getDrawable(R.drawable.searchbar)
             }
             "pending" -> {
                 button.setBackgroundColor(resources.getColor(R.color.hinttextColor))
                 button.text = "Request Pending"
                 button.setTextColor(resources.getColor(R.color.textColor))
                 button.isEnabled = true // Disable button for pending alliance
+                button.background = resources.getDrawable(R.drawable.searchbar)
             }
             "false" -> {
                 button.setBackgroundColor(resources.getColor(R.color.primaryColor))
                 button.text = "Request Alliance"
                 button.setTextColor(resources.getColor(R.color.textColor))
                 button.isEnabled = true // Enable button for new alliance request
+                button.background = resources.getDrawable(R.drawable.searchbar)
             }
         }
     }
@@ -289,6 +292,7 @@ class otherUserProfile : AppCompatActivity() {
                 button.text = "Request Pending"
                 button.setTextColor(resources.getColor(R.color.textColor))
                 button.isEnabled = true
+                button.background = resources.getDrawable(R.drawable.searchbar)
 
                 // Create the alliance request object
                 val allianceRequest = mapOf(
@@ -326,6 +330,7 @@ class otherUserProfile : AppCompatActivity() {
                 button.setBackgroundColor(resources.getColor(R.color.primaryColor))
                 button.text = "Request Alliance"
                 button.setTextColor(resources.getColor(R.color.textColor))
+                button.background = resources.getDrawable(R.drawable.searchbar)
                 button.isEnabled = true
 
                 // Remove entries from both following and followers nodes

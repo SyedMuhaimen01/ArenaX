@@ -78,6 +78,7 @@ class OpenJobsAdapter(
                     putExtra("OrganizationName", organization.organizationName)
                     putExtra("OrganizationLogo", organization.organizationLogo)
                     putExtra("OrganizationLocation", organization.organizationLocation)
+                    putExtra("loadedFrom", "ownOrganization")
                 }
                 itemView.context.startActivity(intent)
             }

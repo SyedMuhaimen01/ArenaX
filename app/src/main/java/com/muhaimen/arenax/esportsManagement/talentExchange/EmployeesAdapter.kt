@@ -10,9 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.JobWithUserDetails
+import com.muhaimen.arenax.dataClasses.OrganizationData
 import com.muhaimen.arenax.esportsManagement.esportsProfile.ui.FindTeam.recruitmentAdPosting.viewRecruitmentDetails
 
-class EmployeesAdapter(private var jobsList: MutableList<JobWithUserDetails>) :
+class EmployeesAdapter(private var jobsList: MutableList<JobWithUserDetails>,
+                       private var organization: OrganizationData?) :
     RecyclerView.Adapter<EmployeesAdapter.ViewHolder>() {
 
     // Function to update job list and notify adapter
@@ -20,6 +22,13 @@ class EmployeesAdapter(private var jobsList: MutableList<JobWithUserDetails>) :
         jobsList.addAll(newJobs) // Add new jobs
         notifyDataSetChanged() // Notify RecyclerView of data changes
     }
+
+    // Function to update the organization and refresh the adapter
+    fun updateOrganization(newOrganization: OrganizationData?) {
+        organization = newOrganization
+        notifyDataSetChanged() // Refresh the adapter to reflect the new organization
+    }
+
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         // Job Details Views
@@ -76,6 +85,13 @@ class EmployeesAdapter(private var jobsList: MutableList<JobWithUserDetails>) :
                             putExtra("WorkplaceType", job.workplaceType)
                             putExtra("JobDescription", job.jobDescription)
                             putStringArrayListExtra("JobTags", ArrayList(job.tags))
+
+                            organization?.let { org ->
+                                putExtra("OrganizationId", org.organizationId)
+                                putExtra("OrganizationName", org.organizationName)
+                                putExtra("OrganizationLogo", org.organizationLogo)
+                                putExtra("OrganizationLocation", org.organizationLocation)
+                            }
 
                             // Pass User Details
                             putExtra("UserId", user.userId)

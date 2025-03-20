@@ -112,7 +112,7 @@ class viewEventDetails : AppCompatActivity() {
                         val userNotificationsRef = FirebaseDatabase.getInstance().getReference("userData")
                             .child(currentUserId)
                             .child("esportsNotifications")
-                            .child("invites")
+                            .child("applications")
 
                         val organizationsRef = FirebaseDatabase.getInstance().getReference("organizationsData")
                         val orgQuery = organizationsRef.orderByChild("organizationName").equalTo(organizationName)
@@ -148,7 +148,7 @@ class viewEventDetails : AppCompatActivity() {
                                     startActivity(intent)
                                 } else {
                                     // Step 5b: If not applied, construct the notification content dynamically
-                                    val notificationContent = "$userName showed interest in  $event"
+                                    val notificationContent = "$userName showed interest in Event: $event"
 
                                     // Step 6: Create the notification object
                                     val notificationObject1 = esportsNotificationData(

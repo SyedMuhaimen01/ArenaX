@@ -26,13 +26,17 @@ class manageFollowing : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.primaryColor, theme)
         window.navigationBarColor = resources.getColor(R.color.primaryColor, theme)
 
+        val orgName = intent.getStringExtra("organizationName") ?: ""
+
+        val bundle = Bundle()
+        bundle.putString("organization_name", orgName)
 
         // Initialize TabLayout and ViewPager2
         tabLayout = findViewById(R.id.tabLayout)
         viewPager = findViewById(R.id.viewPager)
         viewPager.isUserInputEnabled = true
         // Set up ViewPager2 with an adapter
-        viewPager.adapter = manageFollowingViewPagerAdapter(this)
+        viewPager.adapter = manageFollowingViewPagerAdapter(this,bundle)
 
         // Attach TabLayout with ViewPager2 using TabLayoutMediator
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
