@@ -42,10 +42,16 @@ class organizationFollowersList : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         orgName = requireArguments().getString("organization_name").toString()
+        Log.d("ManageFollowers", "Organization Name: $orgName")
+        if (orgName.isEmpty()) {
+            Log.e("ManageFollowers", "Organization name is missing")
+            return view
+        }
+
 
         followersAdapter = organizationFollowersAdapter(
             profiles = followersList,
-            onMessageClick = { follower -> getOrganizationDetails("fetchUserChats", follower, null) },
+            onMessageClick = { follower -> getOrganizationDetails("fetchUserChats", follower, follower.userId) },
             onRemoveClick = { follower -> showRemoveFollowerDialog(follower) }
         )
         recyclerView.adapter = followersAdapter
@@ -56,6 +62,7 @@ class organizationFollowersList : Fragment() {
     }
 
     private fun fetchFollowers(orgId: String) {
+        Log.d("ManageFollowers", "Fetching followers for organization: $orgId")
         val followersRef = FirebaseDatabase.getInstance().getReference("organizationsData").child(orgId).child("synerG").child("followers")
 
         followersRef.orderByChild("status").equalTo("accepted").get().addOnSuccessListener { snapshot ->
@@ -152,18 +159,27 @@ class organizationFollowersList : Fragment() {
     }
 
     private fun getOrganizationDetails(calledBy: String, follower: UserData?, followerId: String?) {
-        FirebaseDatabase.getInstance().getReference("organizationsData").orderByChild("organizationName").equalTo(orgName)
+        FirebaseDatabase.getInstance().getReference("organizationsData")
+            .orderByChild("organizationName").equalTo(orgName)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    snapshot.children.firstOrNull()?.key?.let { orgId ->
-                        when (calledBy) {
-                            "initializeOrgId" -> fetchFollowers(orgId)
-                            "removeFollower" -> removeFollower(follower!!, orgId)
-                            "fetchUserChats" -> fetchUserChats(followerId!!, orgId)
+                    if (snapshot.exists()) {
+                        snapshot.children.firstOrNull()?.key?.let { orgId ->
+                            Log.d("ManageFollowers", "Found organization ID: $orgId")
+                            when (calledBy) {
+                                "initializeOrgId" -> fetchFollowers(orgId)
+                                "removeFollower" -> removeFollower(follower!!, orgId)
+                                "fetchUserChats" -> fetchUserChats(followerId!!, orgId)
+                            }
                         }
+                    } else {
+                        Log.e("ManageFollowers", "No organization found with name: $orgName")
                     }
                 }
-                override fun onCancelled(error: DatabaseError) {}
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("ManageFollowers", "Firebase query cancelled: ${error.message}")
+                }
             })
     }
 }

@@ -18,6 +18,7 @@ import com.google.firebase.database.*
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.ChatItem
 import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userFeed.UserFeed
@@ -33,6 +34,7 @@ class ViewAllChats : AppCompatActivity() {
     private lateinit var homeButton:LinearLayout
     private lateinit var exploreButton:ImageView
     private lateinit var profileButton:ImageView
+    private lateinit var talentExchangeButton:ImageView
     private lateinit var postButton:ImageView
     private val database = FirebaseDatabase.getInstance()
     private val currentUserId = FirebaseManager.getCurrentUserId()
@@ -66,6 +68,13 @@ class ViewAllChats : AppCompatActivity() {
 
         profileButton.setOnClickListener {
             val intent = Intent(this, UserProfile::class.java)
+            startActivity(intent)
+        }
+
+        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton.setOnClickListener {
+            val intent = Intent(this, switchToEsports::class.java)
+            intent.putExtra("loadedFromActivity","casual")
             startActivity(intent)
         }
 

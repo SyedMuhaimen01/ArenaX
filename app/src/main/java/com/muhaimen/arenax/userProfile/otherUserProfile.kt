@@ -48,6 +48,7 @@ import com.muhaimen.arenax.dataClasses.Comment
 import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
 import com.muhaimen.arenax.dataClasses.UserData
+import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.gamesDashboard.otherUserGames
 import com.muhaimen.arenax.gamesDashboard.overallLeaderboard
@@ -85,6 +86,7 @@ class otherUserProfile : AppCompatActivity() {
     private lateinit var highlightsRecyclerView: RecyclerView
     private lateinit var highlightsAdapter: highlightsAdapter
     private lateinit var exploreButton: ImageView
+    private lateinit var talentExchangeButton:ImageView
     private lateinit var postsCount: TextView
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: PostsAdapter
@@ -177,6 +179,13 @@ class otherUserProfile : AppCompatActivity() {
             val intent = Intent(this, otherUserGames::class.java).apply {
                 putExtra("userId", receivedUserId)
             }
+            startActivity(intent)
+        }
+
+        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton.setOnClickListener {
+            val intent = Intent(this, switchToEsports::class.java)
+            intent.putExtra("loadedFromActivity","casual")
             startActivity(intent)
         }
 

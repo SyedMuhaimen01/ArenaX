@@ -58,8 +58,15 @@ class recruitmentAdPosting : AppCompatActivity() {
         initializeViews()
 
         postJobButton.setOnClickListener {
-            collectJobDetails()
-            postJobToBackend()
+            postJobButton.isEnabled = false
+            if (validateFields()) {
+                // Proceed with posting the job
+                collectJobDetails()
+                postJobToBackend()
+
+            } else {
+                postJobButton.isEnabled = true
+            }
         }
 
         backButton.setOnClickListener {
@@ -82,6 +89,30 @@ class recruitmentAdPosting : AppCompatActivity() {
         backButton = findViewById(R.id.backButton)
 
         populateSpinners()
+    }
+
+    private fun validateFields(): Boolean {
+        var isValid = true
+
+        // Validate Job Title
+        if (jobTitle.text.toString().trim().isEmpty()) {
+            jobTitle.error = "Job title is required"
+            isValid = false
+        }
+
+        // Validate Job Location
+        if (jobLocation.text.toString().trim().isEmpty()) {
+            jobLocation.error = "Job location is required"
+            isValid = false
+        }
+
+        // Validate Job Description
+        if (jobDescription.text.toString().trim().isEmpty()) {
+            jobDescription.error = "Job description is required"
+            isValid = false
+        }
+
+        return isValid
     }
 
     private fun populateSpinners() {
@@ -142,6 +173,7 @@ class recruitmentAdPosting : AppCompatActivity() {
             "${Constants.SERVER_URL}manageUserJobs/addRecruitmentAd",
             requestBody,
             { response ->
+                postJobButton.isEnabled = true
                 // Handle successful response
                 Toast.makeText(this, "Recruitment Ad Posted Successfully!", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, esportsProfile::class.java)
@@ -149,6 +181,7 @@ class recruitmentAdPosting : AppCompatActivity() {
             },
             { error ->
                 // Handle error response
+                postJobButton.isEnabled = true
                 Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
             }
         ) {

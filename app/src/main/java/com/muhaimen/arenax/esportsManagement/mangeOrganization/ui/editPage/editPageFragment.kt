@@ -24,6 +24,7 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.OrganizationData
 import com.muhaimen.arenax.esportsManagement.esportsProfile.esportsProfile
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.dashboard.dashboardFragment
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONObject
 
@@ -75,7 +76,8 @@ class editPageFragment : Fragment() {
         organizationName = arguments?.getString("organization_name") ?: ""
         fetchOrganizationData(organizationName)
         organizationLogo.setOnClickListener { selectImage() }
-        updateButton.setOnClickListener { updateOrganizationOnFirebase() }
+        updateButton.setOnClickListener { updateOrganizationOnFirebase()
+        }
     }
 
     private fun initializeViews(view: View) {
@@ -194,6 +196,58 @@ class editPageFragment : Fragment() {
         val size = organizationSize.selectedItem.toString()
         val tagline = organizationTagline.text.toString()
         val description = organizationDescription.text.toString()
+        if (name.isEmpty()) {
+            organizationNameEditText.error = "Organization name is required"
+            organizationNameEditText.requestFocus()
+            return
+        }
+        if (email.isEmpty()) {
+            organizationEmail.error = "Email is required"
+            organizationEmail.requestFocus()
+            return
+        }
+
+        // Use Android's built-in email pattern to validate the input
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            organizationEmail.error = "Please enter a valid email address"
+            organizationEmail.requestFocus()
+            return
+        }
+
+        if (location.isEmpty()) {
+            organizationLocation.error = "Location is required"
+            organizationLocation.requestFocus()
+            return
+        }
+        if (email.isEmpty()) {
+            organizationEmail.error = "Email is required"
+            organizationEmail.requestFocus()
+            return
+        }
+        if (phone.isEmpty() || (phone.length != 11 && phone.length != 9) ) {
+            organizationPhone.error = "Phone number is required"
+            organizationPhone.requestFocus()
+            return
+        }
+
+        if (type.isNullOrEmpty()) {
+            return
+        }
+        if (size.isNullOrEmpty()) {
+            return
+        }
+
+        if (website.isEmpty()) {
+            organizationWebsite.error = "Website URL is required"
+            organizationWebsite.requestFocus()
+            return
+        }
+        if (!android.util.Patterns.WEB_URL.matcher(website).matches()) {
+            organizationWebsite.error = "Please enter a valid website URL"
+            organizationWebsite.requestFocus()
+            return
+        }
+
         newOrgName=name
         // Query to find the organization node with matching organizationName
         val query = databaseRef.orderByChild("organizationName").equalTo(organizationName)
@@ -244,6 +298,10 @@ class editPageFragment : Fragment() {
                 println("Database query failed: ${error.message}")
             }
         })
+
+        val intent=Intent(requireContext(),OrganizationHomePageActivity::class.java)
+        intent.putExtra("organization_name",newOrgName)
+        startActivity(intent)
     }
 
     private fun updateOrganizationData(imageUrl:String) {
@@ -257,6 +315,58 @@ class editPageFragment : Fragment() {
         val size = organizationSize.selectedItem.toString()
         val tagline = organizationTagline.text.toString()
         val description = organizationDescription.text.toString()
+        if (name.isEmpty()) {
+            organizationNameEditText.error = "Organization name is required"
+            organizationNameEditText.requestFocus()
+            return
+        }
+        if (email.isEmpty()) {
+            organizationEmail.error = "Email is required"
+            organizationEmail.requestFocus()
+            return
+        }
+
+        // Use Android's built-in email pattern to validate the input
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            organizationEmail.error = "Please enter a valid email address"
+            organizationEmail.requestFocus()
+            return
+        }
+
+        if (location.isEmpty()) {
+            organizationLocation.error = "Location is required"
+            organizationLocation.requestFocus()
+            return
+        }
+        if (email.isEmpty()) {
+            organizationEmail.error = "Email is required"
+            organizationEmail.requestFocus()
+            return
+        }
+        if (phone.isEmpty() || (phone.length != 11 && phone.length != 9) ) {
+            organizationPhone.error = "Phone number is required"
+            organizationPhone.requestFocus()
+            return
+        }
+
+        if (type.isNullOrEmpty()) {
+            return
+        }
+        if (size.isNullOrEmpty()) {
+            return
+        }
+
+        if (website.isEmpty()) {
+            organizationWebsite.error = "Website URL is required"
+            organizationWebsite.requestFocus()
+            return
+        }
+        if (!android.util.Patterns.WEB_URL.matcher(website).matches()) {
+            organizationWebsite.error = "Please enter a valid website URL"
+            organizationWebsite.requestFocus()
+            return
+        }
+
         val updatedData = JSONObject()
         updatedData.put("originalOrganizationName",organizationName)
         updatedData.put("organizationName", name)

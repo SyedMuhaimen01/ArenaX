@@ -67,6 +67,8 @@ class schedulingEvent : AppCompatActivity() {
 
         galleryButton.setOnClickListener { openGallery() }
         scheduleButton.setOnClickListener {
+            scheduleButton.isEnabled = false
+
             val event = getEventData()
             if (event != null) {
                 if (mediaUri != null) {
@@ -74,6 +76,9 @@ class schedulingEvent : AppCompatActivity() {
                 } else {
                     sendEventToBackend(event, null)
                 }
+            } else {
+                // Re-enable the button if `getEventData()` fails
+                scheduleButton.isEnabled = true
             }
         }
 
@@ -165,6 +170,81 @@ class schedulingEvent : AppCompatActivity() {
     }
 
     private fun getEventData(): Event? {
+        if (eventName.text.toString().trim().isEmpty()) {
+            eventName.error = "Event name is required"
+            eventName.requestFocus()
+            return null
+        }
+        if (gameName.text.toString().trim().isEmpty()) {
+            gameName.error = "Game name is required"
+            gameName.requestFocus()
+            return null
+        }
+        if (location.text.toString().trim().isEmpty()) {
+            location.error = "Location is required"
+            location.requestFocus()
+            return null
+        }
+        if (eventDescription.text.toString().trim().isEmpty()) {
+            eventDescription.error = "Event description is required"
+            eventDescription.requestFocus()
+            return null
+        }
+        if (startDate.text.toString().trim().isEmpty()) {
+            startDate.error = "Start date is required"
+            startDate.requestFocus()
+            return null
+        }
+
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) // Adjust the format as needed
+        dateFormat.isLenient = false // Ensure strict parsing
+
+        try {
+            val enteredDate = dateFormat.parse(startDate.text.toString().trim())
+            val currentDate = Calendar.getInstance().time // Get today's date
+
+            if (enteredDate == null || enteredDate.before(currentDate)) {
+                startDate.error = "Enter a valid start date (cannot be in the past)"
+                startDate.requestFocus()
+                return null
+            }
+        } catch (e: Exception) {
+            // Handle invalid date format
+            startDate.error = "Invalid date format"
+            startDate.requestFocus()
+            return null
+        }
+
+        if (endDate.text.toString().trim().isEmpty()) {
+            endDate.error = "End date is required"
+            endDate.requestFocus()
+            return null
+        }
+        if (startTime.text.toString().trim().isEmpty()) {
+            startTime.error = "Start time is required"
+            startTime.requestFocus()
+            return null
+        }
+        if (endTime.text.toString().trim().isEmpty()) {
+            endTime.error = "End time is required"
+            endTime.requestFocus()
+            return null
+        }
+
+        if (eventLink.text.isEmpty()) {
+            eventLink.error = "Website URL is required"
+            eventLink.requestFocus()
+            return null
+        }
+        if (!android.util.Patterns.WEB_URL.matcher(eventLink.text).matches()) {
+            eventLink.error = "Please enter a valid website URL"
+            eventLink.requestFocus()
+            return null
+        }
+        if (mediaUri == null) {
+            Toast.makeText(this, "Please select an event banner", Toast.LENGTH_SHORT).show()
+            return null
+        }
         return Event(
             eventId = "",
             organizationId = organizationName,
@@ -261,14 +341,14 @@ class schedulingEvent : AppCompatActivity() {
             { response ->
                 Log.d("sendEventToBackend", "Event successfully sent: $response")
                 isSendingEvent = false  // Reset flag after success
+                scheduleButton.isEnabled = true
             },
             { error ->
-                Log.e("sendEventToBackend", "Error sending event: ${error.message}")
-                Toast.makeText(this, "Error sending event: ${error.message}", Toast.LENGTH_SHORT).show()
                 isSendingEvent = false  // Reset flag on failure
+                scheduleButton.isEnabled = true
             }
         ).apply {
-            tag = REQUEST_TAG  // Assign a tag to identify/cancel the request
+            tag = REQUEST_TAG
         }
 
         requestQueue.add(jsonObjectRequest)  // Add request to queue

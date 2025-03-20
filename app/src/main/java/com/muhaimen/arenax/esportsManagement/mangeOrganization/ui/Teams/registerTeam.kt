@@ -178,71 +178,121 @@ class registerTeam : AppCompatActivity() {
     }
 
     // Modify getTeamData to store gamerTag as teamCaptain
-    private fun getTeamData(logoUrl: String): Team {
-        val enteredGamerTag = teamCaptainEditText.text.toString()
+    private fun getTeamData(logoUrl: String): Team? {
+        val enteredGamerTag = teamCaptainEditText.text.toString().trim()
+        val teamName = teamNameEditText.text.toString().trim()
+        val gameName = gameNameEditText.text.toString().trim()
+        val teamLocation = teamLocationEditText.text.toString().trim()
 
-        // Validate before creating the Team object
+        // Validate gamer tag
         if (!userMap.contains(enteredGamerTag)) {
             teamCaptainEditText.error = "Invalid gamer tag! Please select from suggestions."
-            return Team() // Return an empty team to avoid incorrect submission
+            return null
         }
 
+        // Validate team name
+        if (teamName.isEmpty()) {
+            teamNameEditText.error = "Team name is required"
+            return null
+        }
+
+        // Validate game name
+        if (gameName.isEmpty()) {
+            gameNameEditText.error = "Game name is required"
+            return null
+        }
+
+        // Validate team location
+        if (teamLocation.isEmpty()) {
+            teamLocationEditText.error = "Team location is required"
+            return null
+        }
+
+        // Validate email
+        val teamEmail = teamEmailEditText.text.toString().trim()
+        if (teamEmail.isEmpty()) {
+            teamEmailEditText.error = "Email is required"
+            return null
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(teamEmail).matches()) {
+            teamEmailEditText.error = "Please enter a valid email address"
+            return null
+        }
+
+        // Validate team logo
+        if (logoUrl.isEmpty()) {
+            Toast.makeText(this, "Team logo is required", Toast.LENGTH_SHORT).show()
+            return null
+        }
+
+        // If all validations pass, create and return the Team object
         return Team(
-            teamName = teamNameEditText.text.toString(),
-            gameName = gameNameEditText.text.toString(),
-            teamDetails = teamDetailsEditText.text.toString(),
-            teamLocation = teamLocationEditText.text.toString(),
-            teamEmail = teamEmailEditText.text.toString(),
+            teamName = teamName,
+            gameName = gameName,
+            teamDetails = teamDetailsEditText.text.toString().trim(),
+            teamLocation = teamLocation,
+            teamEmail = teamEmail,
             teamCaptain = enteredGamerTag, // Store gamerTag instead of userId
-            teamTagLine = teamTagLineEditText.text.toString(),
-            teamAchievements = teamAchievementsEditText.text.toString(),
+            teamTagLine = teamTagLineEditText.text.toString().trim(),
+            teamAchievements = teamAchievementsEditText.text.toString().trim(),
             teamLogo = logoUrl
         )
     }
 
     private fun sendTeamToBackend(logoUrl: String) {
-        val team = getTeamData(logoUrl)
-
-        val requestBody = JSONObject().apply {
-            put("userId", userId)  // Ensure this is not null or empty
-            put("organizationName", organizationName ?: "")  // Ensure this is not null or empty
-            put("teamName", team.teamName )  // Ensure this is not null or empty
-            put("gameName", team.gameName )  // Ensure this is not null or empty
-            put("teamDetails", team.teamDetails )
-            put("teamLocation", team.teamLocation )
-            put("teamEmail", team.teamEmail )
-            put("teamCaptain", team.teamCaptain )  // Ensure this is not null or empty
-            put("teamTagLine", team.teamTagLine )
-            put("teamAchievements", team.teamAchievements )
-            put("teamLogo", team.teamLogo )  // Ensure this is not null or empty
+        // Get validated team data
+        val team = getTeamData(logoUrl) ?: run {
+            Toast.makeText(this, "Please fix the errors in the form", Toast.LENGTH_SHORT).show()
+            return
         }
 
+        // Create JSON request body
+        val requestBody = JSONObject().apply {
+            put("userId", userId) // Ensure this is not null or empty
+            put("organizationName", organizationName ?: "") // Ensure this is not null or empty
+            put("teamName", team.teamName)
+            put("gameName", team.gameName)
+            put("teamDetails", team.teamDetails)
+            put("teamLocation", team.teamLocation)
+            put("teamEmail", team.teamEmail)
+            put("teamCaptain", team.teamCaptain)
+            put("teamTagLine", team.teamTagLine)
+            put("teamAchievements", team.teamAchievements)
+            put("teamLogo", team.teamLogo)
+        }
+
+        // Define the URL
         val url = "${Constants.SERVER_URL}manageTeams/addTeam"
 
+        // Create and send the POST request
         val jsonObjectRequest = object : JsonObjectRequest(
             Request.Method.POST, url, requestBody,
             { response ->
                 // Success response
                 Toast.makeText(this, "Team Registered Successfully!", Toast.LENGTH_LONG).show()
-                val intent=Intent(this, OrganizationHomePageActivity::class.java)
+                val intent = Intent(this, OrganizationHomePageActivity::class.java)
                 intent.putExtra("organization_name", organizationName)
                 startActivity(intent)
             },
             { error ->
                 // Error response
-                val errorMsg = String(error.networkResponse.data)
-                Log.e("TeamRegistrationError", "Error: ${error.message}, Response: $errorMsg")
-                Toast.makeText(this, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                val errorMsg = error.networkResponse?.data?.let { String(it) } ?: error.message
+                Log.e("TeamRegistrationError", "Error: $errorMsg")
             }
         ) {
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = mutableMapOf<String, String>()
-                headers["Content-Type"] = "application/json"  // Set the content type to JSON
+                headers["Content-Type"] = "application/json" // Set the content type to JSON
                 return headers
             }
         }
 
+        // Add the request to the queue
         requestQueue.add(jsonObjectRequest)
+
+        val intent = Intent(this, OrganizationHomePageActivity::class.java)
+        intent.putExtra("organization_name", organizationName)
+        startActivity(intent)
     }
 
 

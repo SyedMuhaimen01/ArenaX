@@ -44,7 +44,6 @@ class createOrganization : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var user: String
     var imageUrl: String? = null
-    var imageUrl2: String = ""
     var imageUri: Uri? = null
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,9 +106,13 @@ class createOrganization : AppCompatActivity() {
             finish()
         }
         submitButton.setOnClickListener {
+            submitButton.isEnabled = false
             val organizationData = getOrganizationDataFromInputs()
             if (organizationData != null) {
                 saveOrganizationToFirebase(organizationData)
+            }
+            else {
+                submitButton.isEnabled = true
             }
         }
     }
@@ -145,10 +148,21 @@ class createOrganization : AppCompatActivity() {
         val type = organizationType.selectedItem?.toString()?.trim()
         val size = organizationSize.selectedItem?.toString()?.trim()
         val description = organizationDescription.text.toString().trim()
+        val website=organizationWebsite.text.toString().trim()
         // Check for empty fields
         if (name.isEmpty()) {
             organizationNameEditText.error = "Organization name is required"
             organizationNameEditText.requestFocus()
+            return null
+        }
+        if (email.isEmpty()) {
+            organizationEmail.error = "Email is required"
+            return null
+        }
+
+        // Use Android's built-in email pattern to validate the input
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            organizationEmail.error = "Please enter a valid email address"
             return null
         }
         if(imageUri == null) {
@@ -158,11 +172,6 @@ class createOrganization : AppCompatActivity() {
         if (location.isEmpty()) {
             organizationLocation.error = "Location is required"
             organizationLocation.requestFocus()
-            return null
-        }
-        if (email.isEmpty()) {
-            organizationEmail.error = "Email is required"
-            organizationEmail.requestFocus()
             return null
         }
         if (phone.isEmpty() || (phone.length != 11 && phone.length != 9) ) {
@@ -180,12 +189,23 @@ class createOrganization : AppCompatActivity() {
             return null
         }
 
+        if (website.isEmpty()) {
+            organizationWebsite.error = "Website URL is required"
+            organizationWebsite.requestFocus()
+            return null
+        }
+        if (!android.util.Patterns.WEB_URL.matcher(website).matches()) {
+            organizationWebsite.error = "Please enter a valid website URL"
+            organizationWebsite.requestFocus()
+            return null
+        }
+
         return OrganizationData(
             organizationName = name,
             organizationLocation = location,
             organizationEmail = email,
             organizationPhone = phone,
-            organizationWebsite = organizationWebsite.text.toString().trim(),
+            organizationWebsite = website,
             organizationIndustry = industry,
             organizationType = type,
             organizationSize = size,
@@ -295,14 +315,16 @@ class createOrganization : AppCompatActivity() {
                 val message = response.optString("message", "Something went wrong")
 
                 if (success) {
+                    submitButton.isEnabled = true
                     Toast.makeText(this, "Organization Created Successfully!", Toast.LENGTH_SHORT).show()
                 } else {
+
                     val errorMessage = response.optString("error", "Unknown error occurred.")
                     if (errorMessage.contains("Organization name already exists", ignoreCase = true)) {
                         Toast.makeText(this, "Error: Organization name already exists. Please choose a unique name.", Toast.LENGTH_LONG).show()
                     } else {
-                        Toast.makeText(this, "Error: $errorMessage", Toast.LENGTH_LONG).show()
                     }
+                    submitButton.isEnabled = true
                 }
             },
             { error ->

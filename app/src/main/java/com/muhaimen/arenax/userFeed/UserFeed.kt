@@ -22,6 +22,7 @@ import com.muhaimen.arenax.Threads.ViewAllChats
 import com.muhaimen.arenax.dataClasses.Comment
 import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.dataClasses.Story
+import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
 import com.muhaimen.arenax.notifications.Notifications
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userProfile.UserProfile
@@ -54,6 +55,7 @@ class UserFeed : AppCompatActivity() {
     private lateinit var addPost: ImageView
     private lateinit var profileButton: ImageView
     private lateinit var exploreButton: ImageView
+    private lateinit var talentExchangeButton:ImageView
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private val postsList = mutableListOf<Post>()
@@ -391,6 +393,13 @@ class UserFeed : AppCompatActivity() {
         exploreButton = findViewById(R.id.exploreButton)
         exploreButton.setOnClickListener {
             val intent = Intent(this, ExplorePage::class.java)
+            startActivity(intent)
+        }
+
+        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton.setOnClickListener {
+            val intent = Intent(this, switchToEsports::class.java)
+            intent.putExtra("loadedFromActivity","casual")
             startActivity(intent)
         }
     }

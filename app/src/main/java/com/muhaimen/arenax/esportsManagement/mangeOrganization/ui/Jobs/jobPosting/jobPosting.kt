@@ -64,10 +64,18 @@ class jobPosting : AppCompatActivity() {
 
         postJobButton.setOnClickListener {
             // Collect user input and store in Job data class
-            collectJobDetails()
+            postJobButton.isEnabled = false
+            if (validateFields()) {
+                // Proceed with posting the job
+                collectJobDetails()
+                postJobToBackend()
 
-            // Send data to backend
-            postJobToBackend()
+            } else {
+                postJobButton.isEnabled = true
+                // Show a toast or log a message if validation fails
+                Toast.makeText(this, "Please fix the errors in the form", Toast.LENGTH_SHORT).show()
+            }
+
         }
 
         backButton.setOnClickListener {
@@ -76,6 +84,29 @@ class jobPosting : AppCompatActivity() {
         }
     }
 
+    private fun validateFields(): Boolean {
+        var isValid = true
+
+        // Validate Job Title
+        if (jobTitleEditText.text.toString().trim().isEmpty()) {
+            jobTitleEditText.error = "Job title is required"
+            isValid = false
+        }
+
+        // Validate Job Location
+        if (jobLocation.text.toString().trim().isEmpty()) {
+            jobLocation.error = "Job location is required"
+            isValid = false
+        }
+
+        // Validate Job Description
+        if (jobDescription.text.toString().trim().isEmpty()) {
+            jobDescription.error = "Job description is required"
+            isValid = false
+        }
+
+        return isValid
+    }
     private fun initializeViews() {
         jobTitleEditText = findViewById(R.id.jobTitleEditText)
         jobType = findViewById(R.id.jobTypeSpinner)
@@ -151,6 +182,7 @@ class jobPosting : AppCompatActivity() {
             "${Constants.SERVER_URL}manageJobs/addJob",
             requestBody,
             { response ->
+                postJobButton.isEnabled = true
                 // Handle successful response
                 Toast.makeText(this, "Job Posted Successfully!", Toast.LENGTH_SHORT).show()
 
@@ -160,6 +192,7 @@ class jobPosting : AppCompatActivity() {
                 startActivity(intent)
             },
             { error ->
+                postJobButton.isEnabled = true
                 // Handle error response
                 Toast.makeText(this, "Error: ${error.message}", Toast.LENGTH_LONG).show()
             }

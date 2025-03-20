@@ -26,7 +26,7 @@ class manageFollowing : AppCompatActivity() {
         window.statusBarColor = resources.getColor(R.color.primaryColor, theme)
         window.navigationBarColor = resources.getColor(R.color.primaryColor, theme)
 
-        val orgName = intent.getStringExtra("organizationName") ?: ""
+        val orgName = intent.getStringExtra("organization_name") ?: ""
 
         val bundle = Bundle()
         bundle.putString("organization_name", orgName)

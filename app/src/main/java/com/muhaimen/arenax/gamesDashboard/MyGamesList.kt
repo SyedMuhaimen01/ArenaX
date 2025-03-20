@@ -39,6 +39,7 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.firebase.auth.FirebaseAuth
 import com.muhaimen.arenax.dataClasses.GameAnalytics
+import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.gamesDashboard.ViewGameAnalytics.DateValueFormatter
 import com.muhaimen.arenax.uploadContent.UploadContent
@@ -64,6 +65,7 @@ class MyGamesList : AppCompatActivity() {
     private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var postButton:ImageView
     private lateinit var profileButton:ImageView
+    private lateinit var talentExchangeButton:ImageView
     private lateinit var addGame: ImageView
     private lateinit var exploreButton: ImageView
     private lateinit var homeButton: LinearLayout
@@ -118,6 +120,13 @@ class MyGamesList : AppCompatActivity() {
         profileButton = findViewById(R.id.profileButton)
         profileButton.setOnClickListener {
             val intent = Intent(this, UserProfile::class.java)
+            startActivity(intent)
+        }
+
+        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton.setOnClickListener {
+            val intent = Intent(this, switchToEsports::class.java)
+            intent.putExtra("loadedFromActivity","casual")
             startActivity(intent)
         }
 
