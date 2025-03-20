@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -92,6 +93,7 @@ class OpenJobs : Fragment() {
             swipeRefreshLayout.isRefreshing = false
         }
 
+
         return view
     }
 
@@ -143,12 +145,12 @@ class OpenJobs : Fragment() {
             Request.Method.POST, url, requestBody,
             { response ->
                 try {
-                    Log.d("Volley", "Search Response: $response")
+                    Log.d("Volley", "Response: $response")
                     val jobsArray = response.getJSONArray("jobs")
                     clearAndPopulateAdapter(jobsArray)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(context, "Error parsing search results", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
@@ -233,5 +235,7 @@ class OpenJobs : Fragment() {
             e.printStackTrace()
             Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
         }
+
     }
+
 }

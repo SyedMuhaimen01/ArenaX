@@ -1,6 +1,8 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,9 +20,10 @@ class ClosedUserJobsAdapter(
 ) : RecyclerView.Adapter<ClosedUserJobsAdapter.ViewHolder>() {
 
     // Method to update the dataset with new jobs
+    @SuppressLint("NotifyDataSetChanged")
     fun updateData(newJobWithUserDetailsList: List<JobWithUserDetails>) {
-        jobWithUserDetailsList.clear()
-        jobWithUserDetailsList.addAll(newJobWithUserDetailsList)
+        Log.d("ADDD", jobWithUserDetailsList.toString())
+        // Notify the RecyclerView that the dataset has changed
         notifyDataSetChanged()
     }
 
@@ -71,13 +74,14 @@ class ClosedUserJobsAdapter(
                     Intent(itemView.context, ViewClosedRecruitmentAdDetails::class.java).apply {
                         // Pass Job Details
                         putExtra("JobId", job.jobId)
+                        Log.d("JobId", job.jobId)
                         putExtra("JobTitle", job.jobTitle)
                         putExtra("JobLocation", job.jobLocation)
                         putExtra("JobType", job.jobType)
                         putExtra("WorkplaceType", job.workplaceType)
                         putExtra("JobDescription", job.jobDescription)
                         putStringArrayListExtra("JobTags", ArrayList(job.tags))
-                        if(user!=null) {
+                        if (user != null) {
                             // Pass User Details
                             putExtra("UserId", user.userId)
                             putExtra("FullName", user.fullname)

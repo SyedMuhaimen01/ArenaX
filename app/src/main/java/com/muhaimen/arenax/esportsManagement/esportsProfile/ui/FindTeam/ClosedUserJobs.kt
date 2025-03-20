@@ -30,8 +30,8 @@ import org.json.JSONObject
 
 class ClosedUserJobs : Fragment() {
 
-    private lateinit var closedJobsRecyclerView: RecyclerView
-    private lateinit var closedJobsAdapter: ClosedUserJobsAdapter
+    private lateinit var openJobsRecyclerView: RecyclerView
+    private lateinit var openJobsAdapter: ClosedUserJobsAdapter
     private lateinit var searchBar: EditText
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var searchButton: ImageButton
@@ -46,32 +46,31 @@ class ClosedUserJobs : Fragment() {
         val view = inflater.inflate(R.layout.fragment_open_jobs, container, false)
 
         // Initialize UI elements
-        closedJobsRecyclerView = view.findViewById(R.id.openJobs_recyclerview)
+        openJobsRecyclerView = view.findViewById(R.id.openJobs_recyclerview)
         searchBar = view.findViewById(R.id.searchbar)
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
         searchButton = view.findViewById(R.id.searchButton)
 
         // Set up RecyclerViews
-        closedJobsAdapter = ClosedUserJobsAdapter(jobWithUserDetailsList)
-        closedJobsRecyclerView.adapter = ClosedUserJobsAdapter(jobWithUserDetailsList)
-        closedJobsRecyclerView.layoutManager = LinearLayoutManager(context)
+        openJobsRecyclerView.layoutManager = LinearLayoutManager(context)
+        openJobsAdapter = ClosedUserJobsAdapter(jobWithUserDetailsList)
+        openJobsRecyclerView.adapter = openJobsAdapter
 
-        // Fetch initial data
-        firebaseUid= FirebaseManager.getCurrentUserId().toString()
-        fetchClosedJobs()
+        firebaseUid=FirebaseManager.getCurrentUserId().toString()
+        fetchOpenJobs()
 
         // Set up search functionality
         searchBar.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus && searchBar.text.toString().trim().isEmpty()) {
-                fetchClosedJobs() // Repopulate with original data
-                closedJobsRecyclerView.visibility = View.VISIBLE
+                fetchOpenJobs() // Repopulate with original data
+                openJobsRecyclerView.visibility = View.VISIBLE
             }
         }
 
         searchBar.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 if (s.isNullOrEmpty()) {
-                    fetchClosedJobs()
+                    fetchOpenJobs()
                 }
             }
 
@@ -82,22 +81,22 @@ class ClosedUserJobs : Fragment() {
         searchButton.setOnClickListener {
             val searchText = searchBar.text.toString().trim()
             if (searchText.isNotEmpty()) {
-                searchClosedJobs(searchText)
+                searchOpenJobs(searchText)
             } else {
-                fetchClosedJobs()
+                fetchOpenJobs()
             }
         }
 
         // Set up pull-to-refresh functionality
         swipeRefreshLayout.setOnRefreshListener {
-            fetchClosedJobs()
+            fetchOpenJobs()
             swipeRefreshLayout.isRefreshing = false
         }
 
         return view
     }
 
-    private fun fetchClosedJobs() {
+    private fun fetchOpenJobs() {
         val queue = Volley.newRequestQueue(context)
         val url = "${Constants.SERVER_URL}manageUserJobs/closedRecruitmentAds/$firebaseUid"
 
@@ -105,24 +104,24 @@ class ClosedUserJobs : Fragment() {
             Request.Method.GET, url, null,
             { response ->
                 try {
-                    Log.d("Volley", "Response: $response")
+                    Log.d("FeTCHOPENVolley", "Response: $response")
                     val jobsArray = response.getJSONArray("jobAds")
                     clearAndPopulateAdapter(jobsArray)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
                 Log.e("Volley", "Error fetching open jobs: ${error.message}")
-                Toast.makeText(context, "Error fetching open jobs", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context, "Error fetching open jobs", Toast.LENGTH_SHORT).show()
             }
         )
 
         queue.add(request)
     }
 
-    private fun searchClosedJobs(searchText: String) {
+    private fun searchOpenJobs(searchText: String) {
         val queue = Volley.newRequestQueue(context)
         val url = "${Constants.SERVER_URL}manageUserJobs/searchUserClosedJobs"
 
@@ -135,17 +134,17 @@ class ClosedUserJobs : Fragment() {
             Request.Method.POST, url, requestBody,
             { response ->
                 try {
-                    Log.d("Volley", "Search Response: $response")
-                    val jobsArray = response.getJSONArray("jobs")
+                    Log.d("FeTCHOPENVolley", "Response: $response")
+                    val jobsArray = response.getJSONArray("jobAds")
                     clearAndPopulateAdapter(jobsArray)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(context, "Error parsing search results", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
                 Log.e("Volley", "Error searching open jobs: ${error.message}")
-                Toast.makeText(context, "Error searching open jobs", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context, "Error searching open jobs", Toast.LENGTH_SHORT).show()
             }
         ) {
             override fun getHeaders(): MutableMap<String, String> {
@@ -163,9 +162,9 @@ class ClosedUserJobs : Fragment() {
 
         // Parse the response and populate the list
         parseAndPopulateJobs(response)
-
+        //Log.d("JobWithUserDetails", jobWithUserDetailsList.toString())
         // Notify the adapter of the data change
-        closedJobsAdapter.updateData(jobWithUserDetailsList)
+        openJobsAdapter.updateData(jobWithUserDetailsList)
     }
 
     private fun parseAndPopulateJobs(response: JSONArray) {
@@ -174,8 +173,8 @@ class ClosedUserJobs : Fragment() {
                 val jobObject = response.getJSONObject(i)
 
                 // Parse Job data
-                val jobId = jobObject.optString("jobTitle", "")
-                val organizationId = jobObject.optString("userId", "") // Assuming userId maps to organizationId
+                val jobId = jobObject.optString("jobId", "")
+                val organizationId = jobObject.optString("userId", "")
                 val jobTitle = jobObject.optString("jobTitle", "")
                 val jobType = jobObject.optString("jobType", "")
                 val jobLocation = jobObject.optString("jobLocation", "")

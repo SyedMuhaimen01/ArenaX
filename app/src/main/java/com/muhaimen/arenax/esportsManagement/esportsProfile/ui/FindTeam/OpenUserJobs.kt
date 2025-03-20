@@ -104,17 +104,17 @@ class OpenUserJobs : Fragment() {
             Request.Method.GET, url, null,
             { response ->
                 try {
-                    Log.d("Volley", "Response: $response")
+                    Log.d("FeTCHOPENVolley", "Response: $response")
                     val jobsArray = response.getJSONArray("jobAds")
                     clearAndPopulateAdapter(jobsArray)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
                 Log.e("Volley", "Error fetching open jobs: ${error.message}")
-                Toast.makeText(context, "Error fetching open jobs", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context, "Error fetching open jobs", Toast.LENGTH_SHORT).show()
             }
         )
 
@@ -134,17 +134,17 @@ class OpenUserJobs : Fragment() {
             Request.Method.POST, url, requestBody,
             { response ->
                 try {
-                    Log.d("Volley", "Search Response: $response")
-                    val jobsArray = response.getJSONArray("jobs")
+                    Log.d("FeTCHOPENVolley", "Response: $response")
+                    val jobsArray = response.getJSONArray("jobAds")
                     clearAndPopulateAdapter(jobsArray)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(context, "Error parsing search results", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
                 Log.e("Volley", "Error searching open jobs: ${error.message}")
-                Toast.makeText(context, "Error searching open jobs", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context, "Error searching open jobs", Toast.LENGTH_SHORT).show()
             }
         ) {
             override fun getHeaders(): MutableMap<String, String> {
@@ -162,7 +162,7 @@ class OpenUserJobs : Fragment() {
 
         // Parse the response and populate the list
         parseAndPopulateJobs(response)
-
+        //Log.d("JobWithUserDetails", jobWithUserDetailsList.toString())
         // Notify the adapter of the data change
         openJobsAdapter.updateData(jobWithUserDetailsList)
     }
@@ -173,8 +173,8 @@ class OpenUserJobs : Fragment() {
                 val jobObject = response.getJSONObject(i)
 
                 // Parse Job data
-                val jobId = jobObject.optString("jobTitle", "")
-                val organizationId = jobObject.optString("userId", "") // Assuming userId maps to organizationId
+                val jobId = jobObject.optString("jobId", "")
+                val organizationId = jobObject.optString("userId", "")
                 val jobTitle = jobObject.optString("jobTitle", "")
                 val jobType = jobObject.optString("jobType", "")
                 val jobLocation = jobObject.optString("jobLocation", "")

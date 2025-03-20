@@ -68,7 +68,7 @@ class ViewClosedRecruitmentAdDetails : AppCompatActivity() {
         workplaceTypeTextView.text = intent.getStringExtra("WorkplaceType") ?: "Not specified"
         jobTypeTextView.text = intent.getStringExtra("JobType") ?: "Not specified"
 
-        val logoUrl = intent.getStringExtra("OrganizationLogoUrl")
+        val logoUrl = intent.getStringExtra("ProfilePictureUrl")
         if (!logoUrl.isNullOrEmpty()) {
             Glide.with(this)
                 .load(logoUrl)

@@ -2,6 +2,7 @@ package com.muhaimen.arenax.esportsManagement.esportsProfile.ui.FindTeam
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -59,7 +60,7 @@ class ViewOpenRecruitmentAdDetails : AppCompatActivity() {
         workplaceTypeTextView.text = intent.getStringExtra("WorkplaceType") ?: "Not specified"
         jobTypeTextView.text = intent.getStringExtra("JobType") ?: "Not specified"
 
-        val logoUrl = intent.getStringExtra("OrganizationLogoUrl")
+        val logoUrl = intent.getStringExtra("ProfilePictureUrl")
         if (!logoUrl.isNullOrEmpty()) {
             Glide.with(this)
                 .load(logoUrl)
@@ -104,8 +105,9 @@ class ViewOpenRecruitmentAdDetails : AppCompatActivity() {
         val url = "${Constants.SERVER_URL}manageUserJobs/closeRecruitmentAd"
 
         // Step 2: Create JSON payload for the request
+        Log.d("sendddJobId", jobId)
         val jsonBody = JSONObject().apply {
-            put("job_id", jobId)
+            put("jobId", jobId)
         }
 
         // Step 3: Create POST request

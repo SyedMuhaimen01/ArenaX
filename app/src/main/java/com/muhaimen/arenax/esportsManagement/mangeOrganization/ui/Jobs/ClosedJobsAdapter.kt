@@ -17,7 +17,6 @@ class ClosedJobsAdapter(
 
     // Method to update the dataset with new jobs
     fun updateData(newJobWithOrgList: List<JobWithOrganization>) {
-        jobWithOrgList.addAll(newJobWithOrgList)
         notifyDataSetChanged()
     }
 
