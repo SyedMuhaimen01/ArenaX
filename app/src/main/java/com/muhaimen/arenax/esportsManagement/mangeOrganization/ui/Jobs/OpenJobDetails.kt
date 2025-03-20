@@ -3,6 +3,7 @@ package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -34,6 +35,7 @@ class OpenJobDetails : AppCompatActivity() {
     private lateinit var organizationLogo: ImageView
     private lateinit var closeButton: Button
     private lateinit var organizationName:String
+    private lateinit var jobId:String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +55,8 @@ class OpenJobDetails : AppCompatActivity() {
         initializeViews()
 
         // Retrieve data from intent extras
-        val jobId = intent.getStringExtra("JobId") ?: "N/A"
+        jobId = intent.getStringExtra("JobId") ?: "N/A"
+        Log.d("JobID",jobId)
         val jobTitle = intent.getStringExtra("JobTitle") ?: "N/A"
         val jobLocation = intent.getStringExtra("JobLocation") ?: "Location not specified"
         val jobType = intent.getStringExtra("JobType") ?: "Not specified"
@@ -119,7 +122,7 @@ class OpenJobDetails : AppCompatActivity() {
 
         // Step 2: Create JSON payload for the request
         val jsonBody = JSONObject().apply {
-            put("job_id", jobId)
+            put("jobId", jobId)
         }
 
         // Step 3: Create POST request

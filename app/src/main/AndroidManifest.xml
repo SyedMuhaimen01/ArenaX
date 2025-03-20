@@ -44,7 +44,7 @@
             android:name=".esportsManagement.esportsProfile.ui.FindTeam.ViewClosedRecruitmentAdDetails"
             android:exported="false" />
         <activity
-            android:name=".esportsManagement.esportsProfile.ui.FindTeam.VeiwOpenRecruitmentAdDetails"
+            android:name=".esportsManagement.esportsProfile.ui.FindTeam.ViewOpenRecruitmentAdDetails"
             android:exported="false" />
         <activity
             android:name=".esportsManagement.mangeOrganization.ui.Jobs.ClosedJobDetails"

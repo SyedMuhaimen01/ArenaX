@@ -1,6 +1,7 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs
 
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,8 +19,6 @@ class OpenUserJobsAdapter(
 
     // Method to update the dataset with new jobs
     fun updateData(newJobWithUserDetailsList: List<JobWithUserDetails>) {
-        jobWithUserDetailsList.clear()
-        jobWithUserDetailsList.addAll(newJobWithUserDetailsList)
         notifyDataSetChanged()
     }
 
@@ -70,6 +69,7 @@ class OpenUserJobsAdapter(
                     Intent(itemView.context, ViewOpenRecruitmentAdDetails::class.java).apply {
                         // Pass Job Details
                         putExtra("JobId", job.jobId)
+                        Log.d("JobId", job.jobId)
                         putExtra("JobTitle", job.jobTitle)
                         putExtra("JobLocation", job.jobLocation)
                         putExtra("JobType", job.jobType)

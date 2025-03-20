@@ -44,6 +44,7 @@ class createOrganization : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var user: String
     var imageUrl: String? = null
+    var imageUrl2: String = ""
     var imageUri: Uri? = null
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -317,23 +318,25 @@ class createOrganization : AppCompatActivity() {
                 if (success) {
                     submitButton.isEnabled = true
                     Toast.makeText(this, "Organization Created Successfully!", Toast.LENGTH_SHORT).show()
+                    val intent=Intent(this, OrganizationHomePageActivity::class.java)
+                    intent.putExtra("organization_name",organization.organizationName)
+                    startActivity(intent)
                 } else {
 
                     val errorMessage = response.optString("error", "Unknown error occurred.")
                     if (errorMessage.contains("Organization name already exists", ignoreCase = true)) {
                         Toast.makeText(this, "Error: Organization name already exists. Please choose a unique name.", Toast.LENGTH_LONG).show()
                     } else {
+                        //Toast.makeText(this, "Error: $errorMessage", Toast.LENGTH_LONG).show()
                     }
                     submitButton.isEnabled = true
                 }
             },
             { error ->
-                Toast.makeText(this, "🌐 Network Error: ${error.message}", Toast.LENGTH_LONG).show()
+                //Toast.makeText(this, "🌐 Network Error: ${error.message}", Toast.LENGTH_LONG).show()
             }
         )
 
         requestQueue.add(request)
     }
-
-
 }

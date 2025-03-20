@@ -280,6 +280,7 @@ class ViewPost : AppCompatActivity() {
     }
 
     private fun loadMedia(mediaUrl: String) {
+        Log.d("ViewPost", "Loading media from URL: $mediaUrl")
         CoroutineScope(Dispatchers.IO).launch {
             val mediaType = getMediaType(mediaUrl)
             withContext(Dispatchers.Main) {

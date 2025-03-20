@@ -146,12 +146,12 @@ class ClosedJobs : Fragment() {
             Request.Method.POST, url, requestBody,
             { response ->
                 try {
-                    Log.d("Volley", "Search Response: $response")
+                    Log.d("Volley", "Response: $response")
                     val jobsArray = response.getJSONArray("jobs")
                     clearAndPopulateAdapter(jobsArray)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(context, "Error parsing search results", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
