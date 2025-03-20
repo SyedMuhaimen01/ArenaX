@@ -58,7 +58,7 @@ class OrganizationHomePageActivity : AppCompatActivity(), NavigationView.OnNavig
 
         val profileImage = headerView.findViewById<ImageView>(R.id.imageView)
         val name = headerView.findViewById<TextView>(R.id.organizationNameTextView)
-        val email = headerView.findViewById<TextView>(R.id.textView)
+        val website = headerView.findViewById<TextView>(R.id.textView)
         organizationName = intent.getStringExtra("organization_name")
         name.text = organizationName
         val databaseRef = FirebaseDatabase.getInstance().getReference("organizationsData")
@@ -68,14 +68,19 @@ class OrganizationHomePageActivity : AppCompatActivity(), NavigationView.OnNavig
             for (data in snapshot.children) {
                 val organization = data.getValue(OrganizationData::class.java)
                 // Assuming email is a TextView and profileImage is an ImageView
-                email.text = organization?.organizationEmail
+                website.text = organization?.organizationWebsite
 
                 val logo = organization?.organizationLogo
                 if (!logo.isNullOrEmpty() && logo != "null") {
-                    Glide.with(this).load(logo).into(profileImage)
+                    Glide.with(this)
+                        .load(logo)
+                        .circleCrop()
+                        .into(profileImage)
+
                 } else {
                     Glide.with(this).load(R.drawable.battlegrounds_icon_background).into(profileImage)
                 }
+
             }
         }.addOnFailureListener { exception ->
             Log.e("FirebaseError", "Error fetching organization data", exception)

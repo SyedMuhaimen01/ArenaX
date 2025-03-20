@@ -13,6 +13,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.uploadContent.UploadContent
 import com.muhaimen.arenax.userFeed.UserFeed
@@ -24,6 +25,7 @@ class ExplorePage : AppCompatActivity() {
     private lateinit var addPost: ImageView
     private lateinit var homeButton: LinearLayout
     private lateinit var profileButton: ImageView
+    private lateinit var talentExchangeButton:ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,5 +82,13 @@ class ExplorePage : AppCompatActivity() {
             val intent = Intent(this, UserProfile::class.java)
             startActivity(intent)
         }
+
+        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton.setOnClickListener {
+            val intent = Intent(this, switchToEsports::class.java)
+            intent.putExtra("loadedFromActivity","casual")
+            startActivity(intent)
+        }
+
     }
 }

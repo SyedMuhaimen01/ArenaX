@@ -301,7 +301,7 @@ class viewRecruitmentDetails : AppCompatActivity() {
         if(loadedFromStatus == "ownProfile"){
             recruitButton.visibility = View.GONE
         }
-        val logoUrl = intent.getStringExtra("OrganizationLogoUrl")
+        val logoUrl = intent.getStringExtra("ProfilePictureUrl")
         if (!logoUrl.isNullOrEmpty()) {
             Glide.with(this)
                 .load(logoUrl)
