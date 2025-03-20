@@ -80,6 +80,59 @@ class overallLeaderboard : AppCompatActivity() {
             fetchRankings()
 
         }
+        fetchUserRank()
+    }
+
+    private fun fetchRankings() {
+        val requestQueue = Volley.newRequestQueue(this)
+        val jsonArrayRequest = JsonArrayRequest(
+            Request.Method.GET,
+            baseUrl,
+            null,
+            { response ->
+                rankingsList = parseRankings(response)
+                Log.d("Rankings", rankingsList.toString())
+                overallLeaderboardAdapter = overallLeaderboardAdapter(rankingsList)
+                overallLeaderboardRecyclerView.adapter = overallLeaderboardAdapter
+                swipeRefreshLayout.isRefreshing = false
+            },
+            { error ->
+                Log.e("Error", "Error fetching rankings: ${error.message}")
+                swipeRefreshLayout.isRefreshing = false
+                loadRankingsFromPreferences()
+            }
+        )
+
+        requestQueue.add(jsonArrayRequest)
+    }
+
+
+    private fun parseRankings(response: JSONArray): MutableList<RankingData> {
+        for (i in 0 until response.length()) {
+            val jsonObject: JSONObject = response.getJSONObject(i)
+            val name = jsonObject.getString("name")
+            val totalHrs = jsonObject.getInt("totalHours")
+            val profilePictureUrl = jsonObject.getString("profilePicture")
+            val rank = jsonObject.getInt("rank")
+            val gamerTag = jsonObject.getString("gamertag")
+
+            val rankingData = RankingData(
+                name = name,
+                totalHrs = totalHrs,
+                profilePicture = profilePictureUrl,
+                rank = if (rank == 0) "Unranked" else rank.toString(),
+                gamerTag = gamerTag
+            )
+            rankingsList.add(rankingData)
+        }
+
+        saveRankingsToPreferences(rankingsList)
+        fetchUserRank()
+        return rankingsList
+    }
+
+    private fun fetchUserRank()
+    {
         val userId = FirebaseManager.getCurrentUserId()
         if (userId != null) {
             val database = FirebaseDatabase.getInstance()
@@ -118,53 +171,6 @@ class overallLeaderboard : AppCompatActivity() {
         } else {
             Log.e("Firebase", "User is not logged in.")
         }
-    }
-
-    private fun fetchRankings() {
-        val requestQueue = Volley.newRequestQueue(this)
-        val jsonArrayRequest = JsonArrayRequest(
-            Request.Method.GET,
-            baseUrl,
-            null,
-            { response ->
-                val rankingsList = parseRankings(response)
-                overallLeaderboardAdapter = overallLeaderboardAdapter(rankingsList)
-                overallLeaderboardRecyclerView.adapter = overallLeaderboardAdapter
-                swipeRefreshLayout.isRefreshing = false
-            },
-            { error ->
-                Log.e("Error", "Error fetching rankings: ${error.message}")
-                swipeRefreshLayout.isRefreshing = false
-                loadRankingsFromPreferences()
-            }
-        )
-
-        requestQueue.add(jsonArrayRequest)
-    }
-
-
-    private fun parseRankings(response: JSONArray): List<RankingData> {
-        for (i in 0 until response.length()) {
-            val jsonObject: JSONObject = response.getJSONObject(i)
-            val name = jsonObject.getString("name")
-            val totalHrs = jsonObject.getInt("totalHours")
-            val profilePictureUrl = jsonObject.getString("profilePicture")
-            val rank = jsonObject.getInt("rank")
-            val gamerTag = jsonObject.getString("gamertag")
-
-            val rankingData = RankingData(
-                name = name,
-                totalHrs = totalHrs,
-                profilePicture = profilePictureUrl,
-                rank = if (rank == 0) "Unranked" else rank.toString(),
-                gamerTag = gamerTag
-            )
-            rankingsList.add(rankingData)
-        }
-
-        saveRankingsToPreferences(rankingsList)
-        Log.e("Rankings", rankingsList.toString())
-        return rankingsList
     }
 
     private fun saveRankingsToPreferences(rankings: List<RankingData>) {
@@ -210,6 +216,8 @@ class overallLeaderboard : AppCompatActivity() {
     }
 
     private fun getCurrentUserRanking(rankingsList: List<RankingData>, currentUserGamerTag: String): RankingData? {
+        Log.d("rankingLISST",rankingsList.toString())
+        Log.d("currentUserGamerTag",currentUserGamerTag)
         return rankingsList.find { it.gamerTag == currentUserGamerTag }
     }
 

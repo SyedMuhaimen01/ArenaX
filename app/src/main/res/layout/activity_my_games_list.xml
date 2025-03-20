@@ -188,7 +188,7 @@
 
         <!-- TalentXchange Button -->
         <ImageView
-            android:id="@+id/talentXchangeButton"
+            android:id="@+id/talentExchangeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
