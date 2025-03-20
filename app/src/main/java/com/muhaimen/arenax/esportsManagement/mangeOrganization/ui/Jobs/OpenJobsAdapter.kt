@@ -12,11 +12,12 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.JobWithOrganization
 
 class OpenJobsAdapter(
-    private var jobWithOrgList: MutableList<JobWithOrganization> // Use JobWithOrganization instead of Job
+    private var jobWithOrgList: MutableList<JobWithOrganization>
 ) : RecyclerView.Adapter<OpenJobsAdapter.ViewHolder>() {
 
     // Method to update the dataset with new jobs
     fun updateData(newJobWithOrgList: List<JobWithOrganization>) {
+        jobWithOrgList.clear()
         jobWithOrgList.addAll(newJobWithOrgList)
         notifyDataSetChanged()
     }
@@ -58,17 +59,14 @@ class OpenJobsAdapter(
                 organizationLogo.setImageResource(R.drawable.battlegrounds_icon_background)
             }
 
-            // Bind tags
             val tags = job.tags
             tag1.text = tags.getOrNull(0) ?: ""
             tag2.text = tags.getOrNull(1) ?: ""
             tag3.text = tags.getOrNull(2) ?: ""
             tag4.text = tags.getOrNull(3) ?: ""
 
-            // Set up click listener to open job details
             itemView.setOnClickListener {
-                val intent = Intent(itemView.context, viewJobDetails::class.java).apply {
-                    // Pass Job attributes
+                val intent = Intent(itemView.context, OpenJobDetails::class.java).apply {
                     putExtra("JobId", job.jobId)
                     putExtra("JobTitle", job.jobTitle)
                     putExtra("JobLocation", job.jobLocation)

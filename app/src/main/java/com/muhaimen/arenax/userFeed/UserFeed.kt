@@ -135,9 +135,9 @@ class UserFeed : AppCompatActivity() {
                 val followingUids = snapshot.children.mapNotNull { it.key }
                 val url = "${Constants.SERVER_URL}explorePosts/user/$userId/fetchFeedPosts"
                 val client = OkHttpClient.Builder()
-                    .connectTimeout(60, TimeUnit.SECONDS) // Timeout for establishing a connection
-                    .readTimeout(60, TimeUnit.SECONDS)    // Timeout for reading data from the server
-                    .writeTimeout(60, TimeUnit.SECONDS)   // Timeout for writing data to the server
+                    .connectTimeout(120, TimeUnit.SECONDS) // Timeout for establishing a connection
+                    .readTimeout(180, TimeUnit.SECONDS)    // Timeout for reading data from the server
+                    .writeTimeout(120, TimeUnit.SECONDS)   // Timeout for writing data to the server
                     .build()
                 val requestBody = JSONObject().apply {
                     put("followingIds", JSONArray(followingUids))

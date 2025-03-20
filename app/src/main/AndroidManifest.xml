@@ -41,6 +41,18 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".esportsManagement.esportsProfile.ui.FindTeam.ViewClosedRecruitmentAdDetails"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.esportsProfile.ui.FindTeam.VeiwOpenRecruitmentAdDetails"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.ui.Jobs.ClosedJobDetails"
+            android:exported="false" />
+        <activity
+            android:name=".esportsManagement.mangeOrganization.ui.Jobs.OpenJobDetails"
+            android:exported="false" />
+        <activity
             android:name=".userProfile.otherUserEsportsProfile.OtherUsersEsportsProfile"
             android:exported="false" />
         <activity

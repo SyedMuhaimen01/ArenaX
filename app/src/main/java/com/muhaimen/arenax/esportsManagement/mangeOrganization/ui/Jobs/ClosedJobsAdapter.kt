@@ -64,7 +64,7 @@ class ClosedJobsAdapter(
 
             // Set up click listener to open job details
             itemView.setOnClickListener {
-                val intent = Intent(itemView.context, viewJobDetails::class.java).apply {
+                val intent = Intent(itemView.context, ClosedJobDetails::class.java).apply {
                     // Pass Job attributes
                     putExtra("JobId", job.jobId)
                     putExtra("JobTitle", job.jobTitle)

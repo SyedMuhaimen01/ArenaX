@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -20,6 +21,9 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.esportsNotificationData
 import com.muhaimen.arenax.esportsManagement.battlegrounds.battlegrounds
 import com.muhaimen.arenax.utils.FirebaseManager
+
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
+
 
 class viewJobDetails : AppCompatActivity() {
     private lateinit var organizationNameTextView: TextView
@@ -287,8 +291,7 @@ class viewJobDetails : AppCompatActivity() {
         applyButton = findViewById(R.id.applyButton)
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
-        super.onBackPressed()
-        finish()
     }
 }

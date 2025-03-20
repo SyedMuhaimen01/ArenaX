@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipeRefreshLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".esportsManagement.esportsProfile.ui.FindTeam.OpenUserJobs">
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            tools:ignore="UselessLeaf">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_35sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:background="@drawable/searchbar"
+                android:weightSum="4">
+
+                <!-- AutoCompleteTextView for search -->
+                <AutoCompleteTextView
+                    android:id="@+id/searchbar"
+                    android:layout_width="0dp"
+                    android:layout_marginLeft="@dimen/_15sdp"
+                    android:layout_weight="3.9"
+                    android:layout_height="@dimen/_32sdp"
+                    android:hint="Search ..."
+                    android:textColorHint="@color/hinttextColor"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_13sdp"
+                    android:background="@color/white"
+                    android:padding="@dimen/_5sdp"
+                    android:layout_marginTop="@dimen/_1sdp"/>
+                <!-- Search icon button -->
+                <ImageButton
+                    android:id="@+id/searchButton"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_35sdp"
+                    android:src="@drawable/searchicon_foreground"
+                    android:background="@drawable/serachbar_button"
+                    android:layout_weight="0.1"
+                    tools:ignore="ContentDescription" />
+            </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/tags_recyclerview"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_40sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:backgroundTint="@color/backgroundColor"
+                android:visibility="visible"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/openJobs_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:visibility="visible">
+            </androidx.recyclerview.widget.RecyclerView>
+
+        </LinearLayout>
+    </FrameLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
