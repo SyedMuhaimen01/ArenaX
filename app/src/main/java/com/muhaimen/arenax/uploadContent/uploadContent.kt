@@ -392,9 +392,17 @@ class UploadContent : AppCompatActivity() {
                     },
                     { error ->
                         // Error response
-                       // Toast.makeText(this@UploadContent, "Failed to upload post: ${error.message}", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@UploadContent, "Failed to upload post: ${error.message}", Toast.LENGTH_SHORT).show()
                     }
                 ) {
+                    // Customize the retry policy to wait for 2 minutes and disable retries
+                    override fun getRetryPolicy(): RetryPolicy {
+                        return DefaultRetryPolicy(
+                            120000, // Timeout duration in milliseconds (2 minutes)
+                            0,      // No retries (set maxRetries to 0)
+                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+                        )
+                    }
                 }
 
                 // Add the request to the queue
@@ -402,7 +410,7 @@ class UploadContent : AppCompatActivity() {
             },
             onError = { error ->
                 // Handle location fetch error
-                Toast.makeText(this@UploadContent, "Failed to fetch location: $error", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this@UploadContent, "Failed to fetch location: $error", Toast.LENGTH_SHORT).show()
             }
         )
 
