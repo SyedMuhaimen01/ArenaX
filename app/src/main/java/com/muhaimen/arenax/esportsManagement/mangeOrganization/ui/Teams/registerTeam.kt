@@ -125,7 +125,7 @@ class registerTeam : AppCompatActivity() {
 
     private fun uploadLogoToFirebase() {
         teamLogoUri?.let { uri ->
-            val storageRef = FirebaseStorage.getInstance().reference
+            val storageRef = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference
             val fileName = "team_logos/${UUID.randomUUID()}.jpg"
             val fileRef = storageRef.child(fileName)
 

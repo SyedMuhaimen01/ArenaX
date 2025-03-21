@@ -95,7 +95,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
-    private val database = FirebaseDatabase.getInstance()
+    private val database = FirebaseDatabase.getInstance("gs://i210888.appspot.com")
     private lateinit var storageReference: StorageReference
     private lateinit var myGamesListRecyclerView: RecyclerView
     private lateinit var myGamesListAdapter: gamesDashboardAdapter
@@ -153,7 +153,7 @@ class UserProfile : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         userId = auth.currentUser?.uid ?: ""
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(auth.currentUser?.uid ?: "")
-        storageReference = FirebaseStorage.getInstance().reference.child("profileImages/${auth.currentUser?.uid}")
+        storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("profileImages/${auth.currentUser?.uid}")
         requestQueue = Volley.newRequestQueue(this)
         activity="UserProfile"
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
@@ -171,6 +171,32 @@ class UserProfile : AppCompatActivity() {
         } else {
             startTrackingService()
         }
+
+
+        val storageRef = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("uploads") // Replace with your actual folder name
+        var deletedCount = 0
+
+        storageRef.listAll().addOnSuccessListener { result ->
+            val totalFiles = result.items.size
+            Log.d("FirebaseStorage", "Total files in 'uploads': $totalFiles")
+
+            result.items.forEach { fileRef ->
+                fileRef.metadata.addOnSuccessListener { metadata ->
+                    if (metadata.creationTimeMillis < System.currentTimeMillis() - 10 * 60 * 1000) { // Older than 10 minutes
+                        fileRef.delete().addOnSuccessListener {
+                            deletedCount++
+                            Log.d("FirebaseStorage", "Deleted: ${fileRef.name}, Total Deleted: $deletedCount")
+                        }.addOnFailureListener { exception ->
+                            Log.e("FirebaseStorage", "Failed to delete: ${fileRef.name}", exception)
+                        }
+                    }
+                }
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("FirebaseStorage", "Failed to list files", exception)
+        }
+
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 

@@ -95,12 +95,12 @@
                 android:textSize="@dimen/_12sdp"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:textColor="@color/textColor"
-                android:paddingLeft="@dimen/_15sdp"></TextView>
+                android:paddingLeft="@dimen/_15sdp"/>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/myGamesListRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="@dimen/_50sdp"></androidx.recyclerview.widget.RecyclerView>
+                android:paddingBottom="@dimen/_50sdp"/>
         </LinearLayout>
 
         <ImageButton
@@ -111,7 +111,7 @@
             android:layout_marginTop="-130dp"
             android:layout_marginRight="@dimen/_10sdp"
             android:background="@color/secondaryColor"
-            android:src="@mipmap/add_icon"></ImageButton>
+            android:src="@mipmap/add_icon"/>
 
     </LinearLayout>
 

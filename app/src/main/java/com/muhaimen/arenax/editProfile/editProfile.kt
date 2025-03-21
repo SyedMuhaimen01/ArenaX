@@ -78,7 +78,7 @@ class editProfile : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         userId = auth.currentUser?.uid.toString()
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(auth.currentUser?.uid ?: "")
-        storageReference = FirebaseStorage.getInstance().reference.child("profileImages/${auth.currentUser?.uid}")
+        storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("profileImages/${auth.currentUser?.uid}")
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         profileImage = findViewById(R.id.ProfilePicture)

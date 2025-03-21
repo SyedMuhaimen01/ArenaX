@@ -129,7 +129,7 @@ class otherUserProfile : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         receivedUserId = intent.getStringExtra("userId").toString()
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(receivedUserId ?: "")
-        storageReference = FirebaseStorage.getInstance().reference.child("profileImages/$receivedUserId")
+        storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("profileImages/$receivedUserId")
         requestQueue = Volley.newRequestQueue(this)
         activity="otherUserProfile"
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)

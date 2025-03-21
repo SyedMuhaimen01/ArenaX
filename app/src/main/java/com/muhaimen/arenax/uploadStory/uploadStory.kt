@@ -81,7 +81,7 @@ class uploadStory : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var userData: UserData
     private lateinit var auth: FirebaseAuth
-    private val firebaseStorage = FirebaseStorage.getInstance()
+    private val firebaseStorage = FirebaseStorage.getInstance("gs://i210888.appspot.com")
     private lateinit var databaseReference: DatabaseReference
     private var selectedImageUri: Uri? = null
     private lateinit var tracksRecyclerView: RecyclerView

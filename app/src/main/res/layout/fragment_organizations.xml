@@ -61,7 +61,7 @@
                 android:layout_marginEnd="@dimen/_10sdp"
                 android:layout_marginStart="@dimen/_10sdp"
                 android:backgroundTint="@color/backgroundColor"
-                android:visibility="visible"/>
+                android:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/organizations_recyclerview"

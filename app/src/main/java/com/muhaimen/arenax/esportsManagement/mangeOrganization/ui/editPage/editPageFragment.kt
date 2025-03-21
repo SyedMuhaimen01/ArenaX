@@ -147,7 +147,7 @@ class editPageFragment : Fragment() {
     }
 
     private fun uploadImageToFirebase(organizationId: String) {
-        storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/$organizationId/organizationProfilePictures")
+        storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("organizationContent/$organizationId/organizationProfilePictures")
 
         if (selectedImageUri != null) {
             // Generate a unique filename for the image to avoid overwriting

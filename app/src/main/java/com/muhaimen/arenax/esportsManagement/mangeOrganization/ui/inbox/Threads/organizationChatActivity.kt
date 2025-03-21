@@ -48,7 +48,7 @@ class organizationChatActivity : AppCompatActivity() {
     private val chatMessages = mutableListOf<ChatItem>()
 
     private lateinit var database: DatabaseReference
-    private val storage = FirebaseStorage.getInstance()
+    private val storage = FirebaseStorage.getInstance("gs://i210888.appspot.com")
 
     private lateinit var cameraActivityResultLauncher: ActivityResultLauncher<Intent>
 
