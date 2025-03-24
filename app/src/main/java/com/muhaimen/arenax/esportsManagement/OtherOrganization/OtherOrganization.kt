@@ -31,6 +31,9 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.Threads.ChatActivity
 import com.muhaimen.arenax.dataClasses.Comment
 import com.muhaimen.arenax.dataClasses.Event
+import com.muhaimen.arenax.dataClasses.Job
+import com.muhaimen.arenax.dataClasses.JobWithOrganization
+import com.muhaimen.arenax.dataClasses.OrganizationData
 import com.muhaimen.arenax.dataClasses.Team
 import com.muhaimen.arenax.dataClasses.pagePost
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Teams.TeamsAdapter
@@ -66,6 +69,7 @@ class OtherOrganization : AppCompatActivity() {
     private var organizationName: String? = null
     private var organizationId: String? = null
     private lateinit var otherPagePostsAdapter: otherPagePostsAdapter
+    private lateinit var otherOrganizationJobsAdapter: otherOrganizationJobsAdapter
     private lateinit var eventsAdapter: otherOrganizationEventsAdapter
     private var eventList: MutableList<Event> = mutableListOf()
     private lateinit var teamsRecyclerView: RecyclerView
@@ -75,6 +79,7 @@ class OtherOrganization : AppCompatActivity() {
     private var followersCountTextView: TextView? = null
     private var followingCountTextView: TextView? = null
     private var postCountTextView: TextView? = null
+    private var jobWithOrgList: MutableList<JobWithOrganization> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,6 +113,10 @@ class OtherOrganization : AppCompatActivity() {
         eventsAdapter = otherOrganizationEventsAdapter(eventList)
         eventsRecyclerView.adapter = eventsAdapter
 
+        jobsRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        otherOrganizationJobsAdapter = otherOrganizationJobsAdapter(jobWithOrgList)
+        jobsRecyclerView.adapter = otherOrganizationJobsAdapter
+
         teamsRecyclerView = findViewById(R.id.teamsRecyclerView)
         teamsRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
@@ -120,6 +129,7 @@ class OtherOrganization : AppCompatActivity() {
             getOrganizationPostCount(organizationName!!)
             fetchOrganizationPosts()
             fetchUpcomingEvents()
+            fetchOrganizationJobs()
             fetchAndSetCounts(organizationId!!)
             // Fetch teams for the given organization
             fetchTeams(organizationName!!)
@@ -676,6 +686,111 @@ class OtherOrganization : AppCompatActivity() {
                 Log.e("ProfileActivity", "Error fetching following: ${error.message}")
             }
         })
+    }
+
+    private fun fetchOrganizationJobs() {
+        val queue = Volley.newRequestQueue(this)
+        val url = "${Constants.SERVER_URL}manageJobs/getOpenJobs"
+
+        val requestBody = JSONObject().apply {
+            put("organization_name", organizationName)
+        }
+
+        val request = object : JsonObjectRequest(
+            Request.Method.POST, url, requestBody,
+            { response ->
+                try {
+                    Log.d("Volley", "Response: $response")
+                    val jobsArray = response.getJSONArray("jobs")
+                    clearAndPopulateAdapter(jobsArray)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    //    Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
+                }
+            },
+            { error ->
+                Log.e("Volley", "Error fetching open jobs: ${error.message}")
+                // Toast.makeText(context, "Error fetching open jobs", Toast.LENGTH_SHORT).show()
+            }
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Content-Type"] = "application/json"
+                return headers
+            }
+        }
+
+        queue.add(request)
+    }
+
+    private fun clearAndPopulateAdapter(response: JSONArray) {
+
+        jobWithOrgList.clear()
+
+        // Parse the response and populate the list
+        parseAndPopulateJobs(response)
+
+        // Notify the appropriate adapter of the data change
+        otherOrganizationJobsAdapter.updateData(jobWithOrgList)
+
+    }
+
+    private fun parseAndPopulateJobs(response: JSONArray) {
+        try {
+            for (i in 0 until response.length()) {
+                val jobObject = response.getJSONObject(i)
+
+                // Parse Job data
+                val jobId = jobObject.optString("job_id", "")
+                val organizationId = jobObject.optString("organization_id", "")
+                val jobTitle = jobObject.optString("job_title", "")
+                val jobType = jobObject.optString("job_type", "")
+                val jobLocation = jobObject.optString("job_location", "")
+                val jobDescription = jobObject.optString("job_description", "")
+                val workplaceType = jobObject.optString("workplace_type", "")
+                val tags = jobObject.getJSONArray("tags").let { tagArray ->
+                    List(tagArray.length()) { index -> tagArray.optString(index, "") }
+                }
+
+                val job = Job(
+                    jobId = jobId,
+                    organizationId = organizationId,
+                    jobTitle = jobTitle,
+                    jobType = jobType,
+                    jobLocation = jobLocation,
+                    jobDescription = jobDescription,
+                    workplaceType = workplaceType,
+                    tags = tags
+                )
+
+                // Parse Organization data (if available)
+                val organizationObject = jobObject.optJSONObject("organization")
+                val organization = if (organizationObject != null) {
+                    OrganizationData(
+                        organizationId = organizationObject.optString("organization_id", ""),
+                        organizationName = organizationObject.optString("organization_name", "Unknown Organization"),
+                        organizationLogo = organizationObject.optString("organization_logo", null),
+                        organizationLocation = organizationObject.optString("organization_location", null)
+                    )
+                } else {
+                    OrganizationData(
+                        organizationId = organizationId,
+                        organizationName = "Unknown Organization",
+                        organizationLogo = null,
+                        organizationLocation = null
+                    )
+                }
+
+                // Combine Job and Organization into a wrapper object
+                val jobWithOrg = JobWithOrganization(job, organization)
+                jobWithOrgList.add(jobWithOrg)
+
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Error parsing job data", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
     private fun initializeViews() {

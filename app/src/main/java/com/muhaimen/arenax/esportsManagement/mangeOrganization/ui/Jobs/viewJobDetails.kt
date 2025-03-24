@@ -293,5 +293,6 @@ class viewJobDetails : AppCompatActivity() {
 
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
+        super.onBackPressed()
     }
 }

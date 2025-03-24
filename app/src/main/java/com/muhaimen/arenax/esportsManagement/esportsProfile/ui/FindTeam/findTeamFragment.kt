@@ -46,8 +46,8 @@ class findTeamFragment : Fragment() {
         // Attach TabLayout with ViewPager2 using TabLayoutMediator
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {
-                0 -> "Open"
-                1 -> "Closed"
+                0 -> "Active"
+                1 -> "History"
                 else -> null
             }
         }.attach()

@@ -115,12 +115,12 @@ class ClosedJobs : Fragment() {
                     clearAndPopulateAdapter(jobsArray)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
+                //    Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
                 Log.e("Volley", "Error fetching closed jobs: ${error.message}")
-                Toast.makeText(context, "Error fetching closed jobs: ${error.message}", Toast.LENGTH_SHORT).show()
+               // Toast.makeText(context, "Error fetching closed jobs: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         ) {
             override fun getHeaders(): MutableMap<String, String> {
@@ -151,12 +151,12 @@ class ClosedJobs : Fragment() {
                     clearAndPopulateAdapter(jobsArray)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
+                 //   Toast.makeText(context, "Error parsing job data", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
                 Log.e("Volley", "Error searching closed jobs: ${error.message}")
-                Toast.makeText(context, "Error searching closed jobs", Toast.LENGTH_SHORT).show()
+              //  Toast.makeText(context, "Error searching closed jobs", Toast.LENGTH_SHORT).show()
             }
         ) {
             override fun getHeaders(): MutableMap<String, String> {

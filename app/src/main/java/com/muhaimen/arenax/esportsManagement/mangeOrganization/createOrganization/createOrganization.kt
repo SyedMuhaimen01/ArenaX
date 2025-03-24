@@ -284,7 +284,7 @@ class createOrganization : AppCompatActivity() {
             }
 
         uploadImageToFirebase(organizationId,organization)
-        
+
     }
 
 

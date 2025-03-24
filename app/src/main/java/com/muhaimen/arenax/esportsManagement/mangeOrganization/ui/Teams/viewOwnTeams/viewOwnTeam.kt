@@ -35,6 +35,7 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Team
 import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomePageActivity
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings.manageFollowing.manageFollowing
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONException
@@ -514,6 +515,9 @@ class viewOwnTeam : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        val intent = Intent(this, OrganizationHomePageActivity::class.java)
+        intent.putExtra("organization_name", organizationName)
+        startActivity(intent)
         super.onBackPressed()
     }
 }
