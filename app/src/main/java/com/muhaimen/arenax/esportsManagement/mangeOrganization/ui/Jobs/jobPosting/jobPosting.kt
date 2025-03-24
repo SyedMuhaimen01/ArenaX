@@ -210,4 +210,5 @@ class jobPosting : AppCompatActivity() {
         // Add the request to the Volley queue
         Volley.newRequestQueue(this).add(request)
     }
+
 }

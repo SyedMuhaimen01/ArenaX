@@ -27,7 +27,7 @@
                 android:layout_height="@dimen/_60sdp"
                 android:scaleType="centerCrop"
                 android:backgroundTint="@color/white"
-                android:layout_marginStart="@dimen/_120sdp"
+                android:layout_gravity="center"
                 android:background="@drawable/circle"
                 android:clipToOutline="true"
                 tools:ignore="ContentDescription,UnusedAttribute" />
@@ -35,10 +35,10 @@
                 android:id="@+id/editProfilePictureText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="upload company logo"
+                android:text="upload organization logo"
                 android:textStyle="bold"
                 android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_110sdp"
+                android:gravity="center"
                 android:textSize="@dimen/_10sdp"
                 android:textColor="@color/white"
                 tools:ignore="HardcodedText" />

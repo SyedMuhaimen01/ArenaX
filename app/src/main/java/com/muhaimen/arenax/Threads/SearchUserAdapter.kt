@@ -48,6 +48,7 @@ class SearchUserAdapter(
                         putExtra("gamerTag", user.gamerTag)
                         putExtra("profilePicture", user.profilePicture)
                         putExtra("gamerRank", "00")
+                        putExtra("dataType","user")
                     }
                     itemView.context.startActivity(intent)
                 }
@@ -84,7 +85,9 @@ class SearchUserAdapter(
             val fullname = dataSnapshot.child("fullname").value?.toString() ?: "Unknown User"
             val gamerTag = dataSnapshot.child("gamerTag").value?.toString() ?: ""
             val gamerRank = dataSnapshot.child("gamerRank").value?.toString() ?: "Rank: 00"
+
             val profileImageUrl = dataSnapshot.child("profilePicture").value?.toString() ?: ""
+
 
             // Create a new FrequentSearchedUser instance and cache it
             val frequentUser = FrequentSearchedUser(fullname, profileImageUrl, gamerTag, gamerRank)

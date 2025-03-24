@@ -90,7 +90,7 @@
                 android:layout_height="@dimen/_40sdp"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:backgroundTint="@color/backgroundColor"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <!-- Employees RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView

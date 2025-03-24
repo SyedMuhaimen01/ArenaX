@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -117,6 +118,7 @@ class OrganizationHomePageActivity : AppCompatActivity(), NavigationView.OnNavig
             navigateToFragment(R.id.nav_dashboard)
             fetchOrganizationData()
         }
+
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

@@ -124,7 +124,7 @@ class otherPagePostsAdapter(
         private var likeButton: ImageButton = itemView.findViewById(R.id.likeButton)
         private var alreadyLikedButton: ImageButton = itemView.findViewById(R.id.likeFilledButton)
 
-        private val storageReference = FirebaseStorage.getInstance().reference
+        private val storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference
 
         // Bind data to the views in the ViewHolder
         fun bind(post: pagePost, organizationName: String) {

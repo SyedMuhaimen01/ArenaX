@@ -272,7 +272,7 @@ class schedulingEvent : AppCompatActivity() {
                 val organization = data.getValue(OrganizationData::class.java)
                 // Assuming email is a TextView and profileImage is an ImageView
                 organizationId = organization?.organizationId
-                val storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/$organizationId/eventBanners/${UUID.randomUUID()}.jpg")
+                val storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("organizationContent/$organizationId/eventBanners/${UUID.randomUUID()}.jpg")
                 mediaUri?.let { uri ->
                     val uploadTask = storageReference.putFile(uri)
 

@@ -71,7 +71,7 @@ object FirebaseManager {
         return FirebaseAuth.getInstance()
     }
     fun getStorageInstance(): FirebaseStorage {
-        return FirebaseStorage.getInstance()
+        return FirebaseStorage.getInstance("gs://i210888.appspot.com")
     }
     fun getDatabseInstance(): FirebaseDatabase {
         return FirebaseDatabase.getInstance()

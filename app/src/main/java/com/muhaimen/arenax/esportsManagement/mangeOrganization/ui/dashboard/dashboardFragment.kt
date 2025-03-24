@@ -259,4 +259,9 @@ class dashboardFragment : Fragment() {
 
         requestQueue.add(request)
     }
+
+    override fun onResume() {
+
+        super.onResume()
+    }
 }

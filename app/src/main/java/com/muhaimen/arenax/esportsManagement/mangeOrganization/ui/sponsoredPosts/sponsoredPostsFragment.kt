@@ -1,14 +1,13 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.sponsoredPosts
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,19 +23,24 @@ import com.muhaimen.arenax.dataClasses.pagePost
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONArray
 import org.json.JSONObject
+import java.security.MessageDigest
+import java.text.SimpleDateFormat
+import java.util.*
 
 class SponsoredPostsFragment : Fragment() {
 
     private lateinit var sponsoredPostsAdapter: SponsoredPostsAdapter
     private lateinit var SponsoredEventsAdapter: SponsoredEventsAdapter
-    private lateinit var mediaTypeDropdownSpinner:Spinner
+    private lateinit var mediaTypeDropdownSpinner: Spinner
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var eventsRecyclerView: RecyclerView
     private lateinit var jobsRecyclerView: RecyclerView
+    private lateinit var sponsorButton: Button
     private lateinit var requestQueue: RequestQueue
     private var postsList = mutableListOf<pagePost>()
     private var eventsList = mutableListOf<Event>()
     private var organizationName: String? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -48,9 +52,9 @@ class SponsoredPostsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initializeViews(view)
+
         // Initialize dropdown menu
         setupDropdownMenu()
-
 
         // Initialize Volley Request Queue
         requestQueue = Volley.newRequestQueue(requireContext())
@@ -59,20 +63,20 @@ class SponsoredPostsFragment : Fragment() {
         organizationName = arguments?.getString("organization_name")
         Log.d("pagePostsFragment", "Organization name: $organizationName")
 
-
+        // Setup RecyclerViews
         postsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        sponsoredPostsAdapter= SponsoredPostsAdapter(postsRecyclerView,postsList, organizationName.toString())
+        sponsoredPostsAdapter = SponsoredPostsAdapter(postsRecyclerView, postsList, organizationName.toString())
         postsRecyclerView.adapter = sponsoredPostsAdapter
 
         eventsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        SponsoredEventsAdapter= SponsoredEventsAdapter(eventsList)
+        SponsoredEventsAdapter = SponsoredEventsAdapter(eventsList)
         eventsRecyclerView.adapter = SponsoredEventsAdapter
-
 
         if (!organizationName.isNullOrEmpty()) {
             fetchOrganizationPosts()
             fetchUpcomingEvents()
         }
+
         postsRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -80,6 +84,57 @@ class SponsoredPostsFragment : Fragment() {
             }
         })
 
+        // Set up Sponsor button click listener
+        sponsorButton.setOnClickListener {
+            initiateJazzCashPayment()
+        }
+    }
+
+    private fun initiateJazzCashPayment() {
+        val merchantId = "MC150130"
+        val password = "YOUR_PASSWORD"
+        val integritySalt = "YOUR_INTEGRITY_SALT"
+
+        val orderId = "ORDER${System.currentTimeMillis()}" // Unique order ID
+        val amount = "5000" // Amount in PKR (e.g., 5000 = 50 PKR)
+        val currency = "PKR"
+        val dateTime = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault()).format(Date())
+        val returnURL = "myapp://payment-return" // Deep link to your app
+        val expiryDateTime = "20231010120000" // Expiry time for the transaction
+
+        // Generate secure hash
+        val hashString = "$integritySalt$merchantId$orderId$amount$currency$dateTime$password"
+        val hash = MessageDigest.getInstance("SHA-256").digest(hashString.toByteArray()).toHexString()
+
+        // Create payment request payload
+        val paymentRequest = JSONObject().apply {
+            put("pp_Amount", amount)
+            put("pp_BankID", "TBANK")
+            put("pp_Currency", currency)
+            put("pp_Language", "EN")
+            put("pp_MerchantID", merchantId)
+            put("pp_OrderID", orderId)
+            put("pp_ReturnURL", returnURL)
+            put("pp_TxnDateTime", dateTime)
+            put("pp_TxnExpiryDateTime", expiryDateTime)
+            put("pp_TxnRefNo", "REF${System.currentTimeMillis()}")
+            put("pp_Version", "1.1")
+            put("pp_SecureHash", hash)
+        }
+
+        // Redirect to JazzCash payment gateway
+        val jazzCashUrl = "https://sandbox.jazzcash.com.pk/Application/Pay" // Use production URL in live environment
+        openJazzCashPaymentPage(jazzCashUrl, paymentRequest)
+    }
+
+    private fun openJazzCashPaymentPage(url: String, params: JSONObject) {
+        val formBody = StringBuilder()
+        params.keys().forEach { key ->
+            formBody.append("$key=${params.getString(key)}&")
+        }
+
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        startActivity(intent)
     }
 
     private fun fetchOrganizationPosts() {
@@ -87,23 +142,18 @@ class SponsoredPostsFragment : Fragment() {
             Log.e("pagePostsFragment", "Organization name is null or empty.")
             return
         }
-
         val url = "${Constants.SERVER_URL}organizationPosts/fetchOrganizationPosts"
-
         val requestBody = JSONObject()
         requestBody.put("organizationName", organizationName)
-
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.POST, url, requestBody,
             { response ->
                 try {
                     val postsArray: JSONArray = response.getJSONArray("posts")
                     val fetchedPosts = mutableListOf<pagePost>()
-
                     for (i in 0 until postsArray.length()) {
                         val postObj = postsArray.getJSONObject(i)
                         val commentsArray = postObj.getJSONArray("comments")
-
                         // Parse comments
                         val commentsList = mutableListOf<Comment>()
                         for (j in 0 until commentsArray.length()) {
@@ -117,7 +167,6 @@ class SponsoredPostsFragment : Fragment() {
                             )
                             commentsList.add(comment)
                         }
-
                         // Parse post
                         val post = pagePost(
                             postId = postObj.getInt("post_id"),
@@ -135,15 +184,12 @@ class SponsoredPostsFragment : Fragment() {
                             organizationLogo = postObj.optString("organization_logo", null),
                             commentsData = commentsList
                         )
-
                         fetchedPosts.add(post)
                     }
-
                     // Update UI
                     postsList.clear()
                     postsList.addAll(fetchedPosts)
                     sponsoredPostsAdapter.notifyDataSetChanged()
-
                 } catch (e: Exception) {
                     Log.e("pagePostsFragment", "Error parsing response: ${e.message}")
                 }
@@ -152,12 +198,9 @@ class SponsoredPostsFragment : Fragment() {
                 Log.e("pagePostsFragment", "Volley error: ${error.message}")
             }
         )
-
         // Add request to the queue
         requestQueue.add(jsonObjectRequest)
     }
-
-
 
     private fun setupDropdownMenu() {
         // Define dropdown options
@@ -165,7 +208,6 @@ class SponsoredPostsFragment : Fragment() {
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, options)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         mediaTypeDropdownSpinner.adapter = adapter
-
         // Handle item selection
         mediaTypeDropdownSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -187,7 +229,6 @@ class SponsoredPostsFragment : Fragment() {
                     }
                 }
             }
-
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
@@ -197,15 +238,11 @@ class SponsoredPostsFragment : Fragment() {
             Toast.makeText(context, "Organization not found!", Toast.LENGTH_SHORT).show()
             return
         }
-
         val url = "${Constants.SERVER_URL}manageEvents/fetchUpcomingOrganizationEvents"
-
         val requestQueue = Volley.newRequestQueue(requireContext())
-
         val requestBody = JSONObject().apply {
             put("organization_name", organizationName)
         }
-
         val jsonRequest = object : JsonObjectRequest(
             Request.Method.POST,
             url,
@@ -228,7 +265,6 @@ class SponsoredPostsFragment : Fragment() {
                 return hashMapOf("Content-Type" to "application/json")
             }
         }
-
         requestQueue.add(jsonRequest)
     }
 
@@ -262,9 +298,10 @@ class SponsoredPostsFragment : Fragment() {
         postsRecyclerView = view.findViewById(R.id.postsRecyclerView)
         eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView)
         jobsRecyclerView = view.findViewById(R.id.jobsRecyclerView)
+        sponsorButton = view.findViewById(R.id.sponsorButton)
     }
 
-   fun onBackPressed() {
+    fun onBackPressed() {
         sponsoredPostsAdapter.releaseAllPlayers()
     }
 
@@ -272,15 +309,16 @@ class SponsoredPostsFragment : Fragment() {
         super.onResume()
         sponsoredPostsAdapter.handlePlayerVisibility()
     }
+
     override fun onStart() {
         super.onStart()
         sponsoredPostsAdapter.handlePlayerVisibility()
     }
+
     override fun onStop() {
         super.onStop()
         sponsoredPostsAdapter.releaseAllPlayers()
     }
-
 
     override fun onDestroy() {
         super.onDestroy()
@@ -292,11 +330,13 @@ class SponsoredPostsFragment : Fragment() {
         sponsoredPostsAdapter.releaseAllPlayers()
     }
 
-
-
     override fun onDestroyView() {
         super.onDestroyView()
         requestQueue.cancelAll("fetchOrganizationPosts")
     }
+}
 
+// Helper function to convert ByteArray to Hex String
+fun ByteArray.toHexString(): String {
+    return joinToString("") { "%02x".format(it) }
 }

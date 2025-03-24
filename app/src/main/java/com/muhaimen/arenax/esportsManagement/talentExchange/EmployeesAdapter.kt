@@ -19,7 +19,6 @@ class EmployeesAdapter(private var jobsList: MutableList<JobWithUserDetails>,
 
     // Function to update job list and notify adapter
     fun updateJobList(newJobs: List<JobWithUserDetails>) {
-        jobsList.addAll(newJobs) // Add new jobs
         notifyDataSetChanged() // Notify RecyclerView of data changes
     }
 
