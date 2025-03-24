@@ -1,20 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="primaryColor">#FF111B33</color>
-    <color name="secondaryColor">#FFF5F5F5</color>
-    <color name="accentColor">#FFA9A9A9</color>
-    <color name="backgroundColor">#FFFFFFFF</color>
-    <color name="textColor">#FF000000</color>
-    <color name="hinttextColor">#FF808080</color>
-    <color name="fieldOutline">#FF000080</color>
-    <color name="LogoBackground"> #FF111B33</color>
-    <color name="Silver">#FFC0C0C0</color>
-    <color name="ImagePlaceholder">#E6000000</color>
-    <color name="orange">#FFFF4500</color>
-    <color name="storyRingColor">#A020F0</color>
-    <color name="yellow">#FFFFD700</color>
-    <color name="backgroundGrey">#EEEEEE</color>
-    <color name="red">#E45353</color>
+    <!-- Base Colors -->
+    <color name="black">#FF000000</color> <!-- No change -->
+    <color name="white">#FFFFFFFF</color> <!-- No change -->
+    <color name="transparent">#00000000</color> <!-- Transparent -->
+
+    <!-- Primary Colors -->
+    <color name="primaryColor">#121212</color> <!-- Dark background for professional look -->
+    <color name="secondaryColor">#1E1E1E</color> <!-- Slightly lighter dark background -->
+    <color name="backgroundColor">#2F2F2F</color> <!-- Soft gray for subtle contrast -->
+    <color name="softGray">#4A4A4A</color> <!-- Neutral gray for secondary elements -->
+    <color name="lightGray">#6B6B6B</color> <!-- Lighter gray for borders or dividers -->
+
+    <!-- Text Colors -->
+    <color name="textColor">#FFFFFF</color>
+    <color name="textColorPrimary">#FFFFFF</color> <!-- White for primary text -->
+    <color name="textColorSecondary">#D3D3D3</color> <!-- Light gray for secondary text -->
+    <color name="textColorTernary">#FF000000</color>
+    <color name="hinttextColor">#A0A0A0</color> <!-- Subtle light gray for hints -->
+
+    <!-- Accent Colors -->
+    <color name="accentColor">#FF6B6B</color> <!-- Bright Coral Red for highlights -->
+    <color name="interactiveColor">#FFD166</color> <!-- Warm Yellow for interactive elements -->
+    <color name="highlightColor">#EF476F</color> <!-- Vibrant Crimson Red for emphasis -->
+    <color name="successColor">#06D6A0</color> <!-- Bright Teal for success states -->
+    <color name="warningColor">#FAA307</color> <!-- Rich Orange for warnings -->
+
+    <!-- Gradients -->
+    <color name="gradientStart">#1B263B</color> <!-- Deep Blue-Grey for gradients -->
+    <color name="gradientEnd">#415A77</color> <!-- Slate Blue for dynamic contrast -->
+
+    <color name="gradientStartOrange">#FF4500</color> <!-- Reddish-Orange for gradient start -->
+    <color name="gradientEndYellow">#FFD700</color> <!-- Golden Yellow for gradient end -->
+
+    <!-- Special Effects -->
+    <color name="fieldOutline">#415A77</color> <!-- Slate Blue for outlines -->
+    <color name="storyRingColor">#FF6B6B</color> <!-- Bright Coral Red for story rings -->
+    <color name="ImagePlaceholder">#2F2F2F</color> <!-- Match background for placeholders -->
+
+    <!-- Legacy Colors (Unused or Optional) -->
+    <color name="LogoBackground">#1E1E1E</color> <!-- Updated to match theme -->
+    <color name="Silver">#A5A5A5</color> <!-- Updated to softer gray -->
+    <color name="yellow">#FFD700</color> <!-- No change -->
+    <color name="backgroundGrey">#2F2F2F</color> <!-- Updated to match theme -->
+    <color name="red">#EF476F</color> <!-- Updated to vibrant crimson red -->
+    <color name="orange">#EF476F</color> <!-- Updated to vibrant crimson red -->
 </resources>

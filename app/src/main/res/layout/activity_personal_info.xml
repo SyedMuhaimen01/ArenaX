@@ -1,116 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".LoginSignUp.PersonalInfoActivity"
     android:orientation="vertical"
-    android:background="@drawable/screenbackground">
+    android:background="@drawable/screenbackground"
+    android:paddingHorizontal="@dimen/_10sdp"> <!-- Added padding for better spacing -->
 
+    <!-- Main Content -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
+        <!-- App Logo -->
         <ImageView
             android:layout_width="@dimen/_110sdp"
             android:layout_height="@dimen/_110sdp"
             android:src="@mipmap/applogo_foreground"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/_40sdp"
-            android:layout_marginLeft="@dimen/_95sdp" />
+            tools:ignore="ContentDescription" />
 
+        <!-- Full Name Input Field -->
         <EditText
             android:id="@+id/fullNameEditText"
-            android:layout_marginTop="@dimen/_50sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
-            android:textSize="@dimen/_13ssp"
+            android:layout_marginTop="@dimen/_30sdp"
             android:background="@drawable/inputholder"
             android:hint="Full Name"
-            android:textColor="@color/textColor"
-            android:textColorHint="@color/hinttextColor" />
+            android:paddingStart="@dimen/_16sdp"
+            android:paddingEnd="@dimen/_16sdp"
+            android:textColor="@color/textColorPrimary"
+            android:textColorHint="@color/hinttextColor"
+            android:textSize="@dimen/_13ssp"
+            tools:ignore="Autofill,HardcodedText,TextFields" />
 
+        <!-- Date of Birth Input Field -->
         <EditText
             android:id="@+id/dateOfBirthEditText"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
-            android:textSize="@dimen/_13ssp"
+            android:layout_marginTop="@dimen/_10sdp"
             android:background="@drawable/inputholder"
             android:hint="Date of Birth (DD/MM/YYYY)"
             android:focusable="false"
             android:clickable="true"
-            android:textColor="@color/textColor"
-            android:textColorHint="@color/hinttextColor" />
+            android:paddingStart="@dimen/_16sdp"
+            android:paddingEnd="@dimen/_16sdp"
+            android:textColor="@color/textColorPrimary"
+            android:inputType="date"
+            android:textColorHint="@color/hinttextColor"
+            android:textSize="@dimen/_13ssp"
+            tools:ignore="Autofill,HardcodedText,KeyboardInaccessibleWidget" />
 
+        <!-- Gender Spinner -->
         <Spinner
             android:id="@+id/genderSpinner"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
-            android:textSize="@dimen/_13ssp"
+            android:layout_marginTop="@dimen/_10sdp"
             android:background="@drawable/inputholder"
-            android:textColor="@color/textColor"
-            android:textColorHint="@color/hinttextColor" />
+            android:paddingStart="@dimen/_16sdp"
+            android:paddingEnd="@dimen/_16sdp"
+            android:popupBackground="@color/backgroundColor"
+            android:textColor="@color/textColorPrimary" />
 
+        <!-- Gamertag Input Field -->
         <EditText
             android:id="@+id/gamertagEditText"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
-            android:textSize="@dimen/_13ssp"
+            android:layout_marginTop="@dimen/_10sdp"
             android:background="@drawable/inputholder"
             android:hint="Gamertag"
-            android:textColor="@color/textColor"
-            android:textColorHint="@color/hinttextColor" />
+            android:paddingStart="@dimen/_16sdp"
+            android:paddingEnd="@dimen/_16sdp"
+            android:textColor="@color/textColorPrimary"
+            android:textColorHint="@color/hinttextColor"
+            android:textSize="@dimen/_13ssp"
+            tools:ignore="Autofill,HardcodedText,TextFields" />
 
+        <!-- Sign Up Button -->
         <Button
             android:id="@+id/register_button"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_35sdp"
-            android:background="@drawable/buttonholder2"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginTop="@dimen/_20sdp"
+            android:background="@color/accentColor"
             android:text="Sign Up"
+            android:gravity="center"
+            android:textAllCaps="false"
             android:textColor="@color/white"
-            android:textSize="@dimen/_13ssp" />
+            android:textSize="@dimen/_14ssp"
+            android:paddingStart="@dimen/_16sdp"
+            android:paddingEnd="@dimen/_16sdp"
+            tools:ignore="HardcodedText" />
 
     </LinearLayout>
 
+    <!-- Loading Layout -->
     <LinearLayout
         android:id="@+id/loadingLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:background="@color/transparent">
 
         <ProgressBar
             android:id="@+id/loadingProgressBar"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/accentColor" />
 
         <TextView
             android:id="@+id/loadingTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
             android:text="Loading, please wait..."
             android:textSize="@dimen/_13ssp"
-            android:textColor="@color/textColor"
-            android:layout_marginTop="@dimen/_10sdp" />
-
+            android:textColor="@color/textColorSecondary"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
 </LinearLayout>

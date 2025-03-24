@@ -33,360 +33,431 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:padding="@dimen/_8sdp"
+            tools:ignore="DisableBaselineAlignment">
 
+          <!-- Profile Picture Frame -->
           <FrameLayout
-              android:layout_width="110dp"
-              android:layout_height="110dp"
-              android:layout_marginEnd="16dp"
-              android:layout_gravity="center">  <!-- Added FrameLayout for overlapping -->
+              android:layout_width="@dimen/_80sdp"
+              android:layout_height="@dimen/_80sdp"
+              android:layout_marginEnd="@dimen/_8sdp"
+              android:layout_gravity="center">
 
+            <!-- Story Ring (Optional) -->
             <ImageView
                 android:id="@+id/storyRing"
-                android:layout_width="90dp"
-                android:layout_height="90dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:src="@drawable/story_ring"
                 android:visibility="gone"
                 android:scaleType="centerCrop"
-                android:layout_gravity="center" />  <!-- Centering the storyRing -->
+                android:layout_gravity="center"
+                tools:ignore="ContentDescription" />
 
+            <!-- Profile Picture -->
             <ImageView
                 android:id="@+id/profilePicture"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="@dimen/_70sdp"
+                android:layout_height="@dimen/_70sdp"
                 android:scaleType="centerCrop"
-                android:backgroundTint="@color/textColor"
+                android:backgroundTint="@color/primaryColor"
                 android:background="@drawable/circle"
                 android:clipToOutline="true"
-                android:layout_gravity="center" />  <!-- Centering the profilePicture -->
+                android:layout_gravity="center"
+                tools:ignore="ContentDescription,UnusedAttribute" />
+
+            <!-- Upload Story Button -->
+            <ImageButton
+                android:id="@+id/uploadStoryButton"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_marginStart="@dimen/_53sdp"
+                android:layout_marginTop="@dimen/_53sdp"
+                android:background="@drawable/circle"
+                android:backgroundTint="@color/interactiveColor"
+                android:elevation="@dimen/_3sdp"
+                android:importantForAccessibility="no"
+                android:scaleType="fitXY"
+                android:src="@drawable/add_white_icon_foreground"
+                tools:ignore="HardcodedText" />
 
           </FrameLayout>
 
-          <ImageButton
-              android:id="@+id/uploadStoryButton"
-              android:layout_width="@dimen/_20sdp"
-              android:layout_height="@dimen/_20sdp"
-              android:importantForAccessibility="no"
-              android:src="@drawable/add_white_icon_foreground"
-              android:backgroundTint="@color/LogoBackground"
-              android:background="@drawable/circle"
-              android:scaleType="fitXY"
-              android:layout_marginStart="-50dp"
-              android:layout_marginTop="@dimen/_20sdp" />
+          <!-- Follow Info -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center"
+            tools:ignore="DisableBaselineAlignment">
 
+          <!-- Posts Count -->
           <LinearLayout
-              android:layout_width="0dp"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_weight="1"
-              android:orientation="horizontal"
-              tools:ignore="DisableBaselineAlignment">
+              android:gravity="center"
+              tools:ignore="NestedWeights">
 
-            <!-- Posts Count -->
-            <LinearLayout
-                android:orientation="vertical"
+            <TextView
+                android:id="@+id/postsCount"
+                android:text="0"
+                android:textSize="@dimen/_14sdp"
+                android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center">
+                android:textColor="@color/textColorPrimary"
+                tools:ignore="HardcodedText" />
 
-              <TextView
-                  android:id="@+id/postsCount"
-                  android:text="0"
-                  android:textSize="18sp"
-                  android:textStyle="bold"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textColor="@color/textColor"
-                  />
-
-              <TextView
-                  android:text="Posts"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textColor="@color/textColor"/>
-            </LinearLayout>
-
-            <!-- SynerG Count -->
-            <LinearLayout
-                android:id="@+id/followersLinearLayout"
-                android:orientation="vertical"
+            <TextView
+                android:text="Posts"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_weight="1">
+                android:textColor="@color/textColorSecondary"
+                android:textSize="@dimen/_10sdp"
+                tools:ignore="HardcodedText" />
+          </LinearLayout>
 
-              <TextView
-                  android:id="@+id/followersTextView"
-                  android:text="0"
-                  android:textSize="18sp"
-                  android:textStyle="bold"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textColor="@color/textColor"
-                  tools:ignore="HardcodedText" />
+          <!-- Followers Count -->
+          <LinearLayout
+              android:id="@+id/followersLinearLayout"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:gravity="center"
+              android:layout_weight="1">
 
-              <TextView
-                  android:text="Followers"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textColor="@color/textColor"/>
-            </LinearLayout>
-
-            <!-- Followers Count -->
-            <LinearLayout
-                android:id="@+id/followingLinearLayout"
-                android:orientation="vertical"
+            <TextView
+                android:id="@+id/followersTextView"
+                android:text="0"
+                android:textSize="@dimen/_14sdp"
+                android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_weight="1">
+                android:textColor="@color/textColorPrimary"
+                tools:ignore="HardcodedText" />
 
-              <TextView
-                  android:id="@+id/followingTextView"
-                  android:text="0"
-                  android:textSize="18sp"
-                  android:textStyle="bold"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textColor="@color/textColor"/>
+            <TextView
+                android:text="Followers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="@dimen/_10sdp"
+                tools:ignore="HardcodedText" />
+          </LinearLayout>
 
-              <TextView
-                  android:text="Following"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textColor="@color/textColor"/>
-            </LinearLayout>
+          <!-- Following Count -->
+          <LinearLayout
+              android:id="@+id/followingLinearLayout"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:gravity="center"
+              android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/followingTextView"
+                android:text="0"
+                android:textSize="@dimen/_14sdp"
+              android:textStyle="bold"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="@color/textColorPrimary"
+              tools:ignore="HardcodedText" />
+
+            <TextView
+                android:text="Following"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textColorSecondary"
+                android:textSize="@dimen/_10sdp"
+                tools:ignore="HardcodedText" />
 
           </LinearLayout>
         </LinearLayout>
+      </LinearLayout>
 
 
 
-        <!-- Name and Handle -->
         <LinearLayout
             android:id="@+id/nameCredentials"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:padding="10dp"
-            android:background="@drawable/inputholder"
-            android:backgroundTint="@color/LogoBackground"
-            android:layout_marginTop="8dp">
+            android:paddingTop="@dimen/_8sdp"
+            android:paddingBottom="@dimen/_8sdp"
+            android:paddingStart="@dimen/_10sdp"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/primaryColor"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:elevation="@dimen/_4sdp"
+            android:clipToOutline="true"
+            tools:ignore="RtlSymmetry,UnusedAttribute">
 
+          <!-- Username -->
           <TextView
               android:id="@+id/userName"
-              android:text="Syed Muhaimen"
-              android:textStyle="bold"
-              android:textSize="@dimen/_16ssp"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:textColor="@color/white"/>
+              android:text="Syed Muhaimen"
+              android:textStyle="bold"
+              android:textSize="@dimen/_16sdp"
+              android:textColor="@color/textColorPrimary"
+              android:layout_marginBottom="@dimen/_4sdp"
+              tools:ignore="HardcodedText" />
 
+          <!-- Bio and Rank Section -->
           <LinearLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="horizontal"
-              android:gravity="center_vertical"
-              >
+              android:gravity="center_vertical">
 
+            <!-- Bio Section -->
             <LinearLayout
                 android:id="@+id/bioSection"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_weight="1"
-                android:layout_marginTop="@dimen/_2sdp">
+                android:layout_weight="3"
+                android:layout_marginEnd="@dimen/_6sdp">
 
+              <!-- Gamer Tag -->
               <TextView
                   android:id="@+id/gamerTag"
-                  android:text="mYm XEROXXX"
-                  android:textSize="@dimen/_10ssp"
-                  android:textStyle="italic"
-                  android:textColor="@color/white"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  android:layout_weight="0.75"
-                  android:paddingEnd="@dimen/_10sdp"
-                  android:maxLines="1"
+                  android:text="mYm XEROXXX"
+                  android:textSize="@dimen/_12sdp"
+                  android:textStyle="italic"
+                  android:textColor="@color/textColorSecondary"
                   android:ellipsize="end"
-                  />
+                  android:maxLines="1"
+                  tools:ignore="HardcodedText" />
 
+              <!-- Bio Text -->
               <TextView
                   android:id="@+id/bioText"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:ellipsize="end"
-                  android:maxLines="3"
+                  android:maxLines="2"
                   android:text="This is a sample bio..."
-                  android:textColor="@color/white"
-                  android:textSize="@dimen/_11ssp" />
+                  android:textColor="@color/textColorSecondary"
+                  android:textSize="@dimen/_12sdp"
+                  android:layout_marginTop="@dimen/_2sdp"
+                  tools:ignore="HardcodedText" />
 
-              <!-- Show More -->
+              <!-- See More -->
               <TextView
                   android:id="@+id/showMore"
-                  android:text="See More"
-                  android:textSize="@dimen/_10ssp"
-                  android:textColor="#007AFF"
-                  android:layout_marginLeft="10dp"
                   android:layout_width="wrap_content"
-                  android:layout_height="wrap_content" />
+                  android:layout_height="wrap_content"
+                  android:text="See More"
+                  android:textSize="@dimen/_12sdp"
+                  android:textColor="@color/highlightColor"
+                  android:layout_marginTop="@dimen/_2sdp"
+                  android:clickable="true"
+                  android:focusable="true"
+                  android:background="?attr/selectableItemBackgroundBorderless"
+                  tools:ignore="HardcodedText" />
             </LinearLayout>
 
-
-
+            <!-- Rank Section -->
             <TextView
                 android:id="@+id/rankTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Rank: 010000"
+                android:text="Rank: 000000"
                 android:textStyle="bold"
-                android:textSize="@dimen/_10sdp"
-                android:gravity="left"
-                android:textColor="@color/white"
-                android:layout_gravity="right|bottom"
-                android:layout_weight="0.25"
+                android:textSize="@dimen/_12sdp"
+                android:textColor="@color/accentColor"
+                android:gravity="end"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="@dimen/_4sdp"
                 android:maxLines="1"
-                />
+                tools:ignore="HardcodedText" />
 
+            <!-- Leaderboard Button -->
             <ImageView
-
                 android:id="@+id/leaderboardButton"
                 android:layout_width="@dimen/_20sdp"
-                android:layout_height="@dimen/_20sdp"
-                android:layout_gravity="right|bottom"
-                android:src="@mipmap/ic_leaderboard"
-                tools:ignore="ContentDescription" />
-
-
+                android:layout_height="@dimen/_24sdp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginStart="@dimen/_4sdp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_leaderboard_foreground"
+                android:layout_marginEnd="@dimen/_5sdp"
+                android:tint="@color/accentColor"
+                tools:ignore="ContentDescription,UseAppTint" />
           </LinearLayout>
-
-
         </LinearLayout>
-        <!-- Bio Section -->
 
 
-        <!-- Settings Buttons -->
         <LinearLayout
             android:id="@+id/settingsBoard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_gravity="center"
             android:gravity="center"
-            android:layout_marginTop="16dp">
+            android:paddingHorizontal="@dimen/_10sdp"
+            android:paddingVertical="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:background="@color/primaryColor"
+            android:elevation="@dimen/_4sdp"
+            android:clipToOutline="true"
+            tools:ignore="UnusedAttribute">
 
-          <Button
-              android:id="@+id/editProfileButton"
-              android:text="Edit Profile"
-              android:layout_width="@dimen/_15sdp"
-              android:layout_height="@dimen/_20sdp"
-              android:textAlignment="center"
-              android:textSize="@dimen/_9sdp"
-              android:layout_weight="1"
-              android:textColor="@color/textColor"
-              android:backgroundTint="@color/secondaryColor"
-              android:background="@drawable/curved_rectangle"
-              android:layout_marginEnd="@dimen/_8sdp" />
+        <!-- Edit Profile Button -->
+        <Button
+            android:id="@+id/editProfileButton"
+            android:layout_width="@dimen/_15sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:layout_weight="1"
+            android:text="Edit Profile"
+            android:textSize="@dimen/_9sdp"
+            android:textAlignment="center"
+            android:textColor="@color/textColorPrimary"
+            android:backgroundTint="@color/softGray"
+            android:background="@drawable/rounded_corners"
+            android:gravity="center"
+            android:layout_marginEnd="@dimen/_8sdp"
 
-          <Button
-              android:id="@+id/settingsButton"
-              android:text="Settings"
-              android:layout_width="@dimen/_15sdp"
-              android:layout_height="@dimen/_20sdp"
-              android:textAlignment="center"
-              android:textSize="@dimen/_9sdp"
-              android:layout_weight="1"
-              android:textColor="@color/textColor"
-              android:backgroundTint="@color/secondaryColor"
-              android:background="@drawable/curved_rectangle"
-              android:layout_marginStart="@dimen/_8sdp"
-              android:layout_marginEnd="@dimen/_8sdp"
-              tools:ignore="HardcodedText" />
+            tools:ignore="HardcodedText" />
 
-          <ImageButton
-              android:src="@drawable/share_icon_foreground"
-              android:layout_width="@dimen/_24sdp"
-              android:layout_height="@dimen/_22sdp"
-              android:scaleType="centerInside"
-              android:adjustViewBounds="true"
-              android:layout_marginStart="@dimen/_8sdp"
-              android:backgroundTint="@color/secondaryColor"
-              android:background="?android:selectableItemBackgroundBorderless" />
+        <!-- Settings Button -->
+        <Button
+            android:id="@+id/settingsButton"
+            android:layout_width="@dimen/_15sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:textAlignment="center"
+            android:layout_weight="1"
+            android:text="Settings"
+            android:textSize="@dimen/_9sdp"
+            android:textColor="@color/textColorPrimary"
+            android:backgroundTint="@color/softGray"
+            android:background="@drawable/rounded_corners"
+            android:gravity="center"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:layout_marginEnd="@dimen/_8sdp"
 
-        </LinearLayout>
-        <!-- Analytics Section -->
+            tools:ignore="HardcodedText" />
+
+        <!-- Share Icon -->
+        <ImageButton
+            android:id="@+id/shareButton"
+            android:layout_width="@dimen/_25sdp"
+        android:layout_height="@dimen/_25sdp"
+        android:src="@drawable/share_icon_foreground"
+        android:tint="@color/textColorPrimary"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:scaleType="centerInside"
+        android:adjustViewBounds="true"
+        android:layout_marginStart="@dimen/_8sdp"
+        tools:ignore="ContentDescription,UseAppTint" />
+      </LinearLayout>
+
         <LinearLayout
             android:id="@+id/analyticsBoard"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_150sdp"
             android:orientation="vertical"
-            android:padding="10dp"
-            android:background="@drawable/inputholder"
-            android:backgroundTint="@color/LogoBackground"
-            android:layout_marginTop="@dimen/_10sdp">
+            android:padding="@dimen/_12sdp"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/primaryColor"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:elevation="@dimen/_4sdp"
+            android:clipToOutline="true"
+            tools:ignore="UnusedAttribute">
 
-          <LinearLayout
-              android:layout_width="match_parent"
+        <!-- Header Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:weightSum="3"
+            android:paddingBottom="@dimen/_8sdp"
+            tools:ignore="UseCompoundDrawables">
+
+          <!-- Title -->
+          <TextView
+              android:layout_width="0dp"
               android:layout_height="wrap_content"
-              android:orientation="horizontal"
-              android:weightSum="3">
+              android:layout_weight="2.8"
+              android:text="Games Dashboard"
+              android:textColor="@color/textColorPrimary"
+              android:textSize="@dimen/_14sdp"
+              android:textStyle="bold"
+              android:gravity="start|center_vertical"
+              tools:ignore="HardcodedText" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2.8"
-                android:text="Games Dashboard"
-                android:textColor="@color/backgroundColor"
-                android:textSize="@dimen/_12sdp"
-                android:textStyle="bold"
-                android:gravity="start|center_vertical" />
+          <!-- My Games Button -->
+          <ImageView
+              android:id="@+id/myGamesButton"
+              android:layout_width="@dimen/_24sdp"
+          android:layout_height="@dimen/_24sdp"
+          android:layout_gravity="center"
+          android:layout_weight="0.2"
+          android:src="@drawable/ic_navigation_add"
+          android:tint="@color/interactiveColor"
+          android:background="?attr/selectableItemBackgroundBorderless"
 
-            <ImageView
-                android:id="@+id/myGamesButton"
-                android:layout_width="20dp"
-                android:layout_height="7dp"
-                android:layout_gravity="center"
-                android:layout_weight="0.2"
-                android:src="@drawable/ic_navigation_add" />
-          </LinearLayout>
-
-
-
-        <androidx.recyclerview.widget.RecyclerView
-              android:id="@+id/analytics_recyclerview"
-              android:layout_width="wrap_content"
-              android:layout_height="match_parent">
-
-          </androidx.recyclerview.widget.RecyclerView>
-
+          tools:ignore="ContentDescription,UseAppTint" />
         </LinearLayout>
+
+        <!-- RecyclerView for Analytics Data -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/analytics_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingHorizontal="@dimen/_8sdp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"
+        android:background="@color/transparent"
+        tools:listitem="@layout/analytics_card" />
+      </LinearLayout>
 
         <!-- Highlights -->
         <LinearLayout
             android:id="@+id/highlightsBox"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_85sdp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
-            android:padding="10dp"
+            android:padding="@dimen/_5sdp"
             android:orientation="vertical"
-            >
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/primaryColor"
+            android:elevation="@dimen/_4sdp"
+            android:clipToOutline="true"
+            tools:ignore="UnusedAttribute">
+
+          <!-- Title -->
           <TextView
-              android:text="Highlights"
-              android:textSize="@dimen/_12sdp"
-              android:textStyle="bold"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:textColor="@color/textColor"
-              tools:ignore="HardcodedText,InefficientWeight" />
+              android:text="Highlights"
+              android:textSize="@dimen/_14sdp"
+              android:textStyle="bold"
+              android:textColor="@color/textColorPrimary"
+              android:gravity="start"
+              tools:ignore="HardcodedText" />
+
+          <!-- RecyclerView for Highlights -->
           <androidx.recyclerview.widget.RecyclerView
               android:id="@+id/highlights_recyclerview"
-              android:layout_width="wrap_content"
-              android:layout_height="match_parent">
-
-          </androidx.recyclerview.widget.RecyclerView>
-
+              android:layout_width="match_parent"
+              android:layout_height="0dp"
+              android:layout_weight="1"
+              android:paddingHorizontal="@dimen/_8sdp"
+              android:clipToPadding="false"
+              android:scrollbars="horizontal"
+              android:background="@color/transparent"
+              tools:listitem="@layout/highlights_card" />
         </LinearLayout>
 
         <!-- Posts -->
@@ -394,27 +465,36 @@
             android:id="@+id/postsBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="100dp"
-            android:orientation="vertical">
+            android:padding="@dimen/_12sdp"
+            android:orientation="vertical"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/primaryColor"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:elevation="@dimen/_4sdp"
+            android:clipToOutline="true"
+            tools:ignore="UnusedAttribute">
+
+          <!-- Title -->
           <TextView
-              android:text="Posts"
-              android:textSize="@dimen/_12sdp"
-              android:textStyle="bold"
-              android:layout_width="wrap_content"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:textColor="@color/textColor"/>
+              android:text="Posts"
+              android:textSize="@dimen/_14sdp"
+              android:textStyle="bold"
+              android:textColor="@color/textColorPrimary"
+              android:gravity="start"
+              tools:ignore="HardcodedText" />
+
+          <!-- RecyclerView for Posts -->
           <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/posts_recyclerview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none"
-          android:isScrollContainer="false" />
-
+              android:id="@+id/posts_recyclerview"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:paddingVertical="@dimen/_8sdp"
+              android:scrollbars="vertical"
+              android:background="@color/transparent"
+              tools:listitem="@layout/posts_card" />
         </LinearLayout>
-
       </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -425,92 +505,138 @@
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/_45sdp"
         android:orientation="horizontal"
-
         android:gravity="center"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:background="@drawable/navigation_bar_bg"
+        android:paddingStart="@dimen/_8sdp"
+        android:paddingEnd="@dimen/_8sdp"
+        android:background="@color/primaryColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        >
-
-
-
-
-      <!-- Home Button -->
+        tools:ignore="DisableBaselineAlignment">
 
       <LinearLayout
           android:id="@+id/home"
-          android:layout_width="100dp"
-          android:layout_height="40dp"
+          android:layout_width="0dp"
+          android:layout_weight="1"
+          android:layout_height="match_parent"
           android:gravity="center"
-          android:background="@color/primaryColor"
-          android:orientation="horizontal">
+          android:orientation="vertical"
+          android:background="?attr/selectableItemBackgroundBorderless">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/ic_navigation_home"
-            tools:ignore="ContentDescription" />
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
+            android:src="@drawable/ic_navigation_home"
+            android:tint="@color/textColorPrimary"
+            tools:ignore="ContentDescription,UseAppTint" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Home"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            android:layout_marginLeft="5dp"
-
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_2sdp"
             tools:ignore="HardcodedText" />
-
       </LinearLayout>
 
-      <!-- MyGames Button -->
+      <LinearLayout
+          android:id="@+id/searchButton"
+          android:layout_width="0dp"
+          android:layout_weight="1"
+          android:layout_height="match_parent"
+          android:gravity="center"
+          android:orientation="vertical"
+          android:background="?attr/selectableItemBackgroundBorderless">
 
-      <!-- Synergy Button -->
-      <ImageView
-          android:id="@+id/exploreButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginLeft="25dp"
-          android:background="@drawable/ic_navigation_search"
-          tools:ignore="ContentDescription" />
+        <ImageView
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
+            android:src="@drawable/ic_navigation_search"
+            android:tint="@color/textColorPrimary"
+            tools:ignore="ContentDescription,UseAppTint" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_2sdp"
+            tools:ignore="HardcodedText" />
+      </LinearLayout>
 
-
-
-      <!-- Add Post Button -->
-
-      <ImageView
+      <FrameLayout
           android:id="@+id/addPostButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginLeft="40dp"
-          android:background="@drawable/ic_navigation_add" />
+          android:layout_width="@dimen/_48sdp"
+          android:layout_height="@dimen/_48sdp"
+          android:layout_gravity="center"
+          android:background="@drawable/rounded_button_bg"
+          android:elevation="@dimen/_6sdp">
 
+        <ImageView
+            android:layout_width="@dimen/_26sdp"
+            android:layout_height="@dimen/_26sdp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_navigation_add"
+            android:tint="@color/primaryColor"
+            tools:ignore="ContentDescription,UseAppTint" />
+      </FrameLayout>
 
-      <!-- TalentXchange Button -->
-      <ImageView
-          android:id="@+id/talentExchangeButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginLeft="40dp"
-          android:background="@drawable/ic_change_foreground" />
+      <LinearLayout
+          android:id="@+id/esportsButton"
+          android:layout_width="0dp"
+          android:layout_weight="1"
+          android:layout_height="match_parent"
+          android:gravity="center"
+          android:orientation="vertical"
+          android:background="?attr/selectableItemBackgroundBorderless">
 
+        <ImageView
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
+            android:src="@drawable/ic_change_foreground"
+            android:tint="@color/textColorPrimary"
+            tools:ignore="ContentDescription,UseAppTint" />
 
-      <!-- Add Profile Button -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Esports"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_2sdp"
+            tools:ignore="HardcodedText" />
+      </LinearLayout>
 
-      <ImageView
+      <LinearLayout
           android:id="@+id/profileButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:background="@drawable/ic_navigation_profile"
-          android:layout_marginLeft="40dp"/>
+          android:layout_width="0dp"
+          android:layout_weight="1"
+          android:layout_height="match_parent"
+          android:gravity="center"
+          android:orientation="vertical"
+          android:background="?attr/selectableItemBackgroundBorderless">
 
+        <ImageView
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
+            android:src="@drawable/ic_navigation_profile"
+            android:tint="@color/textColorPrimary"
+            tools:ignore="ContentDescription,UseAppTint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profile"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_2sdp"
+            tools:ignore="HardcodedText" />
+      </LinearLayout>
     </LinearLayout>
+
   </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

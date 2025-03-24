@@ -7,10 +7,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -20,13 +20,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.android.volley.AuthFailureError
-import com.android.volley.NetworkError
-import com.android.volley.NoConnectionError
 import com.android.volley.Request
 import com.android.volley.RequestQueue
-import com.android.volley.ServerError
-import com.android.volley.TimeoutError
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.JsonObjectRequest
@@ -85,8 +80,8 @@ class otherUserProfile : AppCompatActivity() {
     private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var highlightsRecyclerView: RecyclerView
     private lateinit var highlightsAdapter: highlightsAdapter
-    private lateinit var exploreButton: ImageView
-    private lateinit var talentExchangeButton:ImageView
+    private lateinit var exploreButton: LinearLayout
+    private lateinit var talentExchangeButton:LinearLayout
     private lateinit var postsCount: TextView
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: PostsAdapter
@@ -96,12 +91,12 @@ class otherUserProfile : AppCompatActivity() {
     private lateinit var requestAllianceButton: Button
     private lateinit var followingTextView: TextView
     private lateinit var followersTextView: TextView
-    private lateinit var addPost: ImageView
+    private lateinit var addPost: FrameLayout
     private lateinit var storyRing: ImageView
     private lateinit var userData: UserData
     private lateinit var messageButton: Button
     private lateinit var leaderboardButton: ImageView
-    private lateinit var profileButton:ImageView
+    private lateinit var profileButton:LinearLayout
     private lateinit var rankTextView: TextView
     private lateinit var requestQueue: RequestQueue
     private lateinit var myGamesButton: ImageView
@@ -129,7 +124,7 @@ class otherUserProfile : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         receivedUserId = intent.getStringExtra("userId").toString()
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(receivedUserId ?: "")
-        storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("profileImages/$receivedUserId")
+        storageReference = FirebaseStorage.getInstance().reference.child("profileImages/$receivedUserId")
         requestQueue = Volley.newRequestQueue(this)
         activity="otherUserProfile"
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
@@ -182,7 +177,7 @@ class otherUserProfile : AppCompatActivity() {
             startActivity(intent)
         }
 
-        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton=findViewById(R.id.esportsButton)
         talentExchangeButton.setOnClickListener {
             val intent = Intent(this, switchToEsports::class.java)
             intent.putExtra("loadedFromActivity","casual")
@@ -225,7 +220,7 @@ class otherUserProfile : AppCompatActivity() {
             startActivity(intent)
         }
 
-        exploreButton= findViewById(R.id.exploreButton)
+        exploreButton= findViewById(R.id.searchButton)
         exploreButton.setOnClickListener {
             val intent = Intent(this, ExplorePage::class.java)
             startActivity(intent)
@@ -262,6 +257,7 @@ class otherUserProfile : AppCompatActivity() {
     }
 
     //handles the connection button state
+    @SuppressLint("SetTextI18n", "UseCompatLoadingForDrawables")
     private fun updateButtonState(button: Button, allianceStatus: String) {
         when (allianceStatus) {
             "accepted" -> {
@@ -289,7 +285,7 @@ class otherUserProfile : AppCompatActivity() {
     }
 
     // Handles Connection's button click logic
-    @SuppressLint("RestrictedApi")
+    @SuppressLint("RestrictedApi", "SetTextI18n", "UseCompatLoadingForDrawables")
     private fun handleButtonClick(button: Button, currentUserId: String, receiverId: String) {
         val database = FirebaseDatabase.getInstance()
         val userRef = database.getReference("userData")
@@ -557,7 +553,9 @@ class otherUserProfile : AppCompatActivity() {
                         val storyId = storyJson.optString("story_id", "")
                         val mediaUrl = storyJson.optString("media_url", "")
                         val duration = storyJson.optInt("duration", 0)
-                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url",
+                            null.toString()
+                        )
                         val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]") // Handle as string
                         val draggableTexts = try {
                             JSONArray(draggableTextsJsonString)
@@ -565,9 +563,9 @@ class otherUserProfile : AppCompatActivity() {
                             Log.e("fetchUserStories", "Invalid JSON for draggable_texts: $draggableTextsJsonString")
                             JSONArray()
                         }
-                        val createdAt = storyJson.optString("created_at", null)
-                        val city = storyJson.optString("city", null)
-                        val country = storyJson.optString("country", null)
+                        val createdAt = storyJson.optString("created_at", null.toString())
+                        val city = storyJson.optString("city", null.toString())
+                        val country = storyJson.optString("country", null.toString())
                         val latitude = storyJson.optDouble("latitude", 0.0)
                         val longitude = storyJson.optDouble("longitude", 0.0)
                         val userName = storyJson.optString("full_name", "")
@@ -700,6 +698,7 @@ class otherUserProfile : AppCompatActivity() {
         requestQueue.add(jsonArrayRequest)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updatePostsUI(posts: List<Post>) {
         postsAdapter = PostsAdapter(posts)
         postsRecyclerView.adapter = postsAdapter
@@ -736,7 +735,9 @@ class otherUserProfile : AppCompatActivity() {
                         val storyId = storyJson.optString("story_id", "")
                         val mediaUrl = storyJson.optString("media_url", "")
                         val duration = storyJson.optInt("duration", 0)
-                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url", null)
+                        val trimmedAudioUrl = storyJson.optString("trimmed_audio_url",
+                            null.toString()
+                        )
                         val draggableTextsJsonString = storyJson.optString("draggable_texts", "[]") // Handle as string
                         val draggableTexts = try {
                             JSONArray(draggableTextsJsonString)
@@ -745,9 +746,9 @@ class otherUserProfile : AppCompatActivity() {
                             JSONArray()
                         }
 
-                        val createdAt = storyJson.optString("created_at", null)
-                        val city = storyJson.optString("city", null)
-                        val country = storyJson.optString("country", null)
+                        val createdAt = storyJson.optString("created_at", null.toString())
+                        val city = storyJson.optString("city", null.toString())
+                        val country = storyJson.optString("country", null.toString())
                         val latitude = storyJson.optDouble("latitude", 0.0)
                         val longitude = storyJson.optDouble("longitude", 0.0)
                         val userName = storyJson.optString("full_name", "")
@@ -888,6 +889,7 @@ class otherUserProfile : AppCompatActivity() {
 
         // Fetch and count followers with status "accepted"
         followersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            @SuppressLint("SetTextI18n")
             override fun onDataChange(snapshot: DataSnapshot) {
                 val acceptedFollowersCount = snapshot.children.count {
                     it.child("status").value?.toString() == "accepted"
@@ -902,6 +904,7 @@ class otherUserProfile : AppCompatActivity() {
 
         // Fetch and count following with status "accepted"
         followingRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            @SuppressLint("SetTextI18n")
             override fun onDataChange(snapshot: DataSnapshot) {
                 val acceptedFollowingCount = snapshot.children.count {
                     it.child("status").value?.toString() == "accepted"

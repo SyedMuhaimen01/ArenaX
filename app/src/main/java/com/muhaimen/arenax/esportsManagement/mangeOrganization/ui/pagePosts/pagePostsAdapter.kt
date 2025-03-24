@@ -118,7 +118,7 @@ private val organizationName: String // Pass organization name to adapter
         private var likeButton: ImageButton = itemView.findViewById(R.id.likeButton)
         private var alreadyLikedButton: ImageButton = itemView.findViewById(R.id.likeFilledButton)
 
-        private val storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference
+        private val storageReference = FirebaseStorage.getInstance().reference
 
         fun playContent() {
             if (exoPlayer == null) {

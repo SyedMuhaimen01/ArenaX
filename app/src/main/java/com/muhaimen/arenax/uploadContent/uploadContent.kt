@@ -71,7 +71,7 @@ class UploadContent : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var userData: UserData
     private var mediaUri: Uri? = null
-    private val firebaseStorage = FirebaseStorage.getInstance("gs://i210888.appspot.com")
+    private val firebaseStorage = FirebaseStorage.getInstance()
     private lateinit var playPauseButton: Button
     private lateinit var trimButton: Button
     private lateinit var cancelButton: Button

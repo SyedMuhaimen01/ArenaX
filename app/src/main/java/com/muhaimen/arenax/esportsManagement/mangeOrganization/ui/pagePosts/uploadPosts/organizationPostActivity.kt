@@ -196,7 +196,7 @@ class organizationPostActivity : AppCompatActivity() {
                 val organization = data.getValue(OrganizationData::class.java)
                 // Assuming email is a TextView and profileImage is an ImageView
                 organizationId = organization?.organizationId
-                val storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("organizationContent/$organizationId/PagePosts/${UUID.randomUUID()}")
+                val storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/$organizationId/PagePosts/${UUID.randomUUID()}")
                 mediaUri?.let { uri ->
                     val uploadTask = storageReference.putFile(uri)
 

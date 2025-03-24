@@ -21,6 +21,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -102,7 +103,7 @@ class UserProfile : AppCompatActivity() {
     private lateinit var myGamesList: List<AnalyticsData>
     private lateinit var highlightsRecyclerView: RecyclerView
     private lateinit var highlightsAdapter: highlightsAdapter
-    private lateinit var exploreButton:ImageView
+    private lateinit var exploreButton:LinearLayout
     private lateinit var postsCount:TextView
     private lateinit var postsRecyclerView: RecyclerView
     private lateinit var postsAdapter: PostsAdapter
@@ -111,13 +112,13 @@ class UserProfile : AppCompatActivity() {
     private lateinit var showMoreTextView: TextView
     private lateinit var editProfileButton: Button
     private lateinit var myGamesButton: ImageView
-    private lateinit var addPost: ImageView
+    private lateinit var addPost: FrameLayout
     private lateinit var uploadStoryButton: ImageView
     private lateinit var homeButton: LinearLayout
     private lateinit var storyRing: ImageView
     private lateinit var userData: UserData
     private lateinit var settingsButton:Button
-    private lateinit var talentExchangeButton:ImageView
+    private lateinit var talentExchangeButton:LinearLayout
     private lateinit var leaderboardButton: ImageView
     private lateinit var rankTextView: TextView
     private lateinit var followersLinearLayout:LinearLayout
@@ -148,12 +149,12 @@ class UserProfile : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        window.statusBarColor = resources.getColor(R.color.LogoBackground)
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
         auth = FirebaseAuth.getInstance()
         userId = auth.currentUser?.uid ?: ""
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(auth.currentUser?.uid ?: "")
-        storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("profileImages/${auth.currentUser?.uid}")
+        storageReference = FirebaseStorage.getInstance().reference.child("profileImages/${auth.currentUser?.uid}")
         requestQueue = Volley.newRequestQueue(this)
         activity="UserProfile"
         myGamesListRecyclerView = findViewById(R.id.analytics_recyclerview)
@@ -264,7 +265,7 @@ class UserProfile : AppCompatActivity() {
             startActivity(intent)
         }
 
-        exploreButton= findViewById(R.id.exploreButton)
+        exploreButton= findViewById(R.id.searchButton)
         exploreButton.setOnClickListener {
             val intent = Intent(this, ExplorePage::class.java)
             startActivity(intent)
@@ -282,7 +283,7 @@ class UserProfile : AppCompatActivity() {
             startActivity(intent)
         }
 
-        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton=findViewById(R.id.esportsButton)
         talentExchangeButton.setOnClickListener {
             val intent = Intent(this, switchToEsports::class.java)
             intent.putExtra("loadedFromActivity","casual")

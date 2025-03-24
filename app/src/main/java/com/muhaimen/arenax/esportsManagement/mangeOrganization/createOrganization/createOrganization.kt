@@ -217,7 +217,7 @@ class createOrganization : AppCompatActivity() {
     }
 
     private fun uploadImageToFirebase(organizationId: String,organization: OrganizationData) {
-        storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("organizationContent/$organizationId/organizationProfilePictures")
+        storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/$organizationId/organizationProfilePictures")
 
         if (imageUri != null) {
             // Generate a unique filename for the image to avoid overwriting
