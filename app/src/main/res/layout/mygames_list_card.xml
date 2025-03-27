@@ -1,76 +1,96 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/analytics_card_view"
     android:layout_width="match_parent"
     android:layout_height="@dimen/_80sdp"
-    android:layout_margin="@dimen/_6sdp"
-    app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="@dimen/_6sdp"
-    app:cardElevation="@dimen/_2sdp">
+    android:layout_marginTop="@dimen/_6sdp"
+    android:layout_marginBottom="@dimen/_6sdp"
+    app:cardBackgroundColor="@color/secondaryColor"
+    app:cardCornerRadius="@dimen/_8sdp"
+    app:cardElevation="@dimen/_4sdp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/secondaryColor"
+    android:padding="@dimen/_8sdp">
+
+    <!-- Game Icon -->
+<ImageView
+    android:id="@+id/game_icon"
+    android:layout_width="@dimen/_40sdp"
+    android:layout_height="@dimen/_40sdp"
+    android:layout_marginEnd="@dimen/_10sdp"
+    android:scaleType="centerCrop"
+    android:contentDescription="Game Icon"
+    android:padding="@dimen/_2sdp"
+    tools:ignore="HardcodedText" />
+
+    <!-- Text Container: Game Name and Hours -->
+<LinearLayout
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:orientation="vertical"
+    android:gravity="center_vertical">
+
+<!-- Game Name -->
+<TextView
+    android:id="@+id/game_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Game Name"
+    android:textStyle="bold"
+    android:textSize="@dimen/_12ssp"
+    android:textColor="@color/textColorPrimary"
+android:maxLines="1"
+android:ellipsize="end"
+    tools:ignore="HardcodedText" />
+
+<!-- Total Hours -->
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    tools:ignore="UseCompoundDrawables">
+
+    <ImageView
+        android:layout_width="@dimen/_12sdp"
+        android:layout_height="@dimen/_12sdp"
+        android:src="@drawable/ic_clock_icon_foreground"
+        android:tint="@color/interactiveColor"
+        android:contentDescription="Clock Icon"
+        tools:ignore="HardcodedText,UseAppTint" />
+
+    <TextView
+        android:id="@+id/total_hours"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@color/white"
-        android:padding="@dimen/_4sdp">
+        android:layout_marginStart="@dimen/_4sdp"
+        android:text="0 hrs"
+        android:textSize="@dimen/_10ssp"
+        android:textColor="@color/textColorSecondary"
+    android:gravity="center_vertical"
+        tools:ignore="HardcodedText" />
+</LinearLayout>
+</LinearLayout>
 
-
-            <!-- Game Icon -->
-            <ImageView
-                android:id="@+id/game_icon"
-                android:layout_width="@dimen/_40sdp"
-                android:layout_height="@dimen/_40sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:scaleType="centerCrop"
-                android:contentDescription="Game Icon" />
-
-            <!-- Text Container: Game Name and Hours -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <!-- Game Name -->
-                <TextView
-                    android:id="@+id/game_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Game Name"
-                    android:textStyle="bold"
-                    android:textSize="@dimen/_12ssp"
-                    android:textColor="@color/textColor" />
-
-                <!-- Total Hours -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:id="@+id/total_hours"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="@dimen/_10ssp"
-                        android:textColor="@color/textColor" />
-                </LinearLayout>
-
-
-        </LinearLayout>
-
-        <!-- GraphView -->
-        <com.jjoe64.graphview.GraphView
-            android:id="@+id/line_chart"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/_50sdp"
-            android:layout_marginStart="@dimen/_4sdp"
-            android:layout_weight="1"
-            android:layout_marginTop="@dimen/_3sdp"
-            android:layout_marginBottom="@dimen/_1sdp"
-            android:contentDescription="Line Chart" />
+    <!-- GraphView -->
+<com.jjoe64.graphview.GraphView
+android:id="@+id/line_chart"
+android:layout_width="0dp"
+android:layout_height="@dimen/_50sdp"
+android:layout_weight="1"
+android:layout_marginStart="@dimen/_8sdp"
+android:layout_marginTop="@dimen/_3sdp"
+android:layout_marginBottom="@dimen/_3sdp"
+android:contentDescription="Line Chart"
+android:background="@color/backgroundColor"
+    android:padding="@dimen/_4sdp"
+    tools:ignore="HardcodedText" />
     </LinearLayout>
-
-</androidx.cardview.widget.CardView>
+    </androidx.cardview.widget.CardView>

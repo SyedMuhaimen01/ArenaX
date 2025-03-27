@@ -64,8 +64,8 @@ class PersonalInfoActivity : AppCompatActivity() {
         }
 
         val genderOptions = Gender.entries.map { it.displayName }
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderOptions)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val adapter = ArrayAdapter(this, R.layout.dropdown_spinner_item, genderOptions)
+        adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
         genderSpinner.adapter = adapter
 
         registerBtn.setOnClickListener {

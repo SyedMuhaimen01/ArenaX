@@ -436,7 +436,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:padding="@dimen/_5sdp"
+                    android:padding="@dimen/_12sdp"
                     android:orientation="vertical"
                     android:background="@drawable/rounded_corners"
                     android:backgroundTint="@color/primaryColor"

@@ -55,7 +55,7 @@ class gamesDashboardAdapter(private var analyticsList: List<AnalyticsData>, priv
             }.toTypedArray()
 
             val series = LineGraphSeries(dataPoints)
-            series.color = itemView.context.getColor(R.color.primaryColor)
+            series.color = itemView.context.getColor(R.color.interactiveColor)
             series.isDrawDataPoints = false
             series.dataPointsRadius = 5f
 

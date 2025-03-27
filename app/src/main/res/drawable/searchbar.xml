@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- rectangle_4967 from your XD file. -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle" >
-    <corners android:radius="40dp" />
-    <solid android:color="@color/white" />
-    <stroke android:color="@color/primaryColor" android:width="@dimen/_1sdp"/>
+<!-- res/drawable/searchbar_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/backgroundColor" /> <!-- Matches app's background -->
+    <corners android:radius="@dimen/_8sdp" /> <!-- Rounded corners for modern look -->
+    <stroke
+        android:width="@dimen/_1sdp"
+        android:color="@color/softGray" /> <!-- Subtle border -->
 </shape>

@@ -1,0 +1,22 @@
+<resources>
+    <!-- Bottom Sheet Style -->
+    <style name="BottomSheetStyle" parent="Widget.MaterialComponents.BottomSheet">
+        <!-- Set the background color of the Bottom Sheet -->
+        <item name="android:background">@android:color/transparent</item>
+        <!-- Use the modal bottom sheet style -->
+        <item name="behavior_peekHeight">@dimen/_450sdp</item> <!-- Adjust initial height -->
+        <item name="shapeAppearanceOverlay">@style/BottomSheetShape</item> <!-- Rounded corners -->
+    </style>
+
+    <!-- Shape Appearance for Rounded Corners -->
+    <style name="BottomSheetShape">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">50dp</item> <!-- Rounded top-left corner -->
+        <item name="cornerSizeTopRight">50dp</item> <!-- Rounded top-right corner -->
+        <item name="cornerSizeBottomLeft">0dp</item> <!-- No rounding for bottom-left -->
+        <item name="cornerSizeBottomRight">0dp</item> <!-- No rounding for bottom-right -->
+
+    </style>
+
+
+</resources>

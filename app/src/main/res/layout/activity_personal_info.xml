@@ -7,7 +7,7 @@
     tools:context=".LoginSignUp.PersonalInfoActivity"
     android:orientation="vertical"
     android:background="@drawable/screenbackground"
-    android:paddingHorizontal="@dimen/_10sdp"> <!-- Added padding for better spacing -->
+    android:paddingHorizontal="@dimen/_20sdp"> <!-- Added padding for better spacing -->
 
     <!-- Main Content -->
     <LinearLayout
@@ -33,6 +33,7 @@
             android:layout_marginTop="@dimen/_30sdp"
             android:background="@drawable/inputholder"
             android:hint="Full Name"
+            android:gravity="center_vertical"
             android:paddingStart="@dimen/_16sdp"
             android:paddingEnd="@dimen/_16sdp"
             android:textColor="@color/textColorPrimary"
@@ -50,6 +51,7 @@
             android:hint="Date of Birth (DD/MM/YYYY)"
             android:focusable="false"
             android:clickable="true"
+            android:gravity="center_vertical"
             android:paddingStart="@dimen/_16sdp"
             android:paddingEnd="@dimen/_16sdp"
             android:textColor="@color/textColorPrimary"
@@ -77,6 +79,7 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_10sdp"
             android:background="@drawable/inputholder"
+            android:gravity="center_vertical"
             android:hint="Gamertag"
             android:paddingStart="@dimen/_16sdp"
             android:paddingEnd="@dimen/_16sdp"
@@ -91,7 +94,8 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
             android:layout_marginTop="@dimen/_20sdp"
-            android:background="@color/accentColor"
+            android:backgroundTint="@color/accentColor"
+            android:background="@drawable/rounded_corners"
             android:text="Sign Up"
             android:gravity="center"
             android:textAllCaps="false"

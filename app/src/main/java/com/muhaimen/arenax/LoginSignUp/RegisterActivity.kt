@@ -66,16 +66,19 @@ class RegisterActivity : AppCompatActivity() {
     private fun validateInput(email: String, password: String, reEnterPassword: String): Boolean {
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailEditText.error = "Enter a valid email address"
+            emailEditText.requestFocus()
             return false
         }
 
         if (password.length < 8) {
             passwordEditText.error = "Password must be at least 8 characters long"
+            passwordEditText.requestFocus()
             return false
         }
 
         if (password != reEnterPassword) {
             reEnterPasswordEditText.error = "Passwords do not match"
+            reEnterPasswordEditText.requestFocus()
             return false
         }
         return true
