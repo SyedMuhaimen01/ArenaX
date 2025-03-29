@@ -24,7 +24,7 @@
     <color name="highlightColor">#EF476F</color> <!-- Vibrant Crimson Red for emphasis -->
     <color name="successColor">#06D6A0</color> <!-- Bright Teal for success states -->
     <color name="warningColor">#FAA307</color> <!-- Rich Orange for warnings -->
-
+    <color name="shadowColor">#1F000000</color>
     <!-- Gradients -->
     <color name="gradientStart">#1B263B</color> <!-- Deep Blue-Grey for gradients -->
     <color name="gradientEnd">#415A77</color> <!-- Slate Blue for dynamic contrast -->

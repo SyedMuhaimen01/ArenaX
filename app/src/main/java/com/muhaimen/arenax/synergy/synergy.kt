@@ -2,6 +2,7 @@ package com.muhaimen.arenax.synergy
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -13,6 +14,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.muhaimen.arenax.R
+import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
 import com.muhaimen.arenax.explore.ExplorePage
 import com.muhaimen.arenax.gamesDashboard.MyGamesList
 import com.muhaimen.arenax.uploadContent.UploadContent
@@ -22,10 +24,11 @@ import com.muhaimen.arenax.userProfile.UserProfile
 class synergy : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
-    private lateinit var addPost: ImageView
+    private lateinit var addPost: FrameLayout
     private lateinit var homeButton: LinearLayout
-    private lateinit var profileButton: ImageView
-    private lateinit var exploreButton: ImageView
+    private lateinit var profileButton: LinearLayout
+    private lateinit var exploreButton: LinearLayout
+    private lateinit var talentExchangeButton: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,9 +69,16 @@ class synergy : AppCompatActivity() {
             val intent = Intent(this, UserFeed::class.java)
             startActivity(intent)
         }
-       exploreButton= findViewById(R.id.exploreButton)
+       exploreButton= findViewById(R.id.searchButton)
         exploreButton.setOnClickListener {
             val intent = Intent(this, ExplorePage::class.java)
+            startActivity(intent)
+        }
+
+        talentExchangeButton=findViewById(R.id.esportsButton)
+        talentExchangeButton.setOnClickListener {
+            val intent = Intent(this, switchToEsports::class.java)
+            intent.putExtra("loadedFromActivity","casual")
             startActivity(intent)
         }
 

@@ -18,5 +18,17 @@
 
     </style>
 
+    <style name="TabTextAppearance">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="DarkDialogTheme">
+        <!-- Customize additional attributes if needed -->
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/black</item>
+        <item name="colorOnSurface">@color/white</item>
+    </style>
 
 </resources>

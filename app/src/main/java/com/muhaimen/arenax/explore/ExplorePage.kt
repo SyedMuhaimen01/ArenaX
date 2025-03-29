@@ -2,6 +2,7 @@ package com.muhaimen.arenax.explore
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -22,10 +23,10 @@ import com.muhaimen.arenax.userProfile.UserProfile
 class ExplorePage : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
-    private lateinit var addPost: ImageView
+    private lateinit var addPost: FrameLayout
     private lateinit var homeButton: LinearLayout
-    private lateinit var profileButton: ImageView
-    private lateinit var talentExchangeButton:ImageView
+    private lateinit var profileButton: LinearLayout
+    private lateinit var talentExchangeButton:LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +84,7 @@ class ExplorePage : AppCompatActivity() {
             startActivity(intent)
         }
 
-        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton=findViewById(R.id.esportsButton)
         talentExchangeButton.setOnClickListener {
             val intent = Intent(this, switchToEsports::class.java)
             intent.putExtra("loadedFromActivity","casual")

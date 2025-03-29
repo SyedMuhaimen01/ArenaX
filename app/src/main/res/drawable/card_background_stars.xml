@@ -1,0 +1,287 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Gradient Background -->
+    <item>
+        <shape>
+            <gradient
+                android:angle="135"
+                android:startColor="#2C3E50"
+            android:centerColor="#4A4A4A"
+            android:endColor="#000000"
+            android:type="linear" />
+            <corners android:radius="@dimen/_12sdp" /> <!-- Rounded corners -->
+        </shape>
+    </item>
+
+    <!-- Row 1: Top-Left Corner -->
+    <item>
+        <bitmap
+            android:src="@drawable/star_outline"
+            android:gravity="top|start"
+            android:alpha="0.3"
+            android:width="40dp"
+            android:height="40dp" />
+    </item>
+
+    <item>
+        <inset
+            android:insetTop="5dp"
+            android:insetLeft="20dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star2_filled"
+                android:gravity="top|start"
+                android:alpha="0.2"
+            android:width="20dp"
+            android:height="20dp" />
+        </inset>
+    </item>
+
+    <!-- Row 1: Top-Center -->
+    <item>
+        <inset
+            android:insetTop="5dp"
+            android:insetLeft="80dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star_outline"
+                android:gravity="top|start"
+                android:alpha="0.4"
+                android:width="30dp"
+                android:height="30dp" />
+        </inset>
+    </item>
+
+    <item>
+        <inset
+            android:insetTop="5dp"
+            android:insetLeft="120dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star2_filled"
+                android:gravity="top|start"
+                android:alpha="0.2"
+            android:width="20dp"
+            android:height="20dp" />
+        </inset>
+    </item>
+
+    <!-- Row 1: Top-Right Corner -->
+    <item>
+        <inset
+            android:insetTop="2dp"
+            android:insetLeft="0dp"
+            android:insetRight="100dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star_outline"
+                android:gravity="top|end"
+                android:alpha="0.3"
+                android:width="40dp"
+                android:height="40dp" />
+        </inset>
+    </item>
+
+    <item>
+        <inset
+            android:insetTop="2dp"
+            android:insetLeft="0dp"
+            android:insetRight="50dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star2_filled"
+                android:gravity="top|end"
+                android:alpha="0.2"
+            android:width="20dp"
+            android:height="20dp" />
+        </inset>
+    </item>
+
+    <!-- Row 2: Center-Left -->
+    <item>
+        <inset
+            android:insetTop="5dp"
+            android:insetLeft="10dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star_outline"
+                android:gravity="top|start"
+                android:alpha="0.4"
+                android:width="30dp"
+                android:height="30dp" />
+        </inset>
+    </item>
+
+    <item>
+        <inset
+            android:insetTop="15dp"
+            android:insetLeft="30dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star2_filled"
+                android:gravity="top|start"
+                android:alpha="0.2"
+            android:width="20dp"
+            android:height="20dp" />
+        </inset>
+    </item>
+
+    <!-- Row 2: Center -->
+    <item>
+        <inset
+            android:insetTop="10dp"
+            android:insetLeft="70dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star_outline"
+                android:gravity="top|start"
+                android:alpha="0.3"
+                android:width="40dp"
+                android:height="40dp" />
+        </inset>
+    </item>
+
+    <item>
+        <inset
+            android:insetTop="5dp"
+            android:insetLeft="100dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star2_filled"
+                android:gravity="top|start"
+                android:alpha="0.2"
+            android:width="20dp"
+            android:height="20dp" />
+        </inset>
+    </item>
+
+    <!-- Row 2: Center-Right -->
+    <item>
+        <inset
+            android:insetTop="10dp"
+            android:insetLeft="0dp"
+            android:insetRight="10dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star_outline"
+                android:gravity="top|end"
+                android:alpha="0.4"
+                android:width="30dp"
+                android:height="30dp" />
+        </inset>
+    </item>
+
+    <item>
+        <inset
+            android:insetTop="5dp"
+            android:insetLeft="0dp"
+            android:insetRight="30dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star2_filled"
+                android:gravity="top|end"
+                android:alpha="0.2"
+            android:width="20dp"
+            android:height="20dp" />
+        </inset>
+    </item>
+
+    <!-- Row 3: Bottom-Left -->
+    <item>
+        <inset
+            android:insetTop="5dp"
+            android:insetLeft="15dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star2_filled"
+                android:gravity="top|start"
+                android:alpha="0.2"
+            android:width="20dp"
+            android:height="20dp" />
+        </inset>
+    </item>
+
+    <item>
+        <inset
+            android:insetTop="10dp"
+            android:insetLeft="40dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star_outline"
+                android:gravity="top|start"
+                android:alpha="0.4"
+                android:width="30dp"
+                android:height="30dp" />
+        </inset>
+    </item>
+
+    <!-- Row 3: Bottom-Center -->
+    <item>
+        <inset
+            android:insetTop="5dp"
+            android:insetLeft="40dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star2_filled"
+                android:gravity="top|start"
+                android:alpha="0.2"
+            android:width="20dp"
+            android:height="20dp" />
+        </inset>
+    </item>
+
+    <item>
+        <inset
+            android:insetTop="10dp"
+            android:insetLeft="120dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star_outline"
+                android:gravity="top|start"
+                android:alpha="0.3"
+                android:width="40dp"
+                android:height="40dp" />
+        </inset>
+    </item>
+
+    <!-- Row 3: Bottom-Right -->
+    <item>
+        <inset
+            android:insetTop="5dp"
+            android:insetLeft="0dp"
+            android:insetRight="15dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star2_filled"
+                android:gravity="top|end"
+                android:alpha="0.2"
+            android:width="20dp"
+            android:height="20dp" />
+        </inset>
+    </item>
+
+    <item>
+        <inset
+            android:insetTop="10dp"
+            android:insetLeft="0dp"
+            android:insetRight="40dp"
+            android:insetBottom="0dp">
+            <bitmap
+                android:src="@drawable/star_outline"
+                android:gravity="top|end"
+                android:alpha="0.4"
+                android:width="30dp"
+                android:height="30dp" />
+        </inset>
+    </item>
+</layer-list>

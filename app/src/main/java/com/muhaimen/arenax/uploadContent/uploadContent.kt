@@ -18,7 +18,9 @@ import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.ContextThemeWrapper
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
@@ -44,6 +46,7 @@ import com.android.volley.RetryPolicy
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
@@ -65,9 +68,9 @@ class UploadContent : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var previewImageView: ImageView
     private lateinit var captionEditText: EditText
-    private lateinit var galleryButton: TextView
-    private lateinit var cameraButton: TextView
-    private lateinit var uploadPostButton: ImageButton
+    private lateinit var galleryButton: ImageButton
+    private lateinit var cameraButton: ImageButton
+    private lateinit var uploadPostButton: FloatingActionButton
     private lateinit var backButton: ImageButton
     private lateinit var userData: UserData
     private var mediaUri: Uri? = null
@@ -85,7 +88,7 @@ class UploadContent : AppCompatActivity() {
     val fixedDuration=15
     private lateinit var tracksRecyclerView: RecyclerView
     private lateinit var adapter: TracksAdapter
-    private lateinit var musicButton: TextView
+    private lateinit var musicButton: ImageButton
     lateinit var searchLinearLayout: LinearLayout
     private lateinit var searchBar: AutoCompleteTextView
     private var TrackList: List<Track> = emptyList()
@@ -251,16 +254,23 @@ class UploadContent : AppCompatActivity() {
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
 
-        AlertDialog.Builder(this)
+        val dialogBuilder = AlertDialog. Builder(this, android.R.style.ThemeOverlay_Material_Dark_ActionBar)
             .setTitle("Are you sure?")
             .setMessage("Do you really want to exit?")
             .setPositiveButton("Yes") { _, _ ->
-                // Finish the activity to end all processes related to it
+                // Finish the activity and release resources
                 adapter.releasePlayer()
                 finish()
             }
             .setNegativeButton("No", null)
-            .show()
+
+// Create and show the dialog
+        val dialog = dialogBuilder.create()
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.show()
     }
 
     // Function to open gallery

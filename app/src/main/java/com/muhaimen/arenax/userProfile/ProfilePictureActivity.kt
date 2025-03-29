@@ -13,7 +13,8 @@ class ProfilePictureActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile_picture)
-
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
         fullProfileImageView = findViewById(R.id.fullProfileImageView)
 
         // Get the URL from the intent and load the image

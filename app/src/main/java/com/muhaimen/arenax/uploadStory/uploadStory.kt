@@ -52,6 +52,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -74,10 +75,10 @@ import java.util.UUID
 class uploadStory : AppCompatActivity() {
 
     private lateinit var storyPreviewImageView: ImageView
-    private lateinit var textButton: TextView
-    private lateinit var galleryButton: TextView
-    private lateinit var cameraButton: TextView
-    private lateinit var uploadButton: ImageButton
+    private lateinit var textButton: ImageButton
+    private lateinit var galleryButton: ImageButton
+    private lateinit var cameraButton: ImageButton
+    private lateinit var uploadButton: FloatingActionButton
     private lateinit var backButton: ImageButton
     private lateinit var userData: UserData
     private lateinit var auth: FirebaseAuth
@@ -86,7 +87,7 @@ class uploadStory : AppCompatActivity() {
     private var selectedImageUri: Uri? = null
     private lateinit var tracksRecyclerView: RecyclerView
     private lateinit var adapter: TracksAdapter
-    private lateinit var musicButton: TextView
+    private lateinit var musicButton: ImageButton
     lateinit var searchLinearLayout: LinearLayout
     private lateinit var searchBar: AutoCompleteTextView
     private var TrackList: List<Track> = emptyList()
@@ -282,16 +283,23 @@ class uploadStory : AppCompatActivity() {
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
 
-        AlertDialog.Builder(this)
+        val dialogBuilder = AlertDialog. Builder(this, android.R.style.ThemeOverlay_Material_Dark_ActionBar)
             .setTitle("Are you sure?")
             .setMessage("Do you really want to exit?")
             .setPositiveButton("Yes") { _, _ ->
-                // Finish the activity to end all processes related to it
+                // Finish the activity and release resources
                 adapter.releasePlayer()
                 finish()
             }
             .setNegativeButton("No", null)
-            .show()
+
+// Create and show the dialog
+        val dialog = dialogBuilder.create()
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.show()
     }
 
     private fun openGallery() {

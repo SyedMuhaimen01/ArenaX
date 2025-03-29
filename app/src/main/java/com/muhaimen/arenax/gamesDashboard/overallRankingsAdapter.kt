@@ -41,7 +41,7 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
                 rank.setTextColor(Color.GRAY)
             } else {
                 rank.text = data.rank.toString()
-                rank.setTextColor(Color.BLACK)
+                rank.setTextColor(Color.WHITE)
             }
             gamerTag.text = data.gamerTag
         }
@@ -59,33 +59,37 @@ class overallLeaderboardAdapter(val rankingsList: List<RankingData>) : RecyclerV
         val rankingsData = rankingsList[position]
         holder.bind(rankingsData)
 
-        // Change background color based on ranking position
+        /* Change background color based on ranking position
         when (position) {
             0 -> { // Gold
                 holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.first_place_card)
                 holder.name.setTextColor(Color.WHITE)
                 holder.totalHours.setTextColor(Color.WHITE)
                 holder.gamerTag.setTextColor(Color.WHITE)
+                holder.rank.setTextColor(Color.WHITE)
             }
             1 -> { // Silver
                 holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.second_place_card)
                 holder.name.setTextColor(Color.WHITE)
                 holder.totalHours.setTextColor(Color.WHITE)
                 holder.gamerTag.setTextColor(Color.WHITE)
+                holder.rank.setTextColor(Color.WHITE)
             }
             2 -> { // Bronze
                 holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.third_place_card)
                 holder.name.setTextColor(Color.WHITE)
                 holder.totalHours.setTextColor(Color.WHITE)
                 holder.gamerTag.setTextColor(Color.WHITE)
+                holder.rank.setTextColor(Color.WHITE)
             }
             else -> { // Unranked
                 holder.itemView.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.normal_ranked)
-                holder.name.setTextColor(Color.BLACK)
-                holder.totalHours.setTextColor(Color.BLACK)
-                holder.gamerTag.setTextColor(Color.BLACK)
+                holder.name.setTextColor(Color.WHITE)
+                holder.totalHours.setTextColor(Color.WHITE)
+                holder.gamerTag.setTextColor(Color.WHITE)
+                holder.rank.setTextColor(Color.WHITE)
             }
-        }
+        }*/
 
     }
 

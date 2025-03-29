@@ -3,11 +3,15 @@ package com.muhaimen.arenax.userFeed
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.graphics.LinearGradient
+import android.graphics.Shader
 import android.os.Bundle
 import android.util.Log
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -52,10 +56,10 @@ class UserFeed : AppCompatActivity() {
     private lateinit var threadsButton: ImageButton
     private lateinit var notificationsButton: ImageButton
     private lateinit var homeButton: LinearLayout
-    private lateinit var addPost: ImageView
-    private lateinit var profileButton: ImageView
-    private lateinit var exploreButton: ImageView
-    private lateinit var talentExchangeButton:ImageView
+    private lateinit var addPost: FrameLayout
+    private lateinit var profileButton: LinearLayout
+    private lateinit var exploreButton: LinearLayout
+    private lateinit var talentExchangeButton:LinearLayout
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private val postsList = mutableListOf<Post>()
@@ -68,6 +72,23 @@ class UserFeed : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        val textView = findViewById<TextView>(R.id.x_text)
+
+        val paint = textView.paint
+        val width = paint.measureText(textView.text.toString())
+
+        val textShader = LinearGradient(
+            0f, 0f, width, textView.textSize*1,
+            intArrayOf(
+                resources.getColor(R.color.gradientStartOrange, null),
+                resources.getColor(R.color.gradientEndYellow, null)
+            ),
+            null,
+            Shader.TileMode.CLAMP
+        )
+
+        textView.paint.shader = textShader
 
         setupBottomNavigation()
 
@@ -87,15 +108,17 @@ class UserFeed : AppCompatActivity() {
             startActivity(intent)
         }
 
+
+
         // Initialize RecyclerView for user feed
         recyclerView = findViewById(R.id.recyclerViewUserFeed)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // Initialize adapter with empty data
-        userFeedAdapter = UserFeedPostsAdapter(recyclerView,postsList)
+        userFeedAdapter = UserFeedPostsAdapter(fragmentManager = supportFragmentManager,recyclerView,postsList)
         recyclerView.adapter = userFeedAdapter
 
-        highlightsRecyclerView = findViewById(R.id.highlights_recyclerview)
+        highlightsRecyclerView = findViewById(R.id.highlightsRecyclerView)
         highlightsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         highlightsAdapter = UserFeedHighlightsAdapter(storiesList)
         highlightsRecyclerView.adapter = highlightsAdapter
@@ -390,13 +413,13 @@ class UserFeed : AppCompatActivity() {
             startActivity(intent)
         }
 
-        exploreButton = findViewById(R.id.exploreButton)
+        exploreButton = findViewById(R.id.searchButton)
         exploreButton.setOnClickListener {
             val intent = Intent(this, ExplorePage::class.java)
             startActivity(intent)
         }
 
-        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton=findViewById(R.id.esportsButton)
         talentExchangeButton.setOnClickListener {
             val intent = Intent(this, switchToEsports::class.java)
             intent.putExtra("loadedFromActivity","casual")

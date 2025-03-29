@@ -1,26 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginBottom="@dimen/_5sdp"
+    android:layout_marginStart="@dimen/_4sdp"
+    android:layout_marginEnd="@dimen/_4sdp"
+    app:cardBackgroundColor="@color/backgroundColor"
+    android:background="@drawable/rounded_corners"
+    app:cardElevation="@dimen/_4sdp"
+    app:cardCornerRadius="@dimen/_8sdp">
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     tools:ignore="DisableBaselineAlignment,MissingConstraints"
     android:background="@color/backgroundColor"
+    android:paddingBottom="@dimen/_4sdp"
     android:weightSum="3">
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         tools:ignore="Suspicious0dp,UselessLeaf"
-        android:layout_weight="1">
+        android:layout_weight="0.7">
 
         <ImageView
             android:id="@+id/profilePicture"
-            android:layout_width="@dimen/_70sdp"
-            android:layout_height="@dimen/_70sdp"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
             android:background="@drawable/circle"
             tools:ignore="ContentDescription"
             android:layout_marginStart="@dimen/_10sdp"
@@ -71,9 +80,10 @@
                 android:gravity="center"
                 android:textSize="@dimen/_12sdp"
                 android:text="Accept"
-                android:textColor="@color/white"
+                android:textColor="@color/textColorTernary"
                 android:textStyle="bold"
                 android:layout_marginStart="@dimen/_10sdp"
+                android:backgroundTint="@color/interactiveColor"
                 android:background="@drawable/buttonholder"
                 tools:ignore="ButtonStyle,HardcodedText" />
 
@@ -85,7 +95,8 @@
                 android:text="Reject"
                 android:gravity="center"
                 android:textAlignment="center"
-                android:textColor="@color/white"
+                android:textColor="@color/textColorTernary"
+                android:backgroundTint="@color/highlightColor"
                 android:textStyle="bold"
                 android:layout_gravity="center"
                 android:background="@drawable/buttonholder"
@@ -96,4 +107,4 @@
 
     </LinearLayout>
 </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

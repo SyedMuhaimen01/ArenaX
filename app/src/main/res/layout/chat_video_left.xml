@@ -8,7 +8,7 @@
     android:gravity="start"
     android:layout_marginLeft="@dimen/_10sdp"
     android:orientation="vertical"
-    tools:ignore="DuplicateIds">
+    tools:ignore="DuplicateIds,RtlHardcoded">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
@@ -17,11 +17,11 @@
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:background="@drawable/msg_background"
-        android:backgroundTint="@color/white"
-        android:paddingTop="@dimen/_6sdp"
-        android:paddingBottom="@dimen/_6sdp"
-        android:paddingLeft="@dimen/_6sdp"
-        android:paddingRight="@dimen/_6sdp"
+        android:backgroundTint="@color/primaryColor"
+        android:paddingLeft="@dimen/_1sdp"
+        android:paddingTop="@dimen/_1sdp"
+        android:paddingRight="@dimen/_1sdp"
+        android:paddingBottom="@dimen/_1sdp"
         tools:ignore="MissingConstraints">
 
         <VideoView

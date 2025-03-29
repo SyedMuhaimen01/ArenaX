@@ -13,7 +13,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonArrayRequest
 import com.android.volley.toolbox.Volley
@@ -32,7 +31,6 @@ class overallLeaderboard : AppCompatActivity() {
     private lateinit var overallLeaderboardRecyclerView: RecyclerView
     private lateinit var overallLeaderboardAdapter: overallLeaderboardAdapter
     private lateinit var backButton: ImageButton
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var profilePicture:ImageView
     private lateinit var name:TextView
     private lateinit var totalHours:TextView
@@ -72,14 +70,6 @@ class overallLeaderboard : AppCompatActivity() {
         overallLeaderboardRecyclerView.layoutManager = LinearLayoutManager(this)
 
         fetchRankings()
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
-        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
-        swipeRefreshLayout.setColorSchemeResources(R.color.white)
-        swipeRefreshLayout.setOnRefreshListener {
-            rankingsList.clear()
-            fetchRankings()
-
-        }
         fetchUserRank()
     }
 
@@ -94,11 +84,11 @@ class overallLeaderboard : AppCompatActivity() {
                 Log.d("Rankings", rankingsList.toString())
                 overallLeaderboardAdapter = overallLeaderboardAdapter(rankingsList)
                 overallLeaderboardRecyclerView.adapter = overallLeaderboardAdapter
-                swipeRefreshLayout.isRefreshing = false
+
             },
             { error ->
                 Log.e("Error", "Error fetching rankings: ${error.message}")
-                swipeRefreshLayout.isRefreshing = false
+
                 loadRankingsFromPreferences()
             }
         )

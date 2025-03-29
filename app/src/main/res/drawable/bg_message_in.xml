@@ -1,5 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/white" />
-    <corners android:topLeftRadius="40dp" android:topRightRadius="40dp"
-        android:bottomLeftRadius="20dp" android:bottomRightRadius="40dp"/>
+    <!-- Solid Background Color -->
+    <solid android:color="@color/primaryColor" />
+
+    <!-- Rounded Corners -->
+    <corners
+        android:topLeftRadius="@dimen/_16sdp"
+        android:topRightRadius="@dimen/_16sdp"
+        android:bottomRightRadius="@dimen/_16sdp"
+        android:bottomLeftRadius="0dp" />
+
+    <!-- Optional: Add a subtle shadow effect -->
+    <stroke
+        android:width="@dimen/_1sdp"
+        android:color="@color/shadowColor" />
 </shape>

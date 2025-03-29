@@ -70,6 +70,9 @@ class ViewPost : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_view_post)
+
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
         imageView = findViewById(R.id.ImageView)
         playerView = findViewById(R.id.videoPlayerView)
         postCaption = findViewById(R.id.postCaption)
