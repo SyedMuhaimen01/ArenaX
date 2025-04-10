@@ -7,179 +7,333 @@
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
     tools:context=".esportsManagement.battlegrounds.battlegrounds">
+
+    <!-- Scrollable Content -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:ignore="MissingConstraints">
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNav"
+        app:layout_constraintTop_toTopOf="parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            tools:ignore="UselessLeaf">
-            <androidx.cardview.widget.CardView
-                android:id="@+id/TeamsCard"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_250sdp"
-                android:layout_marginTop="@dimen/_5sdp"
+            android:paddingStart="@dimen/_10sdp"
+            android:paddingTop="@dimen/_16sdp"
+            android:paddingEnd="@dimen/_10sdp"
+            android:paddingBottom="@dimen/_16sdp">
 
-                android:background="@color/primaryColor"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardUseCompatPadding="true"
-                app:cardPreventCornerOverlap="true"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                app:layout_constraintTop_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:ignore="MissingConstraints">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/InfoCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/primaryColor"
+                app:cardCornerRadius="@dimen/_12sdp"
+                app:cardElevation="@dimen/_4sdp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="@dimen/_10sdp"
-                    android:paddingTop="@dimen/_10sdp"
-                    android:layout_marginEnd="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_10sdp"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:padding="@dimen/_16sdp">
+
+                    <!-- Profile Picture -->
+                    <ImageView
+                        android:id="@+id/profilePicture"
+                        android:layout_width="@dimen/_60sdp"
+                        android:layout_height="@dimen/_60sdp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="@dimen/_6sdp"
+                        android:background="@drawable/circle"
+                        android:contentDescription="Profile Picture"
+                        android:scaleType="centerCrop"
+                        tools:ignore="ContentDescription,HardcodedText" />
+
+                    <!-- Organization Details -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingStart="@dimen/_8sdp"
+                        tools:ignore="RtlSymmetry">
+
+                        <TextView
+                            android:id="@+id/fullNameTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Full Name"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="@dimen/_16ssp"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/gamerTagTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="mYm XEROXXXX"
+                            android:textColor="@color/highlightColor"
+                            android:textSize="@dimen/_12ssp"
+                            android:textStyle="italic"
+                            tools:ignore="HardcodedText" />
+
+                        <!-- Bio Text -->
+                        <TextView
+                            android:id="@+id/bioText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_2sdp"
+                            android:ellipsize="end"
+                            android:maxLines="2"
+                            android:text="This is a sample bio..."
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="@dimen/_12sdp"
+                            tools:ignore="HardcodedText" />
+
+                        <!-- See More -->
+                        <TextView
+                            android:id="@+id/showMore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_2sdp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:text="See More"
+                            android:textColor="@color/interactiveColor"
+                            android:textSize="@dimen/_12sdp"
+                            tools:ignore="HardcodedText" />
+
+
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <!-- Teams Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/TeamsCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/_12sdp"
+                app:cardBackgroundColor="@color/primaryColor"
+                app:cardCornerRadius="@dimen/_12sdp"
+                app:cardElevation="@dimen/_4sdp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/_10sdp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Player For"
+                        android:textColor="@color/textColorPrimary"
                         android:textSize="@dimen/_12sdp"
                         android:textStyle="bold"
-                        android:textColor="@color/textColor"
                         tools:ignore="HardcodedText" />
+
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/teamsRecyclerView"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_5sdp"/>
+                        android:layout_height="@dimen/_180sdp"
+                        android:layout_marginTop="@dimen/_12sdp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- Organizations Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/organizationsCard"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_250sdp"
-                android:layout_marginTop="@dimen/_5sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:background="@color/primaryColor"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardUseCompatPadding="true"
-                app:cardPreventCornerOverlap="true"
-                app:layout_constraintTop_toBottomOf="@id/TeamsCard"
-                app:layout_constraintStart_toStartOf="@id/TeamsCard"
-                app:layout_constraintEnd_toEndOf="@id/TeamsCard"
-                tools:ignore="MissingConstraints">
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/_12sdp"
+                app:cardBackgroundColor="@color/primaryColor"
+                app:cardCornerRadius="@dimen/_12sdp"
+                app:cardElevation="@dimen/_4sdp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="@dimen/_10sdp"
-                    android:paddingTop="@dimen/_10sdp"
-                    android:layout_marginEnd="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_10sdp"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="@dimen/_10sdp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Admin/Employee of"
+                        android:textColor="@color/textColorPrimary"
                         android:textSize="@dimen/_12sdp"
                         android:textStyle="bold"
-                        android:textColor="@color/textColor"
                         tools:ignore="HardcodedText" />
+
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/organizationsRecyclerView"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_5sdp"/>
+                        android:layout_height="@dimen/_180sdp"
+                        android:layout_marginTop="@dimen/_12sdp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
 
-
-
     <!-- Bottom Navigation -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-
+        android:layout_height="@dimen/_45sdp"
+        android:background="@color/primaryColor"
         android:gravity="center"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:background="@drawable/navigation_bar_bg"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/_8sdp"
+        android:paddingEnd="@dimen/_8sdp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        >
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="DisableBaselineAlignment">
 
-
-
-
-        <!-- Home Button -->
-
+        <!-- Talent Button -->
         <LinearLayout
-            android:layout_width="60dp"
-            android:layout_height="40dp"
+            android:id="@+id/talentExchangeButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:gravity="center"
-            android:backgroundTint="@color/primaryColor"
-            android:background="@drawable/selected_navigation_bar_bg"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <ImageView
-                android:id="@+id/talentExchangeButton"
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:src="@drawable/ic_navigation_talent"
+                android:tint="@color/textColorPrimary"
+                tools:ignore="ContentDescription,UseAppTint" />
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/white"
-                android:background="@drawable/ic_navigation_talent"
-                tools:ignore="ContentDescription" />
-
+                android:layout_marginTop="@dimen/_2sdp"
+                android:text="Talent"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_10sdp"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
 
-        <!-- Explore Button -->
+        <!-- Search Button -->
+        <LinearLayout
+            android:id="@+id/searchButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/exploreButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_navigation_search"
-            android:layout_marginStart="30dp"/>
+            <ImageView
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:src="@drawable/ic_navigation_search"
+                android:tint="@color/textColorPrimary"
+                tools:ignore="ContentDescription,UseAppTint" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:text="Search"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_10sdp"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
 
-
-
-        <!-- Add Post Button -->
-        <ImageView
+        <!-- Battlegrounds Button -->
+        <LinearLayout
             android:id="@+id/battlegroundsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:background="@drawable/ic_battlegrounds_foreground"
-            tools:ignore="ContentDescription" />
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:gravity="center"
+            android:orientation="vertical">
 
+            <ImageView
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:src="@drawable/ic_battlegrounds_foreground"
+                android:tint="@color/textColorPrimary"
+                tools:ignore="ContentDescription,UseAppTint" />
 
-        <!-- TalentXchange Button -->
-        <ImageView
-            android:id="@+id/switchButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:background="@drawable/ic_change_foreground"
-            tools:ignore="ContentDescription" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:text="Arena"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_10sdp"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
 
-        <!-- Add Profile Button -->
-        <ImageView
+        <!-- Esports Button -->
+        <LinearLayout
+            android:id="@+id/esportsButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:src="@drawable/ic_change_foreground"
+                android:tint="@color/textColorPrimary"
+                tools:ignore="ContentDescription,UseAppTint" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:text="Esports"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_10sdp"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <!-- Profile Button -->
+        <LinearLayout
             android:id="@+id/profileButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_navigation_profile"
-            android:layout_marginStart="40dp"
-            tools:ignore="ContentDescription" />
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:gravity="center"
+            android:orientation="vertical">
 
+            <ImageView
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:src="@drawable/ic_navigation_profile"
+                android:tint="@color/textColorPrimary"
+                tools:ignore="ContentDescription,UseAppTint" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:text="Profile"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_10sdp"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
     </LinearLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

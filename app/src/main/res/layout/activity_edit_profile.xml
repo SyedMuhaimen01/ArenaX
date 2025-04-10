@@ -163,6 +163,7 @@
                 android:background="@drawable/inputholder"
                 android:gravity="center_vertical"
                 android:hint="Enter your bio"
+                android:inputType="textMultiLine"
                 android:paddingStart="@dimen/_16sdp"
                 android:paddingEnd="@dimen/_16sdp"
                 android:textColor="@color/textColorPrimary"

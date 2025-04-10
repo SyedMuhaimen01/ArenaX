@@ -88,7 +88,7 @@
 
         <!-- Search Button -->
         <LinearLayout
-            android:id="@+id/searchButton"
+            android:id="@+id/exploreButton"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"

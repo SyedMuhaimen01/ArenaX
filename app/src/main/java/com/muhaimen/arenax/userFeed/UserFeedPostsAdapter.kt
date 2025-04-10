@@ -246,7 +246,7 @@ class UserFeedPostsAdapter(private val fragmentManager: FragmentManager, private
             commentButton.setOnClickListener {
                 // Initialize the CommentsBottomSheetFragment
 
-                commentsBottomSheet = BottomSheetDialogFragment(post, comments) { newCommentText ->
+                commentsBottomSheet = BottomSheetDialogFragment( comments) { newCommentText ->
                     // Handle new comment submission
                     val commentId = (0..Int.MAX_VALUE).random() // Generating a random comment ID
                     val createdAt = System.currentTimeMillis().toString()

@@ -81,22 +81,22 @@ class createOrganization : AppCompatActivity() {
         organizationLogo.setImageURI(null)
         submitButton = findViewById(R.id.submitButton)
         ArrayAdapter.createFromResource(
-            this, R.array.organization_types, android.R.layout.simple_spinner_item
+            this, R.array.organization_types, R.layout.dropdown_spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
             organizationType.adapter = adapter
         }
         ArrayAdapter.createFromResource(
-            this, R.array.organization_industry_types, android.R.layout.simple_spinner_item
+            this, R.array.organization_industry_types, R.layout.dropdown_spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
             industryType.adapter = adapter
         }
 
         ArrayAdapter.createFromResource(
-            this, R.array.organization_sizes, android.R.layout.simple_spinner_item
+            this, R.array.organization_sizes, R.layout.dropdown_spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
             organizationSize.adapter = adapter
         }
 

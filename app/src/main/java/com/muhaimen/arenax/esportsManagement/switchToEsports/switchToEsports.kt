@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.esportsManagement.switchToEsports
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -14,6 +15,7 @@ import com.muhaimen.arenax.esportsManagement.mangeOrganization.OrganizationHomeP
 import com.muhaimen.arenax.userProfile.UserProfile
 
 class switchToEsports : AppCompatActivity() {
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_switch_to_esports)
@@ -23,7 +25,6 @@ class switchToEsports : AppCompatActivity() {
         window.navigationBarColor = resources.getColor(R.color.primaryColor, theme)
 
         val switchingText1: TextView = findViewById(R.id.switchingText1)
-        val switchingText2: TextView = findViewById(R.id.switchingText2)
         val lottieAnimation: LottieAnimationView = findViewById(R.id.lottieAnimation)
 
         var isEsportsProfile=false
@@ -42,11 +43,9 @@ class switchToEsports : AppCompatActivity() {
         }
         // Decide which text to show
         if (isEsportsProfile) {
-            switchingText1.visibility = TextView.VISIBLE
-            switchingText2.visibility = TextView.INVISIBLE
+            switchingText1.text="⚡ Game On! Entering Pro Mode..."
         } else {
-            switchingText1.visibility = TextView.INVISIBLE
-            switchingText2.visibility = TextView.VISIBLE
+            switchingText1.text="🌟 Wind Down &amp; Game On—Casual Mode Loading!"
         }
 
         // Fade-in animation for text
@@ -57,7 +56,7 @@ class switchToEsports : AppCompatActivity() {
         if (isEsportsProfile) {
             switchingText1.startAnimation(fadeIn)
         } else {
-            switchingText2.startAnimation(fadeIn)
+            switchingText1.startAnimation(fadeIn)
         }
 
         // Start Lottie animation

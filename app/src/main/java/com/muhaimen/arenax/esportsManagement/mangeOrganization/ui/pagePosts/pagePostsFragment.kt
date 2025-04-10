@@ -52,7 +52,7 @@ class pagePostsFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)  // Set layout manager here
 
         // Pass organization name to adapter along with the posts list
-        pagePostsAdapter = pagePostsAdapter(recyclerView,postsList, organizationName.toString())
+        pagePostsAdapter = pagePostsAdapter(fragmentManager = parentFragmentManager,recyclerView,postsList, organizationName.toString())
         recyclerView.adapter = pagePostsAdapter
 
         newPostButton = view.findViewById(R.id.postButton)

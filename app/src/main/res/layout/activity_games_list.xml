@@ -119,7 +119,7 @@
                         android:id="@+id/gamesListRecyclerView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/backgroundColor"
+                        android:background="@color/primaryColor"
                         android:paddingBottom="@dimen/_50sdp" />
                 </LinearLayout>
             </LinearLayout>

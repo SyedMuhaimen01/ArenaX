@@ -28,12 +28,13 @@
             android:layout_width="@dimen/_100sdp"
             android:layout_height="wrap_content"
             android:text="create"
-            android:textColor="@color/white"
+            android:textColor="@color/textColorTernary"
             android:textSize="@dimen/_12sdp"
-            android:textStyle="normal"
+            android:textStyle="bold"
             android:gravity="center"
             android:layout_gravity="center"
             android:background="@drawable/buttonholder"
+            android:backgroundTint="@color/interactiveColor"
             android:layout_marginTop="@dimen/_10sdp"
             tools:ignore="HardcodedText" />
 
@@ -49,15 +50,19 @@
             tools:ignore="HardcodedText" />
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_300sdp"
+            android:layout_height="@dimen/_330sdp"
+            android:layout_marginTop="@dimen/_4sdp"
             android:layout_marginStart="@dimen/_10sdp"
+            android:background="@color/secondaryColor"
             android:layout_marginEnd="@dimen/_10sdp"
             >
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/organizationRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
+                android:background="@color/secondaryColor"
+                android:padding="@dimen/_10sdp"
+                android:orientation="vertical"
                 tools:listitem="@layout/organization_item"
                 tools:ignore="MissingConstraints" />
         </LinearLayout>

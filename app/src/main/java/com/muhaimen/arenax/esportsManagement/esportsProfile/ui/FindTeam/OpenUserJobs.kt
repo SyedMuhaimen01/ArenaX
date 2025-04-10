@@ -43,7 +43,7 @@ class OpenUserJobs : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_open_jobs, container, false)
+        val view = inflater.inflate(R.layout.fragment_open_user_jobs, container, false)
 
         // Initialize UI elements
         openJobsRecyclerView = view.findViewById(R.id.openJobs_recyclerview)

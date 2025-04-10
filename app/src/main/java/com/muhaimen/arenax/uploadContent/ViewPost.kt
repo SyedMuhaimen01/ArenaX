@@ -201,7 +201,7 @@ class ViewPost : AppCompatActivity() {
             commentButton.setOnClickListener {
                 // Initialize the CommentsBottomSheetFragment
                 Log.d("ViewPost", "Comments list: $commentsList")
-                commentsBottomSheet = BottomSheetDialogFragment(post, commentsList) { newCommentText ->
+                commentsBottomSheet = BottomSheetDialogFragment(commentsList) { newCommentText ->
                     // Handle new comment submission
                     val commentId = (0..Int.MAX_VALUE).random() // Generating a random comment ID
                     val createdAt = System.currentTimeMillis().toString()

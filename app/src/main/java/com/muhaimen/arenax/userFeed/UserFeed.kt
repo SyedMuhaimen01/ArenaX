@@ -73,7 +73,7 @@ class UserFeed : AppCompatActivity() {
             insets
         }
 
-        val textView = findViewById<TextView>(R.id.x_text)
+     /*   val textView = findViewById<TextView>(R.id.x_text)
 
         val paint = textView.paint
         val width = paint.measureText(textView.text.toString())
@@ -88,7 +88,7 @@ class UserFeed : AppCompatActivity() {
             Shader.TileMode.CLAMP
         )
 
-        textView.paint.shader = textShader
+        textView.paint.shader = textShader*/
 
         setupBottomNavigation()
 

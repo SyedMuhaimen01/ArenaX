@@ -10,13 +10,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/_10sdp"
+        android:background="@color/backgroundColor">
 
         <!-- ConstraintLayout as the root container -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/backgroundColor"
             tools:context=".esportsManagement.mangeOrganization.ui.dashboard.dashboardFragment">
 
             <!-- Info Card -->
@@ -24,13 +25,13 @@
                 android:id="@+id/InfoCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardUseCompatPadding="true"
-                app:cardPreventCornerOverlap="true"
+                android:layout_marginTop="@dimen/_20sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/primaryColor"
+                app:cardCornerRadius="@dimen/_12sdp"
+                app:cardElevation="@dimen/_4sdp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
@@ -39,7 +40,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/_16sdp">
 
                     <!-- Profile Picture -->
                     <ImageView
@@ -48,68 +49,84 @@
                         android:layout_height="@dimen/_200sdp"
                         android:scaleType="centerCrop"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10dp"
-                        android:clipToOutline="true" />
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:clipToOutline="true"
+                        android:background="@color/ImagePlaceholder"
+                        tools:ignore="ContentDescription,UnusedAttribute" />
 
                     <!-- Organization Details -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginTop="10dp">
+                        android:layout_marginTop="@dimen/_10sdp">
 
                         <TextView
                             android:id="@+id/organizationNameTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="Organization Name"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="@dimen/_16sdp"
                             android:textStyle="bold"
-                            android:textSize="16sp"
-                            android:textColor="@color/textColor" />
+                            tools:ignore="HardcodedText" />
 
                         <TextView
                             android:id="@+id/organizationWebsiteTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="www.website.com"
+                            android:textColor="@color/primaryColor"
+                            android:textSize="@dimen/_12ssp"
                             android:textStyle="italic"
-                            android:textSize="12sp"
-                            android:textColor="@color/primaryColor" />
+                            tools:ignore="HardcodedText" />
 
                         <TextView
                             android:id="@+id/organizationIndustryTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColor" />
+                            android:text="Esports organization"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="@dimen/_12sdp"
+                            tools:ignore="HardcodedText" />
 
                         <TextView
                             android:id="@+id/organizationTypeTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColor" />
+                            android:text="Public Limited"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="@dimen/_12sdp"
+                            tools:ignore="HardcodedText" />
 
                         <TextView
                             android:id="@+id/organizationSizeTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="500+ Employees"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="@dimen/_12sdp"
                             android:textStyle="italic"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColor" />
+                            tools:ignore="HardcodedText" />
 
                         <TextView
                             android:id="@+id/organizationLocationTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
-                            android:textColor="@color/hinttextColor" />
+                            android:text="Islamabad, Pakistan"
+                            android:textColor="@color/hinttextColor"
+                            android:textSize="@dimen/_12sdp"
+                            tools:ignore="HardcodedText" />
 
                         <TextView
                             android:id="@+id/organizationTaglineTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textStyle="bold"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColor" />
+                            android:text="Build, Connect, Compete"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="@dimen/_12sdp"
+                            android:textStyle="bold|italic"
+                            tools:ignore="HardcodedText" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -119,14 +136,13 @@
                 android:id="@+id/statsCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="8dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardUseCompatPadding="true"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/primaryColor"
+                app:cardCornerRadius="@dimen/_12sdp"
+                app:cardElevation="@dimen/_4sdp"
                 app:layout_constraintTop_toBottomOf="@id/InfoCard"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
@@ -135,8 +151,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center">
+                    android:padding="@dimen/_16sdp"
+                    android:gravity="center"
+                    tools:ignore="DisableBaselineAlignment">
 
                     <!-- Posts Count -->
                     <LinearLayout
@@ -151,16 +168,18 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textSize="22sp"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="@dimen/_20sdp"
                             android:textStyle="bold"
-                            android:textColor="@color/textColor" />
+                            tools:ignore="HardcodedText" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Posts"
-                            android:textSize="14sp"
-                            android:textColor="@color/textColor" />
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="@dimen/_12sdp"
+                            tools:ignore="HardcodedText" />
                     </LinearLayout>
 
                     <!-- Followers Count -->
@@ -176,16 +195,18 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textSize="22sp"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="@dimen/_20sdp"
                             android:textStyle="bold"
-                            android:textColor="@color/primaryColor" />
+                            tools:ignore="HardcodedText" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Followers"
-                            android:textSize="14sp"
-                            android:textColor="@color/textColor" />
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="@dimen/_12sdp"
+                            tools:ignore="HardcodedText" />
                     </LinearLayout>
 
                     <!-- Following Count -->
@@ -201,93 +222,104 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textSize="22sp"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="@dimen/_20sdp"
                             android:textStyle="bold"
-                            android:textColor="@color/primaryColor" />
+                            tools:ignore="HardcodedText" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Following"
-                            android:textSize="14sp"
-                            android:textColor="@color/textColor" />
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="@dimen/_12sdp"
+                            tools:ignore="HardcodedText" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Description Card -->
+            <!-- Contact Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/ContactCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/white"
-                app:cardUseCompatPadding="true"
-                app:cardPreventCornerOverlap="true"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/primaryColor"
+                app:cardCornerRadius="@dimen/_12sdp"
+                app:cardElevation="@dimen/_4sdp"
                 app:layout_constraintTop_toBottomOf="@id/statsCard"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:paddingBottom="@dimen/_50sdp">
+                app:layout_constraintEnd_toEndOf="parent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/_16sdp">
 
                     <TextView
                         android:id="@+id/organizationEmailTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="8dp"
+                        android:padding="@dimen/_8sdp"
                         android:gravity="center"
-                        android:backgroundTint="@color/primaryColor"
-                        android:background="@drawable/searchbar"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
+                        android:background="@drawable/rounded_corners"
+                        android:backgroundTint="@color/interactiveColor"
+                        android:text="info@organization.com"
+                        android:textColor="@color/textColorTernary"
+                        android:textSize="@dimen/_12sdp"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/organizationPhoneTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="8dp"
-                        android:backgroundTint="@color/primaryColor"
-                        android:layout_marginTop="8dp"
+                        android:padding="@dimen/_8sdp"
+                        android:layout_marginTop="@dimen/_8sdp"
                         android:gravity="center"
-                        android:background="@drawable/searchbar"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-
+                        android:background="@drawable/rounded_corners"
+                        android:backgroundTint="@color/interactiveColor"
+                        android:text="+92 300 1234567"
+                        android:textColor="@color/textColorTernary"
+                        android:textSize="@dimen/_14ssp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <!-- Description Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/DescriptionCard"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@android:color/white"
-                app:cardCornerRadius="@dimen/_6sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
                 android:layout_marginTop="@dimen/_10sdp"
-                app:cardElevation="@dimen/_2sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/primaryColor"
+                app:cardCornerRadius="@dimen/_12sdp"
+                app:cardElevation="@dimen/_4sdp"
                 app:layout_constraintTop_toBottomOf="@id/ContactCard"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="@dimen/_80sdp">
+                    android:padding="@dimen/_16sdp"
+                    android:orientation="vertical">
+
                     <TextView
                         android:id="@+id/organizationDescriptionTextView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="@dimen/_10sdp"
-                        android:layout_margin="@dimen/_10sdp"/>
+                        android:text="Organization description goes here..."
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_12sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>

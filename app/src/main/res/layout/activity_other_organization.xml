@@ -21,10 +21,13 @@
         android:id="@+id/InfoCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_5sdp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:layout_marginBottom="@dimen/_10sdp"
         android:background="@color/primaryColor"
         app:cardElevation="2dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/primaryColor"
         app:cardUseCompatPadding="true"
         app:cardPreventCornerOverlap="true"
         app:layout_constraintStart_toStartOf="parent"
@@ -41,8 +44,8 @@
                 android:layout_height="@dimen/_80sdp"
                 android:layout_marginStart="@dimen/_10sdp"
                 android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_gravity="center"
-                android:background="@drawable/circle"
+                android:layout_gravity="center_vertical"
+                android:background="@color/ImagePlaceholder"
                 android:clipToOutline="true"
                 android:contentDescription="@string/nav_header_desc"
                 tools:ignore="UnusedAttribute" />
@@ -72,7 +75,7 @@
                     android:textStyle="italic"
 
                     android:textSize="@dimen/_12ssp"
-                    android:textColor="@color/primaryColor"
+                    android:textColor="@color/interactiveColor"
                     tools:ignore="HardcodedText" />
                 <TextView
                     android:id="@+id/organizationIndustryTextView"
@@ -113,7 +116,7 @@
                         android:layout_weight="1"
                         android:textSize="@dimen/_12ssp"
                         android:textColor="@color/hinttextColor"
-                        tools:ignore="HardcodedText" />
+                        tools:ignore="HardcodedText,InefficientWeight" />
                 </LinearLayout>
 
                 <TextView
@@ -123,24 +126,23 @@
                     android:text="Build, Connect, Compete"
                     android:textColor="@color/textColor"
                     android:textSize="@dimen/_12sdp"
-                    android:textStyle="bold"
+                    android:textStyle="bold|italic"
                     tools:ignore="HardcodedText" />
-
-
-
             </LinearLayout>
-
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
         <androidx.cardview.widget.CardView
             android:id="@+id/SettingsCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_5sdp"
+
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
             android:background="@color/primaryColor"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/white"
-            android:layout_marginBottom="@dimen/_10sdp"
+            app:cardBackgroundColor="@color/primaryColor"
             app:cardUseCompatPadding="true"
             app:cardPreventCornerOverlap="true"
             app:layout_constraintStart_toStartOf="parent"
@@ -153,6 +155,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:paddingTop="@dimen/_4sdp"
+                android:paddingBottom="@dimen/_4sdp"
                 android:layout_gravity="center"
                 android:gravity="center">
 
@@ -164,11 +168,12 @@
                     android:layout_marginEnd="@dimen/_8sdp"
                     android:layout_weight="1"
                     android:background="@drawable/curved_rectangle"
-                    android:backgroundTint="@color/secondaryColor"
+                    android:backgroundTint="@color/backgroundColor"
                     android:text="Request Alliance"
                     android:textAlignment="center"
                     android:textColor="@color/textColor"
-                    android:textSize="@dimen/_9sdp" />
+                    android:textSize="@dimen/_9sdp"
+                    tools:ignore="HardcodedText" />
 
                 <Button
                     android:id="@+id/messageButton"
@@ -179,7 +184,7 @@
                     android:textSize="@dimen/_9sdp"
                     android:layout_weight="1"
                     android:textColor="@color/textColor"
-                    android:backgroundTint="@color/secondaryColor"
+                    android:backgroundTint="@color/backgroundColor"
                     android:background="@drawable/curved_rectangle"
                     android:layout_marginStart="@dimen/_8sdp"
                     android:layout_marginEnd="@dimen/_8sdp"
@@ -192,9 +197,10 @@
                     android:scaleType="centerInside"
                     android:adjustViewBounds="true"
                     android:layout_marginStart="@dimen/_8sdp"
-                    android:backgroundTint="@color/secondaryColor"
-                    android:background="?android:selectableItemBackgroundBorderless" />
-
+                    android:backgroundTint="@color/white"
+                    android:tint="@color/white"
+                    android:background="?android:selectableItemBackgroundBorderless"
+                    tools:ignore="ContentDescription,UseAppTint" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -203,22 +209,23 @@
             android:id="@+id/statsCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardUseCompatPadding="true"
-            app:layout_constraintTop_toBottomOf="@id/SettingsCard"
-            app:layout_constraintStart_toStartOf="@id/SettingsCard"
-            app:layout_constraintEnd_toEndOf="@id/SettingsCard">
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            app:cardBackgroundColor="@color/primaryColor"
+            app:cardCornerRadius="@dimen/_12sdp"
+            app:cardElevation="@dimen/_4sdp"
+            app:layout_constraintTop_toBottomOf="@id/InfoCard"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center">
+                android:padding="@dimen/_16sdp"
+                android:gravity="center"
+                tools:ignore="DisableBaselineAlignment">
 
                 <!-- Posts Count -->
                 <LinearLayout
@@ -233,16 +240,18 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="22sp"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_20sdp"
                         android:textStyle="bold"
-                        android:textColor="@color/textColor" />
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Posts"
-                        android:textSize="14sp"
-                        android:textColor="@color/textColor" />
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="@dimen/_12sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
                 <!-- Followers Count -->
@@ -258,16 +267,18 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="22sp"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_20sdp"
                         android:textStyle="bold"
-                        android:textColor="@color/primaryColor" />
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Followers"
-                        android:textSize="14sp"
-                        android:textColor="@color/textColor" />
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="@dimen/_12sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
                 <!-- Following Count -->
@@ -283,27 +294,32 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="22sp"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_20sdp"
                         android:textStyle="bold"
-                        android:textColor="@color/primaryColor" />
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Following"
-                        android:textSize="14sp"
-                        android:textColor="@color/textColor" />
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="@dimen/_12sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/ContactCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:layout_marginBottom="@dimen/_10sdp"
         android:background="@color/primaryColor"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/primaryColor"
         app:cardUseCompatPadding="true"
         app:cardPreventCornerOverlap="true"
         app:layout_constraintTop_toBottomOf="@id/statsCard"
@@ -317,11 +333,13 @@
         android:paddingTop="@dimen/_10sdp"
         android:layout_marginEnd="@dimen/_10sdp"
         android:layout_marginStart="@dimen/_10sdp"
+        android:background="@color/primaryColor"
         android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            tools:ignore="UselessParent">
             <TextView
                 android:id="@+id/organizationEmailTextView"
                 android:layout_gravity="center"
@@ -330,10 +348,11 @@
                 android:padding="@dimen/_5sdp"
                 android:textSize="@dimen/_11ssp"
                 android:gravity="center"
+
                 android:background="@drawable/searchbar"
-                android:backgroundTint="@color/primaryColor"
+                android:backgroundTint="@color/interactiveColor"
                 android:text="muhaimensyed@gmail.com"
-                android:textColor="@color/white"
+                android:textColor="@color/textColorTernary"
                 tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
             <TextView
                 android:id="@+id/organizationPhoneTextView"
@@ -345,23 +364,26 @@
                 android:layout_height="wrap_content"
                 android:text="+92 321 123 1234"
                 android:textSize="@dimen/_11ssp"
-                android:backgroundTint="@color/primaryColor"
+                android:backgroundTint="@color/interactiveColor"
                 android:background="@drawable/searchbar"
-                android:textColor="@color/white"
+                android:textColor="@color/textColorTernary"
                 tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
 
         </LinearLayout>
 
     </LinearLayout>
     </androidx.cardview.widget.CardView>
+
         <androidx.cardview.widget.CardView
             android:id="@+id/DescriptionCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@android:color/white"
+            app:cardBackgroundColor="@color/primaryColor"
             app:cardCornerRadius="@dimen/_6sdp"
             android:layout_marginEnd="@dimen/_10sdp"
             android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:background="@drawable/rounded_corners"
             app:cardElevation="@dimen/_2sdp"
             app:layout_constraintTop_toBottomOf="@id/ContactCard"
             app:layout_constraintStart_toStartOf="parent"
@@ -372,6 +394,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/_10sdp"
+                android:textColor="@color/textColorPrimary"
                 android:layout_margin="@dimen/_10sdp"/>
         </androidx.cardview.widget.CardView>
 
@@ -380,10 +403,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_5sdp"
-
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
             android:background="@color/primaryColor"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/white"
+            app:cardBackgroundColor="@color/primaryColor"
             app:cardUseCompatPadding="true"
             app:cardPreventCornerOverlap="true"
             app:layout_constraintTop_toBottomOf="@id/DescriptionCard"
@@ -418,11 +443,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Page Posts"
-        android:textSize="18dp"
+        android:textSize="@dimen/_14sdp"
         android:textStyle="bold"
-        android:textColor="@color/primaryColor"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:textColor="@color/textColorPrimary"
+        android:layout_marginStart="@dimen/_10sdp"
         app:layout_constraintTop_toBottomOf="@id/TeamsCard"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="HardcodedText" />
@@ -431,8 +455,14 @@
         android:id="@+id/postsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/secondaryColor"
         android:layout_marginTop="8dp"
-        android:paddingBottom="16dp"
+        android:paddingBottom="@dimen/_10sdp"
+        android:paddingTop="@dimen/_10sdp"
+        android:paddingStart="@dimen/_4sdp"
+        android:paddingEnd="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
         app:layout_constraintTop_toBottomOf="@id/postsTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -443,11 +473,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Events"
-        android:textSize="18sp"
+        android:textSize="@dimen/_14sdp"
         android:textStyle="bold"
-        android:textColor="@color/primaryColor"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:textColor="@color/textColorPrimary"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_10sdp"
         app:layout_constraintTop_toBottomOf="@id/postsRecyclerView"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="HardcodedText" />
@@ -456,8 +486,14 @@
         android:id="@+id/eventsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:paddingBottom="16dp"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:background="@color/secondaryColor"
+        android:paddingTop="@dimen/_10sdp"
+        android:paddingEnd="@dimen/_4sdp"
+        android:paddingStart="@dimen/_4sdp"
+        android:paddingBottom="@dimen/_10sdp"
         app:layout_constraintTop_toBottomOf="@id/eventsTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -469,11 +505,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Jobs"
-        android:textSize="18sp"
+        android:textSize="@dimen/_14sdp"
         android:textStyle="bold"
-        android:textColor="@color/primaryColor"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:textColor="@color/textColorPrimary"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_10sdp"
         app:layout_constraintTop_toBottomOf="@id/eventsRecyclerView"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="HardcodedText" />
@@ -482,8 +518,14 @@
         android:id="@+id/jobsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:paddingBottom="16dp"
+        android:background="@color/secondaryColor"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:paddingStart="@dimen/_4sdp"
+        android:paddingEnd="@dimen/_4sdp"
+        android:paddingTop="@dimen/_10sdp"
+        android:paddingBottom="@dimen/_10sdp"
         app:layout_constraintTop_toBottomOf="@id/jobsTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

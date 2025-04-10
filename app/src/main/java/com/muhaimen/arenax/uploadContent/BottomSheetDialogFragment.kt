@@ -19,12 +19,10 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Comment
-import com.muhaimen.arenax.dataClasses.Post
 import com.muhaimen.arenax.userFeed.commentsAdapter
 import com.muhaimen.arenax.utils.FirebaseManager
 
 class BottomSheetDialogFragment(
-    private val post: Post,
     private var commentsList: List<Comment>,
     private val onCommentSubmitted: (String) -> Unit
 ) : BottomSheetDialogFragment() {

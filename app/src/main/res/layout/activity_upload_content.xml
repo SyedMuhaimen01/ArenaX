@@ -210,8 +210,6 @@
 
 
     <!-- Caption input field -->
-
-
     <EditText
         android:id="@+id/captionEditText"
         android:layout_width="0dp"

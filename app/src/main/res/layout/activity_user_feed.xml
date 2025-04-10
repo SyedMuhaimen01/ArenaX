@@ -48,6 +48,7 @@
                 android:gravity="center_vertical"
                 android:text="X"
                 android:id="@+id/x_text"
+                android:textColor="@color/interactiveColor"
                 android:layout_marginTop="@dimen/_3sdp"
                 android:textSize="@dimen/_32sdp"
                 android:textStyle="bold|italic"

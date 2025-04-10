@@ -5,194 +5,269 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".esportsManagement.battlegrounds.battlegrounds">
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:ignore="MissingConstraints">
+    tools:context=".esportsManagement.battlegrounds.battlegrounds"
+    android:background="@color/backgroundColor">
+
+    <!-- Top Bar -->
     <LinearLayout
+        android:id="@+id/topBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/_100sdp"
-        tools:ignore="MissingConstraints,UselessLeaf"
-        android:background="@color/backgroundColor">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_40sdp"
-            android:background="@color/primaryColor">
+        android:layout_height="@dimen/_40sdp"
+        android:background="@color/primaryColor"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Battle"
-                android:textStyle="italic"
-                android:textColor="@color/backgroundColor"
-                android:textSize="@dimen/_20sdp"
-                android:textAlignment="center"
-                tools:ignore="HardcodedText"
-                android:gravity="center"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_gravity="center"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Grounds"
-                android:textStyle="italic"
-                android:textColor="@color/orange"
-                android:textSize="@dimen/_20sdp"
-                android:textAlignment="center"
-                tools:ignore="HardcodedText"
-                android:gravity="center"
-                android:layout_gravity="center"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Battle"
+            android:textStyle="bold|italic"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/_20sdp"
+            android:gravity="center_vertical"
+            android:layout_marginStart="@dimen/_10sdp"
+            tools:ignore="HardcodedText" />
 
-        </LinearLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/backgroundColor"
-            >
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                tools:ignore="UselessLeaf">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/_35sdp"
-                    android:layout_marginLeft="@dimen/_10sdp"
-                    android:layout_marginRight="@dimen/_10sdp"
-                    android:layout_marginTop="@dimen/_10sdp"
-                    android:background="@drawable/searchbar"
-                    android:weightSum="4">
-
-                    <!-- AutoCompleteTextView for search -->
-                    <AutoCompleteTextView
-                        android:id="@+id/searchbar"
-                        android:layout_width="0dp"
-                        android:layout_marginLeft="@dimen/_15sdp"
-                        android:layout_weight="3.9"
-                        android:layout_height="@dimen/_32sdp"
-                        android:hint="Search ..."
-                        android:textColorHint="@color/hinttextColor"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_13sdp"
-                        android:background="@color/white"
-                        android:padding="@dimen/_5sdp"
-                        android:layout_marginTop="@dimen/_1sdp"/>
-                    <!-- Search icon button -->
-                    <ImageButton
-                        android:id="@+id/searchButton"
-                        android:layout_width="@dimen/_40sdp"
-                        android:layout_height="@dimen/_35sdp"
-                        android:src="@drawable/searchicon_foreground"
-                        android:background="@drawable/serachbar_button"
-                        android:layout_weight="0.1"
-                        tools:ignore="ContentDescription" />
-                </LinearLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/events_recyclerview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_10sdp"
-                    android:background="@color/backgroundColor"
-                    android:visibility="visible">
-                </androidx.recyclerview.widget.RecyclerView>
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/searchEventsRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginEnd="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_10sdp"
-                    android:visibility="gone"/>
-
-            </LinearLayout>
-        </FrameLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Grounds"
+            android:textStyle="bold|italic"
+            android:textColor="@color/interactiveColor"
+            android:textSize="@dimen/_20sdp"
+            android:gravity="center_vertical"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
-    </ScrollView>
+
+    <!-- Search Bar -->
+    <LinearLayout
+        android:id="@+id/searchLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_35sdp"
+        android:layout_marginLeft="@dimen/_10sdp"
+        android:layout_marginRight="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:background="@drawable/searchbar"
+        android:orientation="horizontal"
+        android:weightSum="4"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- AutoCompleteTextView for search -->
+        <AutoCompleteTextView
+            android:id="@+id/searchbar"
+            android:layout_width="0dp"
+            android:layout_weight="3.9"
+            android:layout_height="@dimen/_33sdp"
+            android:hint="Search ..."
+            android:textColorHint="@color/hinttextColor"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/_13sdp"
+            android:background="@drawable/searchbar_input_background"
+            android:paddingStart="@dimen/_15sdp"
+            android:paddingEnd="@dimen/_10sdp"
+            android:paddingTop="@dimen/_5sdp"
+            android:paddingBottom="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_1sdp"
+            android:layout_marginStart="@dimen/_2sdp"
+            android:gravity="center_vertical"
+            tools:ignore="HardcodedText" />
+
+        <!-- Search icon button -->
+        <ImageButton
+            android:id="@+id/searchButton"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:src="@drawable/searchicon_foreground"
+            android:layout_gravity="center_vertical"
+            android:scaleType="centerCrop"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="@color/interactiveColor"
+            android:contentDescription="Search Icon"
+            android:layout_weight="0.1"
+            tools:ignore="HardcodedText,UseAppTint" />
+    </LinearLayout>
+
+    <!-- RecyclerViews -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/events_recyclerview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/secondaryColor"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:paddingTop="@dimen/_10sdp"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/searchLayout"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/searchEventsRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/secondaryColor"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:paddingTop="@dimen/_10sdp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/searchLayout"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Bottom Navigation -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/_45sdp"
         android:orientation="horizontal"
-
         android:gravity="center"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:background="@drawable/navigation_bar_bg"
+        android:paddingStart="@dimen/_8sdp"
+        android:paddingEnd="@dimen/_8sdp"
+        android:background="@color/primaryColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        >
+        tools:ignore="DisableBaselineAlignment">
 
-
-
-
-        <!-- Home Button -->
-
+        <!-- Talent Exchange Button -->
         <LinearLayout
-            android:layout_width="60dp"
-            android:layout_height="40dp"
+            android:id="@+id/talentExchangeButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:gravity="center"
-            android:backgroundTint="@color/primaryColor"
-            android:background="@drawable/selected_navigation_bar_bg"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:background="?attr/selectableItemBackgroundBorderless">
 
             <ImageView
-                android:id="@+id/talentExchangeButton"
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:src="@drawable/ic_navigation_talent"
+                android:tint="@color/textColorPrimary"
+                tools:ignore="ContentDescription,UseAppTint" />
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/white"
-                android:background="@drawable/ic_navigation_talent"
-                tools:ignore="ContentDescription" />
-
+                android:text="Talent"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
 
-        <!-- Explore Button -->
-
-        <ImageView
+        <!-- Search Button -->
+        <LinearLayout
             android:id="@+id/exploreButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_navigation_search"
-            android:layout_marginStart="30dp"/>
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="?attr/selectableItemBackgroundBorderless">
 
+            <ImageView
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:src="@drawable/ic_navigation_search"
+                android:tint="@color/textColorPrimary"
+                tools:ignore="ContentDescription,UseAppTint" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
 
-
-        <!-- Add Post Button -->
-        <ImageView
+        <!-- Battlegrounds Button -->
+        <LinearLayout
             android:id="@+id/battlegroundsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:background="@drawable/ic_battlegrounds_foreground"
-            tools:ignore="ContentDescription" />
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="?attr/selectableItemBackgroundBorderless">
 
+            <ImageView
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:src="@drawable/ic_battlegrounds_foreground"
+                android:tint="@color/textColorPrimary"
+                tools:ignore="ContentDescription,UseAppTint" />
 
-        <!-- TalentXchange Button -->
-        <ImageView
-            android:id="@+id/switchButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:background="@drawable/ic_change_foreground"
-            tools:ignore="ContentDescription" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Arena"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
 
-        <!-- Add Profile Button -->
-        <ImageView
+        <!-- Esports Button -->
+        <LinearLayout
+            android:id="@+id/esportsButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="?attr/selectableItemBackgroundBorderless">
+
+            <ImageView
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:src="@drawable/ic_change_foreground"
+                android:tint="@color/textColorPrimary"
+                tools:ignore="ContentDescription,UseAppTint" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Esports"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
+
+        <!-- Profile Button -->
+        <LinearLayout
             android:id="@+id/profileButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_navigation_profile"
-            android:layout_marginStart="40dp"
-            tools:ignore="ContentDescription" />
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="?attr/selectableItemBackgroundBorderless">
 
+            <ImageView
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:src="@drawable/ic_navigation_profile"
+                android:tint="@color/textColorPrimary"
+                tools:ignore="ContentDescription,UseAppTint" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                tools:ignore="HardcodedText" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

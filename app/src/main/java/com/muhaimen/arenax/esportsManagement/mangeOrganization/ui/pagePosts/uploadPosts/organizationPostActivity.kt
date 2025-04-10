@@ -44,10 +44,10 @@ import java.util.*
 
 class organizationPostActivity : AppCompatActivity() {
 
-    private lateinit var cameraButton: TextView
-    private lateinit var galleryButton: TextView
+    private lateinit var cameraButton: ImageButton
+    private lateinit var galleryButton: ImageButton
     private lateinit var postButton: FloatingActionButton
-    private lateinit var articleButton: TextView
+    private lateinit var articleButton: ImageButton
     private lateinit var previewImageView: ImageView
     private lateinit var articleTextView: EditText
     private lateinit var captionEditText: EditText

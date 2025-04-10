@@ -29,7 +29,7 @@
                 android:id="@+id/searchbar"
                 android:layout_width="0dp"
                 android:layout_weight="3.9"
-                android:layout_height="@dimen/_32sdp"
+                android:layout_height="@dimen/_33sdp"
                 android:hint="Search ..."
                 android:textColorHint="@color/hinttextColor"
                 android:textColor="@color/textColorPrimary"
