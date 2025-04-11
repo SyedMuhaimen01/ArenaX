@@ -81,22 +81,22 @@ class createOrganization : AppCompatActivity() {
         organizationLogo.setImageURI(null)
         submitButton = findViewById(R.id.submitButton)
         ArrayAdapter.createFromResource(
-            this, R.array.organization_types, android.R.layout.simple_spinner_item
+            this, R.array.organization_types, R.layout.dropdown_spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
             organizationType.adapter = adapter
         }
         ArrayAdapter.createFromResource(
-            this, R.array.organization_industry_types, android.R.layout.simple_spinner_item
+            this, R.array.organization_industry_types, R.layout.dropdown_spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
             industryType.adapter = adapter
         }
 
         ArrayAdapter.createFromResource(
-            this, R.array.organization_sizes, android.R.layout.simple_spinner_item
+            this, R.array.organization_sizes, R.layout.dropdown_spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
             organizationSize.adapter = adapter
         }
 
@@ -217,7 +217,7 @@ class createOrganization : AppCompatActivity() {
     }
 
     private fun uploadImageToFirebase(organizationId: String,organization: OrganizationData) {
-        storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("organizationContent/$organizationId/organizationProfilePictures")
+        storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/$organizationId/organizationProfilePictures")
 
         if (imageUri != null) {
             // Generate a unique filename for the image to avoid overwriting

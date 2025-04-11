@@ -10,15 +10,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.OrganizationData
 import com.muhaimen.arenax.dataClasses.Team
+import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.esportsManagement.battlegrounds.battlegrounds
 import com.muhaimen.arenax.esportsManagement.esportsProfile.esportsProfile
 import com.muhaimen.arenax.esportsManagement.esportsProfile.ui.myOrganizations.MyOrganizationsAdapter
@@ -27,6 +36,7 @@ import com.muhaimen.arenax.esportsManagement.exploreEsports.exploreEsports
 import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
 import com.muhaimen.arenax.esportsManagement.talentExchange.talentExchange
 import com.muhaimen.arenax.userProfile.UserProfile
+import com.muhaimen.arenax.userProfile.otherUserEsportsProfile.otherUserOrganizationsAdapter
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONArray
@@ -34,15 +44,19 @@ import org.json.JSONObject
 
 class esportsProfileFragment : Fragment() {
 
-    private lateinit var talentExchangeButton : ImageView
-    private lateinit var battlegroundsButton : ImageView
-    private lateinit var switchButton : ImageView
-    private lateinit var exploreButton : ImageView
-    private lateinit var profileButton : ImageView
+    private lateinit var talentExchangeButton : LinearLayout
+    private lateinit var battlegroundsButton : LinearLayout
+    private lateinit var switchButton : LinearLayout
+    private lateinit var exploreButton : LinearLayout
+    private lateinit var profileButton : LinearLayout
     private lateinit var teamsRecyclerView: RecyclerView
     private lateinit var teamsAdapter: MyTeamsAdapter
     private lateinit var organizationsRecyclerView: RecyclerView
-    private lateinit var organizationsAdapter: MyOrganizationsAdapter
+    private lateinit var bioTextView: TextView
+    private lateinit var showMoreTextView: TextView
+    private lateinit var profileImage: ImageView
+    private lateinit var databaseReference: DatabaseReference
+    private lateinit var organizationsAdapter: otherUserOrganizationsAdapter
     private var teamsList: MutableList<Team> = mutableListOf()
     private val organizationList = mutableListOf<OrganizationData>()
     private lateinit var currentUserId:String
@@ -70,10 +84,12 @@ class esportsProfileFragment : Fragment() {
         // button listeners initialization
         talentExchangeButton =view.findViewById(R.id.talentExchangeButton)
         battlegroundsButton = view.findViewById(R.id.battlegroundsButton)
-        switchButton = view.findViewById(R.id.switchButton)
-        exploreButton = view.findViewById(R.id.exploreButton)
+        switchButton = view.findViewById(R.id.esportsButton)
+        exploreButton = view.findViewById(R.id.searchButton)
         profileButton = view.findViewById(R.id.profileButton)
-
+        showMoreTextView = view.findViewById(R.id.showMore)
+        bioTextView = view.findViewById(R.id.bioText)
+        profileImage = view.findViewById(R.id.profilePicture)
         teamsRecyclerView = view.findViewById(R.id.teamsRecyclerView)
         teamsRecyclerView.layoutManager = LinearLayoutManager(context)
         teamsAdapter = MyTeamsAdapter(teamsList)
@@ -81,7 +97,7 @@ class esportsProfileFragment : Fragment() {
 
         organizationsRecyclerView = view.findViewById(R.id.organizationsRecyclerView)
         organizationsRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        organizationsAdapter = MyOrganizationsAdapter(organizationList)
+        organizationsAdapter = otherUserOrganizationsAdapter(organizationList)
         organizationsRecyclerView.adapter = organizationsAdapter
 
         currentUserId=FirebaseManager.getCurrentUserId().toString()
@@ -89,7 +105,7 @@ class esportsProfileFragment : Fragment() {
         val firebaseUid = FirebaseManager.getCurrentUserId().toString()
         fetchTeams(firebaseUid)
         fetchOrganizations()
-
+        fetchUserDetailsFromFirebase(view)
         talentExchangeButton.setOnClickListener {
             val intent = Intent(context, talentExchange::class.java)
             startActivity(intent)
@@ -159,6 +175,49 @@ class esportsProfileFragment : Fragment() {
         )
         requestQueue.add(jsonObjectRequest)
     }
+
+    private fun fetchUserDetailsFromFirebase(view: View) {
+        databaseReference =
+            FirebaseManager.getCurrentUserId()
+                ?.let { FirebaseDatabase.getInstance().getReference("userData").child(it) }!!
+        val userId = FirebaseManager.getCurrentUserId()
+        userId?.let { uid ->
+            databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val userData = snapshot.getValue(UserData::class.java) ?: UserData()
+                        view.findViewById<TextView>(R.id.fullNameTextView).setText(userData.fullname)
+                        view.findViewById<TextView>(R.id.gamerTagTextView).setText(userData.gamerTag)
+                        view.findViewById<TextView>(R.id.bioText).setText(userData.bio)
+                        val bio=userData.bio
+                        if (bio != null) {
+                            if (bio.length > 50) {
+                                showMoreTextView.visibility = View.VISIBLE
+                            }
+                        }
+                        showMoreTextView.setOnClickListener {
+                            bioTextView.maxLines = Int.MAX_VALUE
+                            bioTextView.ellipsize = null
+                            showMoreTextView.visibility = View.GONE
+                        }
+                        userData.profilePicture?.let { url ->
+                            Glide.with(this@esportsProfileFragment)
+                                .load(url)
+                                .circleCrop()
+                                .into(profileImage)
+                        }
+                    } else {
+                        Log.e("UserProfile", "No data found for user ID: $uid")
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("UserProfile", "Database error: ${error.message}")
+                }
+            })
+        }
+    }
+
 
     @SuppressLint("NotifyDataSetChanged")
     private fun fetchOrganizations() {

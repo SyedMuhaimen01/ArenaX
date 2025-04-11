@@ -5,126 +5,180 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Threads.ChatActivity">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/secondaryColor"
-        android:layout_marginBottom="@dimen/_60sdp"
-        android:layout_marginTop="@dimen/_20sdp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/chat_top_bg"
-            android:padding="15dp"
-            android:gravity="center_vertical"
-            android:paddingBottom="@dimen/_10sdp"
-            tools:ignore="UselessParent">
-            <ImageButton
-                android:id="@+id/backButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginLeft="10dp"
-                android:background="@drawable/ic_arrow_back"
-                android:contentDescription="Back Button"
-                tools:ignore="HardcodedText" />
+    android:background="@color/primaryColor"
+    android:fitsSystemWindows="true"
+    tools:context=".esportsManagement.mangeOrganization.ui.inbox.Threads.organizationChatActivity">
 
-            <ImageView
-                android:id="@+id/profilePicture"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_gravity="center"
-                android:layout_marginStart="@dimen/_15sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_marginLeft="15dp"
-                android:background="@drawable/circle"
-                tools:ignore="ContentDescription" />
-            <TextView
-                android:id="@+id/gamerTag"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/_3sdp"
-                android:text="Username"
-                android:textStyle="bold"
-                android:textColor="@color/backgroundColor"
-                android:textSize="@dimen/_16sdp"
-                tools:ignore="HardcodedText" />
-        </LinearLayout>
+    <!-- Header Section -->
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/primaryColor"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:paddingBottom="@dimen/_10sdp"
+        android:paddingTop="@dimen/_6sdp"
+        android:paddingStart="@dimen/_12sdp"
+        android:paddingEnd="@dimen/_12sdp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fitsSystemWindows="true">
+
+        <!-- Back Button -->
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="@dimen/_35sdp"
+            android:layout_height="@dimen/_35sdp"
+            android:src="@drawable/back_white2_icon_foreground"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="@color/white"
+            android:layout_marginStart="@dimen/_12sdp"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="Back Button"
+            tools:ignore="ContentDescription,HardcodedText,UseAppTint" />
+
+        <!-- Profile Picture -->
+        <ImageView
+            android:id="@+id/profilePicture"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/circle"
+            android:scaleType="centerCrop"
+            android:contentDescription="Profile Picture"
+            tools:ignore="ContentDescription,HardcodedText" />
+
+        <!-- Gamer Tag -->
+        <TextView
+            android:id="@+id/gamerTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:text="Username"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_16sdp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+
+    <!-- Full-Screen Media (Image or Video) -->
+    <FrameLayout
+        android:id="@+id/fullScreenMediaContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Full-Screen Image -->
         <ImageView
             android:id="@+id/fullSizeImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"/>
+            android:scaleType="centerCrop"
+            android:contentDescription="Full-Screen Image"
+            tools:ignore="HardcodedText" />
+
+        <!-- Full-Screen Video -->
         <VideoView
             android:id="@+id/fullSizeVideo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"/>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/chatsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/_100sdp"/>
-    </LinearLayout>
+            android:visibility="gone"
+            tools:ignore="HardcodedText" />
+    </FrameLayout>
+
+    <!-- Chat Messages RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chatsRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/secondaryColor"
+        android:paddingHorizontal="@dimen/_1sdp"
+        android:paddingTop="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_5sdp"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Bottom Navigation -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="@dimen/_30sdp"
+        android:background="@color/primaryColor"
+        android:padding="@dimen/_8sdp"
+        android:layout_marginStart="@dimen/_5sdp"
+        android:layout_marginEnd="@dimen/_5sdp"
+        android:fitsSystemWindows="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:background="@drawable/navigation_bar_bg"
-        >
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Add Button -->
         <ImageButton
             android:id="@+id/addButton"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@drawable/add_icon_foreground"
-            android:layout_marginLeft="0dp"
-            tools:ignore="ContentDescription" />
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/add_icon_foreground"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="@color/interactiveColor"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:contentDescription="Add Media"
+            tools:ignore="ContentDescription,HardcodedText,UseAppTint" />
+
+        <!-- Camera Button -->
         <ImageButton
             android:id="@+id/cameraButton"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:background="@mipmap/camera_2_icon"
-            android:layout_gravity="center"
-            tools:ignore="ContentDescription" />
-        <LinearLayout
-            android:layout_width="@dimen/_170sdp"
-            android:layout_gravity="center"
-            android:layout_height="40dp"
-            >
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_menu_camera"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="@color/interactiveColor"
+            android:contentDescription="Take Photo"
+            tools:ignore="ContentDescription,HardcodedText,UseAppTint" />
 
-            <EditText
-                android:id="@+id/messageEditText"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/searchbar"
-                android:backgroundTint="@color/secondaryColor"
-                android:hint="Write msg..."
-                android:paddingLeft="10dp"
-                android:paddingTop="0dp"
-                android:textAlignment="viewStart"
-                android:textColor="@color/black"
-                android:textSize="@dimen/_10sdp"></EditText>
-        </LinearLayout>
+        <!-- Message Input Field -->
+        <EditText
+            android:id="@+id/messageEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:background="@drawable/inputholder"
+            android:hint="Write a message..."
+            android:textColorHint="@color/hinttextColor"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/_12sdp"
+            android:padding="@dimen/_10sdp"
+            tools:ignore="Autofill,HardcodedText,TextFields" />
+
+        <!-- Send Button -->
         <ImageButton
             android:id="@+id/sendButton"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:scaleType="centerInside"
-            android:layout_gravity="center"
-            android:background="@mipmap/send_icon"
-            tools:ignore="ContentDescription" />
-
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:src="@drawable/send_icon_foreground"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="@color/interactiveColor"
+            android:contentDescription="Send Message"
+            tools:ignore="ContentDescription,HardcodedText,UseAppTint" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

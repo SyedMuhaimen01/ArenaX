@@ -128,9 +128,9 @@ class jobPosting : AppCompatActivity() {
         ArrayAdapter.createFromResource(
             this,
             R.array.job_types,
-            android.R.layout.simple_spinner_item
+            R.layout.dropdown_spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
             jobType.adapter = adapter
         }
 
@@ -138,9 +138,9 @@ class jobPosting : AppCompatActivity() {
         ArrayAdapter.createFromResource(
             this,
             R.array.workplace_types,
-            android.R.layout.simple_spinner_item
+            R.layout.dropdown_spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
             workplaceType.adapter = adapter
         }
     }

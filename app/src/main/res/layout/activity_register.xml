@@ -1,128 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".LoginSignUp.RegisterActivity"
     android:orientation="vertical"
-    android:background="@drawable/screenbackground">
-
+    android:background="@drawable/screenbackground"
+    android:paddingStart="@dimen/_20sdp"
+    android:paddingEnd="@dimen/_20sdp">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:layout_marginStart="@dimen/_10sdp"
         android:orientation="vertical"
         tools:ignore="UselessParent">
-        <ImageView
-            android:layout_width="@dimen/_110sdp"
-            android:layout_height="@dimen/_110sdp"
-            android:src="@mipmap/applogo_foreground"
-            android:layout_marginTop="@dimen/_40sdp"
-            android:layout_marginLeft="@dimen/_95sdp"/>
+    <!-- App Logo -->
+    <ImageView
+        android:layout_width="@dimen/_130sdp"
+        android:layout_height="@dimen/_130sdp"
+        android:src="@mipmap/applogo_foreground"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/_40sdp"
+        tools:ignore="ContentDescription" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_30sdp"
-            android:layout_marginTop="@dimen/_45sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:text="Level Up!"
-            android:textSize="@dimen/_25ssp"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_40sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:text="Join ArenaX Now!"
-            android:textSize="@dimen/_25ssp"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            />
+    <!-- Title Text -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:text="Level Up!"
+        android:textSize="@dimen/_25ssp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
 
+    <!-- Subtitle Text -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:text="Join ArenaX Now!"
+        android:textSize="@dimen/_18ssp"
+        android:textColor="@color/textColorSecondary"
+        android:textStyle="bold"
+        tools:ignore="HardcodedText" />
 
-        <EditText
-            android:id="@+id/emailEditText"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_40sdp"
-            android:textSize="@dimen/_13ssp"
-            android:background="@drawable/inputholder"
-            android:hint="Email"
-            android:textColor="@color/textColor"
-            android:textColorHint="@color/hinttextColor"/>
+    <!-- Email Input Field -->
+    <EditText
+        android:id="@+id/emailEditText"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_40sdp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:background="@drawable/inputholder"
+        android:hint="Email"
+        android:paddingStart="@dimen/_16sdp"
+        android:paddingEnd="@dimen/_16sdp"
+        android:textColor="@color/textColorPrimary"
+        android:textColorHint="@color/hinttextColor"
+        android:textSize="@dimen/_13ssp"
+        tools:ignore="Autofill,HardcodedText,TextFields" />
 
-        <EditText
-            android:id="@+id/passwordEditText"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_40sdp"
-            android:textSize="@dimen/_13ssp"
-            android:background="@drawable/inputholder"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:textColor="@color/textColor"
-            android:textColorHint="@color/hinttextColor"/>
+    <!-- Password Input Field -->
+    <EditText
+        android:id="@+id/passwordEditText"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_40sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:background="@drawable/inputholder"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:paddingStart="@dimen/_16sdp"
+        android:paddingEnd="@dimen/_16sdp"
+        android:textColor="@color/textColorPrimary"
+        android:textColorHint="@color/hinttextColor"
+        android:textSize="@dimen/_13ssp"
+        tools:ignore="Autofill,HardcodedText" />
 
-        <EditText
-            android:id="@+id/reEnterPasswordEditText"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_40sdp"
-            android:textSize="@dimen/_13ssp"
-            android:background="@drawable/inputholder"
-            android:inputType="textPassword"
-            android:hint="Re-enter password"
-            android:textColor="@color/textColor"
-            android:textColorHint="@color/hinttextColor"/>
+    <!-- Re-enter Password Input Field -->
+    <EditText
+        android:id="@+id/reEnterPasswordEditText"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_40sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:background="@drawable/inputholder"
+        android:hint="Re-enter password"
+        android:inputType="textPassword"
+        android:paddingStart="@dimen/_16sdp"
+        android:paddingEnd="@dimen/_16sdp"
+        android:textColor="@color/textColorPrimary"
+        android:textColorHint="@color/hinttextColor"
+        android:textSize="@dimen/_13ssp"
+        tools:ignore="Autofill,HardcodedText" />
 
+    <!-- Next Button -->
+    <Button
+        android:id="@+id/nextButton"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_40sdp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/interactiveColor"
+        android:text="Next"
+        android:gravity="center"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_14ssp"
+        android:paddingStart="@dimen/_16sdp"
+        android:paddingEnd="@dimen/_16sdp"
+        tools:ignore="HardcodedText" />
 
-        <Button
-            android:id="@+id/nextButton"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_35sdp"
-            android:background="@drawable/buttonholder2"
-            android:text="Next"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_13ssp"
-            />
-
-
+    <!-- Already Have an Account? Section -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_50sdp"
-        android:layout_marginTop="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginLeft="@dimen/_80sdp"
             android:text="Already have an account?"
-            android:textColor="@color/Silver"
-            android:textSize="@dimen/_12ssp"/>
+            android:textColor="@color/textColorSecondary"
+            android:textSize="@dimen/_12ssp"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/login_button"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginLeft="@dimen/_5sdp"
-            android:layout_marginRight="@dimen/_20sdp"
+            android:layout_marginStart="@dimen/_5sdp"
             android:text="SignIn"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_12ssp"/>
+            android:textColor="@color/accentColor"
+            android:textSize="@dimen/_12ssp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
-
     </LinearLayout>
 </LinearLayout>

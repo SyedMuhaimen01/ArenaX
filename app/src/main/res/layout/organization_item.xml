@@ -6,7 +6,7 @@
     android:id="@+id/analytics_card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/_6sdp"
+
     app:cardBackgroundColor="@color/backgroundColor"
     app:cardCornerRadius="@dimen/_6sdp"
     app:cardElevation="@dimen/_2sdp"
@@ -15,6 +15,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="@dimen/_4sdp">
 
@@ -24,6 +25,7 @@
             android:layout_width="@dimen/_50sdp"
             android:layout_height="@dimen/_50sdp"
             android:layout_marginEnd="@dimen/_10sdp"
+            android:layout_gravity="center_vertical"
             android:scaleType="centerCrop"
             android:clipToOutline="true"
             android:contentDescription="Organization Logo"
@@ -33,6 +35,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_vertical"
             android:orientation="vertical">
 
             <!-- Company Name -->
@@ -53,9 +57,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Organization Name"
-                android:textStyle="bold"
                 android:textSize="@dimen/_12sdp"
-                android:textColor="@color/textColor"
+                android:textColor="@color/textColorSecondary"
                 tools:ignore="HardcodedText" />
 
 

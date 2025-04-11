@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.pagePosts
 
+import BottomSheetDialogFragment
 import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
@@ -37,9 +39,10 @@ import okhttp3.Response
 import org.json.JSONObject
 
 class pagePostsAdapter(
-private val recyclerView: RecyclerView,
-private val posts: List<pagePost>,
-private val organizationName: String // Pass organization name to adapter
+    private val fragmentManager: FragmentManager,
+    private val recyclerView: RecyclerView,
+    private val posts: List<pagePost>,
+    private val organizationName: String // Pass organization name to adapter
 ) : RecyclerView.Adapter<pagePostsAdapter.PostViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -98,7 +101,6 @@ private val organizationName: String // Pass organization name to adapter
         private val requestQueue = Volley.newRequestQueue(itemView.context)
         private val imageView: ImageView = itemView.findViewById(R.id.ImageView)
         private val playerView: PlayerView = itemView.findViewById(R.id.videoPlayerView)
-        private val articleTextView: TextView = itemView.findViewById(R.id.articleTextView)
         private val locationTextView: TextView = itemView.findViewById(R.id.organizationLocationTextView)
         private val tvCaption: TextView = itemView.findViewById(R.id.postCaption)
         private val likesCount: TextView = itemView.findViewById(R.id.likeCount)
@@ -106,19 +108,19 @@ private val organizationName: String // Pass organization name to adapter
         private val btnLike: ImageButton = itemView.findViewById(R.id.likeButton)
         private val btnShare: ImageButton = itemView.findViewById(R.id.shareButton)
         private val commentButton: ImageButton = itemView.findViewById(R.id.commentButton)
-        private val recyclerViewComments: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
         private val newCommentEditText: EditText = itemView.findViewById(R.id.writeCommentEditText)
         private val postCommentButton: ImageButton = itemView.findViewById(R.id.postCommentButton)
         private val commenterPicture: ImageView = itemView.findViewById(R.id.commentProfilePicture)
         private val organizationLogo: ImageView = itemView.findViewById(R.id.organizationLogo)
         private val organizationNameTextView: TextView = itemView.findViewById(R.id.organizationNameTextView)
         private val client = OkHttpClient()
+        private var commentsBottomSheet: BottomSheetDialogFragment? = null
         var exoPlayer: ExoPlayer? = null
         private lateinit var commenterName: String
         private var likeButton: ImageButton = itemView.findViewById(R.id.likeButton)
         private var alreadyLikedButton: ImageButton = itemView.findViewById(R.id.likeFilledButton)
 
-        private val storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference
+        private val storageReference = FirebaseStorage.getInstance().reference
 
         fun playContent() {
             if (exoPlayer == null) {
@@ -214,18 +216,45 @@ private val organizationName: String // Pass organization name to adapter
             updateLikeButtonState(post.isLikedByUser)
 
             tvCommentsCount.text = post.comments.toString()
-            val comments = post.commentsData?.toMutableList() ?: mutableListOf()
+            var comments = post.commentsData?.toMutableList() ?: mutableListOf()
             val commentAdapter = commentsAdapter(comments)
-            recyclerViewComments.layoutManager = LinearLayoutManager(itemView.context)
-            recyclerViewComments.adapter = commentAdapter
-            recyclerViewComments.visibility = View.GONE
 
             locationTextView.text = listOfNotNull(post.city, post.country).joinToString(", ")
             tvCaption.text = post.caption.takeIf { it != "null" } ?: ""
             tvCaption.visibility = if (post.caption == "null") View.GONE else View.VISIBLE
 
             commentButton.setOnClickListener {
-                recyclerViewComments.visibility = if (recyclerViewComments.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                // Initialize the CommentsBottomSheetFragment
+
+                commentsBottomSheet = BottomSheetDialogFragment( comments) { newCommentText ->
+                    // Handle new comment submission
+                    val commentId = (0..Int.MAX_VALUE).random() // Generating a random comment ID
+                    val createdAt = System.currentTimeMillis().toString()
+                    val newComment = Comment(
+                        commentId = commentId,
+                        commentText = newCommentText,
+                        createdAt = createdAt,
+                        commenterName = commenterName,
+                        commenterProfilePictureUrl = commenterPicture.toString()
+                    )
+
+                    // Save the new comment to the server
+                    saveCommentToServer(post.postId, commenterId, commenterType, newComment, comments, commentAdapter)
+
+                    // Update the local comments list
+                    val updatedCommentsList = post.commentsData?.toMutableList() ?: mutableListOf()
+                    updatedCommentsList.add(newComment)
+                    comments = updatedCommentsList
+
+                    // Update the UI (e.g., comment count)
+                    tvCommentsCount.text = comments.size.toString()
+
+                    // Notify the bottom sheet to refresh its data
+                    commentsBottomSheet?.updateComments(comments)
+                }
+
+                // Show the bottom sheet
+                commentsBottomSheet!!.show(fragmentManager, "CommentsBottomSheet")
             }
 
             likeButton.setOnClickListener {

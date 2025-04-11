@@ -8,6 +8,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.activity.addCallback
@@ -32,10 +33,10 @@ class ViewAllChats : AppCompatActivity() {
     private lateinit var chatRecyclerView: RecyclerView
     private lateinit var searchUserRecyclerView: RecyclerView
     private lateinit var homeButton:LinearLayout
-    private lateinit var exploreButton:ImageView
-    private lateinit var profileButton:ImageView
-    private lateinit var talentExchangeButton:ImageView
-    private lateinit var postButton:ImageView
+    private lateinit var exploreButton:LinearLayout
+    private lateinit var profileButton:LinearLayout
+    private lateinit var talentExchangeButton:LinearLayout
+    private lateinit var postButton:FrameLayout
     private val database = FirebaseDatabase.getInstance()
     private val currentUserId = FirebaseManager.getCurrentUserId()
 
@@ -71,7 +72,7 @@ class ViewAllChats : AppCompatActivity() {
             startActivity(intent)
         }
 
-        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton=findViewById(R.id.esportsButton)
         talentExchangeButton.setOnClickListener {
             val intent = Intent(this, switchToEsports::class.java)
             intent.putExtra("loadedFromActivity","casual")

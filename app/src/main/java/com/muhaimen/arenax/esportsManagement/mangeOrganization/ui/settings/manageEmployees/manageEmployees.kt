@@ -116,10 +116,7 @@ class manageEmployees : AppCompatActivity() {
 
         backButton = findViewById(R.id.backButton)
         backButton.setOnClickListener {
-            val intent = Intent(this, OrganizationHomePageActivity::class.java)
-            intent.putExtra("organization_name", organizationName)
-            startActivity(intent)
-
+            onBackPressed()
         }
     }
 

@@ -106,7 +106,7 @@ class OtherOrganization : AppCompatActivity() {
         }
 
         postsRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
-        otherPagePostsAdapter = otherPagePostsAdapter(postsRecyclerView,postsList, organizationName.toString())
+        otherPagePostsAdapter = otherPagePostsAdapter(fragmentManager = supportFragmentManager,postsRecyclerView,postsList, organizationName.toString())
         postsRecyclerView.adapter = otherPagePostsAdapter
 
         eventsRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)

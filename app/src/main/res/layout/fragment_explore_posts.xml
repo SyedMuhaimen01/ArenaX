@@ -3,66 +3,86 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
     tools:context=".explore.explorePosts">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:paddingTop="@dimen/_10sdp"
         tools:ignore="UselessParent">
 
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_35sdp"
-        android:layout_marginLeft="@dimen/_10sdp"
-        android:layout_marginRight="@dimen/_10sdp"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:background="@drawable/searchbar"
-        android:weightSum="4">
-
-        <!-- AutoCompleteTextView for search -->
-        <AutoCompleteTextView
-            android:id="@+id/searchbar"
-            android:layout_width="0dp"
-            android:layout_marginLeft="@dimen/_15sdp"
-            android:layout_weight="3.9"
-            android:layout_height="@dimen/_32sdp"
-            android:hint="Search ..."
-            android:textColorHint="@color/hinttextColor"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_13sdp"
-            android:background="@color/white"
-            android:padding="@dimen/_5sdp"
-            android:layout_marginTop="@dimen/_1sdp"/>
-
-        <!-- Search icon button -->
-        <ImageButton
-            android:id="@+id/searchButton"
-            android:layout_width="@dimen/_40sdp"
+        <!-- Search Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="@dimen/_35sdp"
-            android:src="@drawable/searchicon_foreground"
-            android:background="@drawable/serachbar_button"
-            android:layout_weight="0.1"
-            tools:ignore="ContentDescription" />
-    </LinearLayout>
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/posts_recyclerview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:layout_marginEnd="@dimen/_10sdp"
-        android:layout_marginStart="@dimen/_10sdp"
-        android:layout_gravity="center"
-        android:visibility="visible">
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_marginRight="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:background="@drawable/searchbar"
+            android:orientation="horizontal"
+            android:weightSum="4">
 
-    </androidx.recyclerview.widget.RecyclerView>
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/searchUserRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:layout_marginEnd="@dimen/_10sdp"
-        android:layout_marginStart="@dimen/_10sdp"
-        android:visibility="gone"/>
+            <!-- AutoCompleteTextView for search -->
+            <AutoCompleteTextView
+                android:id="@+id/searchbar"
+                android:layout_width="0dp"
+                android:layout_weight="3.9"
+                android:layout_height="@dimen/_33sdp"
+                android:hint="Search ..."
+                android:textColorHint="@color/hinttextColor"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_13sdp"
+                android:background="@drawable/searchbar_input_background"
+                android:paddingStart="@dimen/_15sdp"
+                android:paddingEnd="@dimen/_10sdp"
+                android:paddingTop="@dimen/_5sdp"
+                android:paddingBottom="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_1sdp"
+                android:layout_marginStart="@dimen/_2sdp"
+                android:gravity="center_vertical"
+                tools:ignore="HardcodedText" />
+
+            <!-- Search icon button -->
+            <ImageButton
+                android:id="@+id/searchButton"
+                android:layout_width="@dimen/_40sdp"
+                android:layout_height="@dimen/_40sdp"
+                android:src="@drawable/searchicon_foreground"
+                android:layout_gravity="center_vertical"
+                android:scaleType="centerCrop"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="@color/interactiveColor"
+                android:contentDescription="Search Icon"
+                android:layout_weight="0.1"
+                tools:ignore="HardcodedText,UseAppTint" />
+        </LinearLayout>
+        <!-- Posts RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/posts_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingStart="@dimen/_6sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:visibility="visible"
+            android:background="@color/secondaryColor"
+            tools:ignore="RtlSymmetry" />
+
+        <!-- Search User RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/searchUserRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:visibility="gone"
+            android:background="@color/secondaryColor"
+             />
     </LinearLayout>
 </FrameLayout>

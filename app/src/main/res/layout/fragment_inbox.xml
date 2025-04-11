@@ -5,68 +5,87 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Threads.ViewAllChats">
+    android:background="@color/backgroundColor"
+    tools:context=".esportsManagement.mangeOrganization.ui.inbox.inboxFragment">
+
+    <!-- Main Content -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/_10sdp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
         <LinearLayout
+            android:id="@+id/searchBarContainer"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_35sdp"
             android:layout_marginLeft="@dimen/_10sdp"
             android:layout_marginRight="@dimen/_10sdp"
             android:layout_marginTop="@dimen/_10sdp"
             android:background="@drawable/searchbar"
+            android:orientation="horizontal"
             android:weightSum="4">
 
-            <!--EditTtext for search -->
-            <EditText
+            <!-- AutoCompleteTextView for search -->
+            <AutoCompleteTextView
                 android:id="@+id/searchbar"
                 android:layout_width="0dp"
-                android:layout_marginStart="@dimen/_15sdp"
                 android:layout_weight="3.9"
                 android:layout_height="@dimen/_32sdp"
                 android:hint="Search ..."
                 android:textColorHint="@color/hinttextColor"
-                android:textColor="@color/black"
+                android:textColor="@color/textColorPrimary"
                 android:textSize="@dimen/_13sdp"
-                android:background="@color/white"
-                android:padding="@dimen/_5sdp"
+                android:background="@drawable/searchbar_input_background"
+                android:paddingStart="@dimen/_15sdp"
+                android:paddingEnd="@dimen/_10sdp"
+                android:paddingTop="@dimen/_5sdp"
+                android:paddingBottom="@dimen/_5sdp"
                 android:layout_marginTop="@dimen/_1sdp"
+                android:layout_marginStart="@dimen/_2sdp"
+                android:gravity="center_vertical"
                 tools:ignore="HardcodedText" />
 
             <!-- Search icon button -->
             <ImageButton
                 android:id="@+id/searchButton"
                 android:layout_width="@dimen/_40sdp"
-                android:layout_height="@dimen/_35sdp"
+                android:layout_height="@dimen/_40sdp"
                 android:src="@drawable/searchicon_foreground"
-                android:background="@drawable/serachbar_button"
+                android:layout_gravity="center_vertical"
+                android:scaleType="centerCrop"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="@color/interactiveColor"
+                android:contentDescription="Search Icon"
                 android:layout_weight="0.1"
-                tools:ignore="ContentDescription" />
+                tools:ignore="HardcodedText,UseAppTint" />
         </LinearLayout>
-        <LinearLayout
+        <!-- RecyclerView for Chats -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/viewChatsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/searchUserRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:visibility="gone"/>
+            android:layout_marginHorizontal="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:background="@color/secondaryColor"
+            android:padding="@dimen/_8sdp"
+            android:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@id/searchBarContainer"
+            app:layout_constraintBottom_toTopOf="@id/bottomNav" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/viewChatsRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:visibility="visible"/>
-        </LinearLayout>
-
+        <!-- RecyclerView for Search Results -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/searchUserRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:background="@color/secondaryColor"
+            android:padding="@dimen/_8sdp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/searchBarContainer"
+            app:layout_constraintBottom_toTopOf="@id/bottomNav" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

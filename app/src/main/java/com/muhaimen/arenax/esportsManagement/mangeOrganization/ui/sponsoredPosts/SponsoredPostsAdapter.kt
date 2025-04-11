@@ -94,7 +94,7 @@ class SponsoredPostsAdapter(
         private val sponsorButton: Button = itemView.findViewById(R.id.sponsorButton)
         private val client = OkHttpClient()
         var exoPlayer: ExoPlayer? = null
-        private val storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference
+        private val storageReference = FirebaseStorage.getInstance().reference
 
         fun playContent() {
             if (exoPlayer == null) {

@@ -7,12 +7,12 @@
     tools:context=".uploadStory.viewStory"
     android:background="@color/backgroundColor">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:ignore="MissingConstraints"
         android:orientation="vertical"
-        android:background="@color/primaryColor">
+        android:background="@color/backgroundColor">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,10 +22,9 @@
             android:paddingBottom="@dimen/_80sdp"
             android:background="@color/backgroundColor">
 
-            <!-- Media and Toolbar Section -->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:background="@color/ImagePlaceholder"
+                android:background="@color/primaryColor"
                 android:layout_height="@dimen/_510sdp">
 
                 <!-- Media Preview (Image or Video) -->
@@ -37,8 +36,9 @@
                     android:scaleType="centerCrop"
                     android:background="@color/accentColor"
                     android:contentDescription="Media Preview"
-                    android:layout_marginTop="-20dp"
-                    android:visibility="gone"/>
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:visibility="gone"
+                    tools:ignore="HardcodedText,ObsoleteLayoutParam" />
 
                 <com.google.android.exoplayer2.ui.PlayerView
                     android:id="@+id/videoPlayerView"
@@ -49,7 +49,7 @@
                     android:contentDescription="Media Preview"
                     android:layout_marginTop="@dimen/_2sdp"
                     android:visibility="gone"
-                    tools:ignore="HardcodedText" />
+                    tools:ignore="HardcodedText,ObsoleteLayoutParam" />
 
                 <!-- Toolbar with Back Button and Post Title -->
                 <LinearLayout
@@ -87,7 +87,8 @@
                             android:text="Username"
                             android:textStyle="bold"
                             android:textSize="@dimen/_12ssp"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/white"
+                            tools:ignore="HardcodedText" />
 
                         <!-- Total Hours -->
                         <LinearLayout
@@ -100,7 +101,8 @@
                                 android:layout_height="wrap_content"
                                 android:text="location"
                                 android:textSize="@dimen/_10ssp"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/white"
+                                tools:ignore="HardcodedText" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -113,86 +115,109 @@
                 android:orientation="horizontal"
                 android:background="@color/backgroundColor"
                 android:gravity="center"
-                android:weightSum="3">
+                android:weightSum="3"
+                tools:ignore="DisableBaselineAlignment">
 
+                <!-- Like Section -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="horizontal"
-                    android:layout_marginTop="@dimen/_5sdp"
                     android:gravity="center"
-                    android:layout_weight="1">
+                    android:padding="@dimen/_8sdp">
 
                     <ImageButton
                         android:id="@+id/likeButton"
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_24sdp"
+                        android:layout_height="@dimen/_24sdp"
                         android:contentDescription="Like Button"
-                        android:src="@mipmap/like_icon"
-                        android:visibility="gone"/>
+                        android:src="@drawable/like_icon_foreground"
+                        android:tint="@color/interactiveColor"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:visibility="gone"
+                        tools:ignore="HardcodedText,UseAppTint" />
+
                     <ImageButton
                         android:id="@+id/likeFilledButton"
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_20sdp"
+                        android:layout_width="@dimen/_24sdp"
+                        android:layout_height="@dimen/_24sdp"
                         android:contentDescription="Like Button"
-                        android:src="@mipmap/like_icon_filled"
-                        android:visibility="gone"/>
+                        android:src="@drawable/like_icon_filled_foreground"
+                        android:tint="@color/accentColor"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:visibility="gone"
+                        tools:ignore="HardcodedText,UseAppTint" />
+
                     <TextView
                         android:id="@+id/likeCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_5sdp"
                         android:text="0"
-                        android:textColor="@color/textColor"
-                        android:textSize="@dimen/_14sdp"/>
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="@dimen/_14sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
+                <!-- Comment Section -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="horizontal"
-                    android:layout_marginTop="@dimen/_5sdp"
-                    android:layout_marginLeft="@dimen/_20sdp"
                     android:gravity="center"
-                    android:layout_weight="1">
+                    android:padding="@dimen/_8sdp">
+
                     <ImageButton
                         android:id="@+id/commentButton"
-                        android:layout_width="@dimen/_20sdp"
-                        android:layout_height="@dimen/_22sdp"
-                        android:src="@mipmap/comment_icon"
-                        android:contentDescription="Comment Button"/>
+                        android:layout_width="@dimen/_24sdp"
+                        android:layout_height="@dimen/_24sdp"
+                        android:contentDescription="Comment Button"
+                        android:src="@drawable/comment_icon_foreground"
+                        android:tint="@color/interactiveColor"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        tools:ignore="HardcodedText,UseAppTint" />
+
                     <TextView
                         android:id="@+id/commentCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_5sdp"
                         android:text="0"
-                        android:textColor="@color/textColor"
-                        android:textSize="@dimen/_14sdp"/>
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="@dimen/_14sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
+                <!-- Share Section -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="horizontal"
-                    android:layout_marginTop="@dimen/_5sdp"
-                    android:layout_marginLeft="@dimen/_20sdp"
                     android:gravity="center"
-                    android:layout_weight="1">
+                    android:padding="@dimen/_8sdp">
+
                     <ImageButton
                         android:id="@+id/shareButton"
-                        android:layout_width="@dimen/_20sdp"
+                        android:layout_width="@dimen/_24sdp"
                         android:layout_height="@dimen/_24sdp"
-                        android:src="@mipmap/share2_icon"
-                        android:contentDescription="Share Button"/>
+                        android:contentDescription="Share Button"
+                        android:src="@drawable/share2_icon_foreground"
+                        android:tint="@color/interactiveColor"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        tools:ignore="HardcodedText,UseAppTint" />
+
                     <TextView
                         android:id="@+id/shareCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/_5sdp"
+                        android:layout_marginStart="@dimen/_5sdp"
                         android:text="0"
-                        android:textColor="@color/textColor"
-                        android:textSize="@dimen/_14sdp"/>
+                        android:textColor="@color/textColorSecondary"
+                        android:textSize="@dimen/_14sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -201,50 +226,56 @@
                 android:id="@+id/postCaption"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginLeft="@dimen/_10sdp"
-                android:layout_marginRight="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:text="This is the caption for the post."
-                android:textColor="@color/textColor"
-                android:textSize="@dimen/_11sdp"/>
+                android:textColor="@color/textColorSecondary"
+                android:textSize="12sp"
+                android:maxLines="3"
+                android:ellipsize="end"
+                tools:ignore="HardcodedText" />
 
             <Button
                 android:id="@+id/seeMoreButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:text="See More"
-                android:visibility="gone" />
-            <!-- Comments RecyclerView -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:layout_marginTop="@dimen/_5sdp"
-                android:id="@+id/commentsRecyclerView"
-                android:background="@drawable/view_comment_bg"
-                android:layout_marginRight="@dimen/_10sdp"
-                android:layout_marginLeft="@dimen/_10sdp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:textColor="@color/textColorPrimary"
+                android:textSize="12sp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:visibility="gone"
+                tools:ignore="HardcodedText" />
+
             <!-- Write Comment Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginLeft="@dimen/_10sdp"
-                android:layout_marginRight="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_16sdp"
+                android:layout_marginEnd="@dimen/_16sdp"
                 android:layout_marginTop="@dimen/_10sdp"
                 android:background="@drawable/view_comment_bg"
-                android:padding="@dimen/_4sdp">
+                android:padding="@dimen/_8sdp">
 
+                <!-- Profile Picture -->
                 <ImageView
                     android:id="@+id/commentProfilePicture"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
+                    android:layout_width="@dimen/_32sdp"
+                    android:layout_height="@dimen/_32sdp"
                     android:background="@drawable/circle"
-                    android:layout_marginStart="@dimen/_10sdp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginTop="@dimen/_4sdp"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:layout_gravity="center_vertical"
                     android:scaleType="centerCrop"
                     android:src="@mipmap/applogo"
                     tools:ignore="ContentDescription" />
+
                 <!-- Comment Input Field -->
                 <EditText
                     android:id="@+id/writeCommentEditText"
@@ -252,24 +283,33 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="Write a comment..."
-
-                    android:padding="10dp"
-                    android:textColor="@color/textColor"
-                    android:textSize="@dimen/_14ssp"/>
+                    android:paddingStart="@dimen/_12sdp"
+                    android:paddingEnd="@dimen/_12sdp"
+                    android:paddingTop="@dimen/_8sdp"
+                    android:paddingBottom="@dimen/_8sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:layout_gravity="center_vertical"
+                    android:textColorHint="@color/hinttextColor"
+                    android:textSize="@dimen/_14ssp"
+                    android:background="@drawable/inputholder"
+                    android:inputType="textMultiLine"
+                    tools:ignore="Autofill,HardcodedText" />
 
                 <!-- Post Button -->
                 <ImageButton
                     android:id="@+id/postCommentButton"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="@dimen/_10sdp"
-                   android:background="@mipmap/post_comment_icon"
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Post Comment"
-                    android:layout_gravity="end"/>
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/post_comment_icon_foreground"
+                    android:tint="@color/interactiveColor"
+                    tools:ignore="ContentDescription,HardcodedText,UseAppTint" />
             </LinearLayout>
 
 
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

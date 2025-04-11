@@ -6,42 +6,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".esportsManagement.mangeOrganization.ui.settings.manageFollowing.manageFollowing">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:ignore="UselessLeaf"
-        android:background="@color/backgroundColor">
 
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_25sdp"
-            android:layout_marginTop="@dimen/_5sdp"
-            app:tabSelectedTextColor="@color/primaryColor"
-            >
+            android:layout_height="@dimen/_35sdp"
+            android:background="@color/secondaryColor"
+            app:tabIndicatorColor="@color/accentColor"
+            app:tabSelectedTextColor="@color/textColorPrimary"
+            app:tabTextColor="@color/textColorSecondary"
+            app:tabTextAppearance="@style/TabTextAppearance"
+            app:layout_constraintTop_toTopOf="parent">
+
             <com.google.android.material.tabs.TabItem
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Following"
-                android:textColor="@color/backgroundColor"
                 tools:ignore="HardcodedText" />
+
             <com.google.android.material.tabs.TabItem
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Followers"
-                android:textColor="@color/backgroundColor"
                 tools:ignore="HardcodedText" />
-
         </com.google.android.material.tabs.TabLayout>
 
+        <!-- ViewPager2 -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tabLayout"
-            android:background="@color/white" />
-    </LinearLayout>
+            android:layout_height="0dp"
+            android:background="@color/secondaryColor"
+            app:layout_constraintTop_toBottomOf="@id/tabLayout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:ignore="ObsoleteLayoutParam" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

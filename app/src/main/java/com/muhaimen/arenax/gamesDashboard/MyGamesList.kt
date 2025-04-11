@@ -11,6 +11,9 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.util.TypedValue
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
@@ -22,9 +25,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.AnalyticsData
 import android.widget.AutoCompleteTextView
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.toolbox.JsonArrayRequest
@@ -37,6 +43,7 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.muhaimen.arenax.dataClasses.GameAnalytics
 import com.muhaimen.arenax.esportsManagement.switchToEsports.switchToEsports
@@ -63,11 +70,11 @@ class MyGamesList : AppCompatActivity() {
     private lateinit var myGamesListAdapter: MyGamesListAdapter
     private lateinit var gamesSearchBar: AutoCompleteTextView
     private lateinit var myGamesList: List<AnalyticsData>
-    private lateinit var postButton:ImageView
-    private lateinit var profileButton:ImageView
-    private lateinit var talentExchangeButton:ImageView
-    private lateinit var addGame: ImageView
-    private lateinit var exploreButton: ImageView
+    private lateinit var postButton:FrameLayout
+    private lateinit var profileButton:LinearLayout
+    private lateinit var talentExchangeButton:LinearLayout
+    private lateinit var addGame: FloatingActionButton
+    private lateinit var exploreButton: LinearLayout
     private lateinit var homeButton: LinearLayout
     lateinit var backButton: ImageButton
     private lateinit var auth: FirebaseAuth
@@ -123,7 +130,7 @@ class MyGamesList : AppCompatActivity() {
             startActivity(intent)
         }
 
-        talentExchangeButton=findViewById(R.id.talentExchangeButton)
+        talentExchangeButton=findViewById(R.id.esportsButton)
         talentExchangeButton.setOnClickListener {
             val intent = Intent(this, switchToEsports::class.java)
             intent.putExtra("loadedFromActivity","casual")
@@ -263,16 +270,40 @@ class MyGamesList : AppCompatActivity() {
     }
 
     private fun setupAutoComplete() {
+        // Get the list of game names
         val gameNames = myGamesList.map { it.gameName }
-        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, gameNames)
+
+        // Create a custom adapter with a styled dropdown layout
+        val adapter = object : ArrayAdapter<String>(this, R.layout.custom_dropdown_item, gameNames) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getView(position, convertView, parent)
+                // Customize the appearance of each item in the dropdown
+                val textView = view.findViewById<TextView>(android.R.id.text1)
+                textView.setTextColor(ContextCompat.getColor(context, R.color.textColorPrimary)) // White text
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f) // Adjust text size
+                return view
+            }
+
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getDropDownView(position, convertView, parent)
+                // Customize the dropdown item appearance
+                val textView = view.findViewById<TextView>(android.R.id.text1)
+                textView.setTextColor(ContextCompat.getColor(context, R.color.textColorPrimary)) // White text
+                textView.setBackgroundColor(ContextCompat.getColor(context, R.color.secondaryColor)) // Dark background
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f) // Adjust text size
+                return view
+            }
+        }
+
+        // Set the adapter to the AutoCompleteTextView
         gamesSearchBar.setAdapter(adapter)
 
+        // Handle item selection
         gamesSearchBar.setOnItemClickListener { _, _, position, _ ->
-            val selectedGameName = gamesSearchBar.adapter.getItem(position).toString()
+            val selectedGameName = adapter.getItem(position).toString()
             filterGamesList(selectedGameName)
         }
     }
-
     private fun setupSearchFilter() {
         gamesSearchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -321,31 +352,43 @@ class MyGamesList : AppCompatActivity() {
 
     private fun playtimeBarChart(sessionFrequencyPerDay: MutableList<Float>, gameNames: List<String>) {
         // Create BarEntries for each game with its playtime
-        val entries = sessionFrequencyPerDay.mapIndexed { index, frequency -> BarEntry(index.toFloat(), frequency.toFloat()) }
+        val entries = sessionFrequencyPerDay.mapIndexed { index, frequency ->
+            BarEntry(index.toFloat(), frequency.toFloat())
+        }
 
         val barDataSet = BarDataSet(entries, "Total Playtime Hrs Distribution").apply {
-            color = Color.parseColor("#339966")  // Muted green
-            valueTextSize = 8f
+            color = Color.parseColor("#FF6B6B") // Accent color from your palette (Bright Coral Red)
+            valueTextColor = Color.parseColor("#FFFFFF") // White text for contrast
+            valueTextSize = 10f // Slightly larger font size for readability
+            setDrawValues(true) // Show values on top of bars
         }
 
         playtimeBarChart.apply {
             // Set the bar data for the chart
             data = BarData(barDataSet)
+
             xAxis.apply {
-                // Set game names on the X-axis
+                // Truncate long labels with ellipsis
                 valueFormatter = object : ValueFormatter() {
                     override fun getFormattedValue(value: Float): String {
                         val index = value.toInt()
-                        return if (index in gameNames.indices) gameNames[index] else ""
+                        return if (index in gameNames.indices) {
+                            val name = gameNames[index]
+                            if (name.length > 12) "${name.substring(0, 12)}..." else name
+                        } else ""
                     }
                 }
                 granularity = 1f
                 position = XAxis.XAxisPosition.BOTTOM
-                labelRotationAngle = -90f
-                textSize = 8f // Set text size for X-axis labels
+                labelRotationAngle = -45f // Negative rotation for better readability
+                textSize = 8f // Reduced font size to fit more text
+                textColor = Color.parseColor("#D3D3D3") // Light gray text for secondary elements
                 setDrawGridLines(false) // Disable grid lines for X-axis
+                setDrawAxisLine(false) // Remove the axis line for a cleaner look
             }
+
             axisLeft.isEnabled = false // Disable left Y-axis
+
             axisRight.apply {
                 // Set the Y-axis formatter
                 valueFormatter = object : ValueFormatter() {
@@ -353,14 +396,21 @@ class MyGamesList : AppCompatActivity() {
                         return "${value.toInt()}h" // Format Y-axis to show hours
                     }
                 }
-                textSize = 8f // Set text size for Y-axis labels
+                textSize = 10f // Increase text size for Y-axis labels
+                textColor = Color.parseColor("#D3D3D3") // Light gray text for secondary elements
                 granularity = 1f // Set the Y-axis granularity
                 setDrawGridLines(false) // Disable grid lines for Y-axis
+                setDrawAxisLine(false) // Remove the axis line for a cleaner look
             }
+
             description.isEnabled = false // Disable chart description
             legend.isEnabled = false // Disable chart legend
-            setExtraOffsets(15f, 15f, 15f, 15f) // Add extra padding around the chart
-            invalidate()  // Redraw the chart
+            setExtraOffsets(15f, 15f, 15f, 40f) // Add extra padding, especially at the bottom
+            setBackgroundColor(Color.parseColor("#1E1E1E")) // Match background to app's secondaryColor
+            setDrawBorders(false) // Remove chart borders for a modern look
+            setNoDataText("No data available") // Custom message when no data is present
+            setNoDataTextColor(Color.parseColor("#A0A0A0")) // Subtle gray for placeholder text
+            invalidate() // Redraw the chart
         }
     }
 

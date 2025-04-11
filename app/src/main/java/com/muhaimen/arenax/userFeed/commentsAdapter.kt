@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class commentsAdapter(
-    private val commentsList: List<Comment> // List of Comment objects
+    private var commentsList: List<Comment> // List of Comment objects
 ) : RecyclerView.Adapter<commentsAdapter.CommentViewHolder>() {
 
     // ViewHolder to handle displaying comments
@@ -26,6 +26,11 @@ class commentsAdapter(
 
     override fun getItemCount(): Int {
         return commentsList.size
+    }
+
+    fun updateData(newComments: List<Comment>) {
+        commentsList = newComments
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
@@ -53,4 +58,6 @@ class commentsAdapter(
         holder.commentTimestamp.text = formattedTimestamp
 
     }
+
+
 }

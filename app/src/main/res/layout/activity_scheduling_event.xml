@@ -16,39 +16,48 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_30sdp"
             android:paddingBottom="@dimen/_150sdp"
             android:orientation="vertical">
 
 
-    <LinearLayout
-        android:id="@+id/uploadToolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@color/primaryColor"
-        tools:ignore="MissingConstraints"
-        android:padding="@dimen/_8sdp">
-        <ImageButton
-            android:id="@+id/backButton"
-            android:layout_width="@dimen/_30sdp"
-            android:layout_height="@dimen/_20sdp"
-            android:src="@mipmap/back_white2_icon"
-            android:layout_marginStart="@dimen/_10sdp"
-            android:layout_marginEnd="@dimen/_5sdp"
-            android:backgroundTint="@color/backgroundColor"
-            tools:ignore="ContentDescription" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_5sdp"
-            android:text="Schedule an Event"
-            android:textStyle="bold"
-            android:textColor="@color/backgroundColor"
-            android:background="@color/primaryColor"
-            android:textSize="@dimen/_18sdp"
-            android:layout_marginTop="-3dp"
-            tools:ignore="HardcodedText" />
-    </LinearLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/uploadToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/_16sdp"
+                android:paddingTop="@dimen/_8sdp"
+                android:paddingBottom="@dimen/_8sdp"
+                tools:ignore="RtlSymmetry">
+
+                <!-- Back Button -->
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:src="@drawable/ic_cancel"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Back Button"
+                    android:tint="@color/white"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    tools:ignore="HardcodedText,UseAppTint" />
+
+                <!-- Centered Title -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Event Scheduling"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_16sdp"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:ignore="HardcodedText" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <!-- Media preview area (Image or Video) -->
@@ -70,144 +79,158 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_menu_gallery"
-            android:tint="@color/backgroundColor"
-            android:background="@color/primaryColor"
+            app:backgroundTint="@color/interactiveColor"
+            app:tint="@color/white"
+            app:elevation="@dimen/_6sdp"
+            app:pressedTranslationZ="@dimen/_8sdp"
             android:layout_gravity="bottom|end"
-            android:backgroundTint="@color/primaryColor"
             tools:ignore="ContentDescription"
             android:layout_marginTop="-70dp"
             android:layout_marginEnd="@dimen/_10sdp"/>
     </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event Name"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:textSize="@dimen/_10sdp"
-                android:textColor="@color/white"
-                tools:ignore="HardcodedText" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/_20sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:paddingBottom="@dimen/_150sdp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event Name"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:textSize="@dimen/_10sdp"
+            android:textColor="@color/textColorSecondary"
+            tools:ignore="HardcodedText" />
             <EditText
                 android:id="@+id/eventNameEditText"
-                android:layout_marginTop="@dimen/_2sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_40sdp"
-                android:textSize="@dimen/_13sdp"
-                android:background="@drawable/transparentinput"
-                android:textColor="@color/white"
-                tools:ignore="Autofill,LabelFor,TextFields" />
+                android:layout_marginTop="@dimen/_5sdp"
+                android:background="@drawable/inputholder"
+                android:hint="Enter Event Name"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/_16sdp"
+                android:paddingEnd="@dimen/_16sdp"
+                android:textColor="@color/textColorPrimary"
+                android:textColorHint="@color/hinttextColor"
+                android:textSize="@dimen/_13ssp"
+                tools:ignore="Autofill,HardcodedText,TextFields"  />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Game Name"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:textSize="@dimen/_10sdp"
-                android:textColor="@color/white"
-                tools:ignore="HardcodedText" />
-            <EditText
-                android:id="@+id/gameNameEditText"
-                android:layout_marginTop="@dimen/_2sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_40sdp"
-                android:textSize="@dimen/_13sdp"
-                android:background="@drawable/transparentinput"
-                android:textColor="@color/white"
-                tools:ignore="Autofill,LabelFor,TextFields" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Event Mode"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:textSize="@dimen/_10sdp"
-                android:textColor="@color/white"
-                tools:ignore="HardcodedText" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Game Name"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:textSize="@dimen/_10sdp"
+            android:textColor="@color/textColorSecondary"
+            tools:ignore="HardcodedText" />
+        <EditText
+            android:id="@+id/gameNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:background="@drawable/inputholder"
+            android:hint="Enter Game Name"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/_16sdp"
+            android:paddingEnd="@dimen/_16sdp"
+            android:textColor="@color/textColorPrimary"
+            android:textColorHint="@color/hinttextColor"
+            android:textSize="@dimen/_13ssp"
+            tools:ignore="Autofill,HardcodedText,TextFields" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event Mode"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:textSize="@dimen/_10sdp"
+            android:textColor="@color/textColorSecondary"
+            tools:ignore="HardcodedText" />
 
             <Spinner
                 android:id="@+id/eventModeSpinner"
-                android:layout_marginTop="@dimen/_2sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_40sdp"
-                android:textSize="@dimen/_13ssp"
-                android:background="@drawable/transparentinput"
-                android:textColor="@android:color/white"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:background="@drawable/inputholder"
+                android:gravity="center_vertical"
+                android:popupBackground="@color/backgroundColor"
                 />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Platform"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:textSize="@dimen/_10sdp"
-                android:textColor="@color/white"
-                tools:ignore="HardcodedText" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Platform"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:textSize="@dimen/_10sdp"
+            android:textColor="@color/textColorSecondary"
+            tools:ignore="HardcodedText" />
 
-            <Spinner
-                android:id="@+id/eventPlatformSpinner"
-                android:layout_marginTop="@dimen/_2sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_40sdp"
-                android:textSize="@dimen/_13ssp"
-                android:background="@drawable/transparentinput"
-                android:textColor="@android:color/white"
-                />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Location"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:textSize="@dimen/_10sdp"
-                android:textColor="@color/white"
-                tools:ignore="HardcodedText" />
+        <Spinner
+            android:id="@+id/eventPlatformSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:background="@drawable/inputholder"
+            android:gravity="center_vertical"
+            android:popupBackground="@color/backgroundColor"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Location"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:textSize="@dimen/_10sdp"
+            android:textColor="@color/textColorSecondary"
+            tools:ignore="HardcodedText" />
             <EditText
                 android:id="@+id/locationEditText"
-                android:layout_marginTop="@dimen/_2sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_40sdp"
-                android:textSize="@dimen/_13sdp"
-                android:background="@drawable/transparentinput"
-                android:textColor="@color/white"
-                tools:ignore="Autofill,LabelFor,TextFields" />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Event Description"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:layout_marginStart="@dimen/_10sdp"
-        android:textSize="@dimen/_10sdp"
-        android:textColor="@color/backgroundColor"
-        tools:ignore="HardcodedText" />
+                android:layout_marginTop="@dimen/_5sdp"
+                android:background="@drawable/inputholder"
+                android:hint="Enter Game Name"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/_16sdp"
+                android:paddingEnd="@dimen/_16sdp"
+                android:textColor="@color/textColorPrimary"
+                android:textColorHint="@color/hinttextColor"
+                android:textSize="@dimen/_13ssp"
+                tools:ignore="Autofill,HardcodedText,TextFields"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Event Description"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:textSize="@dimen/_10sdp"
+            android:textColor="@color/textColorSecondary"
+            tools:ignore="HardcodedText" />
 
         <EditText
             android:id="@+id/eventDetailsEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/_13sdp"
-            android:textColor="@color/backgroundColor"
-            android:layout_marginEnd="@dimen/_10sdp"
-            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:background="@drawable/inputholder"
+            android:hint="Team Details here..."
+            android:gravity="center_vertical"
             android:inputType="textMultiLine"
-            android:scrollbars="vertical"
-            android:background="@drawable/transparentinput"
-            android:hint="Wirte Event Details here ..."
-            tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+            android:paddingStart="@dimen/_16sdp"
+            android:paddingEnd="@dimen/_16sdp"
+            android:textColor="@color/textColorPrimary"
+            android:textColorHint="@color/hinttextColor"
+            android:textSize="@dimen/_13ssp"
+            tools:ignore="Autofill,HardcodedText,TextFields"  />
 
 
             <LinearLayout
@@ -230,8 +253,7 @@
                         android:layout_height="wrap_content"
                         android:text="Start Date"
                         android:layout_gravity="center"
-                        android:textColor="@color/backgroundColor"
-                        android:textStyle="bold"
+                        android:textColor="@color/textColorSecondary"
                         android:textSize="@dimen/_10sdp"
                         tools:ignore="HardcodedText" />
 
@@ -240,11 +262,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="yyyy-mm-dd"
-                        android:textColorHint="@color/accentColor"
+                        android:background="@drawable/inputholder"
+                        android:textColorHint="@color/hinttextColor"
                         android:textSize="@dimen/_12sdp"
                         android:gravity="center"
                         android:inputType="date"
-                        android:textColor="@color/backgroundColor"
+                        android:textColor="@color/textColorPrimary"
                         tools:ignore="Autofill,HardcodedText,LabelFor" />
                 </LinearLayout>
 
@@ -252,6 +275,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:orientation="vertical">
@@ -259,8 +283,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="End Date"
-                        android:textColor="@color/backgroundColor"
-                        android:textStyle="bold"
+                        android:textColor="@color/textColorSecondary"
                         android:textSize="@dimen/_10sdp"
                         tools:ignore="HardcodedText" />
 
@@ -269,9 +292,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="yyyy-mm-dd"
-                        android:textColorHint="@color/accentColor"
+                        android:background="@drawable/inputholder"
+                        android:textColorHint="@color/hinttextColor"
                         android:gravity="center"
-                        android:textColor="@color/backgroundColor"
+                        android:textColor="@color/textColorPrimary"
                         android:textSize="@dimen/_12sdp"
                         android:inputType="date"
                         tools:ignore="Autofill,HardcodedText,LabelFor" />
@@ -297,8 +321,7 @@
                         android:layout_height="wrap_content"
                         android:text="Start Time"
                         android:layout_gravity="center"
-                        android:textColor="@color/backgroundColor"
-                        android:textStyle="bold"
+                        android:textColor="@color/textColorSecondary"
                         android:textSize="@dimen/_10sdp"
                         tools:ignore="HardcodedText" />
 
@@ -307,9 +330,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="11:40 am"
-                        android:textColorHint="@color/accentColor"
+                        android:textColorHint="@color/hinttextColor"
+                        android:background="@drawable/inputholder"
                         android:textSize="@dimen/_12sdp"
-                        android:textColor="@color/backgroundColor"
+                        android:textColor="@color/textColorPrimary"
                         android:gravity="center"
                         android:inputType="time"
                         tools:ignore="Autofill,HardcodedText,LabelFor" />
@@ -320,14 +344,14 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_gravity="center"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:gravity="center"
                     android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="End Time"
-                        android:textColor="@color/backgroundColor"
-                        android:textStyle="bold"
+                        android:textColor="@color/textColorSecondary"
                         android:textSize="@dimen/_10sdp"
                         tools:ignore="HardcodedText" />
 
@@ -337,8 +361,9 @@
                         android:layout_height="wrap_content"
                         android:hint="12:00 pm"
                         android:gravity="center"
-                        android:textColorHint="@color/accentColor"
-                        android:textColor="@color/backgroundColor"
+                        android:background="@drawable/inputholder"
+                        android:textColorHint="@color/hinttextColor"
+                        android:textColor="@color/textColorPrimary"
                         android:textSize="@dimen/_12sdp"
                         android:inputType="time"
                         tools:ignore="Autofill,HardcodedText,LabelFor" />
@@ -350,40 +375,41 @@
                 android:layout_height="wrap_content"
                 android:text="Event Link"
                 android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_5sdp"
                 android:textSize="@dimen/_10sdp"
-                android:textColor="@color/backgroundColor"
+                android:textColor="@color/textColorSecondary"
                 tools:ignore="HardcodedText" />
             <EditText
                 android:id="@+id/eventLinkEditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="www.event.com"
-                android:textColorHint="@color/accentColor"
-                android:textColor="@color/yellow"
-                android:textSize="@dimen/_10sdp"
-                android:background="@drawable/transparentinput"
+                android:layout_height="@dimen/_40sdp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:background="@drawable/inputholder"
+                android:hint="www.company.com"
                 android:textStyle="italic"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                tools:ignore="Autofill,HardcodedText,TextFields" />
-
-            <Button
-                android:id="@+id/scheduleButton"
-                android:layout_marginTop="@dimen/_40sdp"
-                android:layout_marginStart="@dimen/_23sdp"
-                android:layout_marginEnd="@dimen/_17sdp"
-                android:layout_marginBottom="@dimen/_50sdp"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_35sdp"
-                android:background="@drawable/buttonholder2"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:text="Schedule"
-                android:textColor="@color/white"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/_16sdp"
+                android:paddingEnd="@dimen/_16sdp"
+                android:textColor="@color/textColorPrimary"
+                android:textColorHint="@color/hinttextColor"
                 android:textSize="@dimen/_13ssp"
-                tools:ignore="HardcodedText" />
+                tools:ignore="Autofill,HardcodedText,TextFields"/>
 
+        <Button
+            android:id="@+id/scheduleButton"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginTop="@dimen/_20sdp"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/accentColor"
+            android:text="Schedule Event"
+            android:gravity="center"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_14ssp"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
         </LinearLayout>
     </ScrollView>
 

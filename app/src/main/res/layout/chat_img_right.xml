@@ -14,11 +14,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/msg_background"
-        android:backgroundTint="@color/primaryColor"
-        android:paddingLeft="@dimen/_6sdp"
-        android:paddingTop="@dimen/_6sdp"
-        android:paddingRight="@dimen/_6sdp"
-        android:paddingBottom="@dimen/_6sdp"
+        android:backgroundTint="@color/interactiveColor"
+        android:paddingLeft="@dimen/_1sdp"
+        android:paddingTop="@dimen/_1sdp"
+        android:paddingRight="@dimen/_1sdp"
+        android:paddingBottom="@dimen/_1sdp"
         app:layout_constraintEnd_toEndOf="@+id/chat"
         app:layout_constraintHorizontal_bias="0.882"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,15 +27,17 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="200dp"
-            android:layout_height="250dp"
+            android:layout_width="220dp"
+            android:layout_height="260dp"
             android:scaleType="centerCrop"
             android:src="@mipmap/ic_launcher"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
+
+            android:background="@color/interactiveColor"
+            android:clipToOutline="true"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="ContentDescription,TextViewEdits" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="ContentDescription,UnusedAttribute" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -46,7 +48,7 @@
         android:layout_height="wrap_content"
         android:text="10:31"
         android:textColor="@color/hinttextColor"
-        android:textSize="@dimen/_6sdp"
+        android:textSize="10sp"
         app:layout_constraintEnd_toEndOf="@+id/constraintLayout"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
         tools:ignore="HardcodedText,SmallSp,TextViewEdits" />

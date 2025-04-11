@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/LogoBackground" />
-    <corners android:bottomLeftRadius="20dp" android:bottomRightRadius="20dp" />
+    <!-- Solid Background Color -->
+    <solid android:color="@color/secondaryColor" />
+
+    <!-- Rounded Corners (Top Left and Top Right) -->
+    <corners
+        android:topLeftRadius="@dimen/_20sdp"
+        android:topRightRadius="@dimen/_20sdp" />
+
+    <!-- Optional: Add a subtle shadow effect -->
+    <stroke
+        android:width="@dimen/_1sdp"
+        android:color="#1F000000" />
 </shape>

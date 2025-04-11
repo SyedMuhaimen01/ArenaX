@@ -7,31 +7,29 @@
     android:layout_height="wrap_content"
     android:backgroundTint="@color/backgroundColor"
     android:layout_margin="@dimen/_10sdp"
-
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="@dimen/_12sdp"
+    app:cardElevation="@dimen/_4sdp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/_10sdp"
         android:orientation="vertical">
 
         <!-- Banner Image -->
         <ImageView
             android:id="@+id/eventBanner"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
+            android:layout_height="@dimen/_180sdp"
             android:scaleType="centerCrop"
-            app:srcCompat="@mipmap/ic_launcher_round"
-            tools:ignore="ContentDescription" />
+            android:contentDescription="Event Banner"
+            tools:ignore="ContentDescription,HardcodedText" />
 
         <!-- Event Details Container -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/_10sdp">
+            android:padding="@dimen/_16sdp">
 
             <!-- Event Title -->
             <TextView
@@ -39,9 +37,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Event Title"
-                android:textColor="@color/textColor"
-                android:textSize="@dimen/_18sdp"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_18ssp"
                 android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"
                 tools:ignore="HardcodedText" />
 
             <!-- Location -->
@@ -49,121 +49,135 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:layout_marginTop="@dimen/_8sdp">
 
                 <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:layout_width="@dimen/_16sdp"
+                    android:layout_height="@dimen/_16sdp"
                     android:src="@drawable/ic_location_pin_foreground"
-                    android:scaleType="centerCrop"
-                    app:tint="@android:color/darker_gray"
-                    tools:ignore="ContentDescription" />
+                    android:tint="@color/hinttextColor"
+                    android:contentDescription="Location Icon"
+                    tools:ignore="ContentDescription,HardcodedText,UseAppTint" />
 
                 <TextView
                     android:id="@+id/eventLocationTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Location"
-                    android:textSize="@dimen/_10sdp"
-                    android:textColor="@android:color/darker_gray"
-                    android:layout_marginStart="4dp"
+                    android:textSize="@dimen/_12ssp"
+                    android:textColor="@color/hinttextColor"
+                    android:layout_marginStart="@dimen/_4sdp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
 
+            <!-- Game -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/_8sdp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="5dp"
                     android:text="Game:"
-                    android:textColor="@color/textColor"
-                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/_12ssp"
                     android:textStyle="bold"
+                    android:layout_marginEnd="@dimen/_4sdp"
                     tools:ignore="HardcodedText" />
+
                 <TextView
                     android:id="@+id/eventGameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:layout_marginTop="5dp"
-
                     android:text="Game"
-                    android:textColor="@color/textColor"
-                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/_12ssp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
+
+            <!-- Event Mode -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/_8sdp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="5dp"
                     android:text="Event Mode:"
-                    android:textColor="@color/textColor"
-                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/_12ssp"
                     android:textStyle="bold"
+                    android:layout_marginEnd="@dimen/_4sdp"
                     tools:ignore="HardcodedText" />
+
                 <TextView
                     android:id="@+id/eventModeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:layout_marginTop="5dp"
                     android:text="Online"
-                    android:textColor="@color/textColor"
-                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/_12ssp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
 
+            <!-- Platform -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/_8sdp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="5dp"
                     android:text="Platform:"
-                    android:textColor="@color/textColor"
-                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/_12ssp"
                     android:textStyle="bold"
+                    android:layout_marginEnd="@dimen/_4sdp"
                     tools:ignore="HardcodedText" />
+
                 <TextView
                     android:id="@+id/eventPlatformTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_5sdp"
                     android:text="Mobile"
-                    android:textSize="@dimen/_12sdp"
-                    android:textColor="@color/textColor"
-                    android:layout_marginStart="@dimen/_5sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/_12ssp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     tools:ignore="HardcodedText" />
             </LinearLayout>
-
         </LinearLayout>
         <!-- Sponsor Button -->
         <Button
             android:id="@+id/sponsorButton"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/_35sdp"
-            android:background="@drawable/buttonholder2"
+            android:background="@drawable/rounded_corners"
+            android:backgroundTint="@color/interactiveColor"
             android:text="Sponsor"
             android:paddingStart="@dimen/_10sdp"
-            android:layout_gravity="end"
             android:paddingEnd="@dimen/_10sdp"
-            android:textColor="@color/white"
+            android:layout_gravity="bottom|end"
+            android:gravity="center"
+            android:textColor="@color/textColorTernary"
             android:textSize="@dimen/_13ssp"
             android:layout_marginTop="@dimen/_10sdp"
             android:layout_marginEnd="@dimen/_17sdp"
+            app:layout_constraintTop_toBottomOf="@id/frameLayout"
+            app:layout_constraintEnd_toEndOf="parent"
             tools:ignore="HardcodedText" />
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>

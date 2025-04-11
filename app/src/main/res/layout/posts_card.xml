@@ -1,21 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_view"
-    android:layout_width="@dimen/_85sdp"
+    android:layout_width="@dimen/_84sdp"
     android:layout_height="@dimen/_120sdp"
-    android:layout_margin="1dp"
-    app:cardBackgroundColor="@android:color/white"
-    android:layout_marginLeft="@dimen/_10sdp"
-    app:cardCornerRadius="1dp"
-    app:cardElevation="4dp"
+    android:layout_marginEnd="@dimen/_4sdp"
+    android:layout_marginTop="@dimen/_6sdp"
+    android:layout_marginBottom="@dimen/_6sdp"
+    android:layout_marginStart="0dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="@dimen/_8sdp"
+    app:cardElevation="@dimen/_4sdp"
+    android:backgroundTint="@color/backgroundColor"
     app:layout_constraintWidth_percent="0.4"
     app:layout_constraintHeight_percent="0.6">
-<ImageView
-android:id="@+id/image"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:scaleType="centerCrop" />
+
+    <!-- Image -->
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/_2sdp"
+        android:scaleType="centerCrop"
+        tools:ignore="ContentDescription" />
 
     </androidx.cardview.widget.CardView>

@@ -50,7 +50,7 @@
     <fragment
         android:id="@+id/nav_manageApplications"
         android:name="com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.manageApplicationsAndInvites.manageApplicationsAndInvitesFragment"
-        android:label="@string/menu_manageEvents"
+        android:label="@string/menu_manageApplications"
         tools:layout="@layout/fragment_manage_applications_and_invites" />
 
 

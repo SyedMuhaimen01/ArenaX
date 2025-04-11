@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.settings
 
+import android.app.AlertDialog
 import android.content.Intent
 import androidx.fragment.app.viewModels
 import android.os.Bundle
@@ -79,18 +80,27 @@ class settingsFragment : Fragment() {
             startActivity(intent)
         }
 
-        val builder = context?.let { androidx.appcompat.app.AlertDialog.Builder(it) }
-        builder?.setTitle("Delete Organization")
-        builder?.setMessage("Are you sure you want to delete this organization?")
-        builder?.setPositiveButton("Yes") { _, _ ->
-            deleteOrganization(organizationName, userId)
-        }
-        builder?.setNegativeButton("No") { _, _ ->
-            // Do nothing
-        }
         deleteOrganizationButton.setOnClickListener {
-            builder?.show()
+            context?.let {
+                val builder = androidx.appcompat.app.AlertDialog.Builder(it, android.R.style.ThemeOverlay_Material_Dark_ActionBar)
+                builder.setTitle("Delete Organization")
+                builder.setMessage("Are you sure you want to delete this organization?")
+                builder.setPositiveButton("Yes") { _, _ ->
+                    deleteOrganization(organizationName, userId)
+                }
+                builder.setNegativeButton("No") { dialog, _ ->
+                    dialog.dismiss()
+                }
+
+                val dialog = builder.create()
+                dialog.show()
+                dialog.window?.setLayout(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            }
         }
+
     }
 
     private fun deleteOrganization(organizationName: String?, firebaseUid: String) {

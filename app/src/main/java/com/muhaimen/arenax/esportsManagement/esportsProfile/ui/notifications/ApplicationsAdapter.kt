@@ -306,7 +306,7 @@ class ApplicationsAdapter(
     private fun showOptionsDialog(userId: String) {
         val options = arrayOf("View Organization Profile", "Start Chat")
 
-        val builder = AlertDialog.Builder(context)
+        val builder =  android.app.AlertDialog. Builder(context, android.R.style.ThemeOverlay_Material_Dark_ActionBar)
         builder.setTitle("Select an Option")
         builder.setItems(options) { _, which ->
             when (which) {
@@ -314,7 +314,12 @@ class ApplicationsAdapter(
                 1 -> getOrganizationDetails() // Call the function to start chat
             }
         }
-        builder.show()
+        val dialog = builder.create()
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.show()
     }
 
     // Placeholder function for viewing user profile

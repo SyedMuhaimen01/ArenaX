@@ -1,14 +1,20 @@
 package com.muhaimen.arenax.esportsManagement.battlegrounds
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.LinearGradient
+import android.graphics.Shader
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -38,11 +44,11 @@ import org.json.JSONException
 import org.json.JSONObject
 
 class battlegrounds : AppCompatActivity() {
-    private lateinit var talentExchangeButton: ImageView
-    private lateinit var battlegroundsButton: ImageView
-    private lateinit var switchButton: ImageView
-    private lateinit var exploreButton: ImageView
-    private lateinit var profileButton: ImageView
+    private lateinit var talentExchangeButton: LinearLayout
+    private lateinit var battlegroundsButton: LinearLayout
+    private lateinit var switchButton:LinearLayout
+    private lateinit var exploreButton: LinearLayout
+    private lateinit var profileButton: LinearLayout
     private lateinit var searchbar: EditText
     private lateinit var searchRecyclerView: RecyclerView
     private lateinit var eventsRecyclerView: RecyclerView
@@ -75,7 +81,7 @@ class battlegrounds : AppCompatActivity() {
         // Initialize Views
         talentExchangeButton = findViewById(R.id.talentExchangeButton)
         battlegroundsButton = findViewById(R.id.battlegroundsButton)
-        switchButton = findViewById(R.id.switchButton)
+        switchButton = findViewById(R.id.esportsButton)
         exploreButton = findViewById(R.id.exploreButton)
         profileButton = findViewById(R.id.profileButton)
         eventsRecyclerView = findViewById(R.id.events_recyclerview)
@@ -190,7 +196,8 @@ class battlegrounds : AppCompatActivity() {
             put("event_name", eventName)
         }
 
-        val jsonRequest = object : JsonObjectRequest(
+        val jsonRequest = @SuppressLint("NotifyDataSetChanged")
+        object : JsonObjectRequest(
             Request.Method.POST,
             url,
             requestBody,
@@ -238,14 +245,14 @@ class battlegrounds : AppCompatActivity() {
                     gameName = jsonObject.optString("game_name", ""),
                     eventMode = jsonObject.optString("event_mode", ""),
                     platform = jsonObject.optString("platform", ""),
-                    location = jsonObject.optString("location", null),
-                    eventDescription = jsonObject.optString("event_description", null),
-                    startDate = jsonObject.optString("start_date", null),
-                    endDate = jsonObject.optString("end_date", null),
-                    startTime = jsonObject.optString("start_time", null),
-                    endTime = jsonObject.optString("end_time", null),
-                    eventLink = jsonObject.optString("event_link", null),
-                    eventBanner = jsonObject.optString("event_banner", null)
+                    location = jsonObject.optString("location", null.toString()),
+                    eventDescription = jsonObject.optString("event_description", null.toString()),
+                    startDate = jsonObject.optString("start_date", null.toString()),
+                    endDate = jsonObject.optString("end_date", null.toString()),
+                    startTime = jsonObject.optString("start_time", null.toString()),
+                    endTime = jsonObject.optString("end_time", null.toString()),
+                    eventLink = jsonObject.optString("event_link", null.toString()),
+                    eventBanner = jsonObject.optString("event_banner", null.toString())
                 )
 
                 eventList.add(event)

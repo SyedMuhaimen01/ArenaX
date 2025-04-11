@@ -4,41 +4,48 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".esportsManagement.mangeOrganization.ui.settings.manageAdmins.manageAdmins"
-    android:background="@color/backgroundColor"
     android:id="@+id/main"
-    >
-    <LinearLayout
-        android:id="@+id/uploadToolbar"
+    android:background="@color/backgroundColor"
+    tools:context=".esportsManagement.mangeOrganization.ui.settings.manageAdmins.manageAdmins">
+
+    <!-- Header Section -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:background="@color/primaryColor"
-        tools:ignore="MissingConstraints"
-        android:padding="@dimen/_8sdp">
+        android:paddingStart="@dimen/_16sdp"
+        android:paddingTop="@dimen/_8sdp"
+        android:paddingBottom="@dimen/_8sdp"
+        tools:ignore="RtlSymmetry">
+
         <ImageButton
             android:id="@+id/backButton"
             android:layout_width="@dimen/_30sdp"
-            android:layout_height="@dimen/_20sdp"
-            android:src="@mipmap/back_white2_icon"
-            android:layout_marginStart="@dimen/_10sdp"
-            android:layout_marginEnd="@dimen/_5sdp"
-            android:backgroundTint="@color/backgroundColor"
-            tools:ignore="ContentDescription" />
+            android:layout_height="@dimen/_30sdp"
+            android:src="@drawable/back_white2_icon_foreground"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back Button"
+            android:tint="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:ignore="HardcodedText,UseAppTint" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_5sdp"
             android:text="Manage Admins"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_16sdp"
             android:textStyle="bold"
-            android:textColor="@color/backgroundColor"
-            android:background="@color/primaryColor"
-            android:textSize="@dimen/_18sdp"
-            android:layout_marginTop="-3dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             tools:ignore="HardcodedText" />
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:layout_width="match_parent"
@@ -50,45 +57,43 @@
         android:textColor="@color/textColor"
         android:textStyle="bold"
         tools:ignore="HardcodedText" />
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/_5sdp"
-        app:cardElevation="@dimen/_4sdp"
-        app:cardCornerRadius="@dimen/_10sdp"
         android:layout_marginEnd="@dimen/_10sdp"
         android:layout_marginStart="@dimen/_10sdp"
-        android:background="@color/primaryColor"
-        android:backgroundTint="@color/primaryColor">
+        app:cardElevation="@dimen/_4sdp"
+        app:cardCornerRadius="@dimen/_10sdp"
+        android:backgroundTint="@color/secondaryColor">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/_10sdp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            tools:ignore="UseCompoundDrawables">
+
             <ImageView
                 android:id="@+id/superAdminProfilePicture"
                 android:layout_width="@dimen/_40sdp"
                 android:layout_height="@dimen/_40sdp"
-                android:background="@drawable/circle"
                 android:layout_marginStart="@dimen/_10sdp"
-                tools:ignore="ContentDescription"
-                android:layout_gravity="center"/>
+                android:background="@drawable/circle"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/superAdminTextView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="John Doe"
-                android:textColor="@color/backgroundColor"
                 android:layout_margin="@dimen/_10sdp"
+                android:text="John Doe"
+                android:textColor="@color/textColorPrimary"
                 android:textSize="@dimen/_12sdp"
-                android:background="@color/primaryColor"
                 android:textStyle="bold"
                 tools:ignore="HardcodedText" />
         </LinearLayout>
-
-
-
     </androidx.cardview.widget.CardView>
 
     <TextView
@@ -102,79 +107,101 @@
         android:textStyle="bold"
         tools:ignore="HardcodedText" />
 
-    <LinearLayout
+    <!-- This FrameLayout will stack RecyclerViews and FAB -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:ignore="UselessLeaf">
-        <LinearLayout
-            android:id="@+id/searchbarLinearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_35sdp"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:layout_marginRight="@dimen/_10sdp"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:background="@drawable/searchbar"
-            android:weightSum="4"
-            android:visibility="gone">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-            <!-- AutoCompleteTextView for search -->
-            <AutoCompleteTextView
-                android:id="@+id/searchbar"
-                android:layout_width="0dp"
-                android:layout_marginLeft="@dimen/_15sdp"
-                android:layout_weight="3.9"
-                android:layout_height="@dimen/_32sdp"
-                android:hint="Search ..."
-                android:textColorHint="@color/hinttextColor"
-                android:textColor="@color/black"
-                android:textSize="@dimen/_13sdp"
-                android:background="@color/white"
-                android:padding="@dimen/_5sdp"
-                android:layout_marginTop="@dimen/_1sdp"
-                />
-            <!-- Search icon button -->
-            <ImageButton
-                android:id="@+id/searchButton"
-                android:layout_width="@dimen/_40sdp"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/searchbarLinearLayout"
+                android:layout_width="match_parent"
                 android:layout_height="@dimen/_35sdp"
-                android:src="@drawable/searchicon_foreground"
-                android:background="@drawable/serachbar_button"
-                android:layout_weight="0.1"
-                tools:ignore="ContentDescription" />
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:background="@drawable/searchbar"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                android:weightSum="4">
+
+                <AutoCompleteTextView
+                    android:id="@+id/searchbar"
+                    android:layout_width="0dp"
+                    android:layout_weight="3.9"
+                    android:layout_height="@dimen/_32sdp"
+                    android:hint="Search ..."
+                    android:textColorHint="@color/hinttextColor"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/_13sdp"
+                    android:background="@drawable/searchbar_input_background"
+                    android:paddingStart="@dimen/_15sdp"
+                    android:paddingEnd="@dimen/_10sdp"
+                    android:paddingTop="@dimen/_5sdp"
+                    android:paddingBottom="@dimen/_5sdp"
+                    android:layout_marginTop="@dimen/_1sdp"
+                    android:layout_marginStart="@dimen/_2sdp"
+                    android:gravity="center_vertical"
+                    tools:ignore="HardcodedText" />
+
+                <ImageButton
+                    android:id="@+id/searchButton"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_40sdp"
+                    android:src="@drawable/searchicon_foreground"
+                    android:layout_gravity="center_vertical"
+                    android:scaleType="centerCrop"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:tint="@color/interactiveColor"
+                    android:layout_weight="0.1"
+                    tools:ignore="ContentDescription,UseAppTint" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/adminsRecyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@color/secondaryColor"
+                android:padding="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:visibility="visible" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/searchAdminsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@color/secondaryColor"
+                android:padding="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_marginBottom="@dimen/_10sdp"
+                android:visibility="gone" />
         </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/adminsRecyclerview"
-            android:layout_width="match_parent"
+        <!-- FAB over content -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addAdminButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginEnd="@dimen/_10sdp"
-            android:layout_marginStart="@dimen/_10sdp"
-            android:visibility="visible">
-        </androidx.recyclerview.widget.RecyclerView>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/searchAdminsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginEnd="@dimen/_10sdp"
-            android:layout_marginStart="@dimen/_10sdp"
-            android:visibility="gone"/>
-
-
-    </LinearLayout>
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/addAdminButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_input_add"
-        android:tint="@color/backgroundColor"
-        android:backgroundTint="@color/primaryColor"
-        android:layout_gravity="end"
-        android:layout_marginBottom="@dimen/_20sdp"
-        android:layout_marginEnd="@dimen/_20sdp"
-        tools:ignore="ContentDescription" />
-
-
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="@dimen/_20sdp"
+            android:layout_marginEnd="@dimen/_20sdp"
+            android:src="@drawable/ic_navigation_add"
+            app:backgroundTint="@color/interactiveColor"
+            app:tint="@color/white"
+            app:elevation="@dimen/_6sdp"
+            app:pressedTranslationZ="@dimen/_8sdp"
+            tools:ignore="ContentDescription" />
+    </FrameLayout>
 </LinearLayout>

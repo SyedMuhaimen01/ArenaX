@@ -1,0 +1,98 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_gravity="bottom"
+    android:id="@+id/coordinatorLayout"
+    android:fitsSystemWindows="true"
+    android:clipToOutline="true"
+    android:background="@color/transparent">
+
+    <!-- LinearLayout with Rounded Top Corners -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+
+        android:background="@drawable/bottom_sheet_background"
+        android:clipToOutline="true"
+        >
+
+        <!-- White Divider Line -->
+        <View
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="1dp"
+            android:background="@color/white"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/_4sdp" />
+
+        <!-- Comments Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Comments"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/_14sdp"
+            android:layout_gravity="center"
+            tools:ignore="HardcodedText" />
+
+        <!-- Comments RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/commentsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_280sdp"
+            android:paddingTop="@dimen/_8sdp"
+            android:paddingBottom="@dimen/_8sdp"
+            android:clipToPadding="false"
+            android:background="@color/backgroundColor"
+            tools:listitem="@layout/userfeed_comments_card" />
+
+        <!-- Comment Input Field -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="@dimen/_8sdp"
+            android:background="@color/secondaryColor">
+
+            <!-- Profile Picture -->
+            <ImageView
+                android:id="@+id/commentProfilePicture"
+                android:layout_width="@dimen/_32sdp"
+                android:layout_height="@dimen/_32sdp"
+                android:background="@drawable/circle"
+                android:layout_marginStart="@dimen/_8sdp"
+                android:layout_marginEnd="@dimen/_8sdp"
+                android:layout_gravity="center_vertical"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/applogo"
+                tools:ignore="ContentDescription" />
+
+            <EditText
+                android:id="@+id/writeCommentEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Write a comment..."
+                android:padding="@dimen/_8sdp"
+                android:textColor="@color/textColorPrimary"
+                android:textColorHint="@color/hinttextColor"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:textSize="@dimen/_14ssp"
+                android:background="@drawable/inputholder"
+                tools:ignore="Autofill,HardcodedText,TextFields" />
+
+            <ImageButton
+                android:id="@+id/sendCommentButton"
+                android:layout_width="@dimen/_36sdp"
+                android:layout_height="@dimen/_36sdp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Send Comment"
+                android:src="@drawable/post_comment_icon_foreground"
+                android:tint="@color/interactiveColor"
+                tools:ignore="ContentDescription,HardcodedText,UseAppTint" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

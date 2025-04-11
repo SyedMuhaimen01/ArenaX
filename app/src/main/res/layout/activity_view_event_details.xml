@@ -3,448 +3,444 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    tools:context=".uploadContent.UploadContent"
-    android:background="@color/backgroundColor"
     android:id="@+id/main"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/backgroundColor"
+    tools:context=".uploadContent.UploadContent">
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="@dimen/_10sdp"
+        android:scrollbars="none">
 
-        >
+        <!-- Organization Info Card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:paddingBottom="@dimen/_50sdp"
             android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
 
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/InfoCard"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_5sdp"
-                    android:background="@color/primaryColor"
-                    app:cardElevation="2dp"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardUseCompatPadding="true"
-                    app:cardPreventCornerOverlap="true"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    tools:ignore="MissingConstraints">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <!-- Profile picture -->
-                        <ImageView
-                            android:id="@+id/profilePicture"
-                            android:layout_width="@dimen/_80sdp"
-                            android:layout_height="@dimen/_80sdp"
-                            android:background="@drawable/circle"
-                            android:layout_gravity="center"
-                            android:layout_marginStart="@dimen/_10sdp"
-                            android:layout_marginEnd="@dimen/_10sdp"
-                            android:contentDescription="@string/nav_header_desc"
-                            android:clipToOutline="true"
-                            tools:ignore="UnusedAttribute" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <!-- Name -->
-                            <TextView
-                                android:id="@+id/organizationNameTextView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Organization Name"
-                                android:textStyle="bold"
-                                android:textSize="@dimen/_16ssp"
-                                android:textColor="@color/textColor"
-                                tools:ignore="HardcodedText" />
-
-                            <TextView
-                                android:id="@+id/organizationWebsiteTextView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="www.website.com"
-                                android:textStyle="italic"
-
-                                android:textSize="@dimen/_12ssp"
-                                android:textColor="@color/primaryColor"
-                                tools:ignore="HardcodedText" />
-                            <TextView
-                                android:id="@+id/organizationIndustryTextView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Esports organization"
-                                android:textSize="@dimen/_12sdp"
-                                android:textColor="@color/textColor"
-                                tools:ignore="HardcodedText" />
-
-                            <TextView
-                                android:id="@+id/organizationTypeTextView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Public Limited"
-                                android:textSize="@dimen/_12sdp"
-                                android:textColor="@color/textColor"
-                                tools:ignore="HardcodedText" />
-                            <TextView
-                                android:id="@+id/organizationSizeTextView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="500+ Empployees"
-                                android:textStyle="italic"
-                                android:textSize="@dimen/_12sdp"
-                                android:textColor="@color/textColor"
-                                tools:ignore="HardcodedText" />
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:weightSum="2">
-                                <TextView
-                                    android:id="@+id/organizationLocationTextView"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Islamabad, Pakistan"
-                                    android:layout_weight="1"
-                                    android:textSize="@dimen/_12ssp"
-                                    android:textColor="@color/hinttextColor"
-                                    tools:ignore="HardcodedText" />
-                            </LinearLayout>
-
-                            <TextView
-                                android:id="@+id/organizationTaglineTextView"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Build, Connect, Compete"
-                                android:textStyle="bold"
-                                android:textSize="@dimen/_12sdp"
-                                android:textColor="@color/textColor"
-                                tools:ignore="HardcodedText" />
-
-
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-            </LinearLayout>
-            <!-- Media preview area (Image or Video) -->
-            <LinearLayout
+            <androidx.cardview.widget.CardView
+                android:id="@+id/InfoCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_10sdp"
-                android:orientation="vertical">
-                <ImageView
-                    android:id="@+id/bannerImageView"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardElevation="@dimen/_4sdp"
+                app:cardCornerRadius="@dimen/_12sdp"
+                app:cardBackgroundColor="@color/secondaryColor">
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/_280sdp"
-                    android:scaleType="centerCrop"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/_16sdp">
 
-                    android:background="@color/ImagePlaceholder"
-                    android:contentDescription="Media Preview"
-                    tools:ignore="HardcodedText,MissingConstraints" />
+                    <!-- Profile Picture -->
+                    <ImageView
+                        android:id="@+id/profilePicture"
+                        android:layout_width="@dimen/_80sdp"
+                        android:layout_height="@dimen/_100sdp"
+                        android:layout_marginEnd="@dimen/_6sdp"
+                        android:contentDescription="Profile Picture"
+                        android:layout_gravity="center_vertical"
+                        android:scaleType="centerCrop"
+                        tools:ignore="ContentDescription,HardcodedText" />
 
-            </LinearLayout>
+                    <!-- Organization Details -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingStart="@dimen/_8sdp"
+                        tools:ignore="RtlSymmetry">
 
+                        <TextView
+                            android:id="@+id/organizationNameTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Organization Name"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="@dimen/_16ssp"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/organizationWebsiteTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="www.website.com"
+                            android:textColor="@color/interactiveColor"
+                            android:textSize="@dimen/_12ssp"
+                            android:textStyle="italic"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/organizationIndustryTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Esports organization"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="@dimen/_12ssp"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/organizationTypeTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Public Limited"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="@dimen/_12ssp"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/organizationSizeTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="500+ Employees"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="@dimen/_12ssp"
+                            android:textStyle="italic"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/organizationLocationTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Islamabad, Pakistan"
+                            android:textColor="@color/hinttextColor"
+                            android:textSize="@dimen/_12ssp"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/organizationTaglineTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Build, Connect, Compete"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="@dimen/_13ssp"
+                            android:textStyle="bold|italic"
+                            tools:ignore="HardcodedText" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Media Preview Area -->
+            <ImageView
+                android:id="@+id/bannerImageView"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_280sdp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:padding="@dimen/_5sdp"
+                android:background="@color/primaryColor"
+                android:contentDescription="Media Preview"
+                android:scaleType="centerCrop"
+                tools:ignore="ContentDescription,HardcodedText" />
+
+            <!-- Event Details -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:padding="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
+                android:padding="@dimen/_16sdp"
                 android:layout_marginTop="@dimen/_10sdp"
-             >
-            <TextView
-                android:id="@+id/eventNameTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Event Name"
-                android:textStyle="bold"
-                android:textSize="@dimen/_16sdp"
-                android:textColor="@color/textColor"
-                tools:ignore="HardcodedText" />
+                android:background="@drawable/rounded_corners"
+                android:backgroundTint="@color/secondaryColor">
 
+                <TextView
+                    android:id="@+id/eventNameTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Event Name"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="@dimen/_18ssp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+
+                <!-- Location -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    tools:ignore="UseCompoundDrawables">
 
                     <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
+                        android:layout_width="@dimen/_16sdp"
+                        android:layout_height="@dimen/_16sdp"
                         android:src="@drawable/ic_location_pin_foreground"
-                        android:scaleType="centerCrop"
-                        app:tint="@android:color/darker_gray"
-                        tools:ignore="ContentDescription" />
+                        android:tint="@color/hinttextColor"
+                        android:contentDescription="Location Icon"
+                        tools:ignore="ContentDescription,HardcodedText,UseAppTint" />
 
                     <TextView
                         android:id="@+id/eventLocationTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Location"
-                        android:textSize="@dimen/_10sdp"
-                        android:textColor="@android:color/darker_gray"
-                        android:layout_marginStart="4dp"
+                        android:textColor="@color/hinttextColor"
+                        android:textSize="@dimen/_12ssp"
+                        android:layout_marginStart="@dimen/_4sdp"
                         tools:ignore="HardcodedText" />
                 </LinearLayout>
 
+                <!-- Game -->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="@dimen/_8sdp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
                         android:text="Game:"
-                        android:textColor="@color/textColor"
-                        android:textSize="@dimen/_12sdp"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_12ssp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
-                <TextView
-                    android:id="@+id/eventGameTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_5sdp"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:text="Game"
-                    android:textSize="@dimen/_13sdp"
-                    android:textColor="@color/textColor"
-                    tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/eventGameTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Game"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_12ssp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
+                <!-- Event Mode -->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="@dimen/_8sdp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
                         android:text="Event Mode:"
-                        android:textColor="@color/textColor"
-                        android:textSize="@dimen/_12sdp"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_12ssp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
-                <TextView
-                    android:id="@+id/eventModeTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_5sdp"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:text="Online"
-                    android:textSize="@dimen/_13sdp"
-                    android:textColor="@color/textColor"
-                    tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/eventModeTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Online"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_12ssp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
+                <!-- Platform -->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="@dimen/_8sdp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
                         android:text="Platform:"
-                        android:textColor="@color/textColor"
-                        android:textSize="@dimen/_12sdp"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_12ssp"
                         android:textStyle="bold"
                         tools:ignore="HardcodedText" />
-                <TextView
-                    android:id="@+id/eventPlatformTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_5sdp"
-                    android:text="Mobile"
-                    android:layout_marginStart="@dimen/_5sdp"
-                    android:textSize="@dimen/_13sdp"
-                    android:textColor="@color/textColor"
-                    tools:ignore="HardcodedText" />
-                </LinearLayout>
 
+                    <TextView
+                        android:id="@+id/eventPlatformTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mobile"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_12ssp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
             </LinearLayout>
 
-
+            <!-- Date and Time -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:baselineAligned="true"
                 android:orientation="horizontal"
                 android:weightSum="2"
-                >
+                android:layout_marginTop="@dimen/_6sdp"
+                android:padding="@dimen/_16sdp"
+                android:background="@drawable/rounded_corners"
+                android:backgroundTint="@color/secondaryColor"
+                tools:ignore="DisableBaselineAlignment">
+
+                <!-- Start Date -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Start Date"
-                        android:layout_gravity="center"
-                        android:textColor="@color/textColor"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_12ssp"
                         android:textStyle="bold"
-                        android:textSize="@dimen/_10sdp"
                         tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/startDate"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="20/1/11"
-                        android:textSize="@dimen/_12sdp"
-                        android:gravity="center"
-                        android:textColor="@color/textColor"
-                        tools:ignore="Autofill,HardcodedText,LabelFor" />
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_14ssp"
+                        android:layout_marginTop="@dimen/_4sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
+                <!-- End Date -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_gravity="center"
                     android:gravity="center"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="End Date"
-                        android:textColor="@color/textColor"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_12ssp"
                         android:textStyle="bold"
-                        android:textSize="@dimen/_10sdp"
                         tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/endDate"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="21/1/11"
-                        android:gravity="center"
-                        android:textColor="@color/textColor"
-                        android:textSize="@dimen/_12sdp"
-                        tools:ignore="Autofill,HardcodedText,LabelFor" />
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_14ssp"
+                        android:layout_marginTop="@dimen/_4sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Start and End Time -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:baselineAligned="true"
                 android:orientation="horizontal"
-                android:weightSum="2">
+                android:weightSum="2"
+                android:layout_marginTop="@dimen/_6sdp"
+                android:padding="@dimen/_16sdp"
+                android:background="@drawable/rounded_corners"
+                android:backgroundTint="@color/secondaryColor"
+                tools:ignore="DisableBaselineAlignment">
+
+                <!-- Start Time -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Start Time"
-                        android:layout_gravity="center"
-                        android:textColor="@color/textColor"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_12ssp"
                         android:textStyle="bold"
-                        android:textSize="@dimen/_10sdp"
                         tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/startTime"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="11:40 am"
-                        android:textSize="@dimen/_12sdp"
-                        android:textColor="@color/textColor"
-                        android:gravity="center"
-                        tools:ignore="Autofill,HardcodedText,LabelFor" />
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_14ssp"
+                        android:layout_marginTop="@dimen/_4sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
+                <!-- End Time -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_gravity="center"
                     android:gravity="center"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="End Time"
-                        android:textColor="@color/textColor"
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_12ssp"
                         android:textStyle="bold"
-                        android:textSize="@dimen/_10sdp"
                         tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/endTime"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="12:00 pm"
-                        android:gravity="center"
-                        android:textColor="@color/textColor"
-                        android:textSize="@dimen/_12sdp"
-                        tools:ignore="Autofill,HardcodedText,LabelFor" />
+                        android:textColor="@color/textColorPrimary"
+                        android:textSize="@dimen/_14ssp"
+                        android:layout_marginTop="@dimen/_4sdp"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Event Details -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Event Details"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:textSize="@dimen/_14sdp"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_12sdp"
                 android:textStyle="bold"
-                android:textColor="@color/textColor"
+                android:layout_marginTop="@dimen/_10sdp"
                 tools:ignore="HardcodedText" />
 
-                <TextView
-                    android:id="@+id/eventDetailsTextView"
-                    android:layout_marginStart="@dimen/_10sdp"
-                    android:layout_marginEnd="@dimen/_10sdp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/_11sdp"
-                    android:textColor="@color/textColor"
-                    android:scrollbars="vertical"
+            <TextView
+                android:id="@+id/eventDetailsTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Event details go here ..."
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_10sdp"
+                android:padding="@dimen/_16sdp"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:background="@drawable/rounded_corners"
+                android:backgroundTint="@color/secondaryColor"
+                tools:ignore="HardcodedText" />
 
-                    android:background="@color/backgroundColor"
-                    android:text="Job Description here ..."
-                    android:maxLines="1000"
-                    tools:ignore="HardcodedText" />
-
+            <!-- Event Link -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Event Link"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:textSize="@dimen/_14sdp"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="@dimen/_12sdp"
                 android:textStyle="bold"
-                android:textColor="@color/textColor"
+                android:layout_marginTop="@dimen/_10sdp"
                 tools:ignore="HardcodedText" />
 
             <TextView
@@ -452,30 +448,29 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="www.event.com"
-                android:textStyle="italic"
+                android:textColor="@color/interactiveColor"
                 android:textSize="@dimen/_12sdp"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:textColor="@color/primaryColor"
+                android:textStyle="italic"
+                android:padding="@dimen/_16sdp"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:background="@drawable/rounded_corners"
                 tools:ignore="HardcodedText" />
 
+            <!-- Show Interest Button -->
             <Button
                 android:id="@+id/showInterestButton"
-                android:layout_marginTop="@dimen/_40sdp"
-                android:layout_marginStart="@dimen/_23sdp"
-                android:layout_marginEnd="@dimen/_17sdp"
-                android:layout_marginBottom="@dimen/_40sdp"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_35sdp"
-                android:background="@drawable/buttonholder2"
-                android:gravity="center"
-                android:layout_gravity="center"
+                android:layout_height="@dimen/_40sdp"
+                android:layout_marginTop="@dimen/_20sdp"
+                android:layout_marginStart="@dimen/_16sdp"
+                android:layout_marginEnd="@dimen/_16sdp"
+                android:background="@drawable/rounded_corners"
+                android:backgroundTint="@color/accentColor"
                 android:text="Show Interest"
                 android:textColor="@color/white"
-                android:textSize="@dimen/_13ssp"
+                android:textSize="@dimen/_14ssp"
+                android:gravity="center"
                 tools:ignore="HardcodedText" />
-
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>

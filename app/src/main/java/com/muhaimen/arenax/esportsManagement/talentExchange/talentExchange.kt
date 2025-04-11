@@ -2,7 +2,9 @@ package com.muhaimen.arenax.esportsManagement.talentExchange
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -20,11 +22,11 @@ import com.muhaimen.arenax.userProfile.UserProfile
 
 class talentExchange : AppCompatActivity() {
 
-    private lateinit var talentExchangeButton : ImageView
-    private lateinit var battlegroundsButton : ImageView
-    private lateinit var switchButton : ImageView
-    private lateinit var exploreButton : ImageView
-    private lateinit var profileButton : ImageView
+    private lateinit var talentExchangeButton: LinearLayout
+    private lateinit var battlegroundsButton: LinearLayout
+    private lateinit var switchButton: LinearLayout
+    private lateinit var exploreButton: LinearLayout
+    private lateinit var profileButton: LinearLayout
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
 
@@ -43,8 +45,8 @@ class talentExchange : AppCompatActivity() {
         // button listeners initialization
         talentExchangeButton = findViewById(R.id.talentExchangeButton)
         battlegroundsButton = findViewById(R.id.battlegroundsButton)
-        switchButton = findViewById(R.id.switchButton)
-        exploreButton = findViewById(R.id.exploreButton)
+        switchButton = findViewById(R.id.esportsButton)
+        exploreButton = findViewById(R.id.searchButton)
         profileButton = findViewById(R.id.profileButton)
 
         // Initialize TabLayout and ViewPager2

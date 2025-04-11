@@ -53,7 +53,6 @@ class editProfile : AppCompatActivity() {
     private lateinit var databaseReference: DatabaseReference
     private lateinit var storageReference: StorageReference
     private lateinit var profileImage: ImageView
-    private lateinit var editProfileImage: TextView
     private var imageUri: Uri? = null
     private lateinit var userId: String
     private lateinit var userData: UserData
@@ -78,17 +77,17 @@ class editProfile : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         userId = auth.currentUser?.uid.toString()
         databaseReference = FirebaseDatabase.getInstance().getReference("userData").child(auth.currentUser?.uid ?: "")
-        storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("profileImages/${auth.currentUser?.uid}")
+        storageReference = FirebaseStorage.getInstance().reference.child("profileImages/${auth.currentUser?.uid}")
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         profileImage = findViewById(R.id.ProfilePicture)
-        editProfileImage = findViewById(R.id.editProfilePictureText)
+
         backBUtton=findViewById(R.id.backButton)
-        editProfileImage.setOnClickListener { selectImage() }
+        profileImage.setOnClickListener { selectImage() }
         genderSpinner = findViewById(R.id.genderSpinner)
         val genderOptions = Gender.entries.map { it.displayName }
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderOptions)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val adapter = ArrayAdapter(this, R.layout.dropdown_spinner_item, genderOptions)
+        adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
         genderSpinner.adapter = adapter
 
         if(sharedPreferences5.getString("userId", "") == "") {
@@ -210,10 +209,17 @@ class editProfile : AppCompatActivity() {
         val gamertag = gamertagEditText.text.toString().trim()
         val bio = bioEditText.text.toString().trim()
 
-        if (name.isEmpty() || gamertag.isEmpty()) {
-            Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show()
+        if (name.isEmpty() ) {
+           nameEditText.error = "Name is required"
+            nameEditText.requestFocus()
             return
         }
+        if (gamertag.isEmpty()) {
+            gamertagEditText.error = "Gamertag is required"
+            gamertagEditText.requestFocus()
+            return
+        }
+
         databaseReference.child("users").orderByChild("gamerTag").equalTo(gamertag)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {

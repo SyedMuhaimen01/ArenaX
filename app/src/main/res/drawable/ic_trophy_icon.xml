@@ -1,0 +1,31 @@
+<!-- res/drawable/ic_trophy_outline.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Base of the trophy -->
+    <path
+        android:strokeColor="#FFD700"
+        android:strokeWidth="1"
+        android:pathData="M12,2L9,9H15L12,2Z" />
+
+    <!-- Middle part of the trophy -->
+    <path
+        android:strokeColor="#FFD700"
+        android:strokeWidth="1"
+        android:pathData="M10,14C8.9,14 8,14.9 8,16V18H16V16C16,14.9 15.1,14 14,14H10Z" />
+
+    <!-- Top handles of the trophy -->
+    <path
+        android:strokeColor="#FFD700"
+        android:strokeWidth="1"
+        android:pathData="M12,9C13.1,9 14,9.9 14,11H10C10,9.9 10.9,9 12,9Z" />
+
+    <!-- Stand of the trophy -->
+    <path
+        android:strokeColor="#FFD700"
+        android:strokeWidth="1"
+        android:pathData="M12,20C10.9,20 10,20.9 10,22H14C14,20.9 13.1,20 12,20Z" />
+</vector>

@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.userFeed
 
+import BottomSheetDialogFragment
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
@@ -12,6 +13,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.FragmentManager
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,8 +41,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 
-class UserFeedPostsAdapter(private val recyclerView: RecyclerView,
-    private val posts: List<Post>
+class UserFeedPostsAdapter(private val fragmentManager: FragmentManager, private val recyclerView: RecyclerView,
+                           private val posts: List<Post>
 ) : RecyclerView.Adapter<UserFeedPostsAdapter.PostViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -105,7 +107,6 @@ class UserFeedPostsAdapter(private val recyclerView: RecyclerView,
         private val btnLike: ImageButton = itemView.findViewById(R.id.likeButton)
         private val btnShare: ImageButton = itemView.findViewById(R.id.shareButton)
         private val commentButton: ImageButton = itemView.findViewById(R.id.commentButton)
-        private val recyclerViewComments: RecyclerView = itemView.findViewById(R.id.commentsRecyclerView)
         private val newCommentEditText: EditText = itemView.findViewById(R.id.writeCommentEditText)
         private val postCommentButton: ImageButton = itemView.findViewById(R.id.postCommentButton)
         private var commenterPicture: ImageView = itemView.findViewById(R.id.commentProfilePicture)
@@ -114,7 +115,7 @@ class UserFeedPostsAdapter(private val recyclerView: RecyclerView,
         private lateinit var commenterName: String
         private var likeButton:ImageButton=itemView.findViewById(R.id.likeButton)
         private var alreadyLikedButton:ImageButton=itemView.findViewById(R.id.likeFilledButton)
-
+        private var commentsBottomSheet: BottomSheetDialogFragment? = null
         fun playContent() {
             exoPlayer?.playWhenReady = true
             addPlayer(exoPlayer!!)
@@ -240,14 +241,40 @@ class UserFeedPostsAdapter(private val recyclerView: RecyclerView,
             }
 
             post.trimmedAudioUrl?.let { playTrimmedAudio(it) }
-            val comments = post.commentsData ?: emptyList()
+            var comments = post.commentsData ?: emptyList()
             val commentAdapter = commentsAdapter(comments)
-            recyclerViewComments.layoutManager = LinearLayoutManager(itemView.context)
-            recyclerViewComments.adapter = commentAdapter
-            recyclerViewComments.isNestedScrollingEnabled = false
-            recyclerViewComments.visibility = View.GONE
             commentButton.setOnClickListener {
-                recyclerViewComments.visibility = if (recyclerViewComments.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                // Initialize the CommentsBottomSheetFragment
+
+                commentsBottomSheet = BottomSheetDialogFragment( comments) { newCommentText ->
+                    // Handle new comment submission
+                    val commentId = (0..Int.MAX_VALUE).random() // Generating a random comment ID
+                    val createdAt = System.currentTimeMillis().toString()
+                    val newComment = Comment(
+                        commentId = commentId,
+                        commentText = newCommentText,
+                        createdAt = createdAt,
+                        commenterName = commenterName,
+                        commenterProfilePictureUrl = commenterPicture.toString()
+                    )
+
+                    // Save the new comment to the server
+                    saveCommentToServer(post.postId.toString(), newComment)
+
+                    // Update the local comments list
+                    val updatedCommentsList = post.commentsData?.toMutableList() ?: mutableListOf()
+                    updatedCommentsList.add(newComment)
+                    comments = updatedCommentsList
+
+                    // Update the UI (e.g., comment count)
+                    tvCommentsCount.text = comments.size.toString()
+
+                    // Notify the bottom sheet to refresh its data
+                    commentsBottomSheet?.updateComments(comments)
+                }
+
+                // Show the bottom sheet
+                commentsBottomSheet!!.show(fragmentManager, "CommentsBottomSheet")
             }
 
             loadMedia(post.postContent)

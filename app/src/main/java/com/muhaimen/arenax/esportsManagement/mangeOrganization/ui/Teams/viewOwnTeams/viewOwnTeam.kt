@@ -515,9 +515,6 @@ class viewOwnTeam : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        val intent = Intent(this, OrganizationHomePageActivity::class.java)
-        intent.putExtra("organization_name", organizationName)
-        startActivity(intent)
-        super.onBackPressed()
+        finish()
     }
 }

@@ -1,5 +1,6 @@
 package com.muhaimen.arenax.uploadContent
 
+import BottomSheetDialogFragment
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
@@ -15,8 +16,6 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
@@ -28,7 +27,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.Comment
 import com.muhaimen.arenax.dataClasses.Post
-import com.muhaimen.arenax.userFeed.commentsAdapter
 import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import kotlinx.coroutines.CoroutineScope
@@ -38,7 +36,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
@@ -53,8 +50,7 @@ class ViewPost : AppCompatActivity() {
     private lateinit var shareCount: TextView
     private lateinit var playerView: PlayerView
     private lateinit var commentButton: ImageButton
-    private lateinit var commentsRecyclerView: RecyclerView
-    private lateinit var commentsAdapter: commentsAdapter
+    private var commentsBottomSheet: BottomSheetDialogFragment? = null
     private lateinit var writeCommentEditText:EditText
     private lateinit var postCommentButton:ImageButton
     private lateinit var commenterProfilePicture:ImageView
@@ -74,6 +70,9 @@ class ViewPost : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_view_post)
+
+        window.statusBarColor = resources.getColor(R.color.primaryColor)
+        window.navigationBarColor = resources.getColor(R.color.primaryColor)
         imageView = findViewById(R.id.ImageView)
         playerView = findViewById(R.id.videoPlayerView)
         postCaption = findViewById(R.id.postCaption)
@@ -81,8 +80,6 @@ class ViewPost : AppCompatActivity() {
         likesCount = findViewById(R.id.likeCount)
         commentCount = findViewById(R.id.commentCount)
         shareCount = findViewById(R.id.shareCount)
-        commentsRecyclerView = findViewById(R.id.commentsRecyclerView)
-        commentsRecyclerView.visibility = View.GONE
         commentButton = findViewById(R.id.commentButton)
         commenterProfilePicture = findViewById(R.id.commentProfilePicture)
         writeCommentEditText = findViewById(R.id.writeCommentEditText)
@@ -92,7 +89,6 @@ class ViewPost : AppCompatActivity() {
         profilePicture = findViewById(R.id.ProfilePicture)
         likeButton = findViewById(R.id.likeButton)
         alreadyLikedButton = findViewById(R.id.likeFilledButton)
-        commentsRecyclerView.layoutManager=LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
 
         val userId=FirebaseManager.getCurrentUserId()
         if (userId != null) {
@@ -172,7 +168,7 @@ class ViewPost : AppCompatActivity() {
             }
             if(post.commentsData!=null){
                 commentsList = post.commentsData!!.toMutableList()
-                updatePostsUI(commentsList)
+
             }
             else{
                 commentsList = mutableListOf()
@@ -203,7 +199,37 @@ class ViewPost : AppCompatActivity() {
             }
 
             commentButton.setOnClickListener {
-                commentsRecyclerView.visibility = if (commentsRecyclerView.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                // Initialize the CommentsBottomSheetFragment
+                Log.d("ViewPost", "Comments list: $commentsList")
+                commentsBottomSheet = BottomSheetDialogFragment(commentsList) { newCommentText ->
+                    // Handle new comment submission
+                    val commentId = (0..Int.MAX_VALUE).random() // Generating a random comment ID
+                    val createdAt = System.currentTimeMillis().toString()
+                    val newComment = Comment(
+                        commentId = commentId,
+                        commentText = newCommentText,
+                        createdAt = createdAt,
+                        commenterName = commenterName,
+                        commenterProfilePictureUrl = commenterPicture
+                    )
+
+                    // Save the new comment to the server
+                    saveCommentToServer(post.postId.toString(), newComment)
+
+                    // Update the local comments list
+                    val updatedCommentsList = post.commentsData?.toMutableList() ?: mutableListOf()
+                    updatedCommentsList.add(newComment)
+                    commentsList = updatedCommentsList
+
+                    // Update the UI (e.g., comment count)
+                    commentCount.text = commentsList.size.toString()
+
+                    // Notify the bottom sheet to refresh its data
+                    commentsBottomSheet?.updateComments(commentsList)
+                }
+
+                // Show the bottom sheet
+                commentsBottomSheet!!.show(supportFragmentManager, "CommentsBottomSheet")
             }
 
             seeMoreButton.setOnClickListener {
@@ -378,21 +404,7 @@ class ViewPost : AppCompatActivity() {
     }
 
     @SuppressLint("ResourceType", "SetTextI18n")
-    private fun updatePostsUI(comments: List<Comment>) {
-        commentsAdapter = commentsAdapter(comments)
-        commentsRecyclerView.adapter = commentsAdapter
-        commentCount.setText(commentsAdapter.itemCount.toString())
 
-        // Create a temporary ViewHolder to measure the height of the comment card
-        val adapter = commentsAdapter
-        val totalHeight = adapter.itemCount.let { count ->
-            // Calculate the height dynamically based on the number of items and individual item height
-            val itemHeight = resources.getDimensionPixelSize(com.intuit.sdp.R.dimen._40sdp) // Or calculate dynamically
-                itemHeight * count
-        }
-        commentsRecyclerView.layoutParams.height = totalHeight
-        commentsRecyclerView.requestLayout()
-    }
 
     private fun savePostLikeOnServer()
     {

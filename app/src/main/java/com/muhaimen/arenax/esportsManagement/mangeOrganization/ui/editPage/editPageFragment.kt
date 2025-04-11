@@ -147,7 +147,7 @@ class editPageFragment : Fragment() {
     }
 
     private fun uploadImageToFirebase(organizationId: String) {
-        storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("organizationContent/$organizationId/organizationProfilePictures")
+        storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/$organizationId/organizationProfilePictures")
 
         if (selectedImageUri != null) {
             // Generate a unique filename for the image to avoid overwriting
@@ -423,18 +423,18 @@ class editPageFragment : Fragment() {
     }
     private fun populateSpinners() {
         context?.let { ctx ->
-            ArrayAdapter.createFromResource(ctx, R.array.organization_industry_types, android.R.layout.simple_spinner_item).also { adapter ->
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            ArrayAdapter.createFromResource(ctx, R.array.organization_industry_types,R.layout.dropdown_spinner_item).also { adapter ->
+                adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
                 organizationIndustry.adapter = adapter
             }
 
-            ArrayAdapter.createFromResource(ctx, R.array.organization_types, android.R.layout.simple_spinner_item).also { adapter ->
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            ArrayAdapter.createFromResource(ctx, R.array.organization_types, R.layout.dropdown_spinner_item).also { adapter ->
+                adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
                 organizationType.adapter = adapter
             }
 
-            ArrayAdapter.createFromResource(ctx, R.array.organization_sizes, android.R.layout.simple_spinner_item).also { adapter ->
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            ArrayAdapter.createFromResource(ctx, R.array.organization_sizes, R.layout.dropdown_spinner_item).also { adapter ->
+                adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
                 organizationSize.adapter = adapter
             }
 

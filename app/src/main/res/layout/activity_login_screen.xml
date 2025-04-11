@@ -1,145 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".LoginSignUp.LoginScreen"
-    android:background="@drawable/screenbackground">
+    android:background="@drawable/screenbackground"
+    tools:context=".LoginSignUp.LoginScreen">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        tools:ignore="UselessParent">
 
-        android:orientation="vertical">
-
+        <!-- App Logo -->
         <ImageView
-            android:layout_width="@dimen/_110sdp"
-            android:layout_height="@dimen/_110sdp"
+            android:layout_width="@dimen/_130sdp"
+            android:layout_height="@dimen/_130sdp"
             android:src="@mipmap/applogo_foreground"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/_40sdp"
-            android:layout_marginLeft="@dimen/_95sdp"/>
+            tools:ignore="ContentDescription" />
 
+        <!-- Title and Welcome Text -->
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_30sdp"
-            android:layout_marginTop="@dimen/_45sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_20sdp"
             android:text="Game On!"
+            android:layout_gravity="center_horizontal"
             android:textSize="@dimen/_25ssp"
             android:textColor="@color/white"
             android:textStyle="bold"
-            />
+            tools:ignore="HardcodedText" />
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_40sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
             android:text="Welcome Back!"
-            android:textSize="@dimen/_25ssp"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            />
+            android:layout_gravity="center_horizontal"
+            android:textSize="@dimen/_18ssp"
+            android:textColor="@color/textColorSecondary"
+            android:textStyle="normal"
+            tools:ignore="HardcodedText" />
+
+        <!-- Username Input -->
         <EditText
             android:id="@+id/usernameEditText"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
-            android:textSize="@dimen/_13ssp"
-            android:background="@drawable/inputholder"
+            android:layout_marginTop="@dimen/_20sdp"
+            android:layout_marginHorizontal="@dimen/_10sdp"
+            android:gravity="center_vertical"
             android:hint="Email or username"
-            android:textColor="@color/textColor"
-            android:textColorHint="@color/hinttextColor"/>
+            android:background="@drawable/inputholder"
+            android:textColor="@color/white"
+            android:textColorHint="@color/hinttextColor"
+            android:paddingHorizontal="@dimen/_15sdp"
+            android:textSize="@dimen/_14ssp"
+            tools:ignore="Autofill,HardcodedText,TextFields" />
 
+        <!-- Password Input -->
         <EditText
             android:id="@+id/passwordEditText"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
-            android:textSize="@dimen/_13ssp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginHorizontal="@dimen/_10sdp"
+            android:hint="Password"
+            android:gravity="center_vertical"
             android:background="@drawable/inputholder"
             android:inputType="textPassword"
-            android:hint="Password"
-            android:textColor="@color/textColor"
-            android:textColorHint="@color/hinttextColor"/>
+            android:textColor="@color/white"
+            android:textColorHint="@color/hinttextColor"
+            android:paddingHorizontal="@dimen/_15sdp"
+            android:textSize="@dimen/_14ssp"
+            tools:ignore="Autofill,HardcodedText" />
 
-
+        <!-- Login Button -->
         <Button
             android:id="@+id/login_button"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginLeft="@dimen/_23sdp"
-            android:layout_marginRight="@dimen/_17sdp"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_35sdp"
-            android:background="@drawable/buttonholder2"
-            android:text="Login"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_13ssp"
-            />
-
-        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:orientation="horizontal">
+            android:layout_marginTop="@dimen/_20sdp"
+            android:layout_marginHorizontal="@dimen/_10sdp"
+            android:backgroundTint="@color/accentColor"
+            android:background="@drawable/rounded_corners"
+            android:gravity="center"
+            android:text="Login"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_16ssp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <!-- Forgot Password and Help -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginLeft="@dimen/_62sdp"
                 android:text="Forgot Password?"
-                android:textColor="@color/Silver"
-                android:textSize="@dimen/_12ssp"/>
+                android:textColor="@color/textColorSecondary"
+                android:textSize="@dimen/_13ssp"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/resetPassword"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginLeft="@dimen/_5sdp"
-                android:layout_marginRight="@dimen/_20sdp"
+                android:layout_marginStart="@dimen/_5sdp"
                 android:text="Get Help Logging In"
-                android:textColor="@color/white"
-                android:textSize="@dimen/_12ssp"/>
-
+                android:textColor="@color/accentColor"
+                android:textSize="@dimen/_13ssp"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
 
+        <!-- SignUp Prompt -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_50sdp"
-            android:layout_marginTop="0dp"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_25sdp"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginLeft="@dimen/_80sdp"
                 android:text="Don't have an account?"
-                android:textColor="@color/Silver"
-                android:textSize="@dimen/_12ssp"/>
+                android:textColor="@color/textColorSecondary"
+                android:textSize="@dimen/_13ssp"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/signup_button"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginLeft="@dimen/_5sdp"
-                android:layout_marginRight="@dimen/_20sdp"
-                android:text="SignUp"
-                android:textColor="@color/white"
-                android:textSize="@dimen/_12ssp"/>
-
+                android:layout_marginStart="@dimen/_5sdp"
+                android:text="Sign Up"
+                android:textColor="@color/accentColor"
+                android:textSize="@dimen/_13ssp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
-
     </LinearLayout>
-
-
-
 </LinearLayout>

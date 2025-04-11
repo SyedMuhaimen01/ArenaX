@@ -36,6 +36,7 @@ class registerTeam : AppCompatActivity() {
     private lateinit var teamDetailsEditText: EditText
     private lateinit var teamLocationEditText: EditText
     private lateinit var teamEmailEditText: EditText
+    private lateinit var backButton:ImageButton
     private lateinit var teamCaptainEditText: AutoCompleteTextView
     private lateinit var teamTagLineEditText: EditText
     private lateinit var teamAchievementsEditText: EditText
@@ -74,6 +75,9 @@ class registerTeam : AppCompatActivity() {
             pickImage()
         }
 
+        backButton.setOnClickListener {
+            onBackPressed()
+        }
         registerButton.setOnClickListener {
             if (teamLogoUri != null) {
                 uploadLogoToFirebase()
@@ -86,6 +90,7 @@ class registerTeam : AppCompatActivity() {
     }
 
     private fun initializeViews() {
+        backButton = findViewById(R.id.backButton)
         teamLogoImageView = findViewById(R.id.teamLogoImageView)
         teamNameEditText = findViewById(R.id.teamNameEditText)
         gameNameEditText = findViewById(R.id.gameNameEditText)
@@ -125,7 +130,7 @@ class registerTeam : AppCompatActivity() {
 
     private fun uploadLogoToFirebase() {
         teamLogoUri?.let { uri ->
-            val storageRef = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference
+            val storageRef = FirebaseStorage.getInstance().reference
             val fileName = "team_logos/${UUID.randomUUID()}.jpg"
             val fileRef = storageRef.child(fileName)
 

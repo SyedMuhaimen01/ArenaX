@@ -3,6 +3,9 @@ package com.muhaimen.arenax.userProfile.otherUserEsportsProfile
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -13,11 +16,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.OrganizationData
 import com.muhaimen.arenax.dataClasses.Team
-import com.muhaimen.arenax.esportsManagement.esportsProfile.ui.myOrganizations.MyOrganizationsAdapter
-import com.muhaimen.arenax.esportsManagement.esportsProfile.ui.myTeams.MyTeamsAdapter
+import com.muhaimen.arenax.dataClasses.UserData
 import com.muhaimen.arenax.utils.Constants
 import org.json.JSONArray
 import org.json.JSONObject
@@ -27,6 +35,10 @@ class OtherUsersEsportsProfile : AppCompatActivity() {
     private lateinit var teamsAdapter: otherUserTeamsAdapter
     private lateinit var organizationsRecyclerView: RecyclerView
     private lateinit var organizationsAdapter: otherUserOrganizationsAdapter
+    private lateinit var databaseReference: DatabaseReference
+    private lateinit var bioTextView: TextView
+    private lateinit var showMoreTextView: TextView
+    private lateinit var profileImage: ImageView
     private var teamsList: MutableList<Team> = mutableListOf()
     private val organizationList = mutableListOf<OrganizationData>()
     private lateinit var userId:String
@@ -51,6 +63,10 @@ class OtherUsersEsportsProfile : AppCompatActivity() {
         teamsAdapter = otherUserTeamsAdapter(teamsList)
         teamsRecyclerView.adapter = teamsAdapter
 
+        showMoreTextView = findViewById(R.id.showMore)
+        bioTextView = findViewById(R.id.bioText)
+        profileImage =findViewById(R.id.profilePicture)
+
         organizationsRecyclerView = findViewById(R.id.organizationsRecyclerView)
         organizationsRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         organizationsAdapter = otherUserOrganizationsAdapter(organizationList)
@@ -60,7 +76,49 @@ class OtherUsersEsportsProfile : AppCompatActivity() {
 
         fetchTeams(userId)
         fetchOrganizations()
+        fetchUserDetailsFromFirebase(userId)
+    }
 
+    private fun fetchUserDetailsFromFirebase(userId:String) {
+        databaseReference =
+            userId
+                .let { FirebaseDatabase.getInstance().getReference("userData").child(it) }
+
+        userId.let { uid ->
+            databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val userData = snapshot.getValue(UserData::class.java) ?: UserData()
+                        findViewById<TextView>(R.id.fullNameTextView).text = userData.fullname
+                        findViewById<TextView>(R.id.gamerTagTextView).text = userData.gamerTag
+                        findViewById<TextView>(R.id.bioText).text = userData.bio
+                        val bio=userData.bio
+                        if (bio != null) {
+                            if (bio.length > 50) {
+                                showMoreTextView.visibility = View.VISIBLE
+                            }
+                        }
+                        showMoreTextView.setOnClickListener {
+                            bioTextView.maxLines = Int.MAX_VALUE
+                            bioTextView.ellipsize = null
+                            showMoreTextView.visibility = View.GONE
+                        }
+                        userData.profilePicture?.let { url ->
+                            Glide.with(this@OtherUsersEsportsProfile)
+                                .load(url)
+                                .circleCrop()
+                                .into(profileImage)
+                        }
+                    } else {
+                        Log.e("UserProfile", "No data found for user ID: $uid")
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("UserProfile", "Database error: ${error.message}")
+                }
+            })
+        }
     }
 
     private fun fetchTeams(firebaseUid: String) {

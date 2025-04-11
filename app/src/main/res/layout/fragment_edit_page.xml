@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/swipeRefreshLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,6 +9,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         tools:ignore="UselessParent">
         <LinearLayout
 
@@ -19,16 +21,15 @@
             android:background="@drawable/screenbackground"
             >
 
-
             <ImageView
                 android:layout_marginTop="@dimen/_10sdp"
                 android:id="@+id/organizationLogoImageView"
-                android:layout_width="@dimen/_60sdp"
-                android:layout_height="@dimen/_60sdp"
+                android:layout_width="@dimen/_70sdp"
+                android:layout_height="@dimen/_70sdp"
                 android:scaleType="centerCrop"
                 android:backgroundTint="@color/white"
                 android:layout_gravity="center"
-                android:background="@drawable/circle"
+                android:background="@color/ImagePlaceholder"
                 android:clipToOutline="true"
                 tools:ignore="ContentDescription,UnusedAttribute" />
             <TextView
@@ -47,6 +48,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:paddingHorizontal="@dimen/_20sdp"
+                android:paddingBottom="@dimen/_100sdp"
                 android:layout_marginTop="@dimen/_10sdp">
 
 
@@ -55,129 +58,141 @@
                     android:layout_height="wrap_content"
                     android:text="Organization Name"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_27sdp"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:textSize="@dimen/_10sdp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColorSecondary"
                     tools:ignore="HardcodedText" />
                 <EditText
                     android:id="@+id/organizationNameEditText"
-                    android:layout_marginTop="@dimen/_2sdp"
-                    android:layout_marginStart="@dimen/_23sdp"
-                    android:layout_marginEnd="@dimen/_17sdp"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:background="@drawable/inputholder"
+                    android:hint="Enter organization Name"
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/_16sdp"
+                    android:paddingEnd="@dimen/_16sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textColorHint="@color/hinttextColor"
                     android:textSize="@dimen/_13ssp"
-                    android:background="@drawable/transparentinput"
-                    android:textColor="@color/white"
-                    tools:ignore="Autofill,LabelFor,TextFields" />
+                    tools:ignore="Autofill,HardcodedText,TextFields" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Organization Location"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_27sdp"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:textSize="@dimen/_10sdp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColorSecondary"
                     tools:ignore="HardcodedText" />
                 <EditText
                     android:id="@+id/organizationLocationEditText"
-                    android:layout_marginTop="@dimen/_2sdp"
-                    android:layout_marginStart="@dimen/_23sdp"
-                    android:layout_marginEnd="@dimen/_17sdp"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:background="@drawable/inputholder"
+                    android:hint="Enter organization location"
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/_16sdp"
+                    android:paddingEnd="@dimen/_16sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textColorHint="@color/hinttextColor"
                     android:textSize="@dimen/_13ssp"
-                    android:background="@drawable/transparentinput"
-                    android:textColor="@color/white"
-                    tools:ignore="Autofill,LabelFor,TextFields" />
+                    tools:ignore="Autofill,HardcodedText,TextFields" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Organization Email"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_27sdp"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:textSize="@dimen/_10sdp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColorSecondary"
                     tools:ignore="HardcodedText" />
                 <EditText
                     android:id="@+id/organizationEmailEditText"
-                    android:layout_marginTop="@dimen/_2sdp"
-                    android:layout_marginStart="@dimen/_23sdp"
-                    android:layout_marginEnd="@dimen/_17sdp"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
-                    android:textSize="@dimen/_13ssp"
-                    android:background="@drawable/transparentinput"
-                    android:textColor="@color/white"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:background="@drawable/inputholder"
+                    android:hint="jhondoe@gmail.com"
+                    android:gravity="center_vertical"
                     android:inputType="textEmailAddress"
-                    tools:ignore="Autofill,LabelFor,TextFields" />
+                    android:paddingStart="@dimen/_16sdp"
+                    android:paddingEnd="@dimen/_16sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textColorHint="@color/hinttextColor"
+                    android:textSize="@dimen/_13ssp"
+                    tools:ignore="Autofill,HardcodedText,TextFields" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Organization Phone"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_27sdp"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:textSize="@dimen/_10sdp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColorSecondary"
                     tools:ignore="HardcodedText" />
                 <EditText
                     android:id="@+id/organizationPhoneEditText"
-                    android:layout_marginTop="@dimen/_2sdp"
-                    android:layout_marginStart="@dimen/_23sdp"
-                    android:layout_marginEnd="@dimen/_17sdp"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:background="@drawable/inputholder"
+                    android:hint="032123456789"
+                    android:gravity="center_vertical"
                     android:inputType="phone"
+                    android:paddingStart="@dimen/_16sdp"
+                    android:paddingEnd="@dimen/_16sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textColorHint="@color/hinttextColor"
                     android:textSize="@dimen/_13ssp"
-                    android:background="@drawable/transparentinput"
-                    android:textColor="@color/white"
-                    tools:ignore="Autofill,LabelFor,TextFields" />
+                    tools:ignore="Autofill,HardcodedText,TextFields" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Website"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_27sdp"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:textSize="@dimen/_10sdp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColorSecondary"
                     tools:ignore="HardcodedText" />
                 <EditText
                     android:id="@+id/organizationWebsiteEditText"
-                    android:layout_marginTop="@dimen/_2sdp"
-                    android:layout_marginStart="@dimen/_23sdp"
-                    android:layout_marginEnd="@dimen/_17sdp"
                     android:layout_width="match_parent"
-                    android:hint="www.company.com"
-                    android:textColorHint="@color/hinttextColor"
                     android:layout_height="@dimen/_40sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:background="@drawable/inputholder"
+                    android:hint="www.company.com"
+                    android:textStyle="italic"
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/_16sdp"
+                    android:paddingEnd="@dimen/_16sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textColorHint="@color/hinttextColor"
                     android:textSize="@dimen/_13ssp"
-                    android:background="@drawable/transparentinput"
-                    android:textColor="@color/white"
-                    tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+                    tools:ignore="Autofill,HardcodedText,TextFields" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Industry"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_27sdp"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:textSize="@dimen/_10sdp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColorSecondary"
                     tools:ignore="HardcodedText" />
                 <Spinner
                     android:id="@+id/organizationIndustryEditText"
-                    android:layout_marginTop="@dimen/_2sdp"
-                    android:layout_marginStart="@dimen/_23sdp"
-                    android:layout_marginEnd="@dimen/_17sdp"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
-                    android:textSize="@dimen/_13ssp"
-                    android:background="@drawable/transparentinput"
-                    android:textColor="@color/white"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:background="@drawable/inputholder"
+                    android:gravity="center_vertical"
+                    android:popupBackground="@color/backgroundColor"
                     tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
 
                 <TextView
@@ -185,20 +200,18 @@
                     android:layout_height="wrap_content"
                     android:text="Organization Type"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_27sdp"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:textSize="@dimen/_10sdp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColorSecondary"
                     tools:ignore="HardcodedText" />
                 <Spinner
                     android:id="@+id/organizationTypeSpinner"
-                    android:layout_marginTop="@dimen/_2sdp"
-                    android:layout_marginStart="@dimen/_23sdp"
-                    android:layout_marginEnd="@dimen/_17sdp"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
-                    android:textSize="@dimen/_13ssp"
-                    android:background="@drawable/transparentinput"
-                    android:textColor="@color/white"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:background="@drawable/inputholder"
+                    android:gravity="center_vertical"
+                    android:popupBackground="@color/backgroundColor"
                     tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
 
                 <TextView
@@ -206,20 +219,19 @@
                     android:layout_height="wrap_content"
                     android:text="Organization Size"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_27sdp"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:textSize="@dimen/_10sdp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColorSecondary"
                     tools:ignore="HardcodedText" />
 
                 <Spinner
                     android:id="@+id/organizationSizeSpinner"
-                    android:layout_marginTop="@dimen/_2sdp"
-                    android:layout_marginStart="@dimen/_23sdp"
-                    android:layout_marginEnd="@dimen/_17sdp"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_40sdp"
-                    android:textSize="@dimen/_13ssp"
-                    android:background="@drawable/transparentinput"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:background="@drawable/inputholder"
+                    android:gravity="center_vertical"
+                    android:popupBackground="@color/backgroundColor"
                     android:textColor="@android:color/white"
                     />
 
@@ -228,56 +240,67 @@
                     android:layout_height="wrap_content"
                     android:text="Tagline"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_27sdp"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:textSize="@dimen/_10sdp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColorSecondary"
                     tools:ignore="HardcodedText" />
                 <EditText
                     android:id="@+id/organizationTaglineEditText"
-                    android:layout_marginTop="@dimen/_2sdp"
-                    android:layout_marginStart="@dimen/_23sdp"
-                    android:layout_marginEnd="@dimen/_17sdp"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/_40sdp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:background="@drawable/inputholder"
+                    android:hint="Tagline..."
+                    android:textStyle="italic"
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/_16sdp"
+                    android:paddingEnd="@dimen/_16sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textColorHint="@color/hinttextColor"
                     android:textSize="@dimen/_13ssp"
-                    android:background="@drawable/transparentinput"
-                    android:textColor="@color/white"
-                    tools:ignore="Autofill,HardcodedText,LabelFor,TextFields" />
+                    tools:ignore="Autofill,HardcodedText,TextFields" />
+
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Organization Description"
                     android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_27sdp"
+                    android:layout_marginStart="@dimen/_5sdp"
                     android:textSize="@dimen/_10sdp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/textColorSecondary"
                     tools:ignore="HardcodedText" />
                 <EditText
                     android:id="@+id/organizationDescriptionEditText"
-                    android:layout_marginTop="@dimen/_2sdp"
-                    android:layout_marginStart="@dimen/_23sdp"
-                    android:layout_marginEnd="@dimen/_17sdp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:background="@drawable/inputholder"
+                    android:hint="Write description here..."
+                    android:gravity="center_vertical"
                     android:inputType="textMultiLine"
+                    android:paddingStart="@dimen/_16sdp"
+                    android:paddingEnd="@dimen/_16sdp"
+                    android:textColor="@color/textColorPrimary"
+                    android:textColorHint="@color/hinttextColor"
                     android:textSize="@dimen/_13ssp"
-                    android:background="@drawable/transparentinput"
-                    android:textColor="@color/white"
-                    tools:ignore="Autofill,LabelFor,TextFields" />
+                    tools:ignore="Autofill,HardcodedText,TextFields" />
+
 
                 <Button
                     android:id="@+id/updateButton"
-                    android:layout_marginTop="@dimen/_10sdp"
-                    android:layout_marginStart="@dimen/_23sdp"
-                    android:layout_marginEnd="@dimen/_17sdp"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/_35sdp"
-                    android:background="@drawable/buttonholder2"
-                    android:text="Save Changes"
+                    android:layout_height="@dimen/_40sdp"
+                    android:layout_marginTop="@dimen/_20sdp"
+                    android:background="@drawable/rounded_corners"
+                    android:backgroundTint="@color/accentColor"
+                    android:text="Update"
+                    android:gravity="center"
+                    android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/_13ssp"
+                    android:textSize="@dimen/_14ssp"
                     tools:ignore="HardcodedText" />
+
 
             </LinearLayout>
 

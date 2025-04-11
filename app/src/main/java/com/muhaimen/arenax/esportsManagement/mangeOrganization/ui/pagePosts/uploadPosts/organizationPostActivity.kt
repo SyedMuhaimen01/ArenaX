@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -44,10 +45,10 @@ import java.util.*
 
 class organizationPostActivity : AppCompatActivity() {
 
-    private lateinit var cameraButton: TextView
-    private lateinit var galleryButton: TextView
+    private lateinit var cameraButton: ImageButton
+    private lateinit var galleryButton: ImageButton
     private lateinit var postButton: FloatingActionButton
-    private lateinit var articleButton: TextView
+    private lateinit var articleButton: ImageButton
     private lateinit var previewImageView: ImageView
     private lateinit var articleTextView: EditText
     private lateinit var captionEditText: EditText
@@ -168,12 +169,18 @@ class organizationPostActivity : AppCompatActivity() {
 
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
-        AlertDialog.Builder(this)
+        val dialogBuilder= AlertDialog. Builder(this, android.R.style.ThemeOverlay_Material_Dark_ActionBar)
             .setTitle("Are you sure?")
             .setMessage("Do you really want to exit?")
             .setPositiveButton("Yes") { _, _ -> finish() }
             .setNegativeButton("No", null)
-            .show()
+
+        val dialog = dialogBuilder.create()
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.show()
     }
 
     private fun initializeViews() {
@@ -196,7 +203,7 @@ class organizationPostActivity : AppCompatActivity() {
                 val organization = data.getValue(OrganizationData::class.java)
                 // Assuming email is a TextView and profileImage is an ImageView
                 organizationId = organization?.organizationId
-                val storageReference = FirebaseStorage.getInstance("gs://i210888.appspot.com").reference.child("organizationContent/$organizationId/PagePosts/${UUID.randomUUID()}")
+                val storageReference = FirebaseStorage.getInstance().reference.child("organizationContent/$organizationId/PagePosts/${UUID.randomUUID()}")
                 mediaUri?.let { uri ->
                     val uploadTask = storageReference.putFile(uri)
 
