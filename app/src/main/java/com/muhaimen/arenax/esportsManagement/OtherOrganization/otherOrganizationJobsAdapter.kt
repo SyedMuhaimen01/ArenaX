@@ -18,6 +18,7 @@ class otherOrganizationJobsAdapter(
 
     // Method to update the dataset with new jobs
     fun updateData(newJobWithOrgList: List<JobWithOrganization>) {
+
         notifyDataSetChanged()
     }
 
