@@ -11,12 +11,12 @@ import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.UserData
 
 class playerAdapter(
-    private var teamMembersData: MutableList<UserData>, // List of team members
+    private var teamMembersData: MutableList<UserData>,
 ) : RecyclerView.Adapter<playerAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.admin_item, parent, false) // Use the appropriate layout
+            .inflate(R.layout.player_card, parent, false)
         return ViewHolder(view)
     }
 
@@ -39,7 +39,6 @@ class playerAdapter(
         private val adminNameTextView: TextView = itemView.findViewById(R.id.fullname)
         private val gamerTagTextView: TextView = itemView.findViewById(R.id.gamerTag)
         private val profilePicture: ImageView = itemView.findViewById(R.id.profilePicture)
-        private val removeAdminButton: TextView = itemView.findViewById(R.id.removeAdminButton)
 
         fun bind(user: UserData) {
             adminNameTextView.text = user.fullname
@@ -50,10 +49,6 @@ class playerAdapter(
                 .error(R.drawable.battlegrounds_icon_background)
                 .circleCrop()
                 .into(profilePicture)
-
-            // When the remove button is clicked, call the callback function
-           removeAdminButton.visibility = View.GONE
         }
     }
-
 }

@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide
 import com.muhaimen.arenax.R
 import com.muhaimen.arenax.dataClasses.JobWithOrganization
 import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs.OpenJobDetails
+import com.muhaimen.arenax.esportsManagement.mangeOrganization.ui.Jobs.viewJobDetails
 
 class otherOrganizationJobsAdapter(
     private var jobWithOrgList: MutableList<JobWithOrganization>
@@ -65,7 +66,7 @@ class otherOrganizationJobsAdapter(
             tag4.text = tags.getOrNull(3) ?: ""
 
             itemView.setOnClickListener {
-                val intent = Intent(itemView.context, OpenJobDetails::class.java).apply {
+                val intent = Intent(itemView.context, viewJobDetails::class.java).apply {
                     putExtra("JobId", job.jobId)
                     putExtra("JobTitle", job.jobTitle)
                     putExtra("JobLocation", job.jobLocation)

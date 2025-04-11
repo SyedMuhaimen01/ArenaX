@@ -112,9 +112,7 @@ class manageAdmins : AppCompatActivity() {
         }
 
         backButton.setOnClickListener {
-            val intent = Intent(this, OrganizationHomePageActivity::class.java)
-            intent.putExtra("organization_name", organizationName)
-            startActivity(intent)
+            onBackPressed()
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {

@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -168,12 +169,18 @@ class organizationPostActivity : AppCompatActivity() {
 
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
-        AlertDialog.Builder(this)
+        val dialogBuilder= AlertDialog. Builder(this, android.R.style.ThemeOverlay_Material_Dark_ActionBar)
             .setTitle("Are you sure?")
             .setMessage("Do you really want to exit?")
             .setPositiveButton("Yes") { _, _ -> finish() }
             .setNegativeButton("No", null)
-            .show()
+
+        val dialog = dialogBuilder.create()
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        dialog.show()
     }
 
     private fun initializeViews() {

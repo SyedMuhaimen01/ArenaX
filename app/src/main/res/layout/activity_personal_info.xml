@@ -18,8 +18,8 @@
 
         <!-- App Logo -->
         <ImageView
-            android:layout_width="@dimen/_110sdp"
-            android:layout_height="@dimen/_110sdp"
+            android:layout_width="@dimen/_130sdp"
+            android:layout_height="@dimen/_130sdp"
             android:src="@mipmap/applogo_foreground"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/_40sdp"
@@ -30,7 +30,7 @@
             android:id="@+id/fullNameEditText"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_40sdp"
-            android:layout_marginTop="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_20sdp"
             android:background="@drawable/inputholder"
             android:hint="Full Name"
             android:gravity="center_vertical"

@@ -425,7 +425,7 @@
                 android:layout_height="wrap_content"
                 android:text="Event details go here ..."
                 android:textColor="@color/textColorPrimary"
-                android:textSize="@dimen/_14ssp"
+                android:textSize="@dimen/_10sdp"
                 android:padding="@dimen/_16sdp"
                 android:layout_marginTop="@dimen/_4sdp"
                 android:background="@drawable/rounded_corners"

@@ -35,12 +35,14 @@
             <Spinner
                 android:id="@+id/mediaTypeDropdownSpinner"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_10sdp"
+                android:layout_height="@dimen/_40sdp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:layout_margin="@dimen/_10sdp"
                 android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_marginTop="4dp"
                 android:background="@drawable/inputholder"
-                android:backgroundTint="@color/backgroundGrey"
+                android:gravity="center_vertical"
+                android:popupBackground="@color/backgroundColor"
+
                 android:entries="@array/sponsor_dropdown_options" />
 
             <!-- RecyclerViews -->
@@ -106,9 +108,13 @@
                 <Spinner
                     android:id="@+id/reachPercentageSpinner"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/_40sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
+
                     android:background="@drawable/inputholder"
-                    android:backgroundTint="@color/backgroundGrey"
+                    android:gravity="center_vertical"
+                    android:popupBackground="@color/backgroundColor"
+
                     android:entries="@array/reach_percentage_options" />
 
                 <!-- Audience Targeting Dropdown -->
@@ -125,9 +131,12 @@
                 <Spinner
                     android:id="@+id/audienceTargetingSpinner"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/_40sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
                     android:background="@drawable/inputholder"
-                    android:backgroundTint="@color/backgroundGrey"
+                    android:gravity="center_vertical"
+                    android:popupBackground="@color/backgroundColor"
+
                     android:entries="@array/audience_targeting_options" />
             </LinearLayout>
 
@@ -179,10 +188,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/_10sdp"
-                android:background="@drawable/buttonholder2"
+                android:background="@drawable/rounded_corners"
+                android:backgroundTint="@color/accentColor"
                 android:text="Sponsor"
                 android:textColor="@color/white"
-                android:textSize="@dimen/_14sdp"/>
+                android:textSize="@dimen/_14sdp"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

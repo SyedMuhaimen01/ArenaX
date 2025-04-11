@@ -81,7 +81,7 @@
                     android:layout_height="@dimen/_40sdp"
                     android:layout_marginTop="@dimen/_5sdp"
                     android:background="@drawable/inputholder"
-                    android:hint="Enter your name"
+                    android:hint="Enter Job Title"
                     android:gravity="center_vertical"
                     android:paddingStart="@dimen/_16sdp"
                     android:paddingEnd="@dimen/_16sdp"

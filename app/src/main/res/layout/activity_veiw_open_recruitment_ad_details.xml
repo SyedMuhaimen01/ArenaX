@@ -232,7 +232,7 @@
             android:layout_height="wrap_content"
             android:text="Recruitment Details here ..."
             android:textColor="@color/textColorPrimary"
-            android:textSize="@dimen/_12ssp"
+            android:textSize="@dimen/_10ssp"
             tools:ignore="HardcodedText" />
     </ScrollView>
 

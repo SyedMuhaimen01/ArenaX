@@ -44,11 +44,15 @@
         android:id="@+id/postButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_input_add"
-        android:tint="@color/backgroundColor"
-        android:backgroundTint="@color/primaryColor"
-        android:layout_gravity="end"
-        android:layout_marginBottom="@dimen/_20sdp"
-        android:layout_marginEnd="@dimen/_20sdp"
-        tools:ignore="ContentDescription" />
+        android:layout_gravity="end|bottom"
+        android:layout_marginTop="-100dp"
+        android:layout_marginEnd="@dimen/_16sdp"
+        android:layout_marginBottom="@dimen/_16sdp"
+        android:contentDescription="Add Game"
+        android:src="@drawable/ic_navigation_add"
+        app:backgroundTint="@color/interactiveColor"
+        app:tint="@color/white"
+        app:elevation="@dimen/_6sdp"
+        app:pressedTranslationZ="@dimen/_8sdp"
+        tools:ignore="ContentDescription,HardcodedText,RtlHardcoded" />
 </LinearLayout>

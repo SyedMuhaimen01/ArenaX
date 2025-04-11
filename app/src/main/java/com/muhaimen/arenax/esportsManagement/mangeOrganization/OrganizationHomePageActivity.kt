@@ -1,11 +1,13 @@
 package com.muhaimen.arenax.esportsManagement.mangeOrganization
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -136,7 +138,7 @@ class OrganizationHomePageActivity : AppCompatActivity(), NavigationView.OnNavig
             R.id.nav_sponsoredPosts -> navigateToFragment(R.id.nav_sponsoredPosts)
             R.id.nav_settings -> navigateToFragment(R.id.nav_settings)
             R.id.nav_exit -> {
-                val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+                val builder =  AlertDialog. Builder(this, android.R.style.ThemeOverlay_Material_Dark_ActionBar)
                 builder.setTitle("Exit")
                 builder.setMessage("Are you sure you want to exit?")
                 builder.setPositiveButton("Yes") { _, _ ->
@@ -145,7 +147,12 @@ class OrganizationHomePageActivity : AppCompatActivity(), NavigationView.OnNavig
                     finish()
                 }
                 builder.setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
-                builder.show()
+                val dialog = builder.create()
+                dialog.window?.setLayout(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                dialog.show()
             }
         }
 

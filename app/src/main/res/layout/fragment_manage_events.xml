@@ -7,47 +7,52 @@
     android:orientation="vertical"
     tools:context=".esportsManagement.mangeOrganization.ui.manageEvents.manageEventsFragment">
 
-    <!-- Tabs at the top -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_5sdp"
-        app:tabSelectedTextColor="@color/primaryColor">
+        android:layout_height="@dimen/_35sdp"
+        android:background="@color/secondaryColor"
+        app:tabIndicatorColor="@color/accentColor"
+        app:tabSelectedTextColor="@color/textColorPrimary"
+        app:tabTextColor="@color/textColorSecondary"
+        app:tabTextAppearance="@style/TabTextAppearance">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Upcoming &amp; Ongoing"
-            android:textColor="@color/backgroundColor"
             tools:ignore="HardcodedText" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Closed"
-            android:textColor="@color/backgroundColor"
             tools:ignore="HardcodedText" />
     </com.google.android.material.tabs.TabLayout>
 
-    <!-- ViewPager2 below the tabs -->
+    <!-- ViewPager2 -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/white" />
+        android:background="@color/backgroundColor"
+        tools:ignore="ObsoleteLayoutParam" />
 
     <!-- Floating Action Button at the bottom right -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/postButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_input_add"
-        android:tint="@color/backgroundColor"
-        android:backgroundTint="@color/primaryColor"
-        android:layout_gravity="end"
-        android:layout_marginBottom="@dimen/_20sdp"
-        android:layout_marginEnd="@dimen/_20sdp"
-        tools:ignore="ContentDescription" />
+        android:layout_gravity="end|bottom"
+        android:layout_marginTop="-100dp"
+        android:layout_marginEnd="@dimen/_16sdp"
+        android:layout_marginBottom="@dimen/_16sdp"
+        android:contentDescription="Add Game"
+        android:src="@drawable/ic_navigation_add"
+        app:backgroundTint="@color/interactiveColor"
+        app:tint="@color/white"
+        app:elevation="@dimen/_6sdp"
+        app:pressedTranslationZ="@dimen/_8sdp"
+        tools:ignore="ContentDescription,HardcodedText,RtlHardcoded" />
 </LinearLayout>

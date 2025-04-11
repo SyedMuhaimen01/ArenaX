@@ -67,7 +67,7 @@ class organizationChatActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_chat)
+        setContentView(R.layout.activity_organization_chat)
         window.statusBarColor = resources.getColor(R.color.primaryColor)
         window.navigationBarColor = resources.getColor(R.color.primaryColor)
         Log.d("organizationChatActivity", "onCreate")
@@ -93,7 +93,7 @@ class organizationChatActivity : AppCompatActivity() {
         senderId= intent.getStringExtra("organizationId") ?: ""
 
         Log.d("organizationChatActivity", "receiverId: $receiverId, receiverFullName: $receiverFullName, receiverGamerTag: $receiverGamerTag, receiverProfilePicture: $receiverProfilePicture")
-        textViewGamerTag.text = receiverGamerTag
+        textViewGamerTag.text = receiverFullName
         if (receiverProfilePicture.isNotEmpty()) {
             Glide.with(this)
                 .load(receiverProfilePicture)

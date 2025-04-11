@@ -35,6 +35,7 @@ class schedulingEvent : AppCompatActivity() {
     private lateinit var eventMode: Spinner
     private lateinit var platform: Spinner
     private lateinit var location: EditText
+    private lateinit var backButton: ImageButton
     private lateinit var eventDescription: EditText
     private lateinit var startDate: EditText
     private lateinit var endDate: EditText
@@ -65,6 +66,9 @@ class schedulingEvent : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         userId = auth.currentUser?.uid ?: ""
 
+        backButton.setOnClickListener {
+            onBackPressed()
+        }
         galleryButton.setOnClickListener { openGallery() }
         scheduleButton.setOnClickListener {
             scheduleButton.isEnabled = false
@@ -118,6 +122,7 @@ class schedulingEvent : AppCompatActivity() {
         scheduleButton = findViewById(R.id.scheduleButton)
         galleryButton = findViewById(R.id.galleryButton)
         gameName=findViewById(R.id.gameNameEditText)
+        backButton = findViewById(R.id.backButton)
 
         populateSpinners()
     }
@@ -126,18 +131,18 @@ class schedulingEvent : AppCompatActivity() {
         ArrayAdapter.createFromResource(
             this,
             R.array.event_mode_types,
-            android.R.layout.simple_spinner_item
+            R.layout.dropdown_spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
             eventMode.adapter = adapter
         }
 
         ArrayAdapter.createFromResource(
             this,
             R.array.event_platform_types,
-            android.R.layout.simple_spinner_item
+            R.layout.dropdown_spinner_item
         ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            adapter.setDropDownViewResource(R.layout.dropdown_spinner_item)
             platform.adapter = adapter
         }
     }

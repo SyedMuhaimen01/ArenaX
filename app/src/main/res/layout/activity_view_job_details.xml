@@ -228,7 +228,7 @@
             android:id="@+id/jobDescriptionTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/_12ssp"
+            android:textSize="@dimen/_10ssp"
             android:textColor="@color/textColorPrimary"
             android:text="Job Description here ..."
             android:maxLines="1000"

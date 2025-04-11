@@ -17,9 +17,10 @@
 
         <!-- App Logo -->
         <ImageView
-            android:layout_width="@dimen/_110sdp"
-            android:layout_height="@dimen/_110sdp"
-            android:src="@mipmap/xnobackground_foreground"
+            android:layout_width="@dimen/_130sdp"
+            android:layout_height="@dimen/_130sdp"
+            android:src="@mipmap/applogo_foreground"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/_40sdp"
             tools:ignore="ContentDescription" />
 
@@ -27,8 +28,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_30sdp"
+            android:layout_marginTop="@dimen/_20sdp"
             android:text="Game On!"
+            android:layout_gravity="center_horizontal"
             android:textSize="@dimen/_25ssp"
             android:textColor="@color/white"
             android:textStyle="bold"
@@ -39,6 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_10sdp"
             android:text="Welcome Back!"
+            android:layout_gravity="center_horizontal"
             android:textSize="@dimen/_18ssp"
             android:textColor="@color/textColorSecondary"
             android:textStyle="normal"

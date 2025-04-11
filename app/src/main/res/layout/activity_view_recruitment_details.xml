@@ -223,7 +223,7 @@
             android:id="@+id/recruitmentDetailsTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/_12ssp"
+            android:textSize="@dimen/_10ssp"
             android:textColor="@color/textColorPrimary"
             android:text="Recruitment Details here ..."
             android:maxLines="1000"

@@ -317,7 +317,7 @@
                         android:layout_height="wrap_content"
                         android:text="Organization description goes here..."
                         android:textColor="@color/textColorPrimary"
-                        android:textSize="@dimen/_12sdp"
+                        android:textSize="@dimen/_10sdp"
                         tools:ignore="HardcodedText" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
