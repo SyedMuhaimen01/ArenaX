@@ -1,40 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:orientation="vertical"
-    android:background="@drawable/screenbackground">
+    android:background="@color/primaryColor"
+    tools:context=".MainActivity">
 
-    <ImageView
-        android:layout_marginTop="@dimen/_150sdp"
-        android:layout_width="@dimen/_150sdp"
-        android:layout_height="@dimen/_150sdp"
-        android:contentDescription="TODO"
-        android:src="@mipmap/applogo_foreground"
-        android:layout_marginStart="@dimen/_75sdp" />
-
-    <TextView
-        android:layout_marginTop="@dimen/_5sdp"
+    <!-- Logo Animation Container -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ARENAX"
-        android:textSize="@dimen/_25ssp"
-        android:textColor="@color/white"
-        android:layout_gravity="center"
-        android:fontFamily="@font/exo2"
-        android:textStyle="bold" />
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_gravity="center">
 
-    <TextView
-        android:layout_marginTop="@dimen/_10sdp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="BUILD. CONNECT. COMPETE."
-        android:textSize="@dimen/_20ssp"
-        android:textColor="@color/Silver"
-        android:layout_gravity="center"
-        android:textStyle="italic" />
-</LinearLayout>
+        <!-- App Logo -->
+        <ImageView
+            android:id="@+id/appLogo"
+            android:layout_width="@dimen/_150sdp"
+            android:layout_height="@dimen/_150sdp"
+            android:src="@mipmap/applogo_foreground"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="@dimen/_24sdp"
+            android:animateLayoutChanges="true"
+            android:transitionName="logo_transition" />
+
+        <!-- App Name -->
+        <TextView
+            android:id="@+id/appNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ARENAX"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="@dimen/_32ssp"
+            android:fontFamily="@font/exo2"
+            android:textStyle="bold"
+            android:letterSpacing="0.1"
+            android:layout_gravity="center"
+            android:alpha="1"
+            android:visibility="visible"
+            tools:ignore="HardcodedText" />
+
+        <!-- Tagline -->
+        <TextView
+            android:id="@+id/taglineTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BUILD. CONNECT. COMPETE."
+            android:textColor="@color/accentColor"
+            android:textSize="@dimen/_16ssp"
+            android:textStyle="italic"
+            android:fontFamily="@font/exo2"
+            android:letterSpacing="0.1"
+            android:layout_gravity="center"
+            android:alpha="1"
+            android:visibility="visible"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+</FrameLayout>

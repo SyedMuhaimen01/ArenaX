@@ -1,11 +1,13 @@
 package com.muhaimen.arenax
 
+import android.animation.ObjectAnimator
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -25,12 +27,15 @@ import com.muhaimen.arenax.utils.Constants
 import com.muhaimen.arenax.utils.FirebaseManager
 import org.json.JSONObject
 
+
 class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var handler: Handler
     private var isFromPersonalInfo: Boolean = false
     private val emailVerificationCooldown: Long = 60 * 1000
     private var endTime: Long = 0
+    private lateinit var appNameTextView: TextView
+    private lateinit var tagLineTextView: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -40,6 +45,22 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        appNameTextView = findViewById(R.id.appNameTextView)
+        tagLineTextView = findViewById(R.id.taglineTextView)
+
+
+        // Animate app name fade-in
+        val appNameFadeIn = ObjectAnimator.ofFloat(appNameTextView, "alpha", 0f, 1f)
+        appNameFadeIn.setDuration(1000)
+        appNameFadeIn.startDelay = 500 // Delay after logo animation
+        appNameFadeIn.start()
+
+
+        // Animate tagline fade-in
+        val taglineFadeIn = ObjectAnimator.ofFloat(tagLineTextView, "alpha", 0f, 1f)
+        taglineFadeIn.setDuration(1000)
+        taglineFadeIn.startDelay = 1000 // Delay after app name animation
+        taglineFadeIn.start()
 
         isFromPersonalInfo = intent.getBooleanExtra("fromPersonalInfo", false)
         window.statusBarColor = resources.getColor(R.color.primaryColor)
