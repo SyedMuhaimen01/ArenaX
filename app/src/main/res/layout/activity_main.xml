@@ -49,7 +49,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="BUILD. CONNECT. COMPETE."
-            android:textColor="@color/accentColor"
+            android:textColor="@color/interactiveColor"
             android:textSize="@dimen/_16ssp"
             android:textStyle="italic"
             android:fontFamily="@font/exo2"

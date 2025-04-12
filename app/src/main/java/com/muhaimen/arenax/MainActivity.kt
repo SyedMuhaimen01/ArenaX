@@ -1,5 +1,7 @@
 package com.muhaimen.arenax
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.content.ContentValues.TAG
 import android.content.Intent
@@ -7,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -36,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private var endTime: Long = 0
     private lateinit var appNameTextView: TextView
     private lateinit var tagLineTextView: TextView
+    private lateinit var appLogo:ImageView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -47,20 +51,15 @@ class MainActivity : AppCompatActivity() {
         }
         appNameTextView = findViewById(R.id.appNameTextView)
         tagLineTextView = findViewById(R.id.taglineTextView)
+        appLogo = findViewById(R.id.appLogo)
 
 
-        // Animate app name fade-in
-        val appNameFadeIn = ObjectAnimator.ofFloat(appNameTextView, "alpha", 0f, 1f)
-        appNameFadeIn.setDuration(1000)
-        appNameFadeIn.startDelay = 500 // Delay after logo animation
-        appNameFadeIn.start()
+        // Initially hide text views
+        appNameTextView.alpha = 0f
+        tagLineTextView.alpha = 0f
 
+        animateLogoAndText()
 
-        // Animate tagline fade-in
-        val taglineFadeIn = ObjectAnimator.ofFloat(tagLineTextView, "alpha", 0f, 1f)
-        taglineFadeIn.setDuration(1000)
-        taglineFadeIn.startDelay = 1000 // Delay after app name animation
-        taglineFadeIn.start()
 
         isFromPersonalInfo = intent.getBooleanExtra("fromPersonalInfo", false)
         window.statusBarColor = resources.getColor(R.color.primaryColor)
@@ -69,8 +68,50 @@ class MainActivity : AppCompatActivity() {
         handler = Handler(Looper.getMainLooper())
         handler.postDelayed({
             checkUserLoginStatus()
-        }, 1000)
+        }, 2500)
     }
+
+    private fun animateLogoAndText() {
+        // Ensure the appNameTextView is visible and reset
+        appNameTextView.alpha = 1f
+        appNameTextView.text = ""
+
+        val fullAppName = "ARENAX"
+        val rotationDuration = 1500L
+        val rotationAnimator = ObjectAnimator.ofFloat(appLogo, "rotation", 0f, 2160f) // 6 full turns
+        rotationAnimator.duration = rotationDuration
+
+        // Animate app name letter by letter during rotation
+        val delayPerChar = rotationDuration / fullAppName.length
+        animateAppNameLetterByLetter(fullAppName, appNameTextView, delayPerChar)
+
+        // Start logo rotation
+        rotationAnimator.start()
+
+        // After animation ends, fade in the tagline
+        rotationAnimator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                tagLineTextView.animate()
+                    .alpha(1f)
+                    .setDuration(800)
+                    .start()
+            }
+        })
+    }
+
+    private fun animateAppNameLetterByLetter(fullText: String, textView: TextView, delay: Long) {
+        val handler = Handler(Looper.getMainLooper())
+        textView.text = ""
+        textView.alpha = 1f
+
+        for (i in fullText.indices) {
+            handler.postDelayed({
+                textView.text = fullText.substring(0, i + 1)
+            }, delay * i)
+        }
+    }
+
+
 
     private fun checkUserLoginStatus() {
         if (FirebaseManager.isUserLoggedIn()) {
