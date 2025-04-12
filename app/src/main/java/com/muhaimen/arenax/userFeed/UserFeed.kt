@@ -98,12 +98,14 @@ class UserFeed : AppCompatActivity() {
         auth= FirebaseAuth.getInstance()
         threadsButton = findViewById(R.id.threadsButton)
         threadsButton.setOnClickListener {
+            userFeedAdapter.releaseAllPlayers()
             val intent = Intent(this, ViewAllChats::class.java)
             startActivity(intent)
         }
 
         notificationsButton = findViewById(R.id.notificationsButton)
         notificationsButton.setOnClickListener {
+            userFeedAdapter.releaseAllPlayers()
             val intent = Intent(this, Notifications::class.java)
             startActivity(intent)
         }
