@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -23,6 +24,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.ImageButton
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.airbnb.lottie.LottieAnimationView
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -35,6 +37,7 @@ import org.json.JSONObject
 
 class gamesList : AppCompatActivity() {
     private lateinit var gamesListRecyclerView: RecyclerView
+    private lateinit var loadingView:LottieAnimationView
     private lateinit var gamesListAdapter: gamesListAdapter
     private lateinit var gamesSearchBar: AutoCompleteTextView
     private lateinit var originalGamesList: MutableList<AppInfo>
@@ -70,6 +73,13 @@ class gamesList : AppCompatActivity() {
         gamesListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         gamesSearchBar = findViewById(R.id.searchbar)
         gamesListRecyclerView.adapter = gamesListAdapter
+
+        loadingView = findViewById(R.id.loadingAnimationView)
+
+        // Initially show loader
+        loadingView.visibility = View.VISIBLE
+        gamesListRecyclerView.visibility = View.GONE
+
         loadGamesFromSharedPreferences()
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.primaryColor)
@@ -101,12 +111,19 @@ class gamesList : AppCompatActivity() {
             gamesListAdapter.updateGamesList(originalGamesList)
             setupAutoComplete()
             setupSearchFilter()
+
+            // Hide loading animation
+            loadingView.visibility = View.GONE
+            gamesListRecyclerView.visibility = View.VISIBLE
         } else {
             fetchInstalledApps()
         }
     }
 
     private fun fetchInstalledApps() {
+        // Show loading animation
+        loadingView.visibility = View.VISIBLE
+        gamesListRecyclerView.visibility = View.GONE
         val pm: PackageManager = packageManager
         val apps = pm.getInstalledApplications(0)
         val appArray = JSONArray()
@@ -152,8 +169,13 @@ class gamesList : AppCompatActivity() {
                 storeGamesInSharedPreferences(originalGamesList)
                 setupAutoComplete()
                 setupSearchFilter()
+                // Hide animation and show games
+                loadingView.visibility = View.GONE
+                gamesListRecyclerView.visibility = View.VISIBLE
             },
             { error ->
+                loadingView.visibility = View.GONE
+                gamesListRecyclerView.visibility = View.VISIBLE
                 error.printStackTrace()
             }
         )

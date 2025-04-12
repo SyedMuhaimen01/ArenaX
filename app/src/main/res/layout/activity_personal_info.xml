@@ -20,7 +20,7 @@
         <ImageView
             android:layout_width="@dimen/_130sdp"
             android:layout_height="@dimen/_130sdp"
-            android:src="@mipmap/applogo_foreground"
+            android:src="@drawable/arenax_logo"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/_40sdp"
             tools:ignore="ContentDescription" />
